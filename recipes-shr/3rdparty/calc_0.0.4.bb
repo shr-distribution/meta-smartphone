@@ -5,6 +5,7 @@ LICENSE  = "MIT"
 RDEPENDS_${PN} = "python-elementary python python-edbus"
 SECTION = "x11/application"
 PR = "r1"
+RPROVIDES_${PN} = "calc"
 
 
 SRC_URI = "git://github.com/spaetz/calc.git;protocol=http;branch=master;tag=${PV}"
