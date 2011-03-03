@@ -2,13 +2,12 @@ require shr-image.inc
 
 IMAGE_BASENAME = "full"
 
-DEPENDS += "task-shr task-jama-shr "
+DEPENDS += "task-shr "
 RDEPENDS_${PN} += "\
     task-shr-apps \
     task-shr-games \
     task-shr-gtk \
     task-shr-cli \
-    task-jama-shr \
 "
 
 IMAGE_INSTALL += "\
@@ -16,5 +15,4 @@ IMAGE_INSTALL += "\
   task-shr-games \
   task-shr-gtk \
   task-shr-cli \
-  task-jama-shr \
 "
