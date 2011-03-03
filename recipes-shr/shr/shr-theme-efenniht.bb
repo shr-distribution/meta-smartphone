@@ -3,6 +3,7 @@ SECTION = "x11/data"
 HOMEPAGE = "http://trac.enlightenment.org/e/wiki/Themes#Efenniht"
 AUTHOR = ""
 RDEPENDS_${PN} = "elementary-theme-efenniht e-wm-theme-illume-efenniht"
+LICENSE = "unknown"
 
 PV = "0.0"
 PACKAGE_ARCH = "all"

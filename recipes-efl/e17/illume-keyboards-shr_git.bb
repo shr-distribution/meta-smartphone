@@ -8,6 +8,7 @@ SRCREV = "4064489f359a1addf572089b582f317dff5f50e1"
 PV = "0.0+gitr${SRCPV}"
 PE = "1"
 PR = "r4"
+LICENSE = "unknown"
 
 
 PACKAGES = "\

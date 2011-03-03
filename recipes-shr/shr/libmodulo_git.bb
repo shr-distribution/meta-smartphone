@@ -3,6 +3,7 @@ SECTION = "libs"
 SRCREV = "7d2f657d248bd86377e66c329aa6826459d406da"
 PV = "0.0.1+gitr${SRCPV}"
 PR = "r1"
+LICENSE = "unknown"
 
 inherit autotools autotools pkgconfig vala
 

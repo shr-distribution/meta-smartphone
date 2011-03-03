@@ -4,5 +4,6 @@ RDEPENDS_${PN} += "e-wm-theme-illume-niebiee elementary-theme-niebiee shr-splash
 PV = "0.1"
 PR = "r4"
 PACKAGE_ARCH = "all"
+LICENSE = "unknown"
 
 ALLOW_EMPTY = "1"

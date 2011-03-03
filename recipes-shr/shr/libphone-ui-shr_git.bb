@@ -5,6 +5,7 @@ SRCREV = "e50e9927fac05664bf1d6b1e0d3a953484038495"
 PE = "1"
 PV = "0.0.1+gitr${SRCPV}"
 PR = "r3"
+LICENSE = "unknown"
 
 SRC_URI = "git://git.shr-project.org/repo/libphone-ui-shr.git;protocol=http;branch=master"
 S = "${WORKDIR}/git"
