@@ -1,0 +1,26 @@
+DESCRIPTION = "A dead simple calculator. It's advantage is that it's elementary-themed"
+HOMEPAGE = "http://github.com/spaetz/calc"
+AUTHOR = "Sebastian Spaeth <Sebastian@SSpaeth.de>"
+LICENSE  = "MIT"
+RDEPENDS_${PN} = "python-elementary python python-edbus"
+SECTION = "x11/application"
+SRCREV = "cff7c833d4fce0d39de0812bfc9ed9e0eb8fac09"
+PV = "0.0.1+gitr${SRCPV}"
+PR = "r2"
+
+DEFAULT_PREFERENCE = "-1"
+
+SRC_URI = "git://github.com/spaetz/calc.git;protocol=http;branch=master"
+S = "${WORKDIR}/git"
+
+do_install(){
+        install -d ${D}${datadir}/applications
+        install -m 0644 ${S}/data/elementary-calculator.desktop ${D}${datadir}/applications/
+        install -d ${D}${datadir}/pixmaps
+        install -m 0644 ${S}/data/calculator.png ${D}${datadir}/pixmaps/
+        install -d ${D}${bindir}
+        install -m 0744 ${S}/calc ${D}${bindir}/
+}
+
+FILES_${PN} += "${prefix}/share/pixmaps"
+FILES_${PN} += "${prefix}/share/applications"
