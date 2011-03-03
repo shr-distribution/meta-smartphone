@@ -2,7 +2,7 @@ require dfu-util_${PV}.bb
 
 inherit native
 
-DEPENDS = "virtual/libusb0-native usbpath-native"
+DEPENDS = "libusb-compat usbpath-native"
 
 do_deploy() {
 	install -d ${DEPLOY_DIR_TOOLS}
