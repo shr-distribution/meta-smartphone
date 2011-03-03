@@ -1,0 +1,24 @@
+DESCRIPTION = "illume SHR sysactions config"
+SECTION = "e/utils"
+LICENSE = "MIT BSD"
+SRCREV = "bbcec18f0ebd47e4f6eea88b9b774edf7400e752"
+PV = "1.2+gitr${SRCPV}"
+PR = "r5"
+PACKAGE_ARCH = "all"
+
+RPROVIDES_${PN} = "e-wm-sysactions"
+RCONFLICTS_${PN} = "e-wm-sysactions"
+#RREPLACES_${PN} = "e-wm-sysactions"
+
+SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http;branch=master"
+
+S = "${WORKDIR}/git/e-wm/${PN}"
+
+FILES_${PN} = "${sysconfdir}/enlightenment"
+
+do_install() {
+    install -d ${D}${sysconfdir}/enlightenment/
+    install -m 0755 ${S}/sysactions.conf ${D}${sysconfdir}/enlightenment/sysactions.conf
+    install -m 0755 ${S}/suspend.sh ${D}${sysconfdir}/enlightenment/suspend.sh
+    install -m 0755 ${S}/lock.sh ${D}${sysconfdir}/enlightenment/lock.sh
+}
