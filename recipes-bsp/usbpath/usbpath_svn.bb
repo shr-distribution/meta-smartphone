@@ -3,7 +3,7 @@ AUTHOR = "Werner Almesberger <werner@openmoko.org>"
 SECTION = "console/utils"
 LICENSE = "GPL"
 DEPENDS = "virtual/libusb0"
-DEPENDS_virtclass-native = "libusb-compat-native"
+DEPENDS_virtclass-native = ""
 
 BBCLASSEXTEND = "native"
 
