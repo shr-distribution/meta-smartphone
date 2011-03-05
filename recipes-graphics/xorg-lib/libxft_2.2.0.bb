@@ -3,6 +3,7 @@ DESCRIPTION = "FreeType-based font drawing library for X"
 DEPENDS += "libxrender freetype fontconfig"
 PE = "1"
 PR = "${INC_PR}.0"
+BBCLASSEXTEND = "native nativesdk"
 
 #SRC_URI += "file://autotools.patch"
 SRC_URI[archive.md5sum] = "cce3c327258116493b753f157e0360c7"

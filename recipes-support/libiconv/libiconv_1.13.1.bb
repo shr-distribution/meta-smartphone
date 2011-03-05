@@ -1,5 +1,6 @@
 require libiconv.inc
 LICENSE = "GPLv3 LGPLv2"
+BBCLASSEXTEND = "native nativesdk"
 
 PROVIDES = "virtual/libiconv"
 PR = "r1"
