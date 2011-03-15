@@ -112,9 +112,7 @@ RDEPENDS_${PN}-x = "\
   shr-theme-gry \
   xcursor-transparent-theme \
   xinput-calibrator \
-# Needed for proper input support in efl based apps  
   libx11-locale \
-# All localedata based on IMAGE_LINGUAS
   ${@get_rdepends(bb, d)} \
 "
 

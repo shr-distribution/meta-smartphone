@@ -12,7 +12,6 @@ RDEPENDS_${PN} += "\
 		bootchart-lite \
 		claws-mail \
 		claws-plugin-mailmbox \
-#		claws-plugin-gtkhtml2-viewer \
 		claws-plugin-rssyl \
 		di \
 		dictator \
@@ -39,7 +38,6 @@ RDEPENDS_${PN} += "\
 		libyaml-perl \
 		libnet-dbus-perl \
 		mc \
-# broken	mpd \
 		mplayer \
 		navit \
 		omhacks \
@@ -51,14 +49,11 @@ RDEPENDS_${PN} += "\
 		openvpn \
 		pyphonelog \
 		ffphonelog \
-#		shr-config \
 		shr-today \
 		shr-theme-neo \
 		shr-theme-o2 \
 		shr-theme-niebiee \
 		shr-theme-sixteen \
-# gry should be in image already
-#		shr-theme-gry \
 		shr-splash \
 		shr-splash-theme-simple \
 		shr-splash-theme-dontpanic \
@@ -92,12 +87,10 @@ RDEPENDS_${PN} += "\
 		cellhunter \
 		dillo2 \
 		pyefl-sudoku \
-#		tasks \
 		dates \
 		omnewrotate \
 		xchat \
 		python-pyid3lib \
-#		libframeworkd-phonegui-efl2 \
 		intone \
 		vim \
 		vpnc \
@@ -143,18 +136,12 @@ RDEPENDS_${PN} += "\
 		ntp \
 		tor \
 		vnc \
-#		gpsdrive \
 		wxwidgets \
 		x11vnc \
-#		libswt3.4-gtk-java \
 		cacao \
 		openjdk-6-jre \
-#		jamvm \
 		dbus-x11 \
-#		bluez-utils-alsa \
 		xournal \
-#		evince \
-#		asterisk \
 		git \
 		ruby \
 		synergy \
@@ -176,29 +163,22 @@ RDEPENDS_${PN} += "\
 		font-adobe-75dpi \
 		font-adobe-utopia-100dpi \
 		font-adobe-utopia-75dpi \
-#		font-adobe-utopia-type1 \
 		font-arabic-misc \
 		font-bh-100dpi \
 		font-bh-75dpi \
 		font-bh-lucidatypewriter-100dpi \
 		font-bh-lucidatypewriter-75dpi \
-#		font-bh-ttf \
-#		font-bh-type1 \
 		font-bitstream-100dpi \
 		font-bitstream-75dpi \
 		font-bitstream-speedo \
-#		font-bitstream-type1 \
 		font-cronyx-cyrillic \
 		font-cursor-misc \
 		font-daewoo-misc \
 		font-dec-misc \
-#		font-ibm-type1 \
 		font-isas-misc \
 		font-jis-misc \
 		font-micro-misc \
 		font-misc-cyrillic \
-#		font-misc-ethiopic \
-#		font-misc-meltho \
 		font-misc-misc \
 		font-mutt-misc \
 		font-schumacher-misc \
@@ -206,13 +186,11 @@ RDEPENDS_${PN} += "\
 		font-sony-misc \
 		font-sun-misc \
 		font-winitzki-cyrillic \
-#		font-xfree86-type1 \
 		ttf-droid-sans \
 		ttf-droid-sans-mono \
 		ttf-droid-sans-fallback \
 		ttf-droid-sans-japanese \
 		ttf-droid-serif \
-#		msn-pecan \
 		qwo \
 		fso-apm \
 		fsousaged \
@@ -222,7 +200,6 @@ RDEPENDS_${PN} += "\
 		mickeyterm \
 		opimd-utils \
 		omgps \
-# broken	shr-launcher \
 		e-tasks \
 		elmdentica \
 		shr-installer \
@@ -262,7 +239,6 @@ RDEPENDS_${PN} += "\
 		imagemagick \
 		xboard \
 		sox \
-#		mpg123 \
 		zile \
 		speex \
 		podpooch \
@@ -288,7 +264,6 @@ RDEPENDS_${PN} += "\
 		litephone \
 		linphone \
 		rtmom \
-# broken	ventura \
 		emtooth \
 		emtooth2 \
 		podboy \
@@ -297,7 +272,6 @@ RDEPENDS_${PN} += "\
 		spojegui \
 		dbus-daemon-proxy \
 		unixbench \
-# broken	maxima \
 		xfsprogs \
 		xfsdump \
 		numberx \

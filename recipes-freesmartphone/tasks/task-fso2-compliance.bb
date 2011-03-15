@@ -17,11 +17,12 @@ RDEPENDS_${PN} = "\
   fsodeviced \
   fsogsmd \
   fsotdld \
-#  fsomusicd \
   fsonetworkd \
   fsousaged \
   \
   fso-apm \
+"
+#  fsomusicd \
 #  connman \
 #  connman-scripts \
 #  connman-plugin-bluetooth \
@@ -35,7 +36,6 @@ RDEPENDS_${PN} = "\
 #  connman-plugin-udhcp \
 #  connman-plugin-wifi \
 #  connman-test-utils \
-"
 
 RRECOMMENDS_${PN} = "\
   wmiconfig \

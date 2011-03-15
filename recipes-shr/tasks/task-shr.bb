@@ -13,13 +13,11 @@ PACKAGES = "\
 "
 
 RDEPENDS_${PN}-gtk = "\
-#  gpe-scap \
   pidgin \
   libpurple-protocol-msn \
   libpurple-protocol-icq \
   vagalume \
   tangogps \
-#  gpe-sketchbook \ 
 "
 
 RDEPENDS_${PN}-apps += "\
@@ -37,6 +35,5 @@ RDEPENDS_${PN}-cli += "\
 "
 
 RDEPENDS_${PN}-games += "\
-#	mokomaze \
 	numptyphysics \
 "

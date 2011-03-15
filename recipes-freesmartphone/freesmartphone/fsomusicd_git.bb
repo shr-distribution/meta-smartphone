@@ -11,23 +11,18 @@ PR = "${INC_PR}.4"
 PE = "1"
 
 RDEPENDS_${PN} += "\
-#gst-plugins-base
   gst-plugin-volume \
   gst-plugin-alsa \
 "
 RRECOMMENDS_${PN} += "\
-#gst-plugins-base
   gst-plugin-ogg \
   gst-plugin-audioconvert \
-#gst-plugins-good
   gst-plugin-flac \
   gst-plugin-wavparse \
   gst-plugin-souphttpsrc \
-#gst-plugins-bad
   gst-plugin-ivorbis \
   gst-plugin-mms \
   gst-plugin-modplug \
-#gst-plugins-ugly
   ${@base_conditional('ENTERPRISE_DISTRO', '1', '', 'gst-plugin-mad', d)} \
   ${@base_conditional('ENTERPRISE_DISTRO', '1', '', 'gst-plugin-sid', d)} \
   "
