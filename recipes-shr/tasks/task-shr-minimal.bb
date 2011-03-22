@@ -77,7 +77,7 @@ RDEPENDS_${PN}-base = "\
   fbset-modes \
   cron \
   logrotate\
-  util-linux-ng-fdisk \
+  util-linux-fdisk \
   shr-splash \
 "
 

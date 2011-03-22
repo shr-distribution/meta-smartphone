@@ -15,7 +15,6 @@ ECONFIG ?= "e-wm-config-illume2"
 RDEPENDS_${PN} = "\
   task-x11-server \
   task-x11-utils \
-#  xserver-kdrive-splash-illume \
   \
   e-wm \
   ${ECONFIG} \
