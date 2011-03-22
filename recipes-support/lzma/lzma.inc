@@ -1,6 +1,7 @@
 DESCRIPTION = "LZMA is a general compression method. LZMA provides high compression ratio and very fast decompression."
 HOMEPAGE = "http://www.7-zip.org/"
 LICENSE = "LGPL"
+LIC_FILES_CHKSUM = "file://lzma.txt;md5=20251cdc2e3793cceab11878d0aa11b1"
 INC_PR = "r6"
 
 SRC_URI = "http://downloads.sourceforge.net/sevenzip/lzma${@bb.data.getVar('PV',d,1).replace('.','')}.tar.bz2;subdir=${BPN}-${PV} \
