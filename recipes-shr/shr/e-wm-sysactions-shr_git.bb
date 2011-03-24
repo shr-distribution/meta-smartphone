@@ -1,6 +1,7 @@
 DESCRIPTION = "illume SHR sysactions config"
 SECTION = "e/utils"
 LICENSE = "MIT BSD"
+LIC_FILES_CHKSUM = "file://${WORKDIR}/LICENSE;md5=f523ab5986cc79b52a90d2ac3d5454a2"
 SRCREV = "bbcec18f0ebd47e4f6eea88b9b774edf7400e752"
 PV = "1.2+gitr${SRCPV}"
 PR = "r6"
@@ -8,7 +9,8 @@ PACKAGE_ARCH = "all"
 
 RCONFLICTS_${PN} = "e-wm-sysactions"
 
-SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http;branch=master"
+SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http \
+           file://LICENSE"
 
 S = "${WORKDIR}/git/e-wm/${PN}"
 
