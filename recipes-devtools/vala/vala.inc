@@ -5,7 +5,8 @@ DEPENDS = "glib-2.0 dbus"
 BBCLASSEXTEND = "native"
 DEPENDS_virtclass-native = "glib-2.0-native dbus-native"
 HOMEPAGE = "http://vala-project.org"
-LICENSE = "LGPL"
+LICENSE = "LGPLv2.1"
+LIC_FILES_CHKSUM = "file://COPYING;md5=fbc093901857fcd118f065f900982c24"
 INC_PR = "r0"
 
 #

@@ -1,6 +1,7 @@
 DESCRIPTION = "Hierarchical, reference counted memory pool system with destructors"
 HOMEPAGE = "http://talloc.samba.org"
 LICENSE = "LGPL"
+LIC_FILES_CHKSUM = "file://NEWS;md5=5fe776b23a711c9153ee94bc87e47334"
 
 inherit autotools pkgconfig
 

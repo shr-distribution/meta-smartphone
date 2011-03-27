@@ -1,9 +1,12 @@
 DESCRIPTION = "Little cms is a small-footprint, speed optimized color management engine."
 SECTION = "libs"
-LICENSE = "LGPL"
+LICENSE = "MIT"
+LIC_FILES_CHKSUM = "file://COPYING;md5=156745cad721a8783cb847e82b79f586"
 SRC_URI = "${SOURCEFORGE_MIRROR}/lcms/lcms-${PV}.tar.gz"
 
 PR = "r2"
+
+BBCLASSEXTEND = "native"
 
 inherit autotools
 

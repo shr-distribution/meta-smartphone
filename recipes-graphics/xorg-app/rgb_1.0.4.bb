@@ -1,5 +1,6 @@
 require xorg-app-common.inc
 DEPENDS += " xproto util-macros"
+LIC_FILES_CHKSUM = "file://COPYING;md5=ef598adbe241bd0b0b9113831f6e249a"
 PE = "1"
 PR = "${INC_PR}.0"
 

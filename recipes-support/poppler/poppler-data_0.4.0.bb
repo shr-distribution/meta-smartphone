@@ -1,5 +1,10 @@
 DESCRIPTION = "Poppler is a PDF rendering library based on the xpdf-3.0 code base."
 LICENSE = "Adobe"
+LIC_FILES_CHKSUM = "file://COPYING;md5=4870b98343f0bbb25fa43b9d2ba59448 \
+                    file://COPYING.adobe;md5=63c6a8a9df204c00461fa5f163d8a663 \
+                    file://COPYING.gpl2;md5=751419260aa954499f7abaabaa882bbe \
+"
+
 PR = "r1"
 
 SRC_URI = "http://poppler.freedesktop.org/${PN}-${PV}.tar.gz"

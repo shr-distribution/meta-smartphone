@@ -1,5 +1,6 @@
 DESCRIPTION = "JSON-GLib is a library providing serialization and deserialization support for the JavaScript Object Notation (JSON) format"
 LICENSE = "LGPLv2.1"
+LIC_FILES_CHKSUM = "file://COPYING;md5=7fbc338309ac38fefcd64b04bb903e34"
 DEPENDS = "glib-2.0"
 
 PR = "r1"

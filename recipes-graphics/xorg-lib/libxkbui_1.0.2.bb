@@ -1,6 +1,7 @@
 require xorg-lib-common.inc
 DESCRIPTION = "X11 keyboard UI presentation library"
 LICENSE = "GPL"
+LIC_FILES_CHKSUM = "file://COPYING;md5=4641deddaa80fe7ca88e944e1fd94a94"
 DEPENDS += "virtual/libx11 libxt libxkbfile"
 PE = "1"
 PR = "${INC_PR}.0"

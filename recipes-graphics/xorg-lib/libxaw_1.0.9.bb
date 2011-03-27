@@ -1,6 +1,9 @@
 require xorg-lib-common.inc
 DESCRIPTION = "X Athena Widget Set"
 DEPENDS += "xproto virtual/libx11 libxext xextproto libxt libxmu libxpm libxp printproto libxau"
+
+LIC_FILES_CHKSUM = "file://COPYING;md5=f1beacbc336a5a256bb28dbfcf01c2be"
+
 PE = "1"
 PR = "${INC_PR}.0"
 

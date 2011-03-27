@@ -1,5 +1,6 @@
 require xinput-calibrator.inc
 
+LIC_FILES_CHKSUM = "file://src/calibrator.cpp;endline=22;md5=998e238a7638a7446eaeb02398f691fc"
 SRC_URI = "git://github.com/tias/xinput_calibrator.git;protocol=git"
 
 SRCREV = "d2ce98b3f638667dd64b6d718721379b2dc750a7"
