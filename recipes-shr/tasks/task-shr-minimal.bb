@@ -1,7 +1,8 @@
 DESCRIPTION = "SHR Lite Image Feed"
 PR = "r41"
 PV = "2.0"
-LICENSE = "GPL"
+LICENSE = "MIT"
+LIC_FILES_CHKSUM = "file://${TOPDIR}/meta-shr/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 
 inherit task
 

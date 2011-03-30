@@ -2,6 +2,7 @@ DESCRIPTION = "The freesmartphone.org Framework 2.0. \
 Install this task to make your distribution FSO 2.0-compliant."
 SECTION = "fso/base"
 LICENSE = "MIT"
+LIC_FILES_CHKSUM = "file://${TOPDIR}/meta-shr/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 PV = "1.9.0"
 PR = "r7"
 

@@ -1,6 +1,7 @@
 DESCRIPTION = "Poppler is a PDF rendering library based on the xpdf-3.0 code base."
 DEPENDS = "fontconfig jpeg zlib gtk+ cairo"
-LICENSE = "GPL"
+LICENSE = "GPLv2"
+LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
 
 SRC_URI = "http://poppler.freedesktop.org/${PN}-${PV}.tar.gz"
 

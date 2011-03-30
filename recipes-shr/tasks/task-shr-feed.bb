@@ -1,7 +1,8 @@
 DESCRIPTION = "SHR Feed"
 PR = "r96"
 PV = "1.0"
-LICENSE = "GPL"
+LICENSE = "MIT"
+LIC_FILES_CHKSUM = "file://${TOPDIR}/meta-shr/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 
 inherit task
 

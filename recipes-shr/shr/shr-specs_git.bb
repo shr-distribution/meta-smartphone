@@ -1,7 +1,9 @@
 DESCRIPTION = "The SHR DBus API Specification"
 AUTHOR = "Klaus 'mrmoku' Kurzmann"
 HOMEPAGE = "http://shr-project.org/"
-LICENSE = "BSD"
+LICENSE = "CC-BY-SA"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=ebef999b5d8aea38d9eb30772557f175"
+
 DEPENDS = "libxslt-native"
 SECTION = "devel/specifications"
 SRCREV = "2752ded90581cfd2259ab65be7f9c2b9fb4a2638"
