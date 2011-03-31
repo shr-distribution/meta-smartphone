@@ -3,6 +3,9 @@ HOMEPAGE = "http://www.bluez.org"
 SECTION = "libs"
 PRIORITY = "optional"
 LICENSE = "GPLv2/LGPLv2.1"
+LIC_FILES_CHKSUM = "file://COPYING;md5=12f884d2ae1ff87c09e5b7ccc2c4ca7e \
+                    file://COPYING.LIB;md5=fb504b67c50331fc78734fed90fb0e09 \
+"
 DEPENDS = "gst-plugins-base alsa-lib virtual/libusb0 dbus-glib"
 INC_PR = "r8"
 
@@ -14,7 +17,6 @@ RPROVIDES_bluez4-dev = "bluez-libs-dev"
 SRC_URI = "\
   http://www.kernel.org/pub/linux/bluetooth/bluez-${PV}.tar.gz \
   file://fix-dfutool-usb-declaration-mismatch.patch \
-  file://sbc-thumb.patch \
   file://bluetooth.conf \
 "
 S = "${WORKDIR}/bluez-${PV}"
