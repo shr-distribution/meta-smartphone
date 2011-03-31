@@ -1,5 +1,7 @@
 DESCRIPTION = "Default display timings and resolutions for fbset"
 LICENSE = "MIT"
+LIC_FILES_CHKSUM = "file://${TOPDIR}/meta-shr/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
+
 PV = "0.1.0"
 PR = "r5"
 

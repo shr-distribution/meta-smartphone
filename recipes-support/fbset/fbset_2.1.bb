@@ -7,6 +7,7 @@
 
 DESCRIPTION = "The fbset console tool"
 LICENSE = "GPLv2"
+LIC_FILES_CHKSUM = "file://fbset.c;endline=19;md5=bf326f82cdfcac391af208f019c5603f"
 RRECOMMENDS_${PN} = "fbset-modes"
 DEPENDS = "bison-native"
 

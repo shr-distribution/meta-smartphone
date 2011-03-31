@@ -1,6 +1,7 @@
 DESCRIPTION = "Lightweight At Daemon working on top of org.freesmartphone.otimed"
 SECTION = "base"
-LICENSE = "GPLV2"
+LICENSE = "GPLv2"
+LIC_FILES_CHKSUM = "file://atd.c;endline=16;md5=db6c20c0a8b3c7a2d903bb30a11ac52a"
 RCONFLICTS_${PN} = "at atd"
 RREPLACES_${PN} = "at atd"
 RPROVIDES_${PN} = "atd"

@@ -4,6 +4,7 @@ RDEPENDS_${PN} += "e-wm-theme-illume-sixteen elementary-theme-sixteen"
 PV = "0.1"
 PR = "r3"
 PACKAGE_ARCH = "all"
-LICENSE = "unknown"
+LICENSE = "MIT"
+LIC_FILES_CHKSUM = "file://${TOPDIR}/meta-shr/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 
 ALLOW_EMPTY = "1"

@@ -20,7 +20,7 @@ PACKAGES =+ "\
 RDEPENDS_${PN} = "\
   ${PN}-data \
   shr-settings \
-  pyphonelog \
+  ffphonelog \
   shr-theme \
 "
 

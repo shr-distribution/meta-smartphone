@@ -3,6 +3,7 @@ HOMEPAGE = "http://packages.debian.org/sid/ca-certificates"
 SECTION = "misc"
 PRIORITY = "optional"
 LICENSE = "GPL"
+LIC_FILES_CHKSUM = "file://debian/copyright;md5=6275b491c91b57d92ebe11205ebf4dfe"
 
 SRC_URI = "${DEBIAN_MIRROR}/main/c/ca-certificates/ca-certificates_${PV}.tar.gz \
            file://remove-c-rehash.patch"

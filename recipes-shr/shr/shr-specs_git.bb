@@ -6,8 +6,8 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=ebef999b5d8aea38d9eb30772557f175"
 
 DEPENDS = "libxslt-native"
 SECTION = "devel/specifications"
-SRCREV = "2752ded90581cfd2259ab65be7f9c2b9fb4a2638"
-PV = "2010.12.27.1+gitr${SRCPV}"
+SRCREV = "04394bad2ee838a9e5cc2035571f25e7d02772d8"
+PV = "2011.03.08.2+gitr${SRCPV}"
 
 SRC_URI = "git://git.shr-project.org/repo/shr-specs.git;protocol=http;branch=master"
 S = "${WORKDIR}/git"

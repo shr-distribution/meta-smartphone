@@ -129,7 +129,7 @@ RDEPENDS_${PN}-apps = "\
   ffalarms \
   shr-settings \
   shr-theme \
-  calc \
+  ecalc \
   iliwi \
   ca-certificates \
 "

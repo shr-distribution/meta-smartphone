@@ -1,4 +1,5 @@
 require xorg-app-common.inc
+LIC_FILES_CHKSUM = "file://COPYING;md5=22c34ea36136407a77702a8b784f9bd0"
 DESCRIPTION = "a utility to configure and test XInput devices"
 DEPENDS += " libxi"
 PR = "${INC_PR}.0"
