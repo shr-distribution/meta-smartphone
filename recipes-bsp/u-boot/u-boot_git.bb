@@ -1,14 +1,15 @@
 require u-boot.inc
 PR = "r73"
 
-FILESPATHPKG =. "u-boot-git:"
+#not supported in oe-core base.bbclass
+#FILESPATHPKG =. "u-boot-git:"
 
-SRCREV_nokia900 = "bd2313078114c4b44c4a5ce149af43bcb7fc8854"
+SRCREV = "bd2313078114c4b44c4a5ce149af43bcb7fc8854"
 
 S = "${WORKDIR}/git"
 
-PV_nokia900 = "2010.06+gitr${SRCPV}"
-SRC_URI_nokia900 = "git://www.denx.de/git/u-boot.git;protocol=git \
+PV = "2010.06+gitr${SRCPV}"
+SRC_URI = "git://www.denx.de/git/u-boot.git;protocol=git \
                     file://0001-ARM-Avoid-compiler-optimization-for-usages-of-readb-.patch \
                     file://0001-Reduce-delays-in-omap-i2c-driver.patch \
                     file://0002-Make-bootm-optionally-use-pre-existing-atags-for-Lin.patch \
@@ -20,7 +21,7 @@ SRC_URI_nokia900 = "git://www.denx.de/git/u-boot.git;protocol=git \
                     file://0007-Only-delay-boot-if-keyboard-open.patch \
 		    file://gcc-4.5.O0.patch \
 "
-SRC_URI_nokia900_append_shr = " \
+SRC_URI_append_shr = " \
                     file://0001-configs-nokia_rx51.h-start-shr-as-default-and-change.patch \
 "
 
