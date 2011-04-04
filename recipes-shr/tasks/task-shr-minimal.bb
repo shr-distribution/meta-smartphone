@@ -76,7 +76,7 @@ RDEPENDS_${PN}-base = "\
   module-init-tools-depmod \
   fbset \
   fbset-modes \
-  cron \
+  cronie \
   logrotate\
   util-linux-fdisk \
   shr-splash \
