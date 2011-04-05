@@ -7,6 +7,8 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
 PE = "1"
 INC_PR = "r3"
 
+export XDG_DATA_DIRS = "${STAGING_DATADIR}"
+
 SRC_URI = "http://downloads.freesmartphone.org/sources/vala-dbus-binding-tool-${PV}.tar.bz2;name=archive"
 
 inherit autotools
