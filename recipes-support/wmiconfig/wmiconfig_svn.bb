@@ -1,5 +1,6 @@
 DESCRIPTION = "Atheros 6K Wifi configuration utility"
-LICENSE = "GPL"
+LICENSE = "GPLv2"
+LIC_FILES_CHKSUM = "file://wmiconfig.c;endline=19;md5=4394a56bca1c5b2446c9f8e406c82911"
 SECTION = "console/network"
 SRCREV = "5394"
 PV = "0.0.0+svnr${SRCPV}"
