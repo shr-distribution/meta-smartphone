@@ -10,7 +10,8 @@ RDEPENDS_${PN} = "phoneuid"
 PV = "0.1+gitr${SRCPV}"
 PR = "r1"
 
-SRC_URI = "git://git.shr-project.org/repo/ffphonelog.git;protocol=http;branch=master"
+SRC_URI = "git://git.shr-project.org/repo/ffphonelog.git;protocol=http;branch=master \
+           file://add.ecore.and.evas.for.elementary.patch"
 
 export XDG_DATA_DIRS = "${STAGING_DATADIR}"
 
