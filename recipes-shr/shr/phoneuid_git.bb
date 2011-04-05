@@ -1,6 +1,7 @@
 DESCRIPTION = "SHR Phone UI Daemon"
 HOMEPAGE = "http://shr-project.org/"
-LICENSE = "GPL"
+LICENSE = "GPLv2"
+LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 SECTION = "x11/applications"
 DEPENDS += " libfso-glib libshr-glib libphone-ui sqlite3 shr-specs"
 SRCREV = "ff77b47658203d642507332d1ea8618245b4021b"
