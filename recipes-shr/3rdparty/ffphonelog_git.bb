@@ -12,6 +12,8 @@ PR = "r1"
 
 SRC_URI = "git://git.shr-project.org/repo/ffphonelog.git;protocol=http;branch=master"
 
+export XDG_DATA_DIRS = "${STAGING_DATADIR}"
+
 SRCREV = "9f7b682c4be9c0f23908dc888462399d939ffa11"
 S = "${WORKDIR}/git"
 
