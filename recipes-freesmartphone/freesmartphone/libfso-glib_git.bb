@@ -1,6 +1,7 @@
 DESCRIPTION = "GLib-based DBus bindings for freesmartphone.org - Vala implementation"
 AUTHOR = "Didier 'Ptitjes"
-LICENSE = "LGPL"
+LICENSE = "LGPLv2.1"
+LIC_FILES_CHKSUM = "file://COPYING;md5=fad9b3332be894bab9bc501572864b29"
 SECTION = "devel"
 DEPENDS = "vala-dbus-binding-tool-native glib-2.0 fso-specs"
 SRCREV = "d563de6a89ef68224e293c292b7ef3b283ea5a19"
