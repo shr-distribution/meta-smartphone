@@ -14,7 +14,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=12f884d2ae1ff87c09e5b7ccc2c4ca7e \
                     file://src/main.c;beginline=1;endline=20;md5=4b55b550fa6b33cc2055ef30dd262b3e"
 
 # we need to define the depends here, the dynamic stuff is too late
-DEPENDS  = "libnl wpa-supplicant dbus glib-2.0 ppp busybox dhclient resolvconf bluez4"
+DEPENDS  = "libnl wpa-supplicant dbus glib-2.0 ppp busybox dhcp resolvconf bluez4"
 
 EXTRA_OECONF += "\
     ac_cv_path_WPASUPPLICANT=/usr/sbin/wpa_supplicant \
@@ -45,7 +45,7 @@ do_install_append() {
 }
 
 python populate_packages_prepend() {
-	depmap = dict( pppd="ppp", udhcp="busybox connman-scripts", dhclient="dhclient", wifi="wpa-supplicant", resolvconf="resolvconf", bluetooth="bluez4" )
+	depmap = dict( pppd="ppp", udhcp="busybox connman-scripts", dhclient="dhcp-client", wifi="wpa-supplicant", resolvconf="resolvconf", bluetooth="bluez4" )
 	packages = []
 	hook = lambda file,pkg,b,c,d:packages.append((file,pkg))
 	plugin_dir = bb.data.expand('${libdir}/connman/plugins/', d)
