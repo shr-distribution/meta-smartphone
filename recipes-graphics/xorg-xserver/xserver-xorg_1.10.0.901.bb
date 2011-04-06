@@ -5,21 +5,15 @@ require xorg-xserver-common.inc
 
 DESCRIPTION = "the X.Org X server"
 DEPENDS += "pixman libpciaccess openssl dri2proto glproto xorg-minimal-fonts font-util-native"
-PV = "1.10.0.901"
-PR = "${INC_PR}.0"
-PR_append = "+gitr${SRCPV}"
 PE = "2"
+PR = "${INC_PR}.0"
 
-#DEFAULT_PREFERENCE = "-1"
-
-SRCREV = "1f51fe4f748b2997e466863d8387bd6791b32931"
-SRC_URI = " \
-  git://anongit.freedesktop.org/xorg/xserver;protocol=git;branch=server-1.10-branch \
-  file://hack-fbdev-ignore-return-mode.patch \
-  file://hack-assume-pixman-supports-overlapped-blt.patch \
-"
-
-S = "${WORKDIR}/git"
+SRC_URI += " \
+            file://hack-fbdev-ignore-return-mode.patch \
+            file://hack-assume-pixman-supports-overlapped-blt.patch \
+           "
+SRC_URI[archive.md5sum] = "d750cf5f6342b548b7ac2be56e9d1841"
+SRC_URI[archive.sha256sum] = "de18f52c35fc3d3f18c7e905296f9de5ac42dc71e4e01da9ae8e154a78c7771c"
 
 do_install_prepend() {
         mkdir -p ${D}/${libdir}/X11/fonts
