@@ -5,7 +5,7 @@ DEPENDS = ""
 RDEPENDS_${PN} = "procps"
 LICENSE = "GPL"
 PV = "0.0.1"
-PR = "r28"
+PR = "r29"
 
 RCONFLICTS_${PN} = "initscripts"
 
@@ -36,6 +36,7 @@ PACKAGE_ARCH_om-gta02 = "om-gta02"
 
 SRC_URI_append_nokia900 = " file://nokia-n900-cmt-gpio.sh"
 PACKAGE_ARCH_nokia900 = "nokia900"
+DEPENDS_nokia900 += " phonet-utils "
 
 inherit base
 
