@@ -7,7 +7,7 @@ LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
 SRCREV = "f86660d2304a7215dfc6d6a516530267657a02b1"
 PV = "0.9.5.9+gitr${SRCPV}"
-PR = "r12"
+PR = "r13"
 PE = "1"
 
 inherit distutils update-rc.d python-dir
@@ -85,6 +85,7 @@ RDEPENDS_${PN} += "\
   python-pyyaml \
   python-shell \
   python-subprocess \
+  python-sqlite3 \
   python-syslog \
   python-textutils \
   python-multiprocessing \

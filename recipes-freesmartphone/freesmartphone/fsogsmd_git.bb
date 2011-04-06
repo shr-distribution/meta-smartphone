@@ -3,11 +3,11 @@ inherit fso-plugin
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
-PR = "${INC_PR}.0"
+PR = "${INC_PR}.1"
 PV = "0.5.0+gitr${SRCPV}"
 PE = "1"
 
-DEPENDS += "libfsoresource libgsm0710mux libgisi ppp"
+DEPENDS += "libfsoresource libgsm0710mux libgisi ppp connman"
 
 EXTRA_OECONF_append = "\
   --enable-libgsm0710mux \
