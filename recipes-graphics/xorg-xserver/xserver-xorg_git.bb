@@ -3,6 +3,9 @@ DISTRO_XORG_CONFIG_MANAGER_angstrom = "udev"
 
 require xorg-xserver-common.inc
 
+LICENSE = "MIT-X"
+LIC_FILES_CHKSUM = "file://COPYING;md5=74df27b6254cc88d2799b5f4f5949c00"
+
 DESCRIPTION = "the X.Org X server"
 DEPENDS += "pixman libpciaccess openssl dri2proto glproto xorg-minimal-fonts font-util-native"
 PV = "1.10.0.901"
