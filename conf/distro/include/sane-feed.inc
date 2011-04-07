@@ -5,7 +5,7 @@
 #############################################################################
 
 # Put links to sources in deploy/sources to make it easier for people to be GPL compliant
-INHERIT += "src_distribute_local"
+#INHERIT += "src_distribute_local"
 SRC_DIST_LOCAL ?= "symlink"
 
 # Add FEED_ARCH to overrides
