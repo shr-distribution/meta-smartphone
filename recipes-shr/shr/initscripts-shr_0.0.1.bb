@@ -2,7 +2,9 @@ DESCRIPTION = "SHR init scripts"
 SECTION = "base"
 PRIORITY = "required"
 DEPENDS = ""
-RDEPENDS_${PN} = "procps"
+EXTRA_DEPS = ""
+EXTRA_DEPS_nokia900 = "phonet-utils"
+RDEPENDS_${PN} = "procps ${EXTRA_DEPS}"
 LICENSE = "GPL"
 PV = "0.0.1"
 PR = "r29"
@@ -36,7 +38,6 @@ PACKAGE_ARCH_om-gta02 = "om-gta02"
 
 SRC_URI_append_nokia900 = " file://nokia-n900-cmt-gpio.sh"
 PACKAGE_ARCH_nokia900 = "nokia900"
-DEPENDS_nokia900 += " phonet-utils "
 
 inherit base
 
