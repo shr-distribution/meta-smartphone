@@ -1,5 +1,5 @@
 DESCRIPTION = "SHR Lite Image Feed"
-PR = "r41"
+PR = "r42"
 PV = "2.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${TOPDIR}/meta-shr/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -68,6 +68,7 @@ PACKAGES += "\
 RDEPENDS_${PN}-base = "\
   ${MACHINE_TASK_PROVIDER} \
   task-base \
+  task-boot \
   glibc-utils \
   glibc-charmap-utf-8 \
   netbase \
