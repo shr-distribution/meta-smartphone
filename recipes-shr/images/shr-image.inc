@@ -9,10 +9,45 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${TOPDIR}/meta-shr/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 
 DEPENDS += "task-shr-minimal"
+
+#
+# tinylogin, getty
+#
+# IMAGE_LOGIN_MANAGER ?= "tinylogin"
 IMAGE_LOGIN_MANAGER = "shadow"
+
+#
+# udev, devfsd, busybox-mdev (from busybox) or none
+#
+IMAGE_DEV_MANAGER ?= "${@base_contains("MACHINE_FEATURES", "kernel26",  "udev","",d)} "
 IMAGE_DEV_MANAGER_om-gta01 = ""
 IMAGE_DEV_MANAGER_om-gta02 = ""
 IMAGE_DEV_MANAGER_htcdream = ""
+
+#
+# sysvinit, upstart
+#
+IMAGE_INIT_MANAGER ?= "sysvinit sysvinit-pidof"
+
+#
+# initscripts, initscripts-shr
+#
+# IMAGE_INITSCRIPTS ?= "initscripts"
+IMAGE_INITSCRIPTS = "initscripts-shr"
+
+# set sane default for the SPLASH variable
+SPLASH ?= ""
+
+IMAGE_BOOT ?= "${IMAGE_INITSCRIPTS} \
+               ${IMAGE_DEV_MANAGER} \
+               ${IMAGE_INIT_MANAGER} \
+               ${IMAGE_LOGIN_MANAGER}"
+
+# some default locales
+# IMAGE_LINGUAS ?= "de-de fr-fr en-gb"
+IMAGE_LINGUAS ?= "en-us"
+
+IMAGE_INSTALL += "${IMAGE_BOOT}"
 
 RDEPENDS_${PN} += "\
   task-shr-minimal-base \
