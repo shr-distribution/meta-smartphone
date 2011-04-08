@@ -4,8 +4,6 @@ PR = "r4"
 
 # Mark archs/machines that this kernel supports
 DEFAULT_PREFERENCE = "-1"
-DEFAULT_PREFERENCE_om-gta02 = "1"
-DEFAULT_PREFERENCE_om-gta01 = "1"
 
 SRC_URI = "${KERNELORG_MIRROR}/pub/linux/kernel/v2.6/linux-${PV}.tar.bz2;name=kernel \
            ${KERNELORG_MIRROR}/pub/linux/kernel/v2.6/patch-${PV}.2.bz2;apply=yes;name=stablepatch \
