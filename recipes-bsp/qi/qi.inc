@@ -1,5 +1,6 @@
 DESCRIPTION = "Qi bootloader w/ Openmoko GTA01, GTA02, and GTA03 support"
-LICENSE = "GPL"
+LICENSE = "GPLv2+"
+LIC_FILES_CHKSUM = "file://Makefile;endline=15;md5=a6394710a271493a533a3724a1bce25d"
 SECTION = "bootloader"
 PROVIDES = "virtual/bootloader"
 PV = "1.0.2"
