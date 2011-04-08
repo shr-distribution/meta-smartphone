@@ -3,6 +3,11 @@ DESCRIPTION = "X.Org X server -- tslib input driver"
 DEPENDS += "tslib"
 RRECOMMENDS_${PN} += "tslib-calibrate"
 RSUGGESTS_${PN} += "hal"
+
+# derived from xf86-input-void, that's why I kept MIT-X, but it's not clear, see COPYING
+LIC_FILES_CHKSUM = "file://src/tslib.c;endline=28;md5=bd62eaef222dcf5cd59e490a12bd795e \
+                    file://COPYING;md5=4641deddaa80fe7ca88e944e1fd94a94"
+
 PR = "${INC_PR}.1"
 
 SRC_URI = "http://www.pengutronix.de/software/xf86-input-tslib/download/xf86-input-tslib-${PV}.tar.bz2;name=archive \
