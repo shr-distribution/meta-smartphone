@@ -18,7 +18,7 @@ addtask fixup after do_unpack before do_patch
 NATIVE_INSTALL_WORKS = "1"
 PR = "r4"
 
-SRC_URI = "http://www.mpfr.org/${P}/${P}.tar.bz2 \
+SRC_URI = "http://www.mpfr.org/${BP}/${BP}.tar.bz2 \
            file://p4.patch"
 
 # fix build in thumb mode for armv4t
