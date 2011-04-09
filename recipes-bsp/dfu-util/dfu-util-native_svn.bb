@@ -1,6 +1,7 @@
 require dfu-util_${PV}.bb
 
-inherit native
+inherit native deploy
+do_deploy[sstate-outputdirs] = "${DEPLOY_DIR_TOOLS}"
 
 DEPENDS = "libusb-compat usbpath-native"
 
