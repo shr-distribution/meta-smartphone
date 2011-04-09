@@ -50,6 +50,8 @@ do_compile_om-gta02() {
         make clean && make CPU=s3c2442
 }
 
+inherit deploy
+
 do_deploy () {
 	cd image
 	for IMG in qi-*.udfu; do
@@ -62,5 +64,4 @@ do_deploy () {
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-do_deploy[dirs] = "${S}"
 addtask deploy before do_build after do_package
