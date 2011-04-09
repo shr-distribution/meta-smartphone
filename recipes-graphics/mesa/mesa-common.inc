@@ -29,7 +29,7 @@ EXTRA_OECONF = "--enable-glu \
 inherit glx-use-tls
 
 # Package contents vary according to ${MACHINE_DRI_MODULES}.
-PACKAGE_ARCH = "${MACHINE}"
+PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 PACKAGES =+ "libegl libegl-dev libegl-dbg libglu libglu-dev libosmesa libosmesa-dev libgl libgl-dev"
 FILES_${PN} += "${libdir}/dri/*.so"
