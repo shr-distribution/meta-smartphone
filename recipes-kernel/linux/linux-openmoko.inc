@@ -5,7 +5,7 @@ COMPATIBLE_HOST = "arm.*-linux"
 COMPATIBLE_MACHINE = "om-gta01|om-gta02"
 
 #FILESPATHPKG .= ":linux-${PV}"
-FILESPATH =. "${FILE_DIRNAME}/linux:${FILE_DIRNAME}/linux-${PV}:${FILE_DIRNAME}/linux-${PV}/${MACHINE}:"
+FILESPATH =. "${FILE_DIRNAME}/linux-${PV}/${MACHINE}:${FILE_DIRNAME}/linux-${PV}:${FILE_DIRNAME}/linux"
 
 # add extra PR for linux-openmoko kernels
 # because we expect OM/SHR patches to be updated quite often and don't want to
