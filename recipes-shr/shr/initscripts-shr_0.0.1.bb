@@ -35,10 +35,10 @@ SRC_URI = "file://alignment.sh \
 	   "
 
 SRC_URI_append_om-gta02 = " file://g_ether.sh"
-PACKAGE_ARCH_om-gta02 = "om-gta02"
+PACKAGE_ARCH_om-gta02 = "${MACHINE_ARCH}"
 
 SRC_URI_append_nokia900 = " file://nokia-n900-cmt-gpio.sh"
-PACKAGE_ARCH_nokia900 = "nokia900"
+PACKAGE_ARCH_nokia900 = "${MACHINE_ARCH}"
 
 inherit base
 
