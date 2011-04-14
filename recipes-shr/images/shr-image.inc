@@ -12,9 +12,9 @@ DEPENDS += "task-shr-minimal"
 
 #
 # tinylogin, getty
+# shadow doesn't provide adduser which was find with oe.dev, but busybox from oe-core doesn't provide it neither
 #
-# IMAGE_LOGIN_MANAGER ?= "tinylogin"
-IMAGE_LOGIN_MANAGER = "shadow"
+IMAGE_LOGIN_MANAGER = "tinylogin"
 
 #
 # udev, devfsd, busybox-mdev (from busybox) or none
