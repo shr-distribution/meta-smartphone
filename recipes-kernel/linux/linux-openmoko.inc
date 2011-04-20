@@ -50,6 +50,8 @@ module_autoload_s3cmci = "s3cmci"
 
 # symlink the latest uImage (should go to linux.inc IMO)
 do_deploy_append() {
+	# ${DEPLOY_DIR_IMAGE} directory and link target are created later
+	mkdir -p ${DEPLOY_DIR_IMAGE}
 	rm -f ${KERNEL_IMAGE_SYMLINK_NAME}.bin
 	ln -sf ${DEPLOY_DIR_IMAGE}/uImage-${PV}-${PR}-${MACHINE_ARCH}.bin ${DEPLOY_DIR_IMAGE}/uImage-${MACHINE_ARCH}-latest.bin
 }
