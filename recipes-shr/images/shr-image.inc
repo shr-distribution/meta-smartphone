@@ -6,7 +6,7 @@ PV = "2.0"
 PR = "r18"
 
 LICENSE = "MIT"
-LIC_FILES_CHKSUM = "file://${TOPDIR}/meta-shr/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
+LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 
 DEPENDS += "task-shr-minimal"
 
