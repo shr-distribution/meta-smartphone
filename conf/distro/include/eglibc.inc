@@ -5,10 +5,20 @@ OVERRIDES =. "libc-glibc:"
 PREFERRED_PROVIDER_virtual/libiconv ?= "eglibc"
 PREFERRED_PROVIDER_virtual/libintl ?= "eglibc"
 
+PREFERRED_PROVIDER_virtual/libc ?= "eglibc"
+PREFERRED_PROVIDER_glibc-charmap-utf-8 ?= "eglibc"
+
 # And the same as above for the nativesdk
 PREFERRED_PROVIDER_virtual/libiconv-nativesdk ?= "eglibc-nativesdk"
 PREFERRED_PROVIDER_virtual/libintl-nativesdk ?= "eglibc-nativesdk"
- 
+PREFERRED_PROVIDER_virtual/libc-nativesdk ?= "eglibc-nativesdk"
+
+PREFERRED_PROVIDER_virtual/x86_64-oesdk-linux-libc-for-gcc-nativesdk ?= "eglibc-nativesdk"
+PREFERRED_PROVIDER_virtual/x86_64-oesdk-linux-libc-initial-nativesdk ?= "eglibc-initial-nativesdk"
+
+PREFERRED_PROVIDER_virtual/arm-oe-linux-gnueabi-libc-for-gcc = "eglibc"
+PREFERRED_PROVIDER_virtual/arm-oe-linux-gnueabi-libc-initial = "eglibc-initial"
+
 # eglibc is configured for OLDEST_KERNEL kernel version, so we set minimal
 # sane versions there
 
