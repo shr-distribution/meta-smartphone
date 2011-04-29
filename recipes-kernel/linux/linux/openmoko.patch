@@ -1976,7 +1976,7 @@ index 3a56a22..d838408 100644
  
  #endif /* _GTA02_H */
 diff --git a/arch/arm/mach-s3c2440/mach-gta02.c b/arch/arm/mach-s3c2440/mach-gta02.c
-index 0db2411..4361ccd 100644
+index 7166620..f739f58 100644
 --- a/arch/arm/mach-s3c2440/mach-gta02.c
 +++ b/arch/arm/mach-s3c2440/mach-gta02.c
 @@ -38,6 +38,7 @@
@@ -2237,20 +2237,13 @@ index 0db2411..4361ccd 100644
 -static void
 -gta02_configure_pmu_for_charger(struct pcf50633 *pcf, void *unused, int res)
 +static int gta02_get_charger_online_status(void)
-+{
-+	struct pcf50633 *pcf = gta02_pcf;
-+
-+	return pcf50633_mbc_get_status(pcf) & PCF50633_MBC_USB_ONLINE;
-+}
-+
-+static int gta02_get_charger_active_status(void)
  {
 -	int  ma;
 +	struct pcf50633 *pcf = gta02_pcf;
  
 -	/* Interpret charger type */
 -	if (res < ((ADC_NOM_CHG_DETECT_USB + ADC_NOM_CHG_DETECT_1A) / 2)) {
-+	return pcf50633_mbc_get_status(pcf) & PCF50633_MBC_USB_ACTIVE;
++	return pcf50633_mbc_get_status(pcf) & PCF50633_MBC_USB_ONLINE;
 +}
  
 -		/*
@@ -2258,6 +2251,13 @@ index 0db2411..4361ccd 100644
 -		 * GPO controls USB Host power generation on GTA02
 -		 */
 -		pcf50633_gpio_set(pcf, PCF50633_GPO, 0);
++static int gta02_get_charger_active_status(void)
++{
++	struct pcf50633 *pcf = gta02_pcf;
++
++	return pcf50633_mbc_get_status(pcf) & PCF50633_MBC_USB_ACTIVE;
++}
++
 +static void
 +gta02_configure_pmu_for_charger(struct pcf50633 *pcf, void *unused, int res)
 +{
@@ -2358,20 +2358,15 @@ index 0db2411..4361ccd 100644
  		},
  		[PCF50633_REGULATOR_MEMLDO] = {
  			.constraints = {
-@@ -403,12 +654,6 @@ static struct platform_device gta02_nor_flash = {
+@@ -403,7 +654,6 @@ static struct platform_device gta02_nor_flash = {
  	.num_resources	= 1,
  };
  
 -
--struct platform_device s3c24xx_pwm_device = {
--	.name		= "s3c24xx_pwm",
--	.num_resources	= 0,
--};
--
- static struct i2c_board_info gta02_i2c_devs[] __initdata = {
- 	{
- 		I2C_BOARD_INFO("pcf50633", 0x73),
-@@ -445,13 +690,32 @@ static struct s3c2410_platform_nand __initdata gta02_nand_info = {
+ struct platform_device s3c24xx_pwm_device = {
+ 	.name		= "s3c24xx_pwm",
+ 	.num_resources	= 0,
+@@ -449,13 +699,32 @@ static struct s3c2410_platform_nand __initdata gta02_nand_info = {
  	.twrph1		= 15,
  	.nr_sets	= ARRAY_SIZE(gta02_nand_sets),
  	.sets		= gta02_nand_sets,
@@ -2406,7 +2401,7 @@ index 0db2411..4361ccd 100644
  };
  
  /* USB */
-@@ -466,9 +730,9 @@ static struct s3c2410_hcd_info gta02_usb_info __initdata = {
+@@ -470,9 +739,9 @@ static struct s3c2410_hcd_info gta02_usb_info __initdata = {
  
  /* Touchscreen */
  static struct s3c2410_ts_mach_info gta02_ts_info = {
@@ -2419,7 +2414,7 @@ index 0db2411..4361ccd 100644
  };
  
  /* Buttons */
-@@ -502,6 +766,273 @@ static struct platform_device gta02_buttons_device = {
+@@ -506,6 +775,273 @@ static struct platform_device gta02_buttons_device = {
  	},
  };
  
@@ -2693,7 +2688,7 @@ index 0db2411..4361ccd 100644
  static void __init gta02_map_io(void)
  {
  	s3c24xx_init_io(gta02_iodesc, ARRAY_SIZE(gta02_iodesc));
-@@ -519,18 +1050,29 @@ static struct platform_device *gta02_devices[] __initdata = {
+@@ -523,19 +1059,30 @@ static struct platform_device *gta02_devices[] __initdata = {
  	&s3c_device_usbgadget,
  	&s3c_device_nand,
  	&gta02_nor_flash,
@@ -2705,6 +2700,7 @@ index 0db2411..4361ccd 100644
  	&s3c_device_iis,
  	&samsung_asoc_dma,
  	&s3c_device_i2c0,
+ 	&gta02_dfbmcs320_device,
  	&gta02_buttons_device,
 +	&gta02_leds_device,
 +	&gta02_pwm_leds_device,
@@ -2724,7 +2720,7 @@ index 0db2411..4361ccd 100644
  };
  
  
-@@ -563,11 +1105,122 @@ static void gta02_poweroff(void)
+@@ -568,11 +1115,122 @@ static void gta02_poweroff(void)
  	pcf50633_reg_set_bit_mask(gta02_pcf, PCF50633_REG_OOCSHDWN, 1, 1);
  }
  
@@ -2847,7 +2843,7 @@ index 0db2411..4361ccd 100644
  	s3c_pm_init();
  
  #ifdef CONFIG_CHARGER_PCF50633
-@@ -579,10 +1232,13 @@ static void __init gta02_machine_init(void)
+@@ -584,10 +1242,13 @@ static void __init gta02_machine_init(void)
  	s3c_ohci_set_platdata(&gta02_usb_info);
  	s3c_nand_set_platdata(&gta02_nand_info);
  	s3c_i2c0_set_platdata(NULL);
@@ -37921,7 +37917,7 @@ index 666daf7..46fac25 100644
  		pwm_free(leds_data[i].pwm);
  	}
 diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index e2fea58..785a132 100644
+index 3ed3ff0..9b2b1bb 100644
 --- a/drivers/mfd/Kconfig
 +++ b/drivers/mfd/Kconfig
 @@ -448,6 +448,7 @@ config MFD_WM8994
@@ -39415,7 +39411,7 @@ index aed0d2a..54a78c1 100644
  	mutex_lock(&adc->queue_mutex);
  	head = adc->queue_head;
 diff --git a/drivers/mfd/pcf50633-core.c b/drivers/mfd/pcf50633-core.c
-index c7687f6..c6eef7f 100644
+index 57868416..8730a87 100644
 --- a/drivers/mfd/pcf50633-core.c
 +++ b/drivers/mfd/pcf50633-core.c
 @@ -24,6 +24,8 @@
@@ -41762,28 +41758,8 @@ index f90c574..f36fc27 100644
  
  	rtc_device_unregister(rtc->rtc_dev);
  	kfree(rtc);
-diff --git a/drivers/rtc/rtc-s3c.c b/drivers/rtc/rtc-s3c.c
-index 7149649..b3466c4 100644
---- a/drivers/rtc/rtc-s3c.c
-+++ b/drivers/rtc/rtc-s3c.c
-@@ -336,7 +336,6 @@ static void s3c_rtc_release(struct device *dev)
- 
- 	/* do not clear AIE here, it may be needed for wake */
- 
--	s3c_rtc_setpie(dev, 0);
- 	free_irq(s3c_rtc_alarmno, rtc_dev);
- 	free_irq(s3c_rtc_tickno, rtc_dev);
- }
-@@ -408,7 +407,6 @@ static int __devexit s3c_rtc_remove(struct platform_device *dev)
- 	platform_set_drvdata(dev, NULL);
- 	rtc_device_unregister(rtc);
- 
--	s3c_rtc_setpie(&dev->dev, 0);
- 	s3c_rtc_setaie(&dev->dev, 0);
- 
- 	clk_disable(rtc_clk);
 diff --git a/drivers/tty/serial/samsung.c b/drivers/tty/serial/samsung.c
-index 2335eda..5560d7e 100644
+index 9e2fa8d..318093c 100644
 --- a/drivers/tty/serial/samsung.c
 +++ b/drivers/tty/serial/samsung.c
 @@ -1268,6 +1268,13 @@ module_exit(s3c24xx_serial_modexit);
@@ -43817,7 +43793,7 @@ index 0000000..3f8ec8d
 +MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:glamo-fb");
 diff --git a/include/linux/fb.h b/include/linux/fb.h
-index b2a3639..032af94 100644
+index df728c1..3e786c4 100644
 --- a/include/linux/fb.h
 +++ b/include/linux/fb.h
 @@ -135,6 +135,7 @@

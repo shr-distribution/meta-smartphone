@@ -1,10 +1,10 @@
 require linux.inc
 
-KERNEL_RELEASE = "2.6.39-rc2"
+KERNEL_RELEASE = "2.6.39-rc5"
 OLD_KERNEL_RELEASE = "2.6.38"
 PV = "${OLD_KERNEL_RELEASE}+${KERNEL_RELEASE}+gitr${SRCPV}"
 
-SRCREV = "6221f222c0ebf1acdf7abcf927178f40e1a65e2a"
+SRCREV = "fafc9929c668f8bae6dd1f109f33a86d2cb3c460"
 
 SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git;protocol=git;branch=master \
            file://defconfig"
