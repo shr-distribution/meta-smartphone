@@ -6,13 +6,13 @@ Subject: [PATCH 2/4] e-wm-config-illume2-shr: drop conf_engine, was merged
 
 Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
 ---
- e-wm/e-wm-config-illume2-shr/e.src |    6 ------
+ e.src |    6 ------
  1 files changed, 0 insertions(+), 6 deletions(-)
 
-diff --git a/e-wm/e-wm-config-illume2-shr/e.src b/e-wm/e-wm-config-illume2-shr/e.src
+diff --git a/e.src b/e.src
 index 6559e56..b35e3c8 100644
---- a/e-wm/e-wm-config-illume2-shr/e.src
-+++ b/e-wm/e-wm-config-illume2-shr/e.src
+--- a/e.src
++++ b/e.src
 @@ -73,12 +73,6 @@ group "E_Config" struct {
  			value "priority" int: 0;
  		}

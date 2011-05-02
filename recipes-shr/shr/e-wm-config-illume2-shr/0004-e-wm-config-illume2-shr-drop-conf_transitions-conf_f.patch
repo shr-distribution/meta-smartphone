@@ -7,13 +7,13 @@ Subject: [PATCH 4/4] e-wm-config-illume2-shr: drop conf_transitions,
 
 Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
 ---
- e-wm/e-wm-config-illume2-shr/e.src |   30 ------------------------------
+ e.src |   30 ------------------------------
  1 files changed, 0 insertions(+), 30 deletions(-)
 
-diff --git a/e-wm/e-wm-config-illume2-shr/e.src b/e-wm/e-wm-config-illume2-shr/e.src
+diff --git a/e.src b/e.src
 index 0c79807..2cbf7df 100644
---- a/e-wm/e-wm-config-illume2-shr/e.src
-+++ b/e-wm/e-wm-config-illume2-shr/e.src
+--- a/e.src
++++ b/e.src
 @@ -91,12 +91,6 @@ group "E_Config" struct {
  			value "priority" int: 0;
  		}
