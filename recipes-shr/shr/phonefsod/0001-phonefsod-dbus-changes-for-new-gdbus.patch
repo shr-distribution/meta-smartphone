@@ -1,0 +1,42 @@
+From 9b89f9e1f48f11c68fb72ff98ec669337ba6e651 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Thu, 5 May 2011 08:48:47 +0200
+Subject: [PATCH] phonefsod-dbus: changes for new gdbus
+
+* s/G_DBUS_PROXY_MANAGER_FLAGS_DO_NOT_AUTO_START/G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START/g
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ src/phonefsod-dbus.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/phonefsod-dbus.c b/src/phonefsod-dbus.c
+index 7e5db0e..af0cdb8 100644
+--- a/src/phonefsod-dbus.c
++++ b/src/phonefsod-dbus.c
+@@ -80,7 +80,7 @@ phonefsod_dbus_setup()
+ 		 _on_phoneuid_appeared, _on_phoneuid_vanished, NULL, NULL);
+ 
+ 	phoneui.notification = phoneui_notification_proxy_new_sync
+-		(system_bus, G_DBUS_PROXY_MANAGER_FLAGS_DO_NOT_AUTO_START,
++		(system_bus, G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+ 		 PHONEUID_SERVICE, PHONEUID_NOTIFICATION_PATH, NULL, &error);
+ 
+ 	phoneui.call_management = phoneui_call_management_proxy_new_sync
+@@ -88,11 +88,11 @@ phonefsod_dbus_setup()
+ 		 PHONEUID_SERVICE, PHONEUID_CALL_MANAGEMENT_PATH, NULL, &error);
+ 
+ 	phoneui.idle_screen = phoneui_idle_screen_proxy_new_sync
+-		(system_bus, G_DBUS_PROXY_MANAGER_FLAGS_DO_NOT_AUTO_START,
++		(system_bus, G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+ 		 PHONEUID_SERVICE, PHONEUID_IDLE_SCREEN_PATH, NULL, &error);
+ 
+ 	phoneui.messages = phoneui_messages_proxy_new_sync
+-		(system_bus, G_DBUS_PROXY_MANAGER_FLAGS_DO_NOT_AUTO_START,
++		(system_bus, G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+ 		 PHONEUID_SERVICE, PHONEUID_MESSAGES_PATH, NULL, &error);
+ 
+ 	return 1;
+-- 
+1.7.5.rc3
+
