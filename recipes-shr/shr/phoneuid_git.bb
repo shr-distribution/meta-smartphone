@@ -11,7 +11,8 @@ PR = "r7"
 RREPLACES_${PN} = "shr-today"
 RCONFLICTS_${PN} = "shr-today"
 
-SRC_URI = "git://git.shr-project.org/repo/phoneuid.git;protocol=http;branch=master"
+SRC_URI = "git://git.shr-project.org/repo/phoneuid.git;protocol=http;branch=master \
+           file://0001-configure-drop-check-for-gdbus-codegen-as-new-python.patch"
 S = "${WORKDIR}/git"
 
 inherit autotools
