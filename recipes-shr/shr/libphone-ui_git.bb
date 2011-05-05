@@ -11,6 +11,7 @@ DEPENDS="glib-2.0 libshr-glib libfso-glib libfsoframework libphone-utils alsa-li
 
 SRC_URI = " \
  git://git.shr-project.org/repo/libphone-ui.git;protocol=http;branch=master \
+ file://0001-configure-drop-check-for-gdbus-codegen-as-new-python.patch \
 "
 
 S = "${WORKDIR}/git"

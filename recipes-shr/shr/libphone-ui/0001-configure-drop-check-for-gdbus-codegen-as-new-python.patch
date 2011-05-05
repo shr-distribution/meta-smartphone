@@ -1,0 +1,26 @@
+From c1f76cf983336f984641e9e94987cf70d07b1821 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Thu, 5 May 2011 11:18:12 +0200
+Subject: [PATCH] configure: drop check for gdbus-codegen as new python
+ version doesn't have own .pc
+
+---
+ configure.ac |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index b1c19b5..788bdef 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -11,7 +11,7 @@ AC_STDC_HEADERS
+ AC_PROG_LIBTOOL
+ 
+ PKG_CHECK_MODULES(FSO_GLIB, fso-glib-1.0)
+-PKG_CHECK_MODULES(SHR_GLIB, shr-glib-1.0 gdbus-codegen)
++PKG_CHECK_MODULES(SHR_GLIB, shr-glib-1.0)
+ PKG_CHECK_MODULES(FSO_FRAMEWORK, fsoframework-2.0)
+ PKG_CHECK_MODULES(GLIB, glib-2.0 >= 2.26.1)
+ PKG_CHECK_MODULES(LIBPHONE_UTILS, libphone-utils)
+-- 
+1.7.5.rc3
+
