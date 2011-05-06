@@ -10,9 +10,7 @@ PR = "r0"
 
 inherit autotools
 
-SRC_URI = "git://git.shr-project.org/repo/libshr-glib.git;protocol=http;branch=master \
-           file://0001-regen-with-gdbus-codegen-from-glib-master-repo-2.29..patch \
-	   file://0002-create-old-shr-bindings.h-for-compatibility-with-old.patch"
+SRC_URI = "git://git.shr-project.org/repo/libshr-glib.git;protocol=http;branch=glib-2.29"
 
 S = "${WORKDIR}/git"
 
