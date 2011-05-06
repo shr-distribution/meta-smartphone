@@ -1,0 +1,178 @@
+From a012182e157677fb8017623e47ce69bb3abc2ea9 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Fri, 6 May 2011 16:20:50 +0200
+Subject: [PATCH] adapt to API change in r59160 s/homogenous/homogeneous/g
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ src/util/ui-utils.c            |   10 +++++-----
+ src/util/window.c              |    4 ++--
+ src/view/dialer-view.c         |    4 ++--
+ src/view/message-list-view.c   |    2 +-
+ src/view/message-show-view.c   |    2 +-
+ src/view/phone-log-view.c      |    2 +-
+ src/view/quick-settings-view.c |    2 +-
+ src/view/sim-manager-view.c    |    2 +-
+ 8 files changed, 14 insertions(+), 14 deletions(-)
+
+diff --git a/src/util/ui-utils.c b/src/util/ui-utils.c
+index ee50d2a..111aeff 100644
+--- a/src/util/ui-utils.c
++++ b/src/util/ui-utils.c
+@@ -285,7 +285,7 @@ ui_utils_view_inwin_dialog(struct View *view, const char *label, GList *buttons,
+ 	Evas_Object *inwin = elm_win_inwin_add(ui_utils_view_window_get(view));
+ 
+ 	Evas_Object *bx = elm_box_add(ui_utils_view_window_get(view));
+-	elm_box_homogenous_set(bx, 1);
++	elm_box_homogeneous_set(bx, 1);
+ 
+ 	Evas_Object *e = elm_label_add(ui_utils_view_window_get(view));
+ 	elm_label_label_set(e, label);
+@@ -294,7 +294,7 @@ ui_utils_view_inwin_dialog(struct View *view, const char *label, GList *buttons,
+ 
+ 	Evas_Object *bx2 = elm_box_add(ui_utils_view_window_get(view));
+ 	elm_box_horizontal_set(bx2, 1);
+-	elm_box_homogenous_set(bx2, 1);
++	elm_box_homogeneous_set(bx2, 1);
+ 
+ 	for (buttons = g_list_first(buttons); buttons;
+ 	     buttons = g_list_next(buttons)) {
+@@ -391,7 +391,7 @@ ui_utils_dialog_check(struct View *view, const char *label, const char *check_la
+ 
+ 	box2 = elm_box_add(win);
+ 	elm_box_horizontal_set(box2, EINA_TRUE);
+-	elm_box_homogenous_set(box2, EINA_TRUE);
++	elm_box_homogeneous_set(box2, EINA_TRUE);
+ 	evas_object_size_hint_align_set(box2, EVAS_HINT_FILL, 0);
+ 
+ 	/* ok - yes - no - cancel */
+@@ -513,7 +513,7 @@ ui_utils_view_inwin_list(struct View *view, GList *list,
+ 	pack->inwin = elm_win_inwin_add(win);
+ 
+ 	box = elm_box_add(win);
+-// 	elm_box_homogenous_set(box, EINA_TRUE);
++// 	elm_box_homogeneous_set(box, EINA_TRUE);
+ 	evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND,
+ 					 EVAS_HINT_EXPAND);
+ 
+@@ -636,7 +636,7 @@ ui_utils_error_message_show(struct View *parent, const char *error_msg, const ch
+ 	//evas_object_event_callback_add(inwin, EVAS_CALLBACK_DEL, error_message_del, NULL);
+ 
+ 	Evas_Object *box = elm_box_add(win);
+-	elm_box_homogenous_set(box, EINA_FALSE);
++	elm_box_homogeneous_set(box, EINA_FALSE);
+ 	evas_object_size_hint_weight_set(box, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+ 	evas_object_size_hint_align_set(box, EVAS_HINT_FILL, EVAS_HINT_FILL);
+ 
+diff --git a/src/util/window.c b/src/util/window.c
+index 99c13e3..3a9bc90 100644
+--- a/src/util/window.c
++++ b/src/util/window.c
+@@ -301,7 +301,7 @@ window_inwin_dialog(struct Window *win, const char *label, GList * buttons,
+ 	Evas_Object *inwin = elm_win_inwin_add(window_evas_object_get(win));
+ 
+ 	Evas_Object *bx = elm_box_add(window_evas_object_get(win));
+-	elm_box_homogenous_set(bx, 1);
++	elm_box_homogeneous_set(bx, 1);
+ 
+ 	Evas_Object *e = elm_label_add(window_evas_object_get(win));
+ 	elm_label_label_set(e, label);
+@@ -310,7 +310,7 @@ window_inwin_dialog(struct Window *win, const char *label, GList * buttons,
+ 
+ 	Evas_Object *bx2 = elm_box_add(window_evas_object_get(win));
+ 	elm_box_horizontal_set(bx2, 1);
+-	elm_box_homogenous_set(bx2, 1);
++	elm_box_homogeneous_set(bx2, 1);
+ 
+ 	for (buttons = g_list_first(buttons); buttons;
+ 	     buttons = g_list_next(buttons)) {
+diff --git a/src/view/dialer-view.c b/src/view/dialer-view.c
+index 4476273..0caf3bc 100644
+--- a/src/view/dialer-view.c
++++ b/src/view/dialer-view.c
+@@ -173,7 +173,7 @@ dialer_view_init()
+ 
+ 	view.bx2 = elm_box_add(win);
+ 	elm_box_horizontal_set(view.bx2, 0);
+-	elm_box_homogenous_set(view.bx2, 1);
++	elm_box_homogeneous_set(view.bx2, 1);
+ 	evas_object_show(view.bx2);
+ 
+ 	int iSuggest;
+@@ -197,7 +197,7 @@ dialer_view_init()
+ 
+ 	view.bx = elm_box_add(win);
+ 	elm_box_horizontal_set(view.bx, 0);
+-	elm_box_homogenous_set(view.bx, 1);
++	elm_box_homogeneous_set(view.bx, 1);
+ 	evas_object_show(view.bx);
+ 
+ 	view.bt_save = elm_button_add(win);
+diff --git a/src/view/message-list-view.c b/src/view/message-list-view.c
+index b0b1829..d4eb01a 100644
+--- a/src/view/message-list-view.c
++++ b/src/view/message-list-view.c
+@@ -125,7 +125,7 @@ message_list_view_init()
+ 
+ 	box = elm_box_add(win);
+ 	elm_box_horizontal_set(box, 0);
+-	elm_box_homogenous_set(box, 1);
++	elm_box_homogeneous_set(box, 1);
+ 	evas_object_show(box);
+ 
+ 	obj = elm_button_add(win);
+diff --git a/src/view/message-show-view.c b/src/view/message-show-view.c
+index 61ad0e7..ca7da36 100644
+--- a/src/view/message-show-view.c
++++ b/src/view/message-show-view.c
+@@ -219,7 +219,7 @@ message_show_view_init(char* path, GHashTable *properties)
+ 
+ 	box = elm_box_add(win);
+ 	elm_box_horizontal_set(box, 0);
+-	elm_box_homogenous_set(box, 1);
++	elm_box_homogeneous_set(box, 1);
+ 	evas_object_show(box);
+ 
+ 	obj = elm_button_add(win);
+diff --git a/src/view/phone-log-view.c b/src/view/phone-log-view.c
+index 9e45c07..e7fc2fe 100644
+--- a/src/view/phone-log-view.c
++++ b/src/view/phone-log-view.c
+@@ -114,7 +114,7 @@ int phone_log_view_init()
+ 
+ 	view.toolbar = elm_toolbar_add(win);
+ 	ui_utils_view_swallow(VIEW_PTR(view), "toolbar", view.toolbar);
+-	elm_toolbar_homogenous_set(view.toolbar, 1);
++	elm_toolbar_homogeneous_set(view.toolbar, 1);
+ 	elm_toolbar_mode_shrink_set(view.toolbar, ELM_TOOLBAR_SHRINK_NONE);
+ 	elm_toolbar_align_set(view.toolbar, 0.0);
+ 	elm_toolbar_icon_size_set(view.toolbar, 16);
+diff --git a/src/view/quick-settings-view.c b/src/view/quick-settings-view.c
+index 048a04c..e3363d1 100644
+--- a/src/view/quick-settings-view.c
++++ b/src/view/quick-settings-view.c
+@@ -108,7 +108,7 @@ quick_settings_view_init()
+ 
+ 	view.toolbar = elm_toolbar_add(win);
+ 	ui_utils_view_swallow(VIEW_PTR(view), "toolbar", view.toolbar);
+-	elm_toolbar_homogenous_set(view.toolbar, EINA_TRUE);
++	elm_toolbar_homogeneous_set(view.toolbar, EINA_TRUE);
+ 	elm_toolbar_mode_shrink_set(view.toolbar, ELM_TOOLBAR_SHRINK_NONE);
+ 	elm_toolbar_align_set(view.toolbar, 0.0);
+ 	elm_toolbar_icon_size_set(view.toolbar, 16);
+diff --git a/src/view/sim-manager-view.c b/src/view/sim-manager-view.c
+index b9087ad..e6f870b 100644
+--- a/src/view/sim-manager-view.c
++++ b/src/view/sim-manager-view.c
+@@ -847,7 +847,7 @@ sim_manager_view_init()
+ 
+ 	view.bx = elm_box_add(win);
+ 	elm_box_horizontal_set(view.bx, 0);
+-	elm_box_homogenous_set(view.bx, 1);
++	elm_box_homogeneous_set(view.bx, 1);
+ 	evas_object_show(view.bx);
+ 
+ 	view.bt_message = elm_button_add(win);
+-- 
+1.7.5.rc3
+

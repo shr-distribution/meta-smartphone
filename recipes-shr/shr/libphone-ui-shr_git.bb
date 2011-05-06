@@ -8,7 +8,8 @@ PR = "r3"
 LICENSE = "LGPLv2.1"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=4fbd65380cdd255951079008b364516c"
 
-SRC_URI = "git://git.shr-project.org/repo/libphone-ui-shr.git;protocol=http;branch=master"
+SRC_URI = "git://git.shr-project.org/repo/libphone-ui-shr.git;protocol=http;branch=master \
+           file://0001-adapt-to-API-change-in-r59160-s-homogenous-homogeneo.patch"
 S = "${WORKDIR}/git"
 
 inherit pkgconfig autotools gettext
