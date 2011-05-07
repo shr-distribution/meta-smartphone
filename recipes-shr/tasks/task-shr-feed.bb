@@ -50,7 +50,6 @@ RDEPENDS_${PN} += "\
 		openvpn \
 		pyphonelog \
 		ffphonelog \
-		shr-today \
 		shr-theme-neo \
 		shr-theme-o2 \
 		shr-theme-niebiee \
