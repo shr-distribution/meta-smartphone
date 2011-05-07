@@ -1,6 +1,5 @@
 DESCRIPTION = "Modular settings application for SHR based on python-elementary"
 HOMEPAGE = "http://shr-project.org"
-SHR_RELEASE ?= "shr"
 LICENSE = "GPLv3+"
 LIC_FILES_CHKSUM = "file://shr-settings;endline=4;md5=ec1482bfb96c1ba7a2d5c69812980bf2"
 RDEPENDS_${PN} = "python-elementary python-dbus python-codecs python-shell python-pyrtc python python-core python-edbus dbus-x11 frameworkd python-phoneutils python-pexpect"
