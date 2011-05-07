@@ -11,7 +11,7 @@ PR = "r7"
 RREPLACES_${PN} = "shr-today"
 RCONFLICTS_${PN} = "shr-today"
 
-SRC_URI = "git://git.shr-project.org/repo/phoneuid.git;protocol=http;branch=glib-2.29"
+SRC_URI = "git://git.shr-project.org/repo/phoneuid.git;protocol=http;branch=master"
 S = "${WORKDIR}/git"
 
 inherit autotools

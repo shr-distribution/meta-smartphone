@@ -8,7 +8,7 @@ SRCREV = "eaea1dd4edaa2ee1be96a7de88f838236708b084"
 PV = "0.0.0+gitr${SRCPV}"
 PR = "r5"
 
-SRC_URI = "git://git.shr-project.org/repo/phonefsod.git;protocol=http;branch=glib-2.29"
+SRC_URI = "git://git.shr-project.org/repo/phonefsod.git;protocol=http;branch=master"
 S = "${WORKDIR}/git"
 
 inherit autotools update-rc.d
