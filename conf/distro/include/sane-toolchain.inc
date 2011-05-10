@@ -18,10 +18,12 @@ PREFERRED_LIBTOOL_VERSION            = "2.4"
 LIBTOOL_HAS_SYSROOT                  = "yes"
 
 # Prefer glibc 2.6 and uclibc 0.9.30, these have had the most testing.
-PREFERRED_VERSION_glibc              ?= "${PREFERRED_GLIBC_VERSION}"
-PREFERRED_VERSION_glibc-initial      ?= "${PREFERRED_GLIBC_VERSION}"
-PREFERRED_VERSION_eglibc             ?= "${PREFERRED_EGLIBC_VERSION}"
-PREFERRED_VERSION_eglibc-initial     ?= "${PREFERRED_EGLIBC_VERSION}"
+PREFERRED_VERSION_glibc                  ?= "${PREFERRED_GLIBC_VERSION}"
+PREFERRED_VERSION_glibc-initial          ?= "${PREFERRED_GLIBC_VERSION}"
+PREFERRED_VERSION_eglibc                 ?= "${PREFERRED_EGLIBC_VERSION}"
+PREFERRED_VERSION_eglibc-initial         ?= "${PREFERRED_EGLIBC_VERSION}"
+PREFERRED_VERSION_eglibc-nativesdk       ?= "${PREFERRED_EGLIBC_VERSION}"
+PREFERRED_VERSION_cross-localedef-native ?= "${PREFERRED_EGLIBC_VERSION}"
 
 # Some systems need a special gcc version
 PREFERRED_GCC_VERSION_486sx          ?= "4.3.2"
@@ -36,9 +38,11 @@ PREFERRED_VERSION_linux-libc-headers ?= "2.6.37.2"
 #KERNEL_CCSUFFIX_armv7a= "-4.2.1+csl-arm-2007q3-53"
 
 # Binutils
-PREFERRED_VERSION_binutils           ?= "${PREFERRED_BINUTILS_VERSION}"
-PREFERRED_VERSION_binutils-cross     ?= "${PREFERRED_BINUTILS_VERSION}"
-PREFERRED_VERSION_binutils-cross-sdk ?= "${PREFERRED_BINUTILS_VERSION}"
+PREFERRED_VERSION_binutils                ?= "${PREFERRED_BINUTILS_VERSION}"
+PREFERRED_VERSION_binutils-cross          ?= "${PREFERRED_BINUTILS_VERSION}"
+PREFERRED_VERSION_binutils-cross-sdk      ?= "${PREFERRED_BINUTILS_VERSION}"
+PREFERRED_VERSION_binutils-crosssdk       ?= "${PREFERRED_BINUTILS_VERSION}"
+PREFERRED_VERSION_binutils-cross-canadian ?= "${PREFERRED_BINUTILS_VERSION}"
 
 # Avr32 only has patches for binutils 2.17 in OE
 PREFERRED_VERSION_binutils_avr32 =           "2.17"
@@ -46,11 +50,17 @@ PREFERRED_VERSION_binutils-cross_avr32 =     "2.17"
 PREFERRED_VERSION_binutils-cross-sdk_avr32 = "2.17"
 
 # Compiler versions
-PREFERRED_VERSION_gcc                    ?= "${PREFERRED_GCC_VERSION}"
-PREFERRED_VERSION_gcc-cross              ?= "${PREFERRED_GCC_VERSION}"
-PREFERRED_VERSION_gcc-cross-sdk          ?= "${PREFERRED_GCC_VERSION}"
-PREFERRED_VERSION_gcc-cross-initial      ?= "${PREFERRED_GCC_VERSION}"
-PREFERRED_VERSION_gcc-cross-intermediate ?= "${PREFERRED_GCC_VERSION}"
+PREFERRED_VERSION_gcc                       ?= "${PREFERRED_GCC_VERSION}"
+PREFERRED_VERSION_gcc-cross                 ?= "${PREFERRED_GCC_VERSION}"
+PREFERRED_VERSION_gcc-cross-sdk             ?= "${PREFERRED_GCC_VERSION}"
+PREFERRED_VERSION_gcc-cross-initial         ?= "${PREFERRED_GCC_VERSION}"
+PREFERRED_VERSION_gcc-cross-intermediate    ?= "${PREFERRED_GCC_VERSION}"
+PREFERRED_VERSION_gcc-cross-canadian        ?= "${PREFERRED_GCC_VERSION}"
+PREFERRED_VERSION_gcc-crosssdk              ?= "${PREFERRED_GCC_VERSION}"
+PREFERRED_VERSION_gcc-crosssdk-initial      ?= "${PREFERRED_GCC_VERSION}"
+PREFERRED_VERSION_gcc-crosssdk-intermediate ?= "${PREFERRED_GCC_VERSION}"
+PREFERRED_VERSION_gcc-runtime               ?= "${PREFERRED_GCC_VERSION}"
+PREFERRED_VERSION_libgcc                    ?= "${PREFERRED_GCC_VERSION}"
 
 # Others
 PREFERRED_VERSION_libtool = "${PREFERRED_LIBTOOL_VERSION}"
