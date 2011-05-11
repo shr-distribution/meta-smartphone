@@ -23,3 +23,6 @@ PREFERRED_VERSION_mupdf = "0.6"
 
 # Downgraded
 PREFERRED_VERSION_pulseaudio = "0.9.15"
+
+# Prefer gcc from meta-oe
+GCCVERSION ?= "4.5"
