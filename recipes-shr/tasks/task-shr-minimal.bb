@@ -19,7 +19,7 @@ def get_rdepends(bb, d):
     if not locales or locales == "all":
         locales = bb.data.getVar("IMAGE_LINGUAS", d, 1);
 
-    libc = bb.data.getVar('LIBC', d, 1)
+    libc = bb.data.getVar('TCLIBC', d, 1)
     import re
 
     rdepends = ""
