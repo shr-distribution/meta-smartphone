@@ -7,7 +7,7 @@ DEPENDS = "glib-2.0"
 SRC_URI = "${FREESMARTPHONE_GIT}/libgisi.git;protocol=git;branch=master"
 S = "${WORKDIR}/git"
 
-SRCREV = "af74507992ecbaa46583503cb7e3497e7975ad69"
+SRCREV = "c993ee694ea98597d619a1ffae397d3416233354"
 PV = "0.1.0+gitr${SRCPV}"
 
 inherit vala autotools
