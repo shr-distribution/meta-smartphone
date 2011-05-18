@@ -22,15 +22,15 @@ PREFERRED_PROVIDER_virtual/kernel = "linux-palmpre"
 IMAGE_FSTYPES += "tar.gz"
 
 MACHINE_FEATURES = "kernel26 screen apm usbgadget usbhost vfat alsa phone bluetooth touchscreen keyboard wifi"
-MACHINE_EXTRA_RDEPENDS = " \
- tsmd \
- read-tokens \
- lvm2 \
- palmpre-audio-scripts \
- compat-wireless-2.6-old \
- kernel-module-sirloin-wifi \
- marvell-license \
- marvell-sdio-fw \
-"
+#MACHINE_EXTRA_RDEPENDS = " \
+# tsmd \
+# read-tokens \
+# lvm2 \
+# palmpre-audio-scripts \
+# compat-wireless-2.6-old \
+# kernel-module-sirloin-wifi \
+# marvell-license \
+# marvell-sdio-fw \
+#"
 
 PREFERRED_PROVIDER_udev-compat = "udev-compat141"
