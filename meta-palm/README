@@ -1,0 +1,11 @@
+The Palm Machine OpenEmbedded layer
+This layer depends on:
+
+URI: git://git.openembedded.org/openembedded-core
+branch: master
+revision: HEAD
+
+URI: git://git.openembedded.net/meta-openembedded
+layers: meta-oe, meta-efl
+branch: master
+revision: HEAD

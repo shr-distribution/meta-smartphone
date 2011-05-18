@@ -25,19 +25,16 @@ PREFERRED_PROVIDER_virtual/kernel = "linux-palmpre"
 
 IMAGE_FSTYPES += "tar.gz"
 
-# Let's keep the following three from the beagleboard machine config
-UBOOT_MACHINE = "omap3_beagle_config"
-PREFERRED_VERSION_u-boot = "git"
-XLOAD_MACHINE = "omap3530beagle_config"
-
 MACHINE_FEATURES = "kernel26 screen apm usbgadget usbhost vfat alsa phone bluetooth touchscreen keyboard wifi"
 MACHINE_EXTRA_RDEPENDS = " \
  tsmd \
  read-tokens \
- tellbootie \
  lvm2 \
  palmpre-audio-scripts \
  compat-wireless-2.6-old \
+ kernel-module-sirloin-wifi \
+ marvell-license \
+ marvell-sdio-fw \
 "
 
 PREFERRED_PROVIDER_udev-compat = "udev-compat141"
