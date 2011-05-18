@@ -1,0 +1,22 @@
+The freesmartphone.org OpenEmbedded layer
+This layer depends on:
+
+URI: git://git.openembedded.org/openembedded-core
+layers: meta
+branch: master
+revision: HEAD
+
+URI: git://git.openembedded.net/meta-openembedded
+layers: meta-oe
+branch: master
+revision: HEAD
+
+If you want to contribute changes to metadata, please follow
+http://www.shr-project.org/trac/wiki/Howto%20get%20my%20application%20in%20the%20SHR%20feed
+and send patches or pull requests to shr-devel@lists.shr-project.org with prefix [meta-fso].
+
+To contribute to freesmartphone.org repositories use smartphones-userland@linuxtogo.org.
+
+If you want to discuss this layer join us on #openmoko-cdevel on FreeNode IRC network.
+
+Main layer maintainers: Martin 'JaMa' Jansa <Martin.Jansa@gmail.com>, Michael 'Mickey' Lauer <mickey@vanille-media.de>, Simon 'morphis' Busch <morphis@gravedo.de>, Klaus 'mrmoku' Kurzmann <mok@fluxnetz.de>

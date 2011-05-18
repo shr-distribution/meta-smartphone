@@ -1,4 +1,4 @@
-The OpenEmbedded BSP layer for palm devices
+The OpenEmbedded BSP layer for zaurus devices (temporary stuff before meta-handhelds is published and usable)
 This layer depends on:
 
 URI: git://git.openembedded.org/openembedded-core
@@ -7,8 +7,8 @@ branch: master
 
 If you want to contribute changes, please follow
 http://www.shr-project.org/trac/wiki/Howto%20get%20my%20application%20in%20the%20SHR%20feed
-and send patches or pull requests to shr-devel@lists.shr-project.org with prefix [meta-palm].
+and send patches or pull requests to shr-devel@lists.shr-project.org with prefix [meta-zaurus].
 
 If you want to discuss this layer join us on #openmoko-cdevel on FreeNode IRC network.
 
-Main layer maintainers: Simon 'morphis' Busch <morphis@gravedo.de>
+Main layer maintainers: Martin 'JaMa' Jansa <Martin.Jansa@gmail.com>
