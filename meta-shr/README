@@ -2,6 +2,7 @@ The SHR OpenEmbedded layer
 This layer depends on:
 
 URI: git://git.openembedded.org/openembedded-core
+layers: meta
 branch: master
 revision: HEAD
 
@@ -14,3 +15,18 @@ URI: http://git.shr-project.org/repo/meta-shr.git
 layers: meta-fso
 branch: master
 revision: HEAD
+
+It is recommended to follow the instruction at 
+http://www.shr-project.org/trac/wiki/Building%20SHR
+
+After optional but recommended setup of shr-chroot 
+"make setup-shr-chroot"
+you just setup shr-core repositories and environment settings with
+"make setup-shr-core"
+
+If you want to contribute changes, please follow
+http://www.shr-project.org/trac/wiki/Howto%20get%20my%20application%20in%20the%20SHR%20feed
+
+And send patches or pull requests to shr-devel@lists.shr-project.org with prefix [meta-shr].
+
+Main layer maintainers: Martin 'JaMa' Jansa <Martin.Jansa@gmail.com>, Klaus 'mrmoku' Kurzmann <mok@fluxnetz.de>
