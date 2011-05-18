@@ -5,4 +5,12 @@ URI: git://git.openembedded.org/openembedded-core
 branch: master
 revision: HEAD
 
+URI: git://git.openembedded.net/meta-openembedded
+layers: meta-oe, meta-efl
+branch: master
+revision: HEAD
 
+URI: http://git.shr-project.org/repo/meta-shr.git
+layers: meta-fso
+branch: master
+revision: HEAD
