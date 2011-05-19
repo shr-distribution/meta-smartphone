@@ -8,6 +8,6 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384
 
 PV = "0.2"
 PR = "r5"
-PACKAGE_ARCH = "all"
+inherit allarch
 
 ALLOW_EMPTY = "1"

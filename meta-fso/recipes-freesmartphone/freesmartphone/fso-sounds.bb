@@ -25,4 +25,4 @@ FILES_${PN} = "${datadir}/sounds/female_message.wav \
 "
 FILES_${PN}-extras = "${datadir}/sounds"
 
-PACKAGE_ARCH = "all"
+inherit allarch

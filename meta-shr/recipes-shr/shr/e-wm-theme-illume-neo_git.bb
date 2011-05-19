@@ -5,7 +5,7 @@ AUTHOR = "Jesus McCloud <bernd.pruenster@gmail.com"
 DEPENDS = "edje-native"
 RDEPENDS_${PN} = "e-wm"
 RSUGGESTS_${PN} = "elementary-theme-neo gtk-theme-neo gpe-theme-neo icon-theme-neo"
-PACKAGE_ARCH = "all"
+inherit allarch
 LICENSE = "unknown"
 
 SRCREV = "c2443c4052997045f8862462a06a5b07dce42cb5"

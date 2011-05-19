@@ -5,7 +5,7 @@ LICENSE = "MIT BSD"
 SRCREV = "4b89eb1d477fb1e5256e2e35bf214af2c59843eb"
 PV = "0.2+gitr${SRCPV}"
 PR = "r1"
-PACKAGE_ARCH = "all"
+inherit allarch
 
 SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http;branch=master"
 

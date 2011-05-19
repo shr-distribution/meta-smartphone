@@ -8,7 +8,7 @@ RSUGGESTS_${PN} = "elementary-theme-niebiee"
 SRCREV = "8bf704525807f8a29fa1f3ad653d3fea81cd5aa3"
 PV = "0.1+gitr${SRCPV}"
 PR = "r1"
-PACKAGE_ARCH = "all"
+inherit allarch
 
 SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http;branch=master"
 

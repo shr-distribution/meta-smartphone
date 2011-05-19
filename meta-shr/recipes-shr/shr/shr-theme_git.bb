@@ -8,7 +8,7 @@ SRCREV = "730da87ad75c814c16c856ca138605d985b6efdb"
 PV = "0.0.2+gitr${SRCPV}"
 PR = "r2"
 
-inherit autotools gettext
+inherit autotools gettext allarch
 
 SRC_URI = "git://git.shr-project.org/repo/shr.git;protocol=http;branch=master"
 S = "${WORKDIR}/git/${PN}"
@@ -16,6 +16,18 @@ S = "${WORKDIR}/git/${PN}"
 pkg_postinst_shr-theme () {
 }
 
-PACKAGE_ARCH = "all"
+do_configure_prepend() {
+# insane.bbclass does not like shared repos and check whole WORKDIR instead just S
+rm -rf ${WORKDIR}/git/libframeworkd-phonegui*
+rm -rf ${WORKDIR}/git/neod/
+rm -rf ${WORKDIR}/git/openmoko-*
+rm -rf ${WORKDIR}/git/ophonekitd/
+rm -rf ${WORKDIR}/git/shr-dialer/
+rm -rf ${WORKDIR}/git/shr-contacts/
+rm -rf ${WORKDIR}/git/shr-messages/
+rm -rf ${WORKDIR}/git/shr-settings/
+rm -rf ${WORKDIR}/git/shr-splash/
+rm -rf ${WORKDIR}/git/libhito/
+}
 
 FILES_${PN} += "${datadir}/icons"
