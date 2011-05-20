@@ -23,6 +23,7 @@ IMAGE_DEV_MANAGER ?= "${@base_contains("MACHINE_FEATURES", "kernel26",  "udev","
 IMAGE_DEV_MANAGER_om-gta01 = ""
 IMAGE_DEV_MANAGER_om-gta02 = ""
 IMAGE_DEV_MANAGER_htcdream = ""
+IMAGE_DEV_MANAGER_nokia900 = ""
 
 #
 # sysvinit, upstart
