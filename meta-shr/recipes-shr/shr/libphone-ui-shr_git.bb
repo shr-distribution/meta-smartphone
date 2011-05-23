@@ -1,7 +1,7 @@
 DESCRIPTION = "SHR default module for the Phone UI daemon"
 SECTION = "e/apps"
 DEPENDS += " libphone-ui evas ecore edje edje-native elementary"
-SRCREV = "e50e9927fac05664bf1d6b1e0d3a953484038495"
+SRCREV = "1b693f573622dbdc9a51f01f084ec0884b22e208"
 PE = "1"
 PV = "0.0.1+gitr${SRCPV}"
 PR = "r4"
@@ -10,8 +10,6 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=4fbd65380cdd255951079008b364516c"
 
 SRC_URI = "git://git.shr-project.org/repo/libphone-ui-shr.git;protocol=http;branch=master \
            file://0001-adapt-to-API-change-in-r59160-s-homogenous-homogeneo.patch \
-           file://0001-call-common-drop-unused-state_string.patch \
-           file://0001-ui-utils-contacts-check-returned-item-from-elm_list_.patch \
 "
 
 S = "${WORKDIR}/git"
