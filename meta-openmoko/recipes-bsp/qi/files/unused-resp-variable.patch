@@ -1,0 +1,54 @@
+--- a/src/drivers/glamo-mmc.c	2011-05-23 11:47:07.656734305 +0200
++++ b/src/drivers/glamo-mmc.c	2011-05-23 14:36:07.745731379 +0200
+@@ -507,6 +507,9 @@
+ 	resp = mmc_cmd(MMC_SET_BLOCKLEN, MMC_BLOCK_SIZE,
+ 		       MMC_CMD_AC | MMC_RSP_R1, 0, 0, 0,
+ 		       (u16 *)&response[0]);
++	if (!resp) {
++		puts("Bad response");
++	}
+ 
+ 	while (size) {
+ 		do_pio_write((u16 *)src, MMC_BLOCK_SIZE >> 1);
+@@ -518,6 +521,9 @@
+ 								MMC_DATA_WRITE,
+ 				       MMC_BLOCK_SIZE, 1, 0,
+ 				       (u16 *)&response[0]);
++			if (!resp) {
++				puts("Bad response");
++			}
+ 			break;
+ 		default: /* byte addressing */
+ 			resp = mmc_cmd(MMC_WRITE_BLOCK, dst,
+@@ -525,6 +531,9 @@
+ 								MMC_DATA_WRITE,
+ 				       MMC_BLOCK_SIZE, 1, 0,
+ 				       (u16 *)&response[0]);
++			if (!resp) {
++				puts("Bad response");
++			}
+ 			break;
+ 		}
+ 		if (size >= MMC_BLOCK_SIZE)
+--- a/src/cpu/s3c2442/s3c24xx-mci.c	2011-05-23 14:37:18.882731359 +0200
++++ b/src/cpu/s3c2442/s3c24xx-mci.c	2011-05-23 14:37:51.311731350 +0200
+@@ -149,6 +149,9 @@
+ 
+ 	/* set block len */
+ 	resp = mmc_cmd(MMC_CMD_SET_BLOCKLEN, len, CMD_F_RESP);
++	if (!resp) {
++		puts("Bad response");
++	}
+ 	SDIBSIZE = len;
+ 
+ 	//SDIPRE = 0xff;
+@@ -167,6 +170,9 @@
+ 
+ 	/* send read command */
+ 	resp = mmc_cmd(MMC_CMD_READ_BLOCK, src, CMD_F_RESP);
++	if (!resp) {
++		puts("Bad response");
++	}
+ 
+ 	while (len > 0) {
+ 		u32 sdidsta = SDIDSTA;
