@@ -1,16 +1,7 @@
-diff --git a/arch/arm/boot/compressed/head.S b/arch/arm/boot/compressed/head.S
-index adf583c..28724d7 100644
---- a/arch/arm/boot/compressed/head.S
-+++ b/arch/arm/boot/compressed/head.S
-@@ -58,7 +58,7 @@
- 		add	\rb, \rb, #0x00010000	@ Ser1
- #endif
- 		.endm
--#elif defined(CONFIG_ARCH_S3C2410)
-+#elif defined(CONFIG_ARCH_S3C2410) && CONFIG_S3C_LOWLEVEL_UART_PORT >= 0
- 		.macro loadsp, rb, tmp
- 		mov	\rb, #0x50000000
- 		add	\rb, \rb, #0x4000 * CONFIG_S3C_LOWLEVEL_UART_PORT
+All patches from openmoko repository
+
+http://git.openmoko.org/?p=kernel.git;a=commit;h=164905f9f5843aa94b04eef724238c77dc47af0f
+
 diff --git a/arch/arm/include/asm/fiq.h b/arch/arm/include/asm/fiq.h
 index 2242ce2..7ade2b8 100644
 --- a/arch/arm/include/asm/fiq.h
@@ -167,50 +158,11 @@ index f7f6b07..f9ddfa9 100644
 -#define S3C_GPIO_END	(S3C2410_GPH(0) + 32)
 -#endif
 +#include <asm-generic/gpio.h>
-diff --git a/arch/arm/mach-s3c2410/include/mach/irqs.h b/arch/arm/mach-s3c2410/include/mach/irqs.h
-index e5a68ea..f2af90d 100644
---- a/arch/arm/mach-s3c2410/include/mach/irqs.h
-+++ b/arch/arm/mach-s3c2410/include/mach/irqs.h
-@@ -176,9 +176,9 @@
- #define IRQ_S3C2443_AC97	S3C2410_IRQSUB(28)
- 
- #if defined(CONFIG_CPU_S3C2443) || defined(CONFIG_CPU_S3C2416)
--#define NR_IRQS (IRQ_S3C2443_AC97+1)
-+#define S3C2410_NR_INTERNAL_IRQS (IRQ_S3C2443_AC97+1)
- #else
--#define NR_IRQS (IRQ_S3C2440_AC97+1)
-+#define S3C2410_NR_INTERNAL_IRQS (IRQ_S3C2440_AC97+1)
- #endif
- 
- /* compatibility define. */
-@@ -199,4 +199,22 @@
- /* Our FIQs are routable from IRQ_EINT0 to IRQ_ADCPARENT */
- #define FIQ_START		IRQ_EINT0
- 
-+/* Board specific IRQs
-+ * If your board needs a extra set of IRQ numbers add it to the list here.
-+ * Make sure that the numbers are kept in descending order, so if support for
-+ * multiple boards is compiled in the maximum will be used and there are enough
-+ * IRQ numbers available for each board.
-+ */
-+
-+#if defined(CONFIG_MACH_NEO1973_GTA02)
-+#define IRQ_BOARD_NR (9 + 40)
-+#else
-+#define IRQ_BOARD_NR 0
-+#endif
-+
-+#define IRQ_BOARD_START S3C2410_NR_INTERNAL_IRQS
-+#define IRQ_BOARD_END	(IRQ_BOARD_START + IRQ_BOARD_NR)
-+
-+#define NR_IRQS			IRQ_BOARD_END
-+
- #endif /* __ASM_ARCH_IRQ_H */
 diff --git a/arch/arm/mach-s3c2440/Kconfig b/arch/arm/mach-s3c2440/Kconfig
-index 50825a3..5799924 100644
+index 50825a3..5122b3e 100644
 --- a/arch/arm/mach-s3c2440/Kconfig
 +++ b/arch/arm/mach-s3c2440/Kconfig
-@@ -93,13 +93,15 @@ config MACH_ANUBIS
+@@ -93,13 +93,16 @@ config MACH_ANUBIS
  config MACH_NEO1973_GTA02
  	bool "Openmoko GTA02 / Freerunner phone"
  	select CPU_S3C2442
@@ -223,6 +175,7 @@ index 50825a3..5799924 100644
  	select MACH_NEO1973
  	select S3C2410_PWM
  	select S3C_DEV_USB_HOST
++	select SPARSE_IRQ
 +	select FIQ
  	help
  	   Say Y here if you are using the Openmoko GTA02 / Freerunner GSM Phone
@@ -808,7 +761,7 @@ index 0000000..a1dadc2
 +MODULE_DESCRIPTION("HDQ driver");
 diff --git a/arch/arm/mach-s3c2440/gta02-pm-bt.c b/arch/arm/mach-s3c2440/gta02-pm-bt.c
 new file mode 100644
-index 0000000..13c542e
+index 0000000..28aaa3c
 --- /dev/null
 +++ b/arch/arm/mach-s3c2440/gta02-pm-bt.c
 @@ -0,0 +1,264 @@
@@ -969,7 +922,7 @@ index 0000000..13c542e
 +	.attrs	= gta02_bt_sysfs_entries,
 +};
 +
-+static int __init gta02_bt_probe(struct platform_device *pdev)
++static int __devinit gta02_bt_probe(struct platform_device *pdev)
 +{
 +	struct rfkill *rfkill;
 +	struct regulator *regulator;
@@ -1025,7 +978,7 @@ index 0000000..13c542e
 +	return sysfs_create_group(&pdev->dev.kobj, &gta02_bt_attr_group);
 +}
 +
-+static int gta02_bt_remove(struct platform_device *pdev)
++static int __devexit gta02_bt_remove(struct platform_device *pdev)
 +{
 +	struct gta02_pm_bt_data *bt_data = dev_get_drvdata(&pdev->dev);
 +	struct regulator *regulator;
@@ -1053,7 +1006,7 @@ index 0000000..13c542e
 +
 +static struct platform_driver gta02_bt_driver = {
 +	.probe		= gta02_bt_probe,
-+	.remove		= gta02_bt_remove,
++	.remove		= __devexit_p(gta02_bt_remove),
 +	.suspend	= gta02_bt_suspend,
 +	.resume		= gta02_bt_resume,
 +	.driver		= {
@@ -1061,13 +1014,13 @@ index 0000000..13c542e
 +	},
 +};
 +
-+static int __devinit gta02_bt_init(void)
++static int __init gta02_bt_init(void)
 +{
 +	return platform_driver_register(&gta02_bt_driver);
 +}
 +module_init(gta02_bt_init);
 +
-+static void gta02_bt_exit(void)
++static void __exit gta02_bt_exit(void)
 +{
 +	platform_driver_unregister(&gta02_bt_driver);
 +}
@@ -1078,7 +1031,7 @@ index 0000000..13c542e
 +MODULE_DESCRIPTION(DRVMSG);
 diff --git a/arch/arm/mach-s3c2440/gta02-pm-gps.c b/arch/arm/mach-s3c2440/gta02-pm-gps.c
 new file mode 100644
-index 0000000..219d165
+index 0000000..4ca3ac6
 --- /dev/null
 +++ b/arch/arm/mach-s3c2440/gta02-pm-gps.c
 @@ -0,0 +1,229 @@
@@ -1255,7 +1208,7 @@ index 0000000..219d165
 +	.attrs	= gta02_gps_sysfs_entries,
 +};
 +
-+static int __init gta02_pm_gps_probe(struct platform_device *pdev)
++static int __devinit gta02_pm_gps_probe(struct platform_device *pdev)
 +{
 +	gta02_gps.regulator = regulator_get(&pdev->dev, "RF_3V");
 +	if (IS_ERR(gta02_gps.regulator)) {
@@ -1281,7 +1234,7 @@ index 0000000..219d165
 +				  &gta02_gps_attr_group);
 +}
 +
-+static int gta02_pm_gps_remove(struct platform_device *pdev)
++static int __devexit gta02_pm_gps_remove(struct platform_device *pdev)
 +{
 +	regulator_put(gta02_gps.regulator);
 +	sysfs_remove_group(&pdev->dev.kobj, &gta02_gps_attr_group);
@@ -1290,20 +1243,20 @@ index 0000000..219d165
 +
 +static struct platform_driver gta02_pm_gps_driver = {
 +	.probe		= gta02_pm_gps_probe,
-+	.remove		= gta02_pm_gps_remove,
++	.remove		= __devexit_p(gta02_pm_gps_remove),
 +	.driver		= {
 +		.name		= "gta02-pm-gps",
 +		.pm			= GTA02_GPS_PM_OPS,
 +	},
 +};
 +
-+static int __devinit gta02_pm_gps_init(void)
++static int __init gta02_pm_gps_init(void)
 +{
 +	return platform_driver_register(&gta02_pm_gps_driver);
 +}
 +module_init(gta02_pm_gps_init);
 +
-+static void gta02_pm_gps_exit(void)
++static void __exit gta02_pm_gps_exit(void)
 +{
 +	platform_driver_unregister(&gta02_pm_gps_driver);
 +}
@@ -1313,7 +1266,7 @@ index 0000000..219d165
 +MODULE_AUTHOR("Harald Welte <laforge@openmoko.org>");
 diff --git a/arch/arm/mach-s3c2440/gta02-pm-gsm.c b/arch/arm/mach-s3c2440/gta02-pm-gsm.c
 new file mode 100644
-index 0000000..4cef352
+index 0000000..a2b4e91
 --- /dev/null
 +++ b/arch/arm/mach-s3c2440/gta02-pm-gsm.c
 @@ -0,0 +1,368 @@
@@ -1596,7 +1549,7 @@ index 0000000..4cef352
 +	return IRQ_HANDLED;
 +}
 +
-+static int __init gta02_gsm_probe(struct platform_device *pdev)
++static int __devinit gta02_gsm_probe(struct platform_device *pdev)
 +{
 +	int ret;
 +
@@ -1650,7 +1603,7 @@ index 0000000..4cef352
 +	return ret;
 +}
 +
-+static int gta02_gsm_remove(struct platform_device *pdev)
++static int __devexit gta02_gsm_remove(struct platform_device *pdev)
 +{
 +	gsm_on_off(&pdev->dev, 0);
 +
@@ -1663,20 +1616,20 @@ index 0000000..4cef352
 +
 +static struct platform_driver gta02_gsm_driver = {
 +	.probe		= gta02_gsm_probe,
-+	.remove		= gta02_gsm_remove,
++	.remove		= __devexit_p(gta02_gsm_remove),
 +	.driver		= {
 +		.name	= "gta02-pm-gsm",
 +		.pm	= GTA02_GSM_PM_OPS,
 +	},
 +};
 +
-+static int __devinit gta02_gsm_init(void)
++static int __init gta02_gsm_init(void)
 +{
 +	return platform_driver_register(&gta02_gsm_driver);
 +}
 +module_init(gta02_gsm_init);
 +
-+static void gta02_gsm_exit(void)
++static void __exit gta02_gsm_exit(void)
 +{
 +	platform_driver_unregister(&gta02_gsm_driver);
 +}
@@ -1687,7 +1640,7 @@ index 0000000..4cef352
 +MODULE_DESCRIPTION("Openmoko Freerunner GSM Power Management");
 diff --git a/arch/arm/mach-s3c2440/gta02-pm-wlan.c b/arch/arm/mach-s3c2440/gta02-pm-wlan.c
 new file mode 100644
-index 0000000..50ce645
+index 0000000..1c8da2c
 --- /dev/null
 +++ b/arch/arm/mach-s3c2440/gta02-pm-wlan.c
 @@ -0,0 +1,198 @@
@@ -1814,7 +1767,7 @@ index 0000000..50ce645
 +/* ----- Initialization/removal -------------------------------------------- */
 +
 +
-+static int __init gta02_wlan_probe(struct platform_device *pdev)
++static int __devinit gta02_wlan_probe(struct platform_device *pdev)
 +{
 +	/* default-on for now */
 +	const int default_state = 1;
@@ -1857,7 +1810,7 @@ index 0000000..50ce645
 +	return 0;
 +}
 +
-+static int gta02_wlan_remove(struct platform_device *pdev)
++static int __devexit gta02_wlan_remove(struct platform_device *pdev)
 +{
 +	struct rfkill *rfkill = dev_get_drvdata(&pdev->dev);
 +
@@ -1868,19 +1821,19 @@ index 0000000..50ce645
 +
 +static struct platform_driver gta02_wlan_driver = {
 +	.probe		= gta02_wlan_probe,
-+	.remove		= gta02_wlan_remove,
++	.remove		= __devexit_p(gta02_wlan_remove),
 +	.driver		= {
 +		.name		= "gta02-pm-wlan",
 +	},
 +};
 +
-+static int __devinit gta02_wlan_init(void)
++static int __init gta02_wlan_init(void)
 +{
 +	return platform_driver_register(&gta02_wlan_driver);
 +}
 +module_init(gta02_wlan_init);
 +
-+static void gta02_wlan_exit(void)
++static void __exit gta02_wlan_exit(void)
 +{
 +	platform_driver_unregister(&gta02_wlan_driver);
 +}
@@ -1957,10 +1910,10 @@ index 0000000..0c96db4
 +
 +#endif /* __MACH_GTA02_PM_WLAN_H */
 diff --git a/arch/arm/mach-s3c2440/include/mach/gta02.h b/arch/arm/mach-s3c2440/include/mach/gta02.h
-index 3a56a22..d838408 100644
+index 3a56a22..2e84b5a 100644
 --- a/arch/arm/mach-s3c2440/include/mach/gta02.h
 +++ b/arch/arm/mach-s3c2440/include/mach/gta02.h
-@@ -79,6 +79,14 @@
+@@ -79,6 +79,11 @@
  #define GTA02_PCB_ID2_0		S3C2410_GPD(3)
  #define GTA02_PCB_ID2_1		S3C2410_GPD(4)
  
@@ -1969,14 +1922,11 @@ index 3a56a22..d838408 100644
 +#define GTA02_GPIO_PCF_BASE (GTA02_GPIO_GLAMO_BASE + 32)
 +#define GTA02_GPIO_PCF(x) (GTA02_GPIO_PCF_BASE + (x))
 +
-+#define GTA02_GLAMO_IRQ_BASE IRQ_BOARD_START
-+#define GTA02_PCF50633_IRQ_BASE (GTA02_GLAMO_IRQ_BASE + 9)
-+
  int gta02_get_pcb_revision(void);
  
  #endif /* _GTA02_H */
 diff --git a/arch/arm/mach-s3c2440/mach-gta02.c b/arch/arm/mach-s3c2440/mach-gta02.c
-index 7166620..f739f58 100644
+index 7166620..aa31b8d 100644
 --- a/arch/arm/mach-s3c2440/mach-gta02.c
 +++ b/arch/arm/mach-s3c2440/mach-gta02.c
 @@ -38,6 +38,7 @@
@@ -2005,20 +1955,9 @@ index 7166620..f739f58 100644
  #include <asm/mach/arch.h>
  #include <asm/mach/map.h>
  #include <asm/mach/irq.h>
-@@ -79,6 +84,8 @@
- #include <mach/regs-mem.h>
- #include <mach/hardware.h>
+@@ -92,6 +97,19 @@
+ #include <plat/ts.h>
  
-+#include <plat/ts.h>
-+
- #include <mach/gta02.h>
- 
- #include <plat/regs-serial.h>
-@@ -89,8 +96,19 @@
- #include <plat/udc.h>
- #include <plat/gpio-cfg.h>
- #include <plat/iic.h>
--#include <plat/ts.h>
  
 +#include <mach/gta02-pm-gps.h>
 +#include <mach/gta02-pm-wlan.h>
@@ -2032,10 +1971,11 @@ index 7166620..f739f58 100644
 +#include <linux/jbt6k74.h>
 +#include <linux/glamofb.h>
 +#include <linux/mfd/glamo.h>
- 
++
  static struct pcf50633 *gta02_pcf;
  
-@@ -147,6 +165,194 @@ static struct s3c2410_uartcfg gta02_uartcfgs[] = {
+ /*
+@@ -147,6 +165,183 @@ static struct s3c2410_uartcfg gta02_uartcfgs[] = {
  	},
  };
  
@@ -2117,12 +2057,6 @@ index 7166620..f739f58 100644
 +	},
 +};
 +
-+static void gta02_glamo_registered(struct device *dev)
-+{
-+	spigpio_device.dev.parent = dev;
-+	platform_device_register(&spigpio_device);
-+}
-+
 +static struct fb_videomode gta02_glamo_modes[] = {
 +	{
 +		.name = "480x640",
@@ -2165,7 +2099,6 @@ index 7166620..f739f58 100644
 +
 +static struct glamo_gpio_platform_data gta02_glamo_gpio_pdata = {
 +	.base = GTA02_GPIO_GLAMO_BASE,
-+	.registered = gta02_glamo_registered,
 +};
 +
 +static struct glamo_platform_data gta02_glamo_pdata = {
@@ -2211,10 +2144,6 @@ index 7166620..f739f58 100644
 +		.end	= GTA02_IRQ_3D,
 +		.flags	= IORESOURCE_IRQ,
 +	},
-+	[2] = {
-+		.start	= IRQ_BOARD_START,
-+		.flags	= IORESOURCE_IRQ,
-+	},
 +};
 +
 +static struct platform_device gta02_glamo_dev = {
@@ -2230,7 +2159,7 @@ index 7166620..f739f58 100644
  #ifdef CONFIG_CHARGER_PCF50633
  /*
   * On GTA02 the 1A charger features a 48K resistor to 0V on the ID pin.
-@@ -159,22 +365,28 @@ static struct s3c2410_uartcfg gta02_uartcfgs[] = {
+@@ -159,22 +354,28 @@ static struct s3c2410_uartcfg gta02_uartcfgs[] = {
  #define ADC_NOM_CHG_DETECT_1A 6
  #define ADC_NOM_CHG_DETECT_USB 43
  
@@ -2270,7 +2199,7 @@ index 7166620..f739f58 100644
  		ma = 100;
  
  	pcf50633_mbc_usb_curlim_set(pcf, ma);
-@@ -235,6 +447,8 @@ static void gta02_udc_vbus_draw(unsigned int ma)
+@@ -235,6 +436,8 @@ static void gta02_udc_vbus_draw(unsigned int ma)
  #else /* !CONFIG_CHARGER_PCF50633 */
  #define gta02_pmu_event_callback	NULL
  #define gta02_udc_vbus_draw		NULL
@@ -2279,7 +2208,7 @@ index 7166620..f739f58 100644
  #endif
  
  /*
-@@ -258,6 +472,32 @@ static struct pcf50633_bl_platform_data gta02_backlight_data = {
+@@ -258,6 +461,32 @@ static struct pcf50633_bl_platform_data gta02_backlight_data = {
  	.ramp_time = 5,
  };
  
@@ -2312,16 +2241,15 @@ index 7166620..f739f58 100644
  struct pcf50633_platform_data gta02_pcf_pdata = {
  	.resumers = {
  		[0] =	PCF50633_INT1_USBINS |
-@@ -276,6 +516,8 @@ struct pcf50633_platform_data gta02_pcf_pdata = {
+@@ -276,6 +505,7 @@ struct pcf50633_platform_data gta02_pcf_pdata = {
  	.charger_reference_current_ma = 1000,
  
  	.backlight_data = &gta02_backlight_data,
 +	.gpio_base = GTA02_GPIO_PCF_BASE,
-+	.irq_base = GTA02_PCF50633_IRQ_BASE,
  
  	.reg_init_data = {
  		[PCF50633_REGULATOR_AUTO] = {
-@@ -313,6 +555,8 @@ struct pcf50633_platform_data gta02_pcf_pdata = {
+@@ -313,6 +543,8 @@ struct pcf50633_platform_data gta02_pcf_pdata = {
  				.valid_ops_mask = REGULATOR_CHANGE_VOLTAGE |
  						REGULATOR_CHANGE_STATUS,
  			},
@@ -2330,7 +2258,7 @@ index 7166620..f739f58 100644
  		},
  		[PCF50633_REGULATOR_LDO1] = {
  			.constraints = {
-@@ -347,6 +591,8 @@ struct pcf50633_platform_data gta02_pcf_pdata = {
+@@ -347,6 +579,8 @@ struct pcf50633_platform_data gta02_pcf_pdata = {
  				.valid_ops_mask = REGULATOR_CHANGE_STATUS,
  				.apply_uV = 1,
  			},
@@ -2339,7 +2267,7 @@ index 7166620..f739f58 100644
  		},
  		[PCF50633_REGULATOR_LDO5] = {
  			.constraints = {
-@@ -356,13 +602,18 @@ struct pcf50633_platform_data gta02_pcf_pdata = {
+@@ -356,13 +590,18 @@ struct pcf50633_platform_data gta02_pcf_pdata = {
  				.valid_ops_mask = REGULATOR_CHANGE_STATUS,
  				.apply_uV = 1,
  			},
@@ -2358,7 +2286,7 @@ index 7166620..f739f58 100644
  		},
  		[PCF50633_REGULATOR_MEMLDO] = {
  			.constraints = {
-@@ -403,7 +654,6 @@ static struct platform_device gta02_nor_flash = {
+@@ -403,7 +642,6 @@ static struct platform_device gta02_nor_flash = {
  	.num_resources	= 1,
  };
  
@@ -2366,7 +2294,7 @@ index 7166620..f739f58 100644
  struct platform_device s3c24xx_pwm_device = {
  	.name		= "s3c24xx_pwm",
  	.num_resources	= 0,
-@@ -449,13 +699,32 @@ static struct s3c2410_platform_nand __initdata gta02_nand_info = {
+@@ -449,6 +687,7 @@ static struct s3c2410_platform_nand __initdata gta02_nand_info = {
  	.twrph1		= 15,
  	.nr_sets	= ARRAY_SIZE(gta02_nand_sets),
  	.sets		= gta02_nand_sets,
@@ -2374,47 +2302,7 @@ index 7166620..f739f58 100644
  };
  
  
-+static void gta02_udc_command(enum s3c2410_udc_cmd_e cmd)
-+{
-+	switch (cmd) {
-+	case S3C2410_UDC_P_ENABLE:
-+		pr_debug("%s S3C2410_UDC_P_ENABLE\n", __func__);
-+		gpio_set_value(GTA02_GPIO_USB_PULLUP, 1);
-+		break;
-+	case S3C2410_UDC_P_DISABLE:
-+		pr_debug("%s S3C2410_UDC_P_DISABLE\n", __func__);
-+		gpio_set_value(GTA02_GPIO_USB_PULLUP, 0);
-+		break;
-+	case S3C2410_UDC_P_RESET:
-+		pr_debug("%s S3C2410_UDC_P_RESET\n", __func__);
-+		/* FIXME: Do something here. */
-+	}
-+}
-+
- /* Get PMU to set USB current limit accordingly. */
--static struct s3c2410_udc_mach_info gta02_udc_cfg __initdata = {
-+static struct s3c2410_udc_mach_info gta02_udc_cfg = {
- 	.vbus_draw	= gta02_udc_vbus_draw,
--	.pullup_pin = GTA02_GPIO_USB_PULLUP,
-+	.udc_command	= gta02_udc_command,
-+
- };
- 
- /* USB */
-@@ -470,9 +739,9 @@ static struct s3c2410_hcd_info gta02_usb_info __initdata = {
- 
- /* Touchscreen */
- static struct s3c2410_ts_mach_info gta02_ts_info = {
--	.delay			= 10000,
--	.presc			= 0xff, /* slow as we can go */
--	.oversampling_shift	= 2,
-+	.delay = 10000,
-+	.presc = 0xff, /* slow as we can go */
-+	.oversampling_shift = 2,
- };
- 
- /* Buttons */
-@@ -506,6 +775,273 @@ static struct platform_device gta02_buttons_device = {
+@@ -506,6 +745,273 @@ static struct platform_device gta02_buttons_device = {
  	},
  };
  
@@ -2688,7 +2576,7 @@ index 7166620..f739f58 100644
  static void __init gta02_map_io(void)
  {
  	s3c24xx_init_io(gta02_iodesc, ARRAY_SIZE(gta02_iodesc));
-@@ -523,19 +1059,30 @@ static struct platform_device *gta02_devices[] __initdata = {
+@@ -523,19 +1029,30 @@ static struct platform_device *gta02_devices[] __initdata = {
  	&s3c_device_usbgadget,
  	&s3c_device_nand,
  	&gta02_nor_flash,
@@ -2720,7 +2608,7 @@ index 7166620..f739f58 100644
  };
  
  
-@@ -568,11 +1115,122 @@ static void gta02_poweroff(void)
+@@ -568,11 +1085,118 @@ static void gta02_poweroff(void)
  	pcf50633_reg_set_bit_mask(gta02_pcf, PCF50633_REG_OOCSHDWN, 1, 1);
  }
  
@@ -2729,6 +2617,10 @@ index 7166620..f739f58 100644
 +	size_t num_children;
 +	struct platform_device **children;
 +	void (*probed_callback)(struct device *dev);
++};
++
++static struct platform_device *gta02_glamo_gpio_children[] = {
++	&spigpio_device,
 +};
 +
 +static struct platform_device *gta02_pcf50633_gpio_children[] = {
@@ -2745,6 +2637,11 @@ index 7166620..f739f58 100644
 +
 +
 +static struct gta02_device_children gta02_device_children[] = {
++ 	{
++		.dev_name = "glamo-gpio.0",
++		.num_children = ARRAY_SIZE(gta02_glamo_gpio_children),
++		.children = gta02_glamo_gpio_children,
++	},
 +	{
 +		.dev_name = "pcf50633-gpio",
 +		.num_children = 1,
@@ -2819,17 +2716,6 @@ index 7166620..f739f58 100644
 +}
 +__setup("hardware_ecc=", hardware_ecc_setup);
 +
-+static void gta02_request_gpios(void)
-+{
-+	int ret;
-+	ret = gpio_request_one(GTA02_GPIO_USB_PULLUP, GPIOF_OUT_INIT_LOW,
-+				"USB pullup");
-+	if (ret) {
-+		printk(KERN_ERR "Failed to request USB pullup gpio pin: %d\n",
-+			ret);
-+	}
-+}
-+
  static void __init gta02_machine_init(void)
  {
  	/* Set the panic callback to turn AUX LED on or off. */
@@ -2838,12 +2724,10 @@ index 7166620..f739f58 100644
 +	bus_register_notifier(&platform_bus_type, &gta02_device_register_notifier);
 +	bus_register_notifier(&spi_bus_type, &gta02_device_register_notifier);
 +
-+	gta02_request_gpios();
-+
  	s3c_pm_init();
  
  #ifdef CONFIG_CHARGER_PCF50633
-@@ -584,10 +1242,13 @@ static void __init gta02_machine_init(void)
+@@ -584,10 +1208,13 @@ static void __init gta02_machine_init(void)
  	s3c_ohci_set_platdata(&gta02_usb_info);
  	s3c_nand_set_platdata(&gta02_nand_info);
  	s3c_i2c0_set_platdata(NULL);
@@ -2935,7 +2819,7 @@ index ec087d6..3256861 100644
  
  
 diff --git a/arch/arm/plat-s3c24xx/irq.c b/arch/arm/plat-s3c24xx/irq.c
-index 9aee7e1..48cb95b 100644
+index 9aee7e1..1317f04 100644
 --- a/arch/arm/plat-s3c24xx/irq.c
 +++ b/arch/arm/plat-s3c24xx/irq.c
 @@ -28,6 +28,8 @@
@@ -3048,21 +2932,20 @@ index 9aee7e1..48cb95b 100644
  		last = pend;
  	}
  
-@@ -623,15 +656,13 @@ void __init s3c24xx_init_irq(void)
- 
+@@ -624,14 +657,14 @@ void __init s3c24xx_init_irq(void)
  	for (irqno = IRQ_EINT0; irqno <= IRQ_EINT3; irqno++) {
  		irqdbf("registering irq %d (ext int)\n", irqno);
--		irq_set_chip_and_handler(irqno, &s3c_irq_eint0t4,
+ 		irq_set_chip_and_handler(irqno, &s3c_irq_eint0t4,
 -					 handle_edge_irq);
-+		irq_set_chip_and_handler(irqno, &s3c_irq_eint0t4, handle_level_irq);
++					 handle_level_irq);
  		set_irq_flags(irqno, IRQF_VALID);
  	}
  
  	for (irqno = IRQ_EINT4; irqno <= IRQ_EINT23; irqno++) {
  		irqdbf("registering irq %d (extended s3c irq)\n", irqno);
--		irq_set_chip_and_handler(irqno, &s3c_irqext_chip,
+ 		irq_set_chip_and_handler(irqno, &s3c_irqext_chip,
 -					 handle_edge_irq);
-+		irq_set_chip_and_handler(irqno, &s3c_irqext_chip, handle_level_irq);
++					 handle_level_irq);
  		set_irq_flags(irqno, IRQF_VALID);
  	}
  
@@ -3078,65 +2961,6 @@ index b64115f..cbdc8f0 100644
  
  	int			nr_sets;
  	struct s3c2410_nand_set *sets;
-diff --git a/arch/arm/plat-samsung/include/plat/uncompress.h b/arch/arm/plat-samsung/include/plat/uncompress.h
-index 7d6ed72..152c496 100644
---- a/arch/arm/plat-samsung/include/plat/uncompress.h
-+++ b/arch/arm/plat-samsung/include/plat/uncompress.h
-@@ -37,6 +37,8 @@ static void arch_detect_cpu(void);
- /* how many bytes we allow into the FIFO at a time in FIFO mode */
- #define FIFO_MAX	 (14)
- 
-+#if  CONFIG_S3C_LOWLEVEL_UART_PORT >= 0
-+
- #define uart_base S3C_PA_UART + (S3C_UART_OFFSET * CONFIG_S3C_LOWLEVEL_UART_PORT)
- 
- static __inline__ void
-@@ -86,10 +88,6 @@ static void putc(int ch)
- 	uart_wr(S3C2410_UTXH, ch);
- }
- 
--static inline void flush(void)
--{
--}
--
- #define __raw_writel(d, ad)			\
- 	do {							\
- 		*((volatile unsigned int __force *)(ad)) = (d); \
-@@ -161,6 +159,19 @@ static inline void arch_enable_uart_fifo(void)
- #define arch_enable_uart_fifo() do { } while(0)
- #endif
- 
-+#else
-+static inline void putc(int ch)
-+{
-+}
-+
-+#define arch_enable_uart_fifo() do { } while(0)
-+#define arch_decomp_wdog_start()
-+#define arch_decomp_wdog()
-+#endif
-+
-+static inline void flush(void)
-+{
-+}
- 
- static void
- arch_decomp_setup(void)
-diff --git a/arch/x86/lguest/boot.c b/arch/x86/lguest/boot.c
-index 1cd6089..ca18e47 100644
---- a/arch/x86/lguest/boot.c
-+++ b/arch/x86/lguest/boot.c
-@@ -785,8 +785,8 @@ static void lguest_flush_tlb_kernel(void)
-  * The Unadvanced Programmable Interrupt Controller.
-  *
-  * This is an attempt to implement the simplest possible interrupt controller.
-- * I spent some time looking though routines like set_irq_chip_and_handler,
-- * set_irq_chip_and_handler_name, set_irq_chip_data and set_phasers_to_stun and
-+ * I spent some time looking though routines like irq_set_chip_and_handler,
-+ * irq_set_chip_and_handler_name, set_irq_chip_data and set_phasers_to_stun and
-  * I *think* this is as simple as it gets.
-  *
-  * We can tell the Host what interrupts we want blocked ready for using the
 diff --git a/drivers/Kconfig b/drivers/Kconfig
 index 177c7d1..14e9dd6 100644
 --- a/drivers/Kconfig
@@ -37169,7 +36993,7 @@ index d3b2953..fea341e 100644
  
  config GPIO_CS5535
 diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
-index becef59..73d3109 100644
+index becef59..d5f3c31 100644
 --- a/drivers/gpio/Makefile
 +++ b/drivers/gpio/Makefile
 @@ -11,6 +11,7 @@ obj-$(CONFIG_GPIOLIB)		+= gpiolib.o
@@ -37184,38 +37008,16 @@ index becef59..73d3109 100644
  obj-$(CONFIG_GPIO_VX855)	+= vx855_gpio.o
  obj-$(CONFIG_GPIO_ML_IOH)	+= ml_ioh_gpio.o
  obj-$(CONFIG_AB8500_GPIO)       += ab8500-gpio.o
-+obj-$(CONFIG_GPIO_PCF50633)	+= pcf50633.o
-diff --git a/drivers/gpio/ab8500-gpio.c b/drivers/gpio/ab8500-gpio.c
-index e7b834d..71ac13f 100644
---- a/drivers/gpio/ab8500-gpio.c
-+++ b/drivers/gpio/ab8500-gpio.c
-@@ -376,7 +376,7 @@ static int ab8500_gpio_irq_init(struct ab8500_gpio *ab8500_gpio)
- 
- 	for (irq = base; irq < base + AB8500_NUM_VIR_GPIO_IRQ ; irq++) {
- 		set_irq_chip_data(irq, ab8500_gpio);
--		set_irq_chip_and_handler(irq, &ab8500_gpio_irq_chip,
-+		irq_set_chip_and_handler(irq, &ab8500_gpio_irq_chip,
- 				handle_simple_irq);
- 		set_irq_nested_thread(irq, 1);
- #ifdef CONFIG_ARM
-@@ -398,7 +398,7 @@ static void ab8500_gpio_irq_remove(struct ab8500_gpio *ab8500_gpio)
- #ifdef CONFIG_ARM
- 		set_irq_flags(irq, 0);
- #endif
--		set_irq_chip_and_handler(irq, NULL, NULL);
-+		irq_set_chip_and_handler(irq, NULL, NULL);
- 		set_irq_chip_data(irq, NULL);
- 	}
- }
++obj-$(CONFIG_GPIO_PCF50633)	+= pcf50633-gpio.o
 diff --git a/drivers/gpio/glamo-gpio.c b/drivers/gpio/glamo-gpio.c
 new file mode 100644
-index 0000000..dff60eb
+index 0000000..1e9986b
 --- /dev/null
 +++ b/drivers/gpio/glamo-gpio.c
-@@ -0,0 +1,284 @@
+@@ -0,0 +1,250 @@
 +/* Smedia Glamo 336x/337x gpio driver
 + *
-+ * (C) 2009 Lars-Peter Clausen
++ * (C) 2009,2011 Lars-Peter Clausen <lars@metafoo.de>
 + *
 + * This program is free software; you can redistribute it and/or
 + * modify it under the terms of the GNU General Public License as
@@ -37257,12 +37059,12 @@ index 0000000..dff60eb
 +	uint16_t saved_regs[GLAMO_NR_GPIO_REGS];
 +};
 +
-+#define GLAMO_GPIO_REG_GPIO(gpio)	GLAMO_GPIO_REG(gpio >> 2)
++#define GLAMO_GPIO_REG_GPIO(gpio)	GLAMO_GPIO_REG((gpio) >> 2)
 +#define GLAMO_GPIO_BIT(gpio, offset)	BIT(((gpio) & 0x3) + (offset))
-+#define GLAMO_GPIO_DIRECTION_BIT(gpio)	GLAMO_GPIO_BIT(gpio, 0)
-+#define GLAMO_GPIO_OUTPUT_BIT(gpio)	GLAMO_GPIO_BIT(gpio, 4)
-+#define GLAMO_GPIO_INPUT_BIT(gpio)	GLAMO_GPIO_BIT(gpio, 8)
-+#define GLAMO_GPIO_FUNC_BIT(gpio)	GLAMO_GPIO_BIT(gpio, 12)
++#define GLAMO_GPIO_DIRECTION_BIT(gpio)	GLAMO_GPIO_BIT((gpio), 0)
++#define GLAMO_GPIO_OUTPUT_BIT(gpio)	GLAMO_GPIO_BIT((gpio), 4)
++#define GLAMO_GPIO_INPUT_BIT(gpio)	GLAMO_GPIO_BIT((gpio), 8)
++#define GLAMO_GPIO_FUNC_BIT(gpio)	GLAMO_GPIO_BIT((gpio), 12)
 +
 +
 +static inline struct glamo_core *chip_to_glamo(struct gpio_chip *chip)
@@ -37270,95 +37072,70 @@ index 0000000..dff60eb
 +	return container_of(chip, struct glamo_gpio, chip)->glamo;
 +}
 +
-+static void glamo_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
++static void glamo_gpio_modify_reg(struct gpio_chip *chip, unsigned offset,
++    uint16_t set, uint16_t clear)
 +{
 +	struct glamo_core *glamo = chip_to_glamo(chip);
-+	unsigned int reg = GLAMO_GPIO_REG_GPIO(offset);
++	void __iomem *reg = glamo->base + GLAMO_GPIO_REG_GPIO(offset);
 +	uint16_t tmp;
 +
 +	spin_lock(&glamo->lock);
-+	tmp = readw(glamo->base + reg);
-+	if (value)
-+		tmp |= GLAMO_GPIO_OUTPUT_BIT(offset);
-+	else
-+		tmp &= ~GLAMO_GPIO_OUTPUT_BIT(offset);
-+	writew(tmp, glamo->base + reg);
++	tmp = readw(reg);
++	tmp |= set;
++	tmp &= ~clear;
++	writew(tmp, reg);
 +	spin_unlock(&glamo->lock);
++}
++
++static void glamo_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
++{
++	uint16_t mask = GLAMO_GPIO_OUTPUT_BIT(offset);
++	glamo_gpio_modify_reg(chip, offset, value ? mask : 0, value ? 0 : mask);
 +}
 +
 +static int glamo_gpio_get(struct gpio_chip *chip, unsigned offset)
 +{
 +	struct glamo_core *glamo = chip_to_glamo(chip);
-+	return !!(readw(glamo->base + GLAMO_GPIO_REG_GPIO(offset)) & GLAMO_GPIO_INPUT_BIT(offset));
++	void __iomem *reg = glamo->base + GLAMO_GPIO_REG_GPIO(offset);
++
++	return !!(readw(reg) & GLAMO_GPIO_INPUT_BIT(offset));
 +}
 +
 +static int glamo_gpio_request(struct gpio_chip *chip, unsigned offset)
 +{
-+	struct glamo_core *glamo = chip_to_glamo(chip);
-+	unsigned int reg = GLAMO_GPIO_REG_GPIO(offset);
-+	uint16_t tmp;
-+
-+	spin_lock(&glamo->lock);
-+	tmp = readw(glamo->base + reg);
-+	if ((tmp & GLAMO_GPIO_FUNC_BIT(offset)) == 0) {
-+		tmp |= GLAMO_GPIO_FUNC_BIT(offset);
-+		writew(tmp, glamo->base + reg);
-+	}
-+	spin_unlock(&glamo->lock);
++	glamo_gpio_modify_reg(chip, offset, GLAMO_GPIO_FUNC_BIT(offset), 0);
 +
 +	return 0;
 +}
 +
 +static void glamo_gpio_free(struct gpio_chip *chip, unsigned offset)
 +{
-+	struct glamo_core *glamo = chip_to_glamo(chip);
-+	unsigned int reg = GLAMO_GPIO_REG_GPIO(offset);
-+	uint16_t tmp;
-+
-+	spin_lock(&glamo->lock);
-+	tmp = readw(glamo->base + reg);
-+	if ((tmp & GLAMO_GPIO_FUNC_BIT(offset)) == 1) {
-+		tmp &= ~GLAMO_GPIO_FUNC_BIT(offset);
-+		writew(tmp, glamo->base + reg);
-+	}
-+	spin_unlock(&glamo->lock);
++	glamo_gpio_modify_reg(chip, offset, 0, GLAMO_GPIO_FUNC_BIT(offset));
 +}
 +
 +static int glamo_gpio_direction_output(struct gpio_chip *chip, unsigned offset,
 +				       int value)
 +{
-+	struct glamo_core *glamo = chip_to_glamo(chip);
-+	unsigned int reg = GLAMO_GPIO_REG_GPIO(offset);
-+	uint16_t tmp;
++	uint16_t output_mask = GLAMO_GPIO_OUTPUT_BIT(offset);
++	uint16_t set, clear;
 +
-+	spin_lock(&glamo->lock);
-+	tmp = readw(glamo->base + reg);
-+	tmp &= ~GLAMO_GPIO_DIRECTION_BIT(offset);
++	clear = GLAMO_GPIO_DIRECTION_BIT(offset);
 +
-+	if (value)
-+		tmp |= GLAMO_GPIO_OUTPUT_BIT(offset);
-+	else
-+		tmp &= ~GLAMO_GPIO_OUTPUT_BIT(offset);
++	if (value) {
++		set = output_mask;
++	} else {
++		set = 0;
++		clear |= output_mask;
++	}
 +
-+	writew(tmp, glamo->base + reg);
-+	spin_unlock(&glamo->lock);
++	glamo_gpio_modify_reg(chip, offset, set, clear);
 +
 +	return 0;
 +}
 +
 +static int glamo_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
 +{
-+	struct glamo_core *glamo = chip_to_glamo(chip);
-+	unsigned int reg = GLAMO_GPIO_REG_GPIO(offset);
-+	uint16_t tmp;
-+
-+	spin_lock(&glamo->lock);
-+	tmp = readw(glamo->base + reg);
-+	if ((tmp & GLAMO_GPIO_DIRECTION_BIT(offset)) == 0) {
-+		tmp |= GLAMO_GPIO_DIRECTION_BIT(offset);
-+		writew(tmp, glamo->base + reg);
-+	}
-+	spin_unlock(&glamo->lock);
++	glamo_gpio_modify_reg(chip, offset, GLAMO_GPIO_DIRECTION_BIT(offset), 0);
 +
 +	return 0;
 +}
@@ -37368,12 +37145,11 @@ index 0000000..dff60eb
 +	.request		= glamo_gpio_request,
 +	.free			= glamo_gpio_free,
 +	.direction_input	= glamo_gpio_direction_input,
-+	.get			= glamo_gpio_get,
 +	.direction_output	= glamo_gpio_direction_output,
++	.get			= glamo_gpio_get,
 +	.set			= glamo_gpio_set,
 +	.base			= -1,
 +	.ngpio			= GLAMO_NR_GPIO,
-+	.can_sleep		= 0,
 +	.owner			= THIS_MODULE,
 +};
 +
@@ -37402,9 +37178,6 @@ index 0000000..dff60eb
 +
 +	platform_set_drvdata(pdev, glamo_gpio);
 +
-+	if (pdata && pdata->gpio_data && pdata->gpio_data->registered)
-+		pdata->gpio_data->registered(&pdev->dev);
-+
 +	return 0;
 +err:
 +	kfree(glamo_gpio);
@@ -37427,7 +37200,7 @@ index 0000000..dff60eb
 +	return ret;
 +}
 +
-+#ifdef CONFIG_PM
++#ifdef CONFIG_PM_SLEEP
 +
 +static int glamo_gpio_suspend(struct device *dev)
 +{
@@ -37437,7 +37210,7 @@ index 0000000..dff60eb
 +	int i;
 +
 +	spin_lock(&glamo->lock);
-+	for (i = 0; i < GLAMO_NR_GPIO / 4; ++i)
++	for (i = 0; i < GLAMO_NR_GPIO_REGS; ++i)
 +		saved_regs[i] = readw(glamo->base + GLAMO_GPIO_REG(i));
 +	spin_unlock(&glamo->lock);
 +
@@ -37458,12 +37231,7 @@ index 0000000..dff60eb
 +	return 0;
 +}
 +
-+static const struct dev_pm_ops glamo_pm_ops = {
-+	.suspend = glamo_gpio_suspend,
-+	.resume  = glamo_gpio_resume,
-+	.freeze  = glamo_gpio_suspend,
-+	.thaw    = glamo_gpio_resume,
-+};
++static SIMPLE_DEV_PM_OPS(glamo_pm_ops, glamo_gpio_suspend, glamo_gpio_resume);
 +
 +#define GLAMO_GPIO_PM_OPS (&glamo_pm_ops)
 +
@@ -37472,16 +37240,16 @@ index 0000000..dff60eb
 +#endif
 +
 +static struct platform_driver glamo_gpio_driver = {
++	.probe = glamo_gpio_probe,
++	.remove = __devexit_p(glamo_gpio_remove),
 +	.driver = {
 +		.name  = "glamo-gpio",
 +		.owner = THIS_MODULE,
 +		.pm    = GLAMO_GPIO_PM_OPS,
 +	},
-+	.probe = glamo_gpio_probe,
-+	.remove = __devexit_p(glamo_gpio_remove),
 +};
 +
-+static int __devinit glamo_gpio_init(void)
++static int __init glamo_gpio_init(void)
 +{
 +	return platform_driver_register(&glamo_gpio_driver);
 +}
@@ -37497,17 +37265,17 @@ index 0000000..dff60eb
 +MODULE_DESCRIPTION("GPIO interface for the Glamo multimedia device");
 +MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:glamo-gpio");
-diff --git a/drivers/gpio/pcf50633.c b/drivers/gpio/pcf50633.c
+diff --git a/drivers/gpio/pcf50633-gpio.c b/drivers/gpio/pcf50633-gpio.c
 new file mode 100644
-index 0000000..4489fd0
+index 0000000..eb044e8
 --- /dev/null
-+++ b/drivers/gpio/pcf50633.c
-@@ -0,0 +1,216 @@
++++ b/drivers/gpio/pcf50633-gpio.c
+@@ -0,0 +1,228 @@
 +/* NXP PCF50633 GPIO Driver
 + *
 + * (C) 2006-2008 by Openmoko, Inc.
 + * Author: Balaji Rao <balajirrao@openmoko.org>
-+ * Copyright 2010-2011, Lars-Peter Clausen <lars@metafoo.de>
++ * Copyright 2010, Lars-Peter Clausen <lars@metafoo.de>
 + * All rights reserved.
 + *
 + * Broken down from monstrous PCF50633 driver mainly by
@@ -37572,16 +37340,23 @@ index 0000000..4489fd0
 +	[PCF50633_REGULATOR_HCLDO]	= PCF50633_REG_HCLDOOUT,
 +};
 +
++struct pcf50633_gpio {
++	struct pcf50633 *pcf;
++	struct gpio_chip chip;
++};
++
 +static inline struct pcf50633 *gpio_chip_to_pcf50633(struct gpio_chip *chip)
 +{
-+	return dev_to_pcf50633(chip->dev->parent);
++	struct pcf50633 *pcf = dev_to_pcf50633(chip->dev->parent);
++	return pcf;
 +}
 +
-+static void pcf50633_gpio_set_value(struct gpio_chip *chip, unsigned gpio,
-+		int value)
++static void pcf50633_gpio_set_value(struct gpio_chip *chip, unsigned gpio, int value)
 +{
 +	struct pcf50633 *pcf = gpio_chip_to_pcf50633(chip);
-+	u8 reg = PCF50633_REG_GPIOCFG(gpio);
++	u8 reg;
++
++	reg = PCF50633_REG_GPIOCFG(gpio);
 +
 +	pcf50633_reg_set_bit_mask(pcf, reg, 0x07, value ? 0x7 : 0x0);
 +}
@@ -37592,16 +37367,17 @@ index 0000000..4489fd0
 +	return pcf50633_reg_read(pcf, PCF50633_REG_GPIOCFG(gpio)) >> 3;
 +}
 +
++
 +static int pcf50633_gpio_direction_output(struct gpio_chip *chip, unsigned gpio,
-+		int value)
++                                          int value)
 +{
 +	struct pcf50633 *pcf = gpio_chip_to_pcf50633(chip);
 +	int ret;
 +
 +	ret = pcf50633_gpio_set_config(pcf, pcf->pdata->gpio_base + gpio,
-+					PCF50633_GPIO_CONFIG_OUTPUT);
++	                               PCF50633_GPIO_CONFIG_OUTPUT);
 +	if (!ret)
-+		pcf50633_gpio_set_value(chip, gpio, value);
++	    pcf50633_gpio_set_value(chip, gpio, value);
 +
 +	return ret;
 +}
@@ -37612,28 +37388,28 @@ index 0000000..4489fd0
 +}
 +
 +int pcf50633_gpio_set_config(struct pcf50633 *pcf, unsigned gpio,
-+		enum pcf50633_gpio_config config)
++                              enum pcf50633_gpio_config config)
 +{
 +	u8 reg;
-+	u8 mask, direction;
++	u8 direction;
 +	int ret;
 +
 +	gpio -= pcf->pdata->gpio_base;
 +
 +	if (gpio < 3) {
-+		mask = 1 << gpio;
-+		direction = (config == PCF50633_GPIO_CONFIG_INPUT) ? mask : 0;
-+		ret = pcf50633_reg_set_bit_mask(pcf, PCF50633_REG_GPIOCTL, mask,
-+				direction);
-+		if (ret)
++	    direction = (config == PCF50633_GPIO_CONFIG_INPUT) ? (1 << gpio) : 0;
++	    ret = pcf50633_reg_set_bit_mask(pcf, PCF50633_REG_GPIOCTL, (1 << gpio),
++					    direction);
++	    if (ret) {
 +			return ret;
++		}
 +	} else if (gpio > 3 || config == PCF50633_GPIO_CONFIG_INPUT) {
-+		return -EINVAL;
++	    return -EINVAL;
 +	}
 +
 +	if (config != PCF50633_GPIO_CONFIG_INPUT) {
-+		reg = PCF50633_REG_GPIOCFG(gpio);
-+		ret = pcf50633_reg_set_bit_mask(pcf, reg, 0x0f, config);
++	    reg = PCF50633_REG_GPIOCFG(gpio);
++	    ret = pcf50633_reg_set_bit_mask(pcf, reg, 0x0f, config);
 +	}
 +
 +	return ret;
@@ -37641,56 +37417,60 @@ index 0000000..4489fd0
 +EXPORT_SYMBOL_GPL(pcf50633_gpio_set_config);
 +
 +int pcf50633_gpio_power_supply_set(struct pcf50633 *pcf,
-+		int gpio, int regulator, bool on)
++					int gpio, int regulator, int on)
 +{
-+	u8 reg, mask;
++	u8 reg, val, mask;
 +
 +	gpio -= pcf->pdata->gpio_base;
 +
 +	/* the *ENA register is always one after the *OUT register */
 +	reg = pcf50633_regulator_registers[regulator] + 1;
 +
++	val = !!on << (gpio - PCF50633_GPIO1);
 +	mask = 1 << (gpio - PCF50633_GPIO1);
 +
-+	return pcf50633_reg_set_bit_mask(pcf, reg, mask, on ? mask : 0);
++	return pcf50633_reg_set_bit_mask(pcf, reg, mask, val);
 +}
 +EXPORT_SYMBOL_GPL(pcf50633_gpio_power_supply_set);
++
 +
 +static int __devinit pcf50633_gpio_probe(struct platform_device *pdev)
 +{
 +	struct pcf50633 *pcf = dev_to_pcf50633(pdev->dev.parent);
-+	struct gpio_chip *chip;
++	struct pcf50633_gpio *pcf_gpio;
 +
-+	chip = kzalloc(sizeof(*chip), GFP_KERNEL);
++	pcf_gpio = kzalloc(sizeof(*pcf_gpio), GFP_KERNEL);
 +
-+	if (!chip)
++	if (!pcf_gpio)
 +		return -ENOMEM;
 +
-+	chip->direction_input = pcf50633_gpio_direction_input;
-+	chip->direction_output = pcf50633_gpio_direction_output;
-+	chip->get = pcf50633_gpio_get_value;
-+	chip->set = pcf50633_gpio_set_value;
++	pcf_gpio->pcf = pcf;
 +
-+	chip->base = pcf->pdata->gpio_base;
-+	chip->ngpio = 4;
-+	chip->label = dev_name(pcf->dev);
-+	chip->can_sleep = 1;
-+	chip->owner = THIS_MODULE;
-+	chip->dev = &pdev->dev;
++	pcf_gpio->chip.direction_input = pcf50633_gpio_direction_input;
++	pcf_gpio->chip.direction_output = pcf50633_gpio_direction_output;
++	pcf_gpio->chip.get = pcf50633_gpio_get_value;
++	pcf_gpio->chip.set = pcf50633_gpio_set_value;
 +
-+	platform_set_drvdata(pdev, chip);
++	pcf_gpio->chip.base = pcf->pdata->gpio_base;
++	pcf_gpio->chip.ngpio = 4;
++	pcf_gpio->chip.label = dev_name(pcf->dev);
++	pcf_gpio->chip.can_sleep = 1;
++	pcf_gpio->chip.owner = THIS_MODULE;
++	pcf_gpio->chip.dev = &pdev->dev;
 +
-+	return gpiochip_add(chip);
++	platform_set_drvdata(pdev, pcf_gpio);
++
++	return gpiochip_add(&pcf_gpio->chip);
 +}
 +
 +static int __devexit pcf50633_gpio_remove(struct platform_device *pdev)
 +{
-+	struct gpio_chip *chip = platform_get_drvdata(pdev);
++	struct pcf50633_gpio *pcf_gpio = platform_get_drvdata(pdev);
 +
-+	gpiochip_remove(chip);
++	gpiochip_remove(&pcf_gpio->chip);
 +
 +	platform_set_drvdata(pdev, NULL);
-+	kfree(chip);
++	kfree(pcf_gpio);
 +
 +	return 0;
 +}
@@ -37704,13 +37484,13 @@ index 0000000..4489fd0
 +	},
 +};
 +
-+static int __init pcf50633_gpio_init(void)
++int __init pcf50633_gpio_init(void)
 +{
 +	return platform_driver_register(&pcf50633_gpio_driver);
 +}
 +module_init(pcf50633_gpio_init);
 +
-+static void __exit pcf50633_gpio_exit(void)
++void __exit pcf50633_gpio_exit(void)
 +{
 +	platform_driver_unregister(&pcf50633_gpio_driver);
 +}
@@ -37720,7 +37500,7 @@ index 0000000..4489fd0
 +MODULE_DESCRIPTION("GPIO driver for the PCF50633");
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/input/misc/pcf50633-input.c b/drivers/input/misc/pcf50633-input.c
-index 9556273..9320a6e 100644
+index 9556273..983d5c8 100644
 --- a/drivers/input/misc/pcf50633-input.c
 +++ b/drivers/input/misc/pcf50633-input.c
 @@ -20,6 +20,7 @@
@@ -37773,14 +37553,14 @@ index 9556273..9320a6e 100644
 +	int irq_released;
 +	int irq_pressed;
 +
-+	irq_released = platform_get_irq_byname(pdev, "released");
++	irq_released = platform_get_irq_byname(pdev, "ONKEYR");
 +	if (irq_released <= 0) {
 +		dev_err(&pdev->dev, "Failed to get released irq: %d\n",
 +			irq_released);
 +		return irq_released ?: -EINVAL;
 +	}
  
-+	irq_pressed = platform_get_irq_byname(pdev, "pressed");
++	irq_pressed = platform_get_irq_byname(pdev, "ONKEYF");
 +	if (irq_pressed <= 0) {
 +		dev_err(&pdev->dev, "Failed to get pressed irq: %d\n",
 +			irq_pressed);
@@ -37799,13 +37579,13 @@ index 9556273..9320a6e 100644
 -				pcf50633_input_irq, input);
 +
 +	ret = request_threaded_irq(irq_released, NULL, pcf50633_input_irq, 0,
-+			"pcf50633 input released", input);
++			"onkey released", input);
 +	if (ret) {
 +		dev_err(&pdev->dev, "Failed to request released irq: %d\n", ret);
 +		goto err_input_unregister;
 +	}
 +	ret = request_threaded_irq(irq_pressed, NULL, pcf50633_input_irq, 0,
-+			"pcf50633 input pressed", input);
++			"onkey pressed", input);
 +	if (ret) {
 +		dev_err(&pdev->dev, "Failed to request pressed irq: %d\n", ret);
 +		goto err_free_irq;
@@ -37980,10 +37760,10 @@ index 419caa9..fb5f307 100644
  obj-$(CONFIG_AB3100_OTP)	+= ab3100-otp.o
 diff --git a/drivers/mfd/glamo-core.c b/drivers/mfd/glamo-core.c
 new file mode 100644
-index 0000000..a373da6
+index 0000000..c9b2ae5
 --- /dev/null
 +++ b/drivers/mfd/glamo-core.c
-@@ -0,0 +1,1298 @@
+@@ -0,0 +1,1274 @@
 +/* Smedia Glamo 3362 driver
 + *
 + * (C) 2007 by Openmoko, Inc.
@@ -38226,82 +38006,55 @@ index 0000000..a373da6
 +/***********************************************************************
 + * IRQ demultiplexer
 + ***********************************************************************/
-+#define glamo_irq_bit(glamo, x)	BIT(x - glamo->irq_base)
-+
-+static inline struct glamo_core *irq_to_glamo(unsigned int irq)
++static inline unsigned int glamo_irq_bit(struct glamo_core *glamo,
++	struct irq_data *data)
 +{
-+	return (struct glamo_core *)irq_get_handler_data(irq);
++	return BIT(data->irq - glamo->irq_base);
 +}
 +
-+static void glamo_ack_irq(unsigned int irq)
++static void glamo_ack_irq(struct irq_data *data)
 +{
-+	struct glamo_core *glamo = irq_to_glamo(irq);
++	struct glamo_core *glamo = irq_data_get_irq_chip_data(data);
 +	/* clear interrupt source */
-+	__reg_write(glamo, GLAMO_REG_IRQ_CLEAR, glamo_irq_bit(glamo, irq));
++	__reg_write(glamo, GLAMO_REG_IRQ_CLEAR, glamo_irq_bit(glamo, data));
 +}
 +
-+static void glamo_mask_irq(unsigned int irq)
++static void glamo_mask_irq(struct irq_data *data)
 +{
-+	struct glamo_core *glamo = irq_to_glamo(irq);
++	struct glamo_core *glamo = irq_data_get_irq_chip_data(data);
 +
 +	/* clear bit in enable register */
-+	__reg_clear_bit(glamo, GLAMO_REG_IRQ_ENABLE, glamo_irq_bit(glamo, irq));
++	__reg_clear_bit(glamo, GLAMO_REG_IRQ_ENABLE, glamo_irq_bit(glamo, data));
 +}
 +
-+static void glamo_unmask_irq(unsigned int irq)
++static void glamo_unmask_irq(struct irq_data *data)
 +{
-+	struct glamo_core *glamo = irq_to_glamo(irq);
++	struct glamo_core *glamo = irq_data_get_irq_chip_data(data);
 +
 +	/* set bit in enable register */
-+	__reg_set_bit(glamo, GLAMO_REG_IRQ_ENABLE, glamo_irq_bit(glamo, irq));
++	__reg_set_bit(glamo, GLAMO_REG_IRQ_ENABLE, glamo_irq_bit(glamo, data));
 +}
 +
 +static struct irq_chip glamo_irq_chip = {
-+	.name	= "glamo",
-+	.ack	= glamo_ack_irq,
-+	.mask	= glamo_mask_irq,
-+	.unmask	= glamo_unmask_irq,
++	.name		= "glamo",
++	.irq_ack	= glamo_ack_irq,
++	.irq_mask	= glamo_mask_irq,
++	.irq_unmask	= glamo_unmask_irq,
 +};
 +
-+static void glamo_irq_demux_handler(unsigned int irq, struct irq_desc *desc)
++static irqreturn_t glamo_irq_handler(int irq, void *devid)
 +{
-+	struct glamo_core *glamo = irq_desc_get_irq_data(desc);
-+	irqd_clear(&desc->irq_data, IRQ_REPLAY | IRQS_WAITING);
++	struct glamo_core *glamo = devid;
++	uint16_t irqstatus;
++	int i;
 +
-+	if (unlikely(irqd_irq_inprogress(&desc->irq_data))) {
-+		irqd_set(&desc->irq_data, IRQ_PENDING | IRQ_MASKED);
-+		desc->chip->mask(irq);
-+		desc->chip->ack(irq);
-+		return;
++	irqstatus = __reg_read(glamo, GLAMO_REG_IRQ_STATUS);
++	for (i = 0; i < 9; ++i) {
++		if (irqstatus & BIT(i))
++			generic_handle_irq(glamo->irq_base + i);
 +	}
-+	kstat_incr_irqs_this_cpu(irq, desc);
 +
-+	desc->chip->ack(irq);
-+	irqd_set(&desc->irq_data, IRQ_INPROGRESS);
-+
-+	do {
-+		uint16_t irqstatus;
-+		int i;
-+
-+		if (unlikely(irqd_is_setaffinity_pending(&desc->irq_data) && irqd_irq_masked(&desc->irq_data) 
-+				&& !irqd_irq_disabled(&desc->irq_data))) {
-+			/* dealing with pending IRQ, unmasking */
-+			desc->chip->unmask(irq);
-+			irqd_clear(&desc->irq_data, IRQ_MASKED);
-+		}
-+
-+		irqd_clear(&desc->irq_data, IRQ_PENDING);
-+
-+		/* read IRQ status register */
-+		irqstatus = __reg_read(glamo, GLAMO_REG_IRQ_STATUS);
-+		for (i = 0; i < 9; ++i) {
-+			if (irqstatus & BIT(i))
-+				generic_handle_irq(glamo->irq_base + i);
-+		}
-+
-+	} while (irqd_is_setaffinity_pending(&desc->irq_data) && !irqd_irq_disabled(&desc->irq_data));
-+
-+	irqd_clear(&desc->irq_data, IRQ_INPROGRESS);
++	return IRQ_HANDLED;
 +}
 +
 +struct glamo_engine_reg_set {
@@ -38341,8 +38094,8 @@ index 0000000..a373da6
 +static int glamo_show_regs(struct seq_file *s, void *pos)
 +{
 +	struct glamo_core *glamo = s->private;
-+	int i, n;
 +	const struct reg_range *rr = reg_range;
++	int i, n;
 +
 +	spin_lock(&glamo->lock);
 +	for (i = 0; i < ARRAY_SIZE(reg_range); ++i, ++rr) {
@@ -38367,10 +38120,10 @@ index 0000000..a373da6
 +}
 +
 +static const struct file_operations debugfs_regs_ops = {
-+	.open = debugfs_open_file,
-+	.read = seq_read,
-+	.llseek = seq_lseek,
-+	.write = debugfs_regs_write,
++	.open		= debugfs_open_file,
++	.read		= seq_read,
++	.llseek		= seq_lseek,
++	.write		= debugfs_regs_write,
 +	.release	= single_release,
 +};
 +
@@ -38404,7 +38157,7 @@ index 0000000..a373da6
 +	const char *name;
 +	uint16_t hostbus;
 +	const struct glamo_engine_reg_set *regs;
-+	int num_regs;
++	size_t num_regs;
 +};
 +
 +static const struct glamo_engine_reg_set glamo_lcd_regs[] = {
@@ -38913,18 +38666,11 @@ index 0000000..a373da6
 +	glamo->pdev = pdev;
 +	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 +	glamo->irq = platform_get_irq(pdev, 0);
-+	glamo->irq_base = irq_base = platform_get_irq(pdev, 1);
 +	glamo->pdata = pdev->dev.platform_data;
 +
 +	if (glamo->irq < 0) {
 +		ret = glamo->irq;
 +		dev_err(&pdev->dev, "Failed to get platform irq: %d\n", ret);
-+		goto err_free;
-+	}
-+
-+	if (irq_base < 0) {
-+		ret = glamo->irq;
-+		dev_err(&pdev->dev, "Failed to get glamo irq base: %d\n", ret);
 +		goto err_free;
 +	}
 +
@@ -38940,6 +38686,14 @@ index 0000000..a373da6
 +		goto err_free;
 +	}
 +
++	irq_base = irq_alloc_descs(-1, 0, GLAMO_NR_IRQS, 0);
++	if (irq_base < 0) {
++		dev_err(&pdev->dev, "Failed to allocate irqs: %d\n", irq_base);
++		goto err_free;
++	}
++	glamo->irq_base = irq_base;
++
++
 +	/* only request the generic, hostbus and memory controller registers */
 +	glamo->mem = request_mem_region(mem->start, GLAMO_REGOFS_VIDCAP,
 +					pdev->name);
@@ -38947,7 +38701,7 @@ index 0000000..a373da6
 +	if (!glamo->mem) {
 +		dev_err(&pdev->dev, "Failed to request io memory region\n");
 +		ret = -ENOENT;
-+		goto err_free;
++		goto err_irq_free_descs;
 +	}
 +
 +	glamo->base = ioremap(glamo->mem->start, resource_size(glamo->mem));
@@ -38986,16 +38740,19 @@ index 0000000..a373da6
 +					handle_level_irq);
 +	}
 +
-+	irq_set_irq_type(glamo->irq, IRQ_TYPE_EDGE_FALLING);
-+	irq_set_handler_data(glamo->irq, glamo);
-+	irq_set_chained_handler(glamo->irq, glamo_irq_demux_handler);
++	ret = request_any_context_irq(glamo->irq, glamo_irq_handler,
++				IRQF_TRIGGER_FALLING, "glamo irq demux", glamo);
++	if (ret) {
++		dev_err(&pdev->dev, "Failed to request irq: %d\n", ret);
++		goto err_free_irqs;
++	}
 +
 +	ret = mfd_add_devices(&pdev->dev, pdev->id, glamo_cells,
 +				ARRAY_SIZE(glamo_cells), mem, glamo->irq_base);
 +
 +	if (ret) {
 +		dev_err(&pdev->dev, "Failed to add child devices: %d\n", ret);
-+		goto err_free_irqs;
++		goto err_free_irq;
 +	}
 +
 +	dev_info(&glamo->pdev->dev, "Glamo core PLL1: %uHz, PLL2: %uHz\n",
@@ -39004,17 +38761,15 @@ index 0000000..a373da6
 +
 +	return 0;
 +
++err_free_irq:
++	free_irq(glamo->irq, glamo);
 +err_free_irqs:
-+	disable_irq(glamo->irq);
-+	irq_set_chained_handler(glamo->irq, NULL);
-+	irq_set_chip_data(glamo->irq, NULL);
-+
 +	for (irq = irq_base; irq < irq_base + GLAMO_NR_IRQS; ++irq) {
 +		irq_set_chip(irq, NULL);
 +#ifdef CONFIG_ARM
 +		set_irq_flags(irq, 0);
 +#else
-+		set_irq_probe(irq);
++		irq_set_probe(irq);
 +#endif
 +		irq_set_chip_data(irq, NULL);
 +	}
@@ -39022,6 +38777,8 @@ index 0000000..a373da6
 +	iounmap(glamo->base);
 +err_release_mem_region:
 +	release_mem_region(glamo->mem->start, resource_size(glamo->mem));
++err_irq_free_descs:
++	irq_free_descs(irq_base, GLAMO_NR_IRQS);
 +err_free:
 +	platform_set_drvdata(pdev, NULL);
 +	kfree(glamo);
@@ -39039,9 +38796,7 @@ index 0000000..a373da6
 +
 +	mfd_remove_devices(&pdev->dev);
 +
-+	disable_irq(glamo->irq);
-+	irq_set_chained_handler(glamo->irq, NULL);
-+	irq_set_chip_data(glamo->irq, NULL);
++	free_irq(glamo->irq, glamo);
 +
 +	for (irq = irq_base; irq < irq_base + GLAMO_NR_IRQS; ++irq) {
 +#ifdef CONFIG_ARM
@@ -39056,6 +38811,7 @@ index 0000000..a373da6
 +	platform_set_drvdata(pdev, NULL);
 +	iounmap(glamo->base);
 +	release_mem_region(glamo->mem->start, resource_size(glamo->mem));
++	irq_free_descs(irq_base, GLAMO_NR_IRQS);
 +	kfree(glamo);
 +
 +	return 0;
@@ -39265,7 +39021,7 @@ index 0000000..a373da6
 +	},
 +};
 +
-+static int __devinit glamo_init(void)
++static int __init glamo_init(void)
 +{
 +	return platform_driver_register(&glamo_driver);
 +}
@@ -39411,7 +39167,7 @@ index aed0d2a..54a78c1 100644
  	mutex_lock(&adc->queue_mutex);
  	head = adc->queue_head;
 diff --git a/drivers/mfd/pcf50633-core.c b/drivers/mfd/pcf50633-core.c
-index 57868416..8730a87 100644
+index 57868416..165a3f3 100644
 --- a/drivers/mfd/pcf50633-core.c
 +++ b/drivers/mfd/pcf50633-core.c
 @@ -24,6 +24,8 @@
@@ -39423,6 +39179,24 @@ index 57868416..8730a87 100644
  #include <linux/mfd/pcf50633/core.h>
  
  static int __pcf50633_read(struct pcf50633 *pcf, u8 reg, int num, u8 *data)
+@@ -51,7 +53,7 @@ static int __pcf50633_write(struct pcf50633 *pcf, u8 reg, int num, u8 *data)
+ 
+ }
+ 
+-/* Read a block of up to 32 regs  */
++/* Read a block of upto 32 regs  */
+ int pcf50633_read_block(struct pcf50633 *pcf, u8 reg,
+ 					int nr_regs, u8 *data)
+ {
+@@ -65,7 +67,7 @@ int pcf50633_read_block(struct pcf50633 *pcf, u8 reg,
+ }
+ EXPORT_SYMBOL_GPL(pcf50633_read_block);
+ 
+-/* Write a block of up to 32 regs  */
++/* Write a block of upto 32 regs  */
+ int pcf50633_write_block(struct pcf50633 *pcf , u8 reg,
+ 					int nr_regs, u8 *data)
+ {
 @@ -209,27 +211,6 @@ static struct attribute_group pcf_attr_group = {
  	.attrs	= pcf_sysfs_entries,
  };
@@ -39451,7 +39225,7 @@ index 57868416..8730a87 100644
  
  #ifdef CONFIG_PM_SLEEP
  static int pcf50633_suspend(struct device *dev)
-@@ -251,12 +232,165 @@ static int pcf50633_resume(struct device *dev)
+@@ -251,12 +232,166 @@ static int pcf50633_resume(struct device *dev)
  
  static SIMPLE_DEV_PM_OPS(pcf50633_pm, pcf50633_suspend, pcf50633_resume);
  
@@ -39480,6 +39254,7 @@ index 57868416..8730a87 100644
 +		.start = PCF50633_IRQ_ADCRDY,
 +		.end = PCF50633_IRQ_ADCRDY,
 +		.flags = IORESOURCE_IRQ,
++		.name = "ADCRDY",
 +	}
 +};
 +
@@ -39488,13 +39263,13 @@ index 57868416..8730a87 100644
 +		.start = PCF50633_IRQ_ONKEYR,
 +		.end = PCF50633_IRQ_ONKEYR,
 +		.flags = IORESOURCE_IRQ,
-+		.name = "released",
++		.name = "ONKEYR",
 +	},
 +	{
 +		.start = PCF50633_IRQ_ONKEYF,
 +		.end = PCF50633_IRQ_ONKEYF,
 +		.flags = IORESOURCE_IRQ,
-+		.name = "pressed",
++		.name = "ONKEYF",
 +	}
 +};
 +
@@ -39503,13 +39278,13 @@ index 57868416..8730a87 100644
 +		.start = PCF50633_IRQ_ALARM,
 +		.end = PCF50633_IRQ_ALARM,
 +		.flags = IORESOURCE_IRQ,
-+		.name = "alarm",
++		.name = "ALARM",
 +	},
 +	{
 +		.start = PCF50633_IRQ_SECOND,
 +		.end = PCF50633_IRQ_SECOND,
 +		.flags = IORESOURCE_IRQ,
-+		.name = "second",
++		.name = "SECOND",
 +	}
 +};
 +
@@ -39518,73 +39293,73 @@ index 57868416..8730a87 100644
 +		.start = PCF50633_IRQ_ADPINS,
 +		.end = PCF50633_IRQ_ADPINS,
 +		.flags = IORESOURCE_IRQ,
-+		.name = "AD insert",
++		.name = "ADPINS",
 +	},
 +	{
 +		.start = PCF50633_IRQ_ADPREM,
 +		.end = PCF50633_IRQ_ADPREM,
 +		.flags = IORESOURCE_IRQ,
-+		.name = "AD remove",
++		.name = "ADPREM",
 +	},
 +	{
 +		.start = PCF50633_IRQ_USBINS,
 +		.end = PCF50633_IRQ_USBINS,
 +		.flags = IORESOURCE_IRQ,
-+		.name = "USB insert",
++		.name = "USBINS",
 +	},
 +	{
 +		.start = PCF50633_IRQ_USBREM,
 +		.end = PCF50633_IRQ_USBREM,
 +		.flags = IORESOURCE_IRQ,
-+		.name = "USB remove",
++		.name = "USBREM",
 +	},
 +	{
 +		.start = PCF50633_IRQ_BATFULL,
 +		.end = PCF50633_IRQ_BATFULL,
 +		.flags = IORESOURCE_IRQ,
-+		.name = "Battery full",
++		.name = "BATFULL",
 +	},
 +	{
 +		.start = PCF50633_IRQ_CHGHALT,
 +		.end = PCF50633_IRQ_CHGHALT,
 +		.flags = IORESOURCE_IRQ,
-+		.name = "Charging halt",
++		.name = "CHGHALT",
 +	},
 +	{
 +		.start = PCF50633_IRQ_THLIMON,
 +		.end = PCF50633_IRQ_THLIMON,
 +		.flags = IORESOURCE_IRQ,
-+		.name = "THLIM on",
++		.name = "THLIMON",
 +	},
 +	{
 +		.start = PCF50633_IRQ_THLIMOFF,
 +		.end = PCF50633_IRQ_THLIMOFF,
 +		.flags = IORESOURCE_IRQ,
-+		.name = "THLIM off",
++		.name = "THLIMOFF",
 +	},
 +	{
 +		.start = PCF50633_IRQ_USBLIMON,
-+		.end = PCF50633_IRQ_USBINS,
++		.end = PCF50633_IRQ_USBLIMON,
 +		.flags = IORESOURCE_IRQ,
-+		.name = "USB limit on",
++		.name = "USBLIMON",
 +	},
 +	{
 +		.start = PCF50633_IRQ_USBLIMOFF,
 +		.end = PCF50633_IRQ_USBLIMOFF,
 +		.flags = IORESOURCE_IRQ,
-+		.name = "USB limit off",
++		.name = "USBLIMOFF",
 +	},
 +	{
 +		.start = PCF50633_IRQ_LOWSYS,
 +		.end = PCF50633_IRQ_LOWSYS,
 +		.flags = IORESOURCE_IRQ,
-+		.name = "Low system power",
++		.name = "LOWSYS",
 +	},
 +	{
 +		.start = PCF50633_IRQ_LOWBAT,
 +		.end = PCF50633_IRQ_LOWBAT,
 +		.flags = IORESOURCE_IRQ,
-+		.name = "Low battery",
++		.name = "LOWBAT",
 +	},
 +};
 +
@@ -39618,10 +39393,12 @@ index 57868416..8730a87 100644
  	int version, variant;
  
  	if (!client->irq) {
-@@ -289,34 +423,11 @@ static int __devinit pcf50633_probe(struct i2c_client *client,
+@@ -287,36 +422,15 @@ static int __devinit pcf50633_probe(struct i2c_client *client,
+ 	dev_info(pcf->dev, "Probed device version %d variant %d\n",
+ 							version, variant);
  
- 	pcf50633_irq_init(pcf, client->irq);
- 
+-	pcf50633_irq_init(pcf, client->irq);
+-
 -	/* Create sub devices */
 -	pcf50633_client_dev_register(pcf, "pcf50633-input",
 -						&pcf->input_pdev);
@@ -39648,34 +39425,47 @@ index 57868416..8730a87 100644
 -		platform_device_add_data(pdev, &pdata->reg_init_data[i],
 -					sizeof(pdata->reg_init_data[i]));
 -		pcf->regulator_pdev[i] = pdev;
--
++	ret = pcf50633_irq_init(pcf, client->irq);
++	if (ret)
++		goto err_free;
+ 
 -		platform_device_add(pdev);
 +	ret = mfd_add_devices(pcf->dev, 0, pcf50633_cells,
-+			ARRAY_SIZE(pcf50633_cells), NULL, pcf->pdata->irq_base);
++			ARRAY_SIZE(pcf50633_cells), NULL, pcf->irq_base);
 +	if (ret) {
 +		dev_err(pcf->dev, "Failed to add mfd cells.\n");
-+		goto err_free;
++		goto err_irq_free;
  	}
  
  	ret = sysfs_create_group(&client->dev.kobj, &pcf_attr_group);
-@@ -337,19 +448,11 @@ err_free:
+@@ -328,6 +442,8 @@ static int __devinit pcf50633_probe(struct i2c_client *client,
+ 
+ 	return 0;
+ 
++err_irq_free:
++	pcf50633_irq_free(pcf);
+ err_free:
+ 	kfree(pcf);
+ 
+@@ -337,19 +453,12 @@ err_free:
  static int __devexit pcf50633_remove(struct i2c_client *client)
  {
  	struct pcf50633 *pcf = i2c_get_clientdata(client);
 -	int i;
  
  	sysfs_remove_group(&client->dev.kobj, &pcf_attr_group);
- 	pcf50633_irq_free(pcf);
+-	pcf50633_irq_free(pcf);
  
 -	platform_device_unregister(pcf->input_pdev);
 -	platform_device_unregister(pcf->rtc_pdev);
 -	platform_device_unregister(pcf->mbc_pdev);
 -	platform_device_unregister(pcf->adc_pdev);
 -	platform_device_unregister(pcf->bl_pdev);
--
++	mfd_remove_devices(pcf->dev);
+ 
 -	for (i = 0; i < PCF50633_NUM_REGULATORS; i++)
 -		platform_device_unregister(pcf->regulator_pdev[i]);
-+	mfd_remove_devices(pcf->dev);
++	pcf50633_irq_free(pcf);
  
  	kfree(pcf);
  
@@ -39807,7 +39597,7 @@ index 9ab19a8..0000000
 -
 -MODULE_LICENSE("GPL");
 diff --git a/drivers/mfd/pcf50633-irq.c b/drivers/mfd/pcf50633-irq.c
-index 1b0192f..62afb23 100644
+index 1b0192f..4b8269c 100644
 --- a/drivers/mfd/pcf50633-irq.c
 +++ b/drivers/mfd/pcf50633-irq.c
 @@ -2,7 +2,7 @@
@@ -39859,20 +39649,20 @@ index 1b0192f..62afb23 100644
 -		return -EINVAL;
 +	struct pcf50633 *pcf = irq_data_get_irq_chip_data(data);
 +	unsigned int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(pcf->mask_regs); ++i) {
-+		if (pcf->mask_regs[i] == pcf->mask_regs_cur[i])
-+			continue;
  
 -	mutex_lock(&pcf->lock);
 -	pcf->irq_handler[irq].handler = NULL;
 -	mutex_unlock(&pcf->lock);
++	for (i = 0; i < ARRAY_SIZE(pcf->mask_regs); ++i) {
++		if (pcf->mask_regs[i] == pcf->mask_regs_cur[i])
++			continue;
+ 
+-	return 0;
 +		pcf->mask_regs[i] = pcf->mask_regs_cur[i];
 +		pcf50633_reg_write(pcf, PCF50633_REG_INT1M + i,
 +				pcf->mask_regs[i]);
 +	}
- 
--	return 0;
++
 +	mutex_unlock(&pcf->irq_lock);
  }
 -EXPORT_SYMBOL_GPL(pcf50633_free_irq);
@@ -39903,12 +39693,18 @@ index 1b0192f..62afb23 100644
 -	mutex_unlock(&pcf->lock);
 -
 -	return ret;
--}
--
++	pcf->mask_regs[idx] |= bit;
+ }
+ 
 -int pcf50633_irq_mask(struct pcf50633 *pcf, int irq)
--{
++static void pcf50633_irq_unmask(struct irq_data *data)
+ {
 -	dev_dbg(pcf->dev, "Masking IRQ %d\n", irq);
--
++	struct pcf50633 *pcf = irq_data_get_irq_chip_data(data);
++	int irq = data->irq;
++	u8 bit;
++	int idx;
+ 
 -	return __pcf50633_irq_mask_set(pcf, irq, 1);
 -}
 -EXPORT_SYMBOL_GPL(pcf50633_irq_mask);
@@ -39916,31 +39712,25 @@ index 1b0192f..62afb23 100644
 -int pcf50633_irq_unmask(struct pcf50633 *pcf, int irq)
 -{
 -	dev_dbg(pcf->dev, "Unmasking IRQ %d\n", irq);
--
++	idx = irq >> 3;
++	bit = 1 << (irq & 0x07);
+ 
 -	return __pcf50633_irq_mask_set(pcf, irq, 0);
-+	pcf->mask_regs[idx] |= bit;
++	pcf->mask_regs[idx] &= ~bit;
  }
 -EXPORT_SYMBOL_GPL(pcf50633_irq_unmask);
  
 -int pcf50633_irq_mask_get(struct pcf50633 *pcf, int irq)
-+static void pcf50633_irq_unmask(struct irq_data *data)
- {
+-{
 -	u8 reg, bits;
-+	struct pcf50633 *pcf = irq_data_get_irq_chip_data(data);
-+	int irq = data->irq;
-+	u8 bit;
-+	int idx;
- 
+-
 -	reg =  irq >> 3;
 -	bits = 1 << (irq & 0x07);
-+	idx = irq >> 3;
-+	bit = 1 << (irq & 0x07);
- 
+-
 -	return pcf->mask_regs[reg] & bits;
-+	pcf->mask_regs[idx] &= ~bit;
- }
+-}
 -EXPORT_SYMBOL_GPL(pcf50633_irq_mask_get);
- 
+-
 -static void pcf50633_irq_call_handler(struct pcf50633 *pcf, int irq)
 -{
 -	if (pcf->irq_handler[irq].handler)
@@ -39960,7 +39750,7 @@ index 1b0192f..62afb23 100644
  		pcf_int[1] &= ~(PCF50633_INT2_ONKEYR | PCF50633_INT2_ONKEYF);
  	}
  
-+	irq = pcf->pdata->irq_base;
++	irq = pcf->irq_base;
  	for (i = 0; i < ARRAY_SIZE(pcf_int); i++) {
  		/* Unset masked interrupts */
  		pcf_int[i] &= ~pcf->mask_regs[i];
@@ -39975,33 +39765,1713 @@ index 1b0192f..62afb23 100644
  	}
  
  out:
-@@ -286,8 +261,12 @@ int pcf50633_irq_resume(struct pcf50633 *pcf)
+@@ -240,15 +215,6 @@ int pcf50633_irq_suspend(struct pcf50633 *pcf)
+ 	 * henceforth */
+ 	disable_irq(pcf->irq);
+ 
+-	/* Save the masks */
+-	ret = pcf50633_read_block(pcf, PCF50633_REG_INT1M,
+-				ARRAY_SIZE(pcf->suspend_irq_masks),
+-					pcf->suspend_irq_masks);
+-	if (ret < 0) {
+-		dev_err(pcf->dev, "error saving irq masks\n");
+-		goto out;
+-	}
+-
+ 	/* Write wakeup irq masks */
+ 	for (i = 0; i < ARRAY_SIZE(res); i++)
+ 		res[i] = ~pcf->pdata->resumers[i];
+@@ -272,8 +238,8 @@ int pcf50633_irq_resume(struct pcf50633 *pcf)
+ 
+ 	/* Write the saved mask registers */
+ 	ret = pcf50633_write_block(pcf, PCF50633_REG_INT1M,
+-				ARRAY_SIZE(pcf->suspend_irq_masks),
+-					pcf->suspend_irq_masks);
++				ARRAY_SIZE(pcf->mask_regs),
++					pcf->mask_regs);
+ 	if (ret < 0)
+ 		dev_err(pcf->dev, "Error restoring saved suspend masks\n");
+ 
+@@ -286,33 +252,61 @@ int pcf50633_irq_resume(struct pcf50633 *pcf)
  
  int pcf50633_irq_init(struct pcf50633 *pcf, int irq)
  {
-+	int irq_base = pcf->pdata->irq_base;
-+	int irq_end = irq_base + PCF50633_NUM_IRQ;
++	int irq_base;
  	int ret;
 +	int i;
  
++	irq_base = irq_alloc_descs(-1, 0, PCF50633_NUM_IRQ, 0);
++	if (irq_base < 0) {
++		dev_err(pcf->dev, "Failed to allocate irq descs: %d\n", irq_base);
++		return irq_base;
++	}
++
 +	mutex_init(&pcf->irq_lock);
  	pcf->irq = irq;
++	pcf->irq_base = irq_base;
++
++	/* Mask all irqs */
++	for (i = 0; i < 5; ++i)
++		pcf->mask_regs[i] = 0xff;
  
- 	/* Enable all interrupts except RTC SECOND */
-@@ -298,6 +277,13 @@ int pcf50633_irq_init(struct pcf50633 *pcf, int irq)
- 	pcf50633_reg_write(pcf, PCF50633_REG_INT4M, 0x00);
- 	pcf50633_reg_write(pcf, PCF50633_REG_INT5M, 0x00);
- 
-+	for (i = irq_base; i < irq_end; ++i) {
+-	/* Enable all interrupts except RTC SECOND */
+-	pcf->mask_regs[0] = 0x80;
+-	pcf50633_reg_write(pcf, PCF50633_REG_INT1M, pcf->mask_regs[0]);
+-	pcf50633_reg_write(pcf, PCF50633_REG_INT2M, 0x00);
+-	pcf50633_reg_write(pcf, PCF50633_REG_INT3M, 0x00);
+-	pcf50633_reg_write(pcf, PCF50633_REG_INT4M, 0x00);
+-	pcf50633_reg_write(pcf, PCF50633_REG_INT5M, 0x00);
++	ret = pcf50633_write_block(pcf, PCF50633_REG_INT1M,
++					ARRAY_SIZE(pcf->mask_regs), pcf->mask_regs);
++	if (ret < 0)
++		goto err_irq_free_descs;
++
++
++	for (i = irq_base; i < irq_base + PCF50633_NUM_IRQ; ++i) {
 +		irq_set_chip_data(i, pcf);
 +		irq_set_nested_thread(i, 1);
 +		irq_set_chip_and_handler(i, &pcf50633_irq_chip, handle_simple_irq);
-+		irq_set_status_flags(i, IRQF_VALID);
++		irq_modify_status(i, IRQ_NOREQUEST, IRQ_NOPROBE);
 +	}
-+
+ 
  	ret = request_threaded_irq(irq, NULL, pcf50633_irq,
  					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
  					"pcf50633", pcf);
+ 
+-	if (ret)
++	if (ret) {
+ 		dev_err(pcf->dev, "Failed to request IRQ %d\n", ret);
++		goto err_irq_free_descs;
++	}
+ 
+ 	if (enable_irq_wake(irq) < 0)
+ 		dev_err(pcf->dev, "IRQ %u cannot be enabled as wake-up source"
+ 			"in this hardware revision", irq);
+ 
++
++	return 0;
++
++err_irq_free_descs:
++	irq_free_descs(pcf->irq_base, PCF50633_NUM_IRQ);
++
+ 	return ret;
+ }
+ 
+ void pcf50633_irq_free(struct pcf50633 *pcf)
+ {
+ 	free_irq(pcf->irq, pcf);
++	irq_free_descs(pcf->irq_base, PCF50633_NUM_IRQ);
+ }
+diff --git a/drivers/mmc/card/block.c b/drivers/mmc/card/block.c
+index 61d233a..4b530ae 100644
+--- a/drivers/mmc/card/block.c
++++ b/drivers/mmc/card/block.c
+@@ -79,6 +79,13 @@ struct mmc_blk_data {
+ 
+ static DEFINE_MUTEX(open_lock);
+ 
++enum mmc_blk_status {
++	MMC_BLK_SUCCESS = 0,
++	MMC_BLK_RETRY,
++	MMC_BLK_DATA_ERR,
++	MMC_BLK_CMD_ERR,
++};
++
+ module_param(perdev_minors, int, 0444);
+ MODULE_PARM_DESC(perdev_minors, "Minors numbers to allocate per device");
+ 
+@@ -165,13 +172,6 @@ static const struct block_device_operations mmc_bdops = {
+ 	.owner			= THIS_MODULE,
+ };
+ 
+-struct mmc_blk_request {
+-	struct mmc_request	mrq;
+-	struct mmc_command	cmd;
+-	struct mmc_command	stop;
+-	struct mmc_data		data;
+-};
+-
+ static u32 mmc_sd_num_wr_blocks(struct mmc_card *card)
+ {
+ 	int err;
+@@ -331,200 +331,341 @@ out:
+ 	return err ? 0 : 1;
+ }
+ 
+-static int mmc_blk_issue_rw_rq(struct mmc_queue *mq, struct request *req)
++static void mmc_blk_rw_rq_prep(struct mmc_queue_req *mqrq,
++			       struct mmc_card *card,
++			       int disable_multi,
++			       struct mmc_queue *mq)
+ {
+-	struct mmc_blk_data *md = mq->data;
+-	struct mmc_card *card = md->queue.card;
+-	struct mmc_blk_request brq;
+-	int ret = 1, disable_multi = 0;
++	u32 readcmd, writecmd;
++	struct mmc_blk_request *brq = &mqrq->brq;
++	struct request *req = mqrq->req;
+ 
+-	mmc_claim_host(card->host);
++	memset(brq, 0, sizeof(struct mmc_blk_request));
+ 
+-	do {
+-		struct mmc_command cmd;
+-		u32 readcmd, writecmd, status = 0;
+-
+-		memset(&brq, 0, sizeof(struct mmc_blk_request));
+-		brq.mrq.cmd = &brq.cmd;
+-		brq.mrq.data = &brq.data;
+-
+-		brq.cmd.arg = blk_rq_pos(req);
+-		if (!mmc_card_blockaddr(card))
+-			brq.cmd.arg <<= 9;
+-		brq.cmd.flags = MMC_RSP_SPI_R1 | MMC_RSP_R1 | MMC_CMD_ADTC;
+-		brq.data.blksz = 512;
+-		brq.stop.opcode = MMC_STOP_TRANSMISSION;
+-		brq.stop.arg = 0;
+-		brq.stop.flags = MMC_RSP_SPI_R1B | MMC_RSP_R1B | MMC_CMD_AC;
+-		brq.data.blocks = blk_rq_sectors(req);
++	brq->mrq.cmd = &brq->cmd;
++	brq->mrq.data = &brq->data;
+ 
+-		/*
+-		 * The block layer doesn't support all sector count
+-		 * restrictions, so we need to be prepared for too big
+-		 * requests.
+-		 */
+-		if (brq.data.blocks > card->host->max_blk_count)
+-			brq.data.blocks = card->host->max_blk_count;
++	brq->cmd.arg = blk_rq_pos(req);
++	if (!mmc_card_blockaddr(card))
++		brq->cmd.arg <<= 9;
++	brq->cmd.flags = MMC_RSP_SPI_R1 | MMC_RSP_R1 | MMC_CMD_ADTC;
++	brq->data.blksz = 512;
++	brq->stop.opcode = MMC_STOP_TRANSMISSION;
++	brq->stop.arg = 0;
++	brq->stop.flags = MMC_RSP_SPI_R1B | MMC_RSP_R1B | MMC_CMD_AC;
++	brq->data.blocks = blk_rq_sectors(req);
+ 
+-		/*
+-		 * After a read error, we redo the request one sector at a time
+-		 * in order to accurately determine which sectors can be read
+-		 * successfully.
++	/*
++	 * The block layer doesn't support all sector count
++	 * restrictions, so we need to be prepared for too big
++	 * requests.
++	 */
++	if (brq->data.blocks > card->host->max_blk_count)
++		brq->data.blocks = card->host->max_blk_count;
++
++	/*
++	 * After a read error, we redo the request one sector at a time
++	 * in order to accurately determine which sectors can be read
++	 * successfully.
++	 */
++	if (disable_multi && brq->data.blocks > 1)
++		brq->data.blocks = 1;
++
++	if (brq->data.blocks > 1) {
++		/* SPI multiblock writes terminate using a special
++		 * token, not a STOP_TRANSMISSION request.
+ 		 */
+-		if (disable_multi && brq.data.blocks > 1)
+-			brq.data.blocks = 1;
++		if (!mmc_host_is_spi(card->host)
++		    || rq_data_dir(req) == READ)
++			brq->mrq.stop = &brq->stop;
++		readcmd = MMC_READ_MULTIPLE_BLOCK;
++		writecmd = MMC_WRITE_MULTIPLE_BLOCK;
++	} else {
++		brq->mrq.stop = NULL;
++		readcmd = MMC_READ_SINGLE_BLOCK;
++		writecmd = MMC_WRITE_BLOCK;
++	}
++	if (rq_data_dir(req) == READ) {
++		brq->cmd.opcode = readcmd;
++		brq->data.flags |= MMC_DATA_READ;
++	} else {
++		brq->cmd.opcode = writecmd;
++		brq->data.flags |= MMC_DATA_WRITE;
++	}
+ 
+-		if (brq.data.blocks > 1) {
+-			/* SPI multiblock writes terminate using a special
+-			 * token, not a STOP_TRANSMISSION request.
+-			 */
+-			if (!mmc_host_is_spi(card->host)
+-					|| rq_data_dir(req) == READ)
+-				brq.mrq.stop = &brq.stop;
+-			readcmd = MMC_READ_MULTIPLE_BLOCK;
+-			writecmd = MMC_WRITE_MULTIPLE_BLOCK;
+-		} else {
+-			brq.mrq.stop = NULL;
+-			readcmd = MMC_READ_SINGLE_BLOCK;
+-			writecmd = MMC_WRITE_BLOCK;
++	mmc_set_data_timeout(&brq->data, card);
++
++	brq->data.sg = mqrq->sg;
++	brq->data.sg_len = mmc_queue_map_sg(mq, mqrq);
++
++	/*
++	 * Adjust the sg list so it is the same size as the
++	 * request.
++	 */
++	if (brq->data.blocks != blk_rq_sectors(req)) {
++		int i, data_size = brq->data.blocks << 9;
++		struct scatterlist *sg;
++
++		for_each_sg(brq->data.sg, sg, brq->data.sg_len, i) {
++			data_size -= sg->length;
++			if (data_size <= 0) {
++				sg->length += data_size;
++				i++;
++				break;
++			}
+ 		}
+-		if (rq_data_dir(req) == READ) {
+-			brq.cmd.opcode = readcmd;
+-			brq.data.flags |= MMC_DATA_READ;
+-		} else {
+-			brq.cmd.opcode = writecmd;
+-			brq.data.flags |= MMC_DATA_WRITE;
++		brq->data.sg_len = i;
++	}
++
++	mmc_queue_bounce_pre(mqrq);
++}
++
++static enum mmc_blk_status mmc_blk_get_status(struct mmc_blk_request *brq,
++					      struct request *req,
++					      struct mmc_card *card,
++					      struct mmc_blk_data *md)
++{
++	struct mmc_command cmd;
++	u32 status;
++	enum mmc_blk_status ret = MMC_BLK_SUCCESS;
++
++	/*
++	 * Check for errors here, but don't jump to cmd_err
++	 * until later as we need to wait for the card to leave
++	 * programming mode even when things go wrong.
++	 */
++	if (brq->cmd.error || brq->data.error || brq->stop.error) {
++		if (brq->data.blocks > 1 && rq_data_dir(req) == READ) {
++			/* Redo read one sector at a time */
++			printk(KERN_WARNING "%s: retrying using single "
++			       "block read, brq %p\n",
++			       req->rq_disk->disk_name, brq);
++			ret = MMC_BLK_RETRY;
++			goto out;
+ 		}
++		status = get_card_status(card, req);
++	}
+ 
+-		mmc_set_data_timeout(&brq.data, card);
++	if (brq->cmd.error) {
++		printk(KERN_ERR "%s: error %d sending read/write "
++		       "command, response %#x, card status %#x\n",
++		       req->rq_disk->disk_name, brq->cmd.error,
++		       brq->cmd.resp[0], status);
++	}
+ 
+-		brq.data.sg = mq->sg;
+-		brq.data.sg_len = mmc_queue_map_sg(mq);
++	if (brq->data.error) {
++		if (brq->data.error == -ETIMEDOUT && brq->mrq.stop)
++			/* 'Stop' response contains card status */
++			status = brq->mrq.stop->resp[0];
++		printk(KERN_ERR "%s: error %d transferring data,"
++		       " sector %u, nr %u, card status %#x\n",
++		       req->rq_disk->disk_name, brq->data.error,
++		       (unsigned)blk_rq_pos(req),
++		       (unsigned)blk_rq_sectors(req), status);
++	}
+ 
+-		/*
+-		 * Adjust the sg list so it is the same size as the
+-		 * request.
+-		 */
+-		if (brq.data.blocks != blk_rq_sectors(req)) {
+-			int i, data_size = brq.data.blocks << 9;
+-			struct scatterlist *sg;
+-
+-			for_each_sg(brq.data.sg, sg, brq.data.sg_len, i) {
+-				data_size -= sg->length;
+-				if (data_size <= 0) {
+-					sg->length += data_size;
+-					i++;
+-					break;
+-				}
++	if (brq->stop.error) {
++		printk(KERN_ERR "%s: error %d sending stop command, "
++		       "response %#x, card status %#x\n",
++		       req->rq_disk->disk_name, brq->stop.error,
++		       brq->stop.resp[0], status);
++	}
++
++	if (!mmc_host_is_spi(card->host) && rq_data_dir(req) != READ) {
++		do {
++			int err;
++
++			cmd.opcode = MMC_SEND_STATUS;
++			cmd.arg = card->rca << 16;
++			cmd.flags = MMC_RSP_R1 | MMC_CMD_AC;
++			err = mmc_wait_for_cmd(card->host, &cmd, 5);
++			if (err) {
++				printk(KERN_ERR "%s: error %d requesting status\n",
++				       req->rq_disk->disk_name, err);
++				ret = MMC_BLK_CMD_ERR;
++				goto out;
+ 			}
+-			brq.data.sg_len = i;
++			/*
++			 * Some cards mishandle the status bits,
++			 * so make sure to check both the busy
++			 * indication and the card state.
++			 */
++		} while (!(cmd.resp[0] & R1_READY_FOR_DATA) ||
++			 (R1_CURRENT_STATE(cmd.resp[0]) == 7));
++
++#if 0
++		if (cmd.resp[0] & ~0x00000900)
++			printk(KERN_ERR "%s: status = %08x\n",
++			       req->rq_disk->disk_name, cmd.resp[0]);
++		if (mmc_decode_status(cmd.resp)) {
++			ret = MMC_BLK_CMD_ERR;
++			goto out;
+ 		}
+ 
+-		mmc_queue_bounce_pre(mq);
++#endif
++	}
+ 
+-		mmc_wait_for_req(card->host, &brq.mrq);
++	if (brq->cmd.error || brq->stop.error || brq->data.error) {
++		if (rq_data_dir(req) == READ)
++			ret = MMC_BLK_DATA_ERR;
++		else
++			ret = MMC_BLK_CMD_ERR;
++	}
++ out:
++	return ret;
+ 
+-		mmc_queue_bounce_post(mq);
++}
+ 
++static int mmc_blk_issue_rw_rq(struct mmc_queue *mq, struct request *rqc)
++{
++	struct mmc_blk_data *md = mq->data;
++	struct mmc_card *card = md->queue.card;
++	struct mmc_blk_request *brqc = &mq->mqrq_cur->brq;
++	struct mmc_blk_request *brqp = &mq->mqrq_prev->brq;
++	struct mmc_queue_req  *mqrqp = mq->mqrq_prev;
++	struct request *rqp = mqrqp->req;
++	int ret = 0;
++	int disable_multi = 0;
++	enum mmc_blk_status status;
++
++	if (!rqc && !rqp)
++		return 0;
++
++	if (rqc) {
++		/* Claim host for the first request in a serie of requests */
++		if (!rqp)
++			mmc_claim_host(card->host);
++
++		/* Prepare a new request */
++		mmc_blk_rw_rq_prep(mq->mqrq_cur, card, 0, mq);
++		mmc_pre_req(card->host, &brqc->mrq, !rqp);
++	}
++	do {
+ 		/*
+-		 * Check for errors here, but don't jump to cmd_err
+-		 * until later as we need to wait for the card to leave
+-		 * programming mode even when things go wrong.
++		 * If there is an ongoing request, indicated by rqp, wait for
++		 * it to finish before starting a new one.
+ 		 */
+-		if (brq.cmd.error || brq.data.error || brq.stop.error) {
+-			if (brq.data.blocks > 1 && rq_data_dir(req) == READ) {
+-				/* Redo read one sector at a time */
+-				printk(KERN_WARNING "%s: retrying using single "
+-				       "block read\n", req->rq_disk->disk_name);
+-				disable_multi = 1;
+-				continue;
+-			}
+-			status = get_card_status(card, req);
++		if (rqp)
++			mmc_wait_for_req_done(&brqp->mrq);
++		else {
++			/* start a new asynchronous request */
++			mmc_start_req(card->host, &brqc->mrq);
++			goto out;
+ 		}
+-
+-		if (brq.cmd.error) {
+-			printk(KERN_ERR "%s: error %d sending read/write "
+-			       "command, response %#x, card status %#x\n",
+-			       req->rq_disk->disk_name, brq.cmd.error,
+-			       brq.cmd.resp[0], status);
++		status = mmc_blk_get_status(brqp, rqp, card, md);
++		if (status != MMC_BLK_SUCCESS) {
++			mmc_post_req(card->host, &brqp->mrq, -EINVAL);
++			mmc_queue_bounce_post(mqrqp);
++			if (rqc)
++				mmc_post_req(card->host, &brqc->mrq, -EINVAL);
+ 		}
+ 
+-		if (brq.data.error) {
+-			if (brq.data.error == -ETIMEDOUT && brq.mrq.stop)
+-				/* 'Stop' response contains card status */
+-				status = brq.mrq.stop->resp[0];
+-			printk(KERN_ERR "%s: error %d transferring data,"
+-			       " sector %u, nr %u, card status %#x\n",
+-			       req->rq_disk->disk_name, brq.data.error,
+-			       (unsigned)blk_rq_pos(req),
+-			       (unsigned)blk_rq_sectors(req), status);
+-		}
++		switch (status) {
++		case MMC_BLK_SUCCESS:
++			/*
++			 * A block was successfully transferred.
++			 */
+ 
+-		if (brq.stop.error) {
+-			printk(KERN_ERR "%s: error %d sending stop command, "
+-			       "response %#x, card status %#x\n",
+-			       req->rq_disk->disk_name, brq.stop.error,
+-			       brq.stop.resp[0], status);
+-		}
++			/*
++			 * All data is transferred without errors.
++			 * Defer mmc post processing and _blk_end_request
++			 * until after the new request is started.
++			 */
++			if (blk_rq_bytes(rqp) == brqp->data.bytes_xfered)
++				break;
+ 
+-		if (!mmc_host_is_spi(card->host) && rq_data_dir(req) != READ) {
+-			do {
+-				int err;
+-
+-				cmd.opcode = MMC_SEND_STATUS;
+-				cmd.arg = card->rca << 16;
+-				cmd.flags = MMC_RSP_R1 | MMC_CMD_AC;
+-				err = mmc_wait_for_cmd(card->host, &cmd, 5);
+-				if (err) {
+-					printk(KERN_ERR "%s: error %d requesting status\n",
+-					       req->rq_disk->disk_name, err);
+-					goto cmd_err;
+-				}
+-				/*
+-				 * Some cards mishandle the status bits,
+-				 * so make sure to check both the busy
+-				 * indication and the card state.
+-				 */
+-			} while (!(cmd.resp[0] & R1_READY_FOR_DATA) ||
+-				(R1_CURRENT_STATE(cmd.resp[0]) == 7));
++			mmc_post_req(card->host, &brqp->mrq, 0);
++			mmc_queue_bounce_post(mqrqp);
+ 
+-#if 0
+-			if (cmd.resp[0] & ~0x00000900)
+-				printk(KERN_ERR "%s: status = %08x\n",
+-				       req->rq_disk->disk_name, cmd.resp[0]);
+-			if (mmc_decode_status(cmd.resp))
+-				goto cmd_err;
+-#endif
+-		}
++			spin_lock_irq(&md->lock);
++			ret = __blk_end_request(rqp, 0,
++						brqp->data.bytes_xfered);
++			spin_unlock_irq(&md->lock);
+ 
+-		if (brq.cmd.error || brq.stop.error || brq.data.error) {
+-			if (rq_data_dir(req) == READ) {
+-				/*
+-				 * After an error, we redo I/O one sector at a
+-				 * time, so we only reach here after trying to
+-				 * read a single sector.
+-				 */
+-				spin_lock_irq(&md->lock);
+-				ret = __blk_end_request(req, -EIO, brq.data.blksz);
+-				spin_unlock_irq(&md->lock);
+-				continue;
+-			}
++			if (rqc)
++				mmc_post_req(card->host, &brqc->mrq, -EINVAL);
++			break;
++		case MMC_BLK_CMD_ERR:
+ 			goto cmd_err;
++			break;
++		case MMC_BLK_RETRY:
++			disable_multi = 1;
++			ret = 1;
++			break;
++		case MMC_BLK_DATA_ERR:
++			/*
++			 * After an error, we redo I/O one sector at a
++			 * time, so we only reach here after trying to
++			 * read a single sector.
++			 */
++			spin_lock_irq(&md->lock);
++			ret = __blk_end_request(rqp, -EIO, brqp->data.blksz);
++			spin_unlock_irq(&md->lock);
++			if (rqc && !ret)
++				mmc_pre_req(card->host, &brqc->mrq, false);
++			break;
+ 		}
+ 
+-		/*
+-		 * A block was successfully transferred.
+-		 */
++		if (ret) {
++			/*
++			 * In case of a none complete request
++			 * prepare it again and resend.
++			 */
++			mmc_blk_rw_rq_prep(mqrqp, card, disable_multi, mq);
++			mmc_pre_req(card->host, &brqp->mrq, true);
++			mmc_start_req(card->host, &brqp->mrq);
++			if (rqc)
++				mmc_pre_req(card->host, &brqc->mrq, false);
++		}
++	} while (ret);
++
++	/* Previous request is completed, start the new request if any */
++	if (rqc)
++		mmc_start_req(card->host, &brqc->mrq);
++
++	/*
++	 * Post process the previous request while the new request is active.
++	 * In case of error the reuqest is already ended.
++	 */
++	if (status == MMC_BLK_SUCCESS) {
++		mmc_post_req(card->host, &brqp->mrq, 0);
++		mmc_queue_bounce_post(mqrqp);
++
+ 		spin_lock_irq(&md->lock);
+-		ret = __blk_end_request(req, 0, brq.data.bytes_xfered);
++		ret = __blk_end_request(rqp, 0, brqp->data.bytes_xfered);
+ 		spin_unlock_irq(&md->lock);
+-	} while (ret);
+ 
+-	mmc_release_host(card->host);
++		if (ret) {
++			/* If this happen it is a bug */
++			printk(KERN_ERR "[%s] BUG: rq_bytes %d xfered %d\n",
++			       __func__, blk_rq_bytes(rqp),
++			       brqp->data.bytes_xfered);
++			goto cmd_err;
++		}
++	}
++
++	/* 1 indicates one request has been completed */
++	ret = 1;
++ out:
++	/*
++	 * TODO: Find out if it is OK to only release host after the
++	 *       last request. For the last request the current request
++	 *        is NULL, which means no requests are pending.
++	 */
++	/* Release host for the last request in a serie of requests */
++	if (!rqc)
++		mmc_release_host(card->host);
+ 
+-	return 1;
++	/* Current request becomes previous request and vice versa. */
++	mqrqp->brq.mrq.data = NULL;
++	mqrqp->req = NULL;
++	mq->mqrq_prev = mq->mqrq_cur;
++	mq->mqrq_cur = mqrqp;
++
++	return ret;
+ 
+  cmd_err:
++
+  	/*
+  	 * If this is an SD card and we're writing, we can first
+  	 * mark the known good sectors as ok.
+@@ -539,12 +680,12 @@ static int mmc_blk_issue_rw_rq(struct mmc_queue *mq, struct request *req)
+ 		blocks = mmc_sd_num_wr_blocks(card);
+ 		if (blocks != (u32)-1) {
+ 			spin_lock_irq(&md->lock);
+-			ret = __blk_end_request(req, 0, blocks << 9);
++			ret = __blk_end_request(rqp, 0, blocks << 9);
+ 			spin_unlock_irq(&md->lock);
+ 		}
+ 	} else {
+ 		spin_lock_irq(&md->lock);
+-		ret = __blk_end_request(req, 0, brq.data.bytes_xfered);
++		ret = __blk_end_request(rqp, 0, brqp->data.bytes_xfered);
+ 		spin_unlock_irq(&md->lock);
+ 	}
+ 
+@@ -552,15 +693,27 @@ static int mmc_blk_issue_rw_rq(struct mmc_queue *mq, struct request *req)
+ 
+ 	spin_lock_irq(&md->lock);
+ 	while (ret)
+-		ret = __blk_end_request(req, -EIO, blk_rq_cur_bytes(req));
++		ret = __blk_end_request(rqp, -EIO, blk_rq_cur_bytes(rqp));
+ 	spin_unlock_irq(&md->lock);
+ 
++	if (rqc) {
++		mmc_claim_host(card->host);
++		mmc_pre_req(card->host, &brqc->mrq, false);
++		mmc_start_req(card->host, &brqc->mrq);
++	}
++
++	/* Current request becomes previous request and vice versa. */
++	mqrqp->brq.mrq.data = NULL;
++	mqrqp->req = NULL;
++	mq->mqrq_prev = mq->mqrq_cur;
++	mq->mqrq_cur = mqrqp;
++
+ 	return 0;
+ }
+ 
+ static int mmc_blk_issue_rq(struct mmc_queue *mq, struct request *req)
+ {
+-	if (req->cmd_flags & REQ_DISCARD) {
++	if (req && req->cmd_flags & REQ_DISCARD) {
+ 		if (req->cmd_flags & REQ_SECURE)
+ 			return mmc_blk_issue_secdiscard_rq(mq, req);
+ 		else
+diff --git a/drivers/mmc/card/mmc_test.c b/drivers/mmc/card/mmc_test.c
+index abc1a63..8f7ffad 100644
+--- a/drivers/mmc/card/mmc_test.c
++++ b/drivers/mmc/card/mmc_test.c
+@@ -22,6 +22,7 @@
+ #include <linux/debugfs.h>
+ #include <linux/uaccess.h>
+ #include <linux/seq_file.h>
++#include <linux/random.h>
+ 
+ #define RESULT_OK		0
+ #define RESULT_FAIL		1
+@@ -51,10 +52,12 @@ struct mmc_test_pages {
+  * struct mmc_test_mem - allocated memory.
+  * @arr: array of allocations
+  * @cnt: number of allocations
++ * @size_min_cmn: lowest common size in array of allocations
+  */
+ struct mmc_test_mem {
+ 	struct mmc_test_pages *arr;
+ 	unsigned int cnt;
++	unsigned int size_min_cmn;
+ };
+ 
+ /**
+@@ -148,6 +151,21 @@ struct mmc_test_card {
+ 	struct mmc_test_general_result	*gr;
+ };
+ 
++enum mmc_test_prep_media {
++	MMC_TEST_PREP_NONE = 0,
++	MMC_TEST_PREP_WRITE_FULL = 1 << 0,
++	MMC_TEST_PREP_ERASE = 1 << 1,
++};
++
++struct mmc_test_multiple_rw {
++	unsigned int *bs;
++	unsigned int len;
++	unsigned int size;
++	bool do_write;
++	bool do_nonblock_req;
++	enum mmc_test_prep_media prepare;
++};
++
+ /*******************************************************************/
+ /*  General helper functions                                       */
+ /*******************************************************************/
+@@ -307,6 +325,7 @@ static struct mmc_test_mem *mmc_test_alloc_mem(unsigned long min_sz,
+ 	unsigned long max_seg_page_cnt = DIV_ROUND_UP(max_seg_sz, PAGE_SIZE);
+ 	unsigned long page_cnt = 0;
+ 	unsigned long limit = nr_free_buffer_pages() >> 4;
++	unsigned int min_cmn = 0;
+ 	struct mmc_test_mem *mem;
+ 
+ 	if (max_page_cnt > limit)
+@@ -350,6 +369,12 @@ static struct mmc_test_mem *mmc_test_alloc_mem(unsigned long min_sz,
+ 		mem->arr[mem->cnt].page = page;
+ 		mem->arr[mem->cnt].order = order;
+ 		mem->cnt += 1;
++		if (!min_cmn)
++			min_cmn = PAGE_SIZE << order;
++		else
++			min_cmn = min(min_cmn,
++				      (unsigned int) (PAGE_SIZE << order));
++
+ 		if (max_page_cnt <= (1UL << order))
+ 			break;
+ 		max_page_cnt -= 1UL << order;
+@@ -360,6 +385,7 @@ static struct mmc_test_mem *mmc_test_alloc_mem(unsigned long min_sz,
+ 			break;
+ 		}
+ 	}
++	mem->size_min_cmn = min_cmn;
+ 
+ 	return mem;
+ 
+@@ -386,7 +412,6 @@ static int mmc_test_map_sg(struct mmc_test_mem *mem, unsigned long sz,
+ 	do {
+ 		for (i = 0; i < mem->cnt; i++) {
+ 			unsigned long len = PAGE_SIZE << mem->arr[i].order;
+-
+ 			if (len > sz)
+ 				len = sz;
+ 			if (len > max_seg_sz)
+@@ -725,6 +750,94 @@ static int mmc_test_check_broken_result(struct mmc_test_card *test,
+ }
+ 
+ /*
++ * Tests nonblock transfer with certain parameters
++ */
++static void mmc_test_nonblock_reset(struct mmc_request *mrq,
++				    struct mmc_command *cmd,
++				    struct mmc_command *stop,
++				    struct mmc_data *data)
++{
++	memset(mrq, 0, sizeof(struct mmc_request));
++	memset(cmd, 0, sizeof(struct mmc_command));
++	memset(data, 0, sizeof(struct mmc_data));
++	memset(stop, 0, sizeof(struct mmc_command));
++
++	mrq->cmd = cmd;
++	mrq->data = data;
++	mrq->stop = stop;
++}
++static int mmc_test_nonblock_transfer(struct mmc_test_card *test,
++				      struct scatterlist *sg, unsigned sg_len,
++				      unsigned dev_addr, unsigned blocks,
++				      unsigned blksz, int write, int count)
++{
++	struct mmc_request mrq1;
++	struct mmc_command cmd1;
++	struct mmc_command stop1;
++	struct mmc_data data1;
++
++	struct mmc_request mrq2;
++	struct mmc_command cmd2;
++	struct mmc_command stop2;
++	struct mmc_data data2;
++
++	struct mmc_request *cur_mrq;
++	struct mmc_request *prev_mrq;
++	int i;
++	int ret = 0;
++
++	if (!test->card->host->ops->pre_req ||
++		!test->card->host->ops->post_req)
++		return -RESULT_UNSUP_HOST;
++
++	mmc_test_nonblock_reset(&mrq1, &cmd1, &stop1, &data1);
++	mmc_test_nonblock_reset(&mrq2, &cmd2, &stop2, &data2);
++
++	cur_mrq = &mrq1;
++	prev_mrq = NULL;
++
++	for (i = 0; i < count; i++) {
++		mmc_test_prepare_mrq(test, cur_mrq, sg, sg_len, dev_addr,
++				blocks, blksz, write);
++		mmc_pre_req(test->card->host, cur_mrq, !prev_mrq);
++
++		if (prev_mrq) {
++			mmc_wait_for_req_done(prev_mrq);
++			mmc_test_wait_busy(test);
++			ret = mmc_test_check_result(test, prev_mrq);
++			if (ret)
++				goto err;
++		}
++
++		mmc_start_req(test->card->host, cur_mrq);
++
++		if (prev_mrq)
++			mmc_post_req(test->card->host, prev_mrq, 0);
++
++		prev_mrq = cur_mrq;
++		if (cur_mrq == &mrq1) {
++			mmc_test_nonblock_reset(&mrq2, &cmd2, &stop2, &data2);
++			cur_mrq = &mrq2;
++		} else {
++			mmc_test_nonblock_reset(&mrq1, &cmd1, &stop1, &data1);
++			cur_mrq = &mrq1;
++		}
++		dev_addr += blocks;
++	}
++
++	mmc_wait_for_req_done(prev_mrq);
++	mmc_test_wait_busy(test);
++	ret = mmc_test_check_result(test, prev_mrq);
++	if (ret)
++		goto err;
++	mmc_post_req(test->card->host, prev_mrq, 0);
++
++	return ret;
++err:
++	return ret;
++}
++
++/*
+  * Tests a basic transfer with certain parameters
+  */
+ static int mmc_test_simple_transfer(struct mmc_test_card *test,
+@@ -1351,14 +1464,17 @@ static int mmc_test_area_transfer(struct mmc_test_card *test,
+ }
+ 
+ /*
+- * Map and transfer bytes.
++ * Map and transfer bytes for multiple transfers.
+  */
+-static int mmc_test_area_io(struct mmc_test_card *test, unsigned long sz,
+-			    unsigned int dev_addr, int write, int max_scatter,
+-			    int timed)
++static int mmc_test_area_io_seq(struct mmc_test_card *test, unsigned long sz,
++				unsigned int dev_addr, int write,
++				int max_scatter, int timed, int count,
++				bool nonblock)
+ {
+ 	struct timespec ts1, ts2;
+-	int ret;
++	int ret = 0;
++	int i;
++	struct mmc_test_area *t = &test->area;
+ 
+ 	/*
+ 	 * In the case of a maximally scattered transfer, the maximum transfer
+@@ -1382,8 +1498,15 @@ static int mmc_test_area_io(struct mmc_test_card *test, unsigned long sz,
+ 
+ 	if (timed)
+ 		getnstimeofday(&ts1);
++	if (nonblock)
++		ret = mmc_test_nonblock_transfer(test, t->sg, t->sg_len,
++				 dev_addr, t->blocks, 512, write, count);
++	else
++		for (i = 0; i < count && ret == 0; i++) {
++			ret = mmc_test_area_transfer(test, dev_addr, write);
++			dev_addr += sz >> 9;
++		}
+ 
+-	ret = mmc_test_area_transfer(test, dev_addr, write);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -1391,11 +1514,19 @@ static int mmc_test_area_io(struct mmc_test_card *test, unsigned long sz,
+ 		getnstimeofday(&ts2);
+ 
+ 	if (timed)
+-		mmc_test_print_rate(test, sz, &ts1, &ts2);
++		mmc_test_print_avg_rate(test, sz, count, &ts1, &ts2);
+ 
+ 	return 0;
+ }
+ 
++static int mmc_test_area_io(struct mmc_test_card *test, unsigned long sz,
++			    unsigned int dev_addr, int write, int max_scatter,
++			    int timed)
++{
++	return mmc_test_area_io_seq(test, sz, dev_addr, write, max_scatter,
++				    timed, 1, false);
++}
++
+ /*
+  * Write the test area entirely.
+  */
+@@ -1956,6 +2087,144 @@ static int mmc_test_large_seq_write_perf(struct mmc_test_card *test)
+ 	return mmc_test_large_seq_perf(test, 1);
+ }
+ 
++static int mmc_test_rw_multiple(struct mmc_test_card *test,
++				struct mmc_test_multiple_rw *tdata,
++				unsigned int reqsize, unsigned int size)
++{
++	unsigned int dev_addr;
++	struct mmc_test_area *t = &test->area;
++	int ret = 0;
++	int max_reqsize = max(t->mem->size_min_cmn *
++			      min(t->max_segs, t->mem->cnt), t->max_tfr);
++
++	/* Set up test area */
++	if (size > mmc_test_capacity(test->card) / 2 * 512)
++		size = mmc_test_capacity(test->card) / 2 * 512;
++	if (reqsize > max_reqsize)
++		reqsize = max_reqsize;
++	dev_addr = mmc_test_capacity(test->card) / 4;
++	if ((dev_addr & 0xffff0000))
++		dev_addr &= 0xffff0000; /* Round to 64MiB boundary */
++	else
++		dev_addr &= 0xfffff800; /* Round to 1MiB boundary */
++	if (!dev_addr)
++		goto err;
++
++	/* prepare test area */
++	if (mmc_can_erase(test->card) &&
++	    tdata->prepare & MMC_TEST_PREP_ERASE) {
++		ret = mmc_erase(test->card, dev_addr,
++				size / 512, MMC_SECURE_ERASE_ARG);
++		if (ret)
++			ret = mmc_erase(test->card, dev_addr,
++					size / 512, MMC_ERASE_ARG);
++		if (ret)
++			goto err;
++	}
++
++	/* Run test */
++	ret = mmc_test_area_io_seq(test, reqsize, dev_addr,
++				   tdata->do_write, 0, 1, size / reqsize,
++				   tdata->do_nonblock_req);
++	if (ret)
++		goto err;
++
++	return ret;
++ err:
++	printk(KERN_INFO "[%s] error\n", __func__);
++	return ret;
++}
++
++static int mmc_test_rw_multiple_size(struct mmc_test_card *test,
++				     struct mmc_test_multiple_rw *rw)
++{
++	int ret = 0;
++	int i;
++
++	for (i = 0 ; i < rw->len && ret == 0; i++) {
++		ret = mmc_test_rw_multiple(test, rw, rw->bs[i], rw->size);
++		if (ret)
++			break;
++	}
++	return ret;
++}
++
++/*
++ * Multiple blocking write 4k to 4 MB chunks
++ */
++static int mmc_test_profile_mult_write_blocking_perf(struct mmc_test_card *test)
++{
++	unsigned int bs[] = {1 << 12, 1 << 13, 1 << 14, 1 << 15, 1 << 16,
++			     1 << 17, 1 << 18, 1 << 19, 1 << 20, 1 << 22};
++	struct mmc_test_multiple_rw test_data = {
++		.bs = bs,
++		.size = 128*1024*1024,
++		.len = ARRAY_SIZE(bs),
++		.do_write = true,
++		.do_nonblock_req = false,
++		.prepare = MMC_TEST_PREP_ERASE,
++	};
++
++	return mmc_test_rw_multiple_size(test, &test_data);
++};
++
++/*
++ * Multiple none blocking write 4k to 4 MB chunks
++ */
++static int mmc_test_profile_mult_write_nonblock_perf(struct mmc_test_card *test)
++{
++	unsigned int bs[] = {1 << 12, 1 << 13, 1 << 14, 1 << 15, 1 << 16,
++			     1 << 17, 1 << 18, 1 << 19, 1 << 20, 1 << 22};
++	struct mmc_test_multiple_rw test_data = {
++		.bs = bs,
++		.size = 128*1024*1024,
++		.len = ARRAY_SIZE(bs),
++		.do_write = true,
++		.do_nonblock_req = true,
++		.prepare = MMC_TEST_PREP_ERASE,
++	};
++
++	return mmc_test_rw_multiple_size(test, &test_data);
++}
++
++/*
++ * Multiple blocking read 4k to 4 MB chunks
++ */
++static int mmc_test_profile_mult_read_blocking_perf(struct mmc_test_card *test)
++{
++	unsigned int bs[] = {1 << 12, 1 << 13, 1 << 14, 1 << 15, 1 << 16,
++			     1 << 17, 1 << 18, 1 << 19, 1 << 20, 1 << 22};
++	struct mmc_test_multiple_rw test_data = {
++		.bs = bs,
++		.size = 128*1024*1024,
++		.len = ARRAY_SIZE(bs),
++		.do_write = false,
++		.do_nonblock_req = false,
++		.prepare = MMC_TEST_PREP_NONE,
++	};
++
++	return mmc_test_rw_multiple_size(test, &test_data);
++}
++
++/*
++ * Multiple none blocking read 4k to 4 MB chunks
++ */
++static int mmc_test_profile_mult_read_nonblock_perf(struct mmc_test_card *test)
++{
++	unsigned int bs[] = {1 << 12, 1 << 13, 1 << 14, 1 << 15, 1 << 16,
++			     1 << 17, 1 << 18, 1 << 19, 1 << 20, 1 << 22};
++	struct mmc_test_multiple_rw test_data = {
++		.bs = bs,
++		.size = 128*1024*1024,
++		.len = ARRAY_SIZE(bs),
++		.do_write = false,
++		.do_nonblock_req = true,
++		.prepare = MMC_TEST_PREP_NONE,
++	};
++
++	return mmc_test_rw_multiple_size(test, &test_data);
++}
++
+ static const struct mmc_test_case mmc_test_cases[] = {
+ 	{
+ 		.name = "Basic write (no data verification)",
+@@ -2223,6 +2492,33 @@ static const struct mmc_test_case mmc_test_cases[] = {
+ 		.cleanup = mmc_test_area_cleanup,
+ 	},
+ 
++	{
++		.name = "Write performance with blocking req 4k to 4MB",
++		.prepare = mmc_test_area_prepare,
++		.run = mmc_test_profile_mult_write_blocking_perf,
++		.cleanup = mmc_test_area_cleanup,
++	},
++
++	{
++		.name = "Write performance with none blocking req 4k to 4MB",
++		.prepare = mmc_test_area_prepare,
++		.run = mmc_test_profile_mult_write_nonblock_perf,
++		.cleanup = mmc_test_area_cleanup,
++	},
++
++	{
++		.name = "Read performance with blocking req 4k to 4MB",
++		.prepare = mmc_test_area_prepare,
++		.run = mmc_test_profile_mult_read_blocking_perf,
++		.cleanup = mmc_test_area_cleanup,
++	},
++
++	{
++		.name = "Read performance with none blocking req 4k to 4MB",
++		.prepare = mmc_test_area_prepare,
++		.run = mmc_test_profile_mult_read_nonblock_perf,
++		.cleanup = mmc_test_area_cleanup,
++	},
+ };
+ 
+ static DEFINE_MUTEX(mmc_test_lock);
+@@ -2447,6 +2743,32 @@ static const struct file_operations mmc_test_fops_test = {
+ 	.release	= single_release,
+ };
+ 
++static int mtf_testlist_show(struct seq_file *sf, void *data)
++{
++	int i;
++
++	mutex_lock(&mmc_test_lock);
++
++	for (i = 0; i < ARRAY_SIZE(mmc_test_cases); i++)
++		seq_printf(sf, "%d:\t%s\n", i+1, mmc_test_cases[i].name);
++
++	mutex_unlock(&mmc_test_lock);
++
++	return 0;
++}
++
++static int mtf_testlist_open(struct inode *inode, struct file *file)
++{
++	return single_open(file, mtf_testlist_show, inode->i_private);
++}
++
++static const struct file_operations mmc_test_fops_testlist = {
++	.open		= mtf_testlist_open,
++	.read		= seq_read,
++	.llseek		= seq_lseek,
++	.release	= single_release,
++};
++
+ static void mmc_test_free_file_test(struct mmc_card *card)
+ {
+ 	struct mmc_test_dbgfs_file *df, *dfs;
+@@ -2476,6 +2798,10 @@ static int mmc_test_register_file_test(struct mmc_card *card)
+ 		file = debugfs_create_file("test", S_IWUSR | S_IRUGO,
+ 			card->debugfs_root, card, &mmc_test_fops_test);
+ 
++	if (card->debugfs_root)
++		file = debugfs_create_file("testlist", S_IRUGO,
++			card->debugfs_root, card, &mmc_test_fops_testlist);
++
+ 	if (IS_ERR_OR_NULL(file)) {
+ 		dev_err(&card->dev,
+ 			"Can't create file. Perhaps debugfs is disabled.\n");
+diff --git a/drivers/mmc/card/queue.c b/drivers/mmc/card/queue.c
+index 2ae7275..2b14d1c 100644
+--- a/drivers/mmc/card/queue.c
++++ b/drivers/mmc/card/queue.c
+@@ -56,9 +56,10 @@ static int mmc_queue_thread(void *d)
+ 		spin_lock_irq(q->queue_lock);
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		req = blk_fetch_request(q);
+-		mq->req = req;
++		mq->mqrq_cur->req = req;
+ 		spin_unlock_irq(q->queue_lock);
+ 
++		mq->issue_fn(mq, req);
+ 		if (!req) {
+ 			if (kthread_should_stop()) {
+ 				set_current_state(TASK_RUNNING);
+@@ -71,7 +72,6 @@ static int mmc_queue_thread(void *d)
+ 		}
+ 		set_current_state(TASK_RUNNING);
+ 
+-		mq->issue_fn(mq, req);
+ 	} while (1);
+ 	up(&mq->thread_sem);
+ 
+@@ -97,10 +97,25 @@ static void mmc_request(struct request_queue *q)
+ 		return;
+ 	}
+ 
+-	if (!mq->req)
++	if (!mq->mqrq_cur->req)
+ 		wake_up_process(mq->thread);
+ }
+ 
++struct scatterlist *mmc_alloc_sg(int sg_len, int *err)
++{
++	struct scatterlist *sg;
++
++	sg = kmalloc(sizeof(struct scatterlist)*sg_len, GFP_KERNEL);
++	if (!sg)
++		*err = -ENOMEM;
++	else {
++		*err = 0;
++		sg_init_table(sg, sg_len);
++	}
++
++	return sg;
++}
++
+ /**
+  * mmc_init_queue - initialise a queue structure.
+  * @mq: mmc queue
+@@ -114,6 +129,8 @@ int mmc_init_queue(struct mmc_queue *mq, struct mmc_card *card, spinlock_t *lock
+ 	struct mmc_host *host = card->host;
+ 	u64 limit = BLK_BOUNCE_HIGH;
+ 	int ret;
++	struct mmc_queue_req *mqrq_cur = &mq->mqrq[0];
++	struct mmc_queue_req *mqrq_prev = &mq->mqrq[1];
+ 
+ 	if (mmc_dev(host)->dma_mask && *mmc_dev(host)->dma_mask)
+ 		limit = *mmc_dev(host)->dma_mask;
+@@ -123,8 +140,11 @@ int mmc_init_queue(struct mmc_queue *mq, struct mmc_card *card, spinlock_t *lock
+ 	if (!mq->queue)
+ 		return -ENOMEM;
+ 
++	memset(&mq->mqrq_cur, 0, sizeof(mq->mqrq_cur));
++	memset(&mq->mqrq_prev, 0, sizeof(mq->mqrq_prev));
++	mq->mqrq_cur = mqrq_cur;
++	mq->mqrq_prev = mqrq_prev;
+ 	mq->queue->queuedata = mq;
+-	mq->req = NULL;
+ 
+ 	blk_queue_prep_rq(mq->queue, mmc_prep_request);
+ 	queue_flag_set_unlocked(QUEUE_FLAG_NONROT, mq->queue);
+@@ -158,53 +178,64 @@ int mmc_init_queue(struct mmc_queue *mq, struct mmc_card *card, spinlock_t *lock
+ 			bouncesz = host->max_blk_count * 512;
+ 
+ 		if (bouncesz > 512) {
+-			mq->bounce_buf = kmalloc(bouncesz, GFP_KERNEL);
+-			if (!mq->bounce_buf) {
++			mqrq_cur->bounce_buf = kmalloc(bouncesz, GFP_KERNEL);
++			if (!mqrq_cur->bounce_buf) {
++				printk(KERN_WARNING "%s: unable to "
++					"allocate bounce cur buffer\n",
++					mmc_card_name(card));
++			}
++			mqrq_prev->bounce_buf = kmalloc(bouncesz, GFP_KERNEL);
++			if (!mqrq_prev->bounce_buf) {
+ 				printk(KERN_WARNING "%s: unable to "
+-					"allocate bounce buffer\n",
++					"allocate bounce prev buffer\n",
+ 					mmc_card_name(card));
++				kfree(mqrq_cur->bounce_buf);
++				mqrq_cur->bounce_buf = NULL;
+ 			}
+ 		}
+ 
+-		if (mq->bounce_buf) {
++		if (mqrq_cur->bounce_buf && mqrq_prev->bounce_buf) {
+ 			blk_queue_bounce_limit(mq->queue, BLK_BOUNCE_ANY);
+ 			blk_queue_max_hw_sectors(mq->queue, bouncesz / 512);
+ 			blk_queue_max_segments(mq->queue, bouncesz / 512);
+ 			blk_queue_max_segment_size(mq->queue, bouncesz);
+ 
+-			mq->sg = kmalloc(sizeof(struct scatterlist),
+-				GFP_KERNEL);
+-			if (!mq->sg) {
+-				ret = -ENOMEM;
++			mqrq_cur->sg = mmc_alloc_sg(1, &ret);
++			if (ret)
+ 				goto cleanup_queue;
+-			}
+-			sg_init_table(mq->sg, 1);
+ 
+-			mq->bounce_sg = kmalloc(sizeof(struct scatterlist) *
+-				bouncesz / 512, GFP_KERNEL);
+-			if (!mq->bounce_sg) {
+-				ret = -ENOMEM;
++			mqrq_cur->bounce_sg =
++				mmc_alloc_sg(bouncesz / 512, &ret);
++			if (ret)
++				goto cleanup_queue;
++
++			mqrq_prev->sg = mmc_alloc_sg(1, &ret);
++			if (ret)
++				goto cleanup_queue;
++
++			mqrq_prev->bounce_sg =
++				mmc_alloc_sg(bouncesz / 512, &ret);
++			if (ret)
+ 				goto cleanup_queue;
+-			}
+-			sg_init_table(mq->bounce_sg, bouncesz / 512);
+ 		}
+ 	}
+ #endif
+ 
+-	if (!mq->bounce_buf) {
++	if (!mqrq_cur->bounce_buf && !mqrq_prev->bounce_buf) {
+ 		blk_queue_bounce_limit(mq->queue, limit);
+ 		blk_queue_max_hw_sectors(mq->queue,
+ 			min(host->max_blk_count, host->max_req_size / 512));
+ 		blk_queue_max_segments(mq->queue, host->max_segs);
+ 		blk_queue_max_segment_size(mq->queue, host->max_seg_size);
+ 
+-		mq->sg = kmalloc(sizeof(struct scatterlist) *
+-			host->max_segs, GFP_KERNEL);
+-		if (!mq->sg) {
+-			ret = -ENOMEM;
++		mqrq_cur->sg = mmc_alloc_sg(host->max_segs, &ret);
++		if (ret)
++			goto cleanup_queue;
++
++
++		mqrq_prev->sg = mmc_alloc_sg(host->max_segs, &ret);
++		if (ret)
+ 			goto cleanup_queue;
+-		}
+-		sg_init_table(mq->sg, host->max_segs);
+ 	}
+ 
+ 	sema_init(&mq->thread_sem, 1);
+@@ -219,16 +250,22 @@ int mmc_init_queue(struct mmc_queue *mq, struct mmc_card *card, spinlock_t *lock
+ 
+ 	return 0;
+  free_bounce_sg:
+- 	if (mq->bounce_sg)
+- 		kfree(mq->bounce_sg);
+- 	mq->bounce_sg = NULL;
++	kfree(mqrq_cur->bounce_sg);
++	mqrq_cur->bounce_sg = NULL;
++	kfree(mqrq_prev->bounce_sg);
++	mqrq_prev->bounce_sg = NULL;
++
+  cleanup_queue:
+- 	if (mq->sg)
+-		kfree(mq->sg);
+-	mq->sg = NULL;
+-	if (mq->bounce_buf)
+-		kfree(mq->bounce_buf);
+-	mq->bounce_buf = NULL;
++	kfree(mqrq_cur->sg);
++	mqrq_cur->sg = NULL;
++	kfree(mqrq_cur->bounce_buf);
++	mqrq_cur->bounce_buf = NULL;
++
++	kfree(mqrq_prev->sg);
++	mqrq_prev->sg = NULL;
++	kfree(mqrq_prev->bounce_buf);
++	mqrq_prev->bounce_buf = NULL;
++
+ 	blk_cleanup_queue(mq->queue);
+ 	return ret;
+ }
+@@ -237,6 +274,8 @@ void mmc_cleanup_queue(struct mmc_queue *mq)
+ {
+ 	struct request_queue *q = mq->queue;
+ 	unsigned long flags;
++	struct mmc_queue_req *mqrq_cur = mq->mqrq_cur;
++	struct mmc_queue_req *mqrq_prev = mq->mqrq_prev;
+ 
+ 	/* Make sure the queue isn't suspended, as that will deadlock */
+ 	mmc_queue_resume(mq);
+@@ -250,16 +289,23 @@ void mmc_cleanup_queue(struct mmc_queue *mq)
+ 	blk_start_queue(q);
+ 	spin_unlock_irqrestore(q->queue_lock, flags);
+ 
+- 	if (mq->bounce_sg)
+- 		kfree(mq->bounce_sg);
+- 	mq->bounce_sg = NULL;
++	kfree(mqrq_cur->bounce_sg);
++	mqrq_cur->bounce_sg = NULL;
++
++	kfree(mqrq_cur->sg);
++	mqrq_cur->sg = NULL;
+ 
+-	kfree(mq->sg);
+-	mq->sg = NULL;
++	kfree(mqrq_cur->bounce_buf);
++	mqrq_cur->bounce_buf = NULL;
+ 
+-	if (mq->bounce_buf)
+-		kfree(mq->bounce_buf);
+-	mq->bounce_buf = NULL;
++	kfree(mqrq_prev->bounce_sg);
++	mqrq_prev->bounce_sg = NULL;
++
++	kfree(mqrq_prev->sg);
++	mqrq_prev->sg = NULL;
++
++	kfree(mqrq_prev->bounce_buf);
++	mqrq_prev->bounce_buf = NULL;
+ 
+ 	mq->card = NULL;
+ }
+@@ -312,27 +358,27 @@ void mmc_queue_resume(struct mmc_queue *mq)
+ /*
+  * Prepare the sg list(s) to be handed of to the host driver
+  */
+-unsigned int mmc_queue_map_sg(struct mmc_queue *mq)
++unsigned int mmc_queue_map_sg(struct mmc_queue *mq, struct mmc_queue_req *mqrq)
+ {
+ 	unsigned int sg_len;
+ 	size_t buflen;
+ 	struct scatterlist *sg;
+ 	int i;
+ 
+-	if (!mq->bounce_buf)
+-		return blk_rq_map_sg(mq->queue, mq->req, mq->sg);
++	if (!mqrq->bounce_buf)
++		return blk_rq_map_sg(mq->queue, mqrq->req, mqrq->sg);
+ 
+-	BUG_ON(!mq->bounce_sg);
++	BUG_ON(!mqrq->bounce_sg);
+ 
+-	sg_len = blk_rq_map_sg(mq->queue, mq->req, mq->bounce_sg);
++	sg_len = blk_rq_map_sg(mq->queue, mqrq->req, mqrq->bounce_sg);
+ 
+-	mq->bounce_sg_len = sg_len;
++	mqrq->bounce_sg_len = sg_len;
+ 
+ 	buflen = 0;
+-	for_each_sg(mq->bounce_sg, sg, sg_len, i)
++	for_each_sg(mqrq->bounce_sg, sg, sg_len, i)
+ 		buflen += sg->length;
+ 
+-	sg_init_one(mq->sg, mq->bounce_buf, buflen);
++	sg_init_one(mqrq->sg, mqrq->bounce_buf, buflen);
+ 
+ 	return 1;
+ }
+@@ -341,19 +387,19 @@ unsigned int mmc_queue_map_sg(struct mmc_queue *mq)
+  * If writing, bounce the data to the buffer before the request
+  * is sent to the host driver
+  */
+-void mmc_queue_bounce_pre(struct mmc_queue *mq)
++void mmc_queue_bounce_pre(struct mmc_queue_req *mqrq)
+ {
+ 	unsigned long flags;
+ 
+-	if (!mq->bounce_buf)
++	if (!mqrq->bounce_buf)
+ 		return;
+ 
+-	if (rq_data_dir(mq->req) != WRITE)
++	if (rq_data_dir(mqrq->req) != WRITE)
+ 		return;
+ 
+ 	local_irq_save(flags);
+-	sg_copy_to_buffer(mq->bounce_sg, mq->bounce_sg_len,
+-		mq->bounce_buf, mq->sg[0].length);
++	sg_copy_to_buffer(mqrq->bounce_sg, mqrq->bounce_sg_len,
++		mqrq->bounce_buf, mqrq->sg[0].length);
+ 	local_irq_restore(flags);
+ }
+ 
+@@ -361,19 +407,18 @@ void mmc_queue_bounce_pre(struct mmc_queue *mq)
+  * If reading, bounce the data from the buffer after the request
+  * has been handled by the host driver
+  */
+-void mmc_queue_bounce_post(struct mmc_queue *mq)
++void mmc_queue_bounce_post(struct mmc_queue_req *mqrq)
+ {
+ 	unsigned long flags;
+ 
+-	if (!mq->bounce_buf)
++	if (!mqrq->bounce_buf)
+ 		return;
+ 
+-	if (rq_data_dir(mq->req) != READ)
++	if (rq_data_dir(mqrq->req) != READ)
+ 		return;
+ 
+ 	local_irq_save(flags);
+-	sg_copy_from_buffer(mq->bounce_sg, mq->bounce_sg_len,
+-		mq->bounce_buf, mq->sg[0].length);
++	sg_copy_from_buffer(mqrq->bounce_sg, mqrq->bounce_sg_len,
++		mqrq->bounce_buf, mqrq->sg[0].length);
+ 	local_irq_restore(flags);
+ }
+-
+diff --git a/drivers/mmc/card/queue.h b/drivers/mmc/card/queue.h
+index 64e66e0..0e65807 100644
+--- a/drivers/mmc/card/queue.h
++++ b/drivers/mmc/card/queue.h
+@@ -4,19 +4,33 @@
+ struct request;
+ struct task_struct;
+ 
++struct mmc_blk_request {
++	struct mmc_request	mrq;
++	struct mmc_command	cmd;
++	struct mmc_command	stop;
++	struct mmc_data		data;
++};
++
++struct mmc_queue_req {
++	struct request		*req;
++	struct mmc_blk_request	brq;
++	struct scatterlist	*sg;
++	char			*bounce_buf;
++	struct scatterlist	*bounce_sg;
++	unsigned int		bounce_sg_len;
++};
++
+ struct mmc_queue {
+ 	struct mmc_card		*card;
+ 	struct task_struct	*thread;
+ 	struct semaphore	thread_sem;
+ 	unsigned int		flags;
+-	struct request		*req;
+ 	int			(*issue_fn)(struct mmc_queue *, struct request *);
+ 	void			*data;
+ 	struct request_queue	*queue;
+-	struct scatterlist	*sg;
+-	char			*bounce_buf;
+-	struct scatterlist	*bounce_sg;
+-	unsigned int		bounce_sg_len;
++	struct mmc_queue_req	mqrq[2];
++	struct mmc_queue_req	*mqrq_cur;
++	struct mmc_queue_req	*mqrq_prev;
+ };
+ 
+ extern int mmc_init_queue(struct mmc_queue *, struct mmc_card *, spinlock_t *);
+@@ -24,8 +38,9 @@ extern void mmc_cleanup_queue(struct mmc_queue *);
+ extern void mmc_queue_suspend(struct mmc_queue *);
+ extern void mmc_queue_resume(struct mmc_queue *);
+ 
+-extern unsigned int mmc_queue_map_sg(struct mmc_queue *);
+-extern void mmc_queue_bounce_pre(struct mmc_queue *);
+-extern void mmc_queue_bounce_post(struct mmc_queue *);
++extern unsigned int mmc_queue_map_sg(struct mmc_queue *,
++				     struct mmc_queue_req *);
++extern void mmc_queue_bounce_pre(struct mmc_queue_req *);
++extern void mmc_queue_bounce_post(struct mmc_queue_req *);
+ 
+ #endif
+diff --git a/drivers/mmc/core/core.c b/drivers/mmc/core/core.c
+index 1f453ac..85296df 100644
+--- a/drivers/mmc/core/core.c
++++ b/drivers/mmc/core/core.c
+@@ -23,6 +23,8 @@
+ #include <linux/log2.h>
+ #include <linux/regulator/consumer.h>
+ #include <linux/pm_runtime.h>
++#include <linux/fault-inject.h>
++#include <linux/random.h>
+ 
+ #include <linux/mmc/card.h>
+ #include <linux/mmc/host.h>
+@@ -82,6 +84,56 @@ static void mmc_flush_scheduled_work(void)
+ 	flush_workqueue(workqueue);
+ }
+ 
++#ifdef CONFIG_FAIL_MMC_REQUEST
++
++static DECLARE_FAULT_ATTR(fail_mmc_request);
++
++static int __init setup_fail_mmc_request(char *str)
++{
++	return setup_fault_attr(&fail_mmc_request, str);
++}
++__setup("fail_mmc_request=", setup_fail_mmc_request);
++
++static void mmc_should_fail_request(struct mmc_host *host,
++				    struct mmc_request *mrq)
++{
++	struct mmc_command *cmd = mrq->cmd;
++	struct mmc_data *data = mrq->data;
++	static const int data_errors[] = {
++		-ETIMEDOUT,
++		-EILSEQ,
++		-EIO,
++	};
++
++	if (!data)
++		return;
++
++	if (cmd->error || data->error || !host->make_it_fail ||
++	    !should_fail(&fail_mmc_request, data->blksz * data->blocks))
++		return;
++
++	data->error = data_errors[random32() % ARRAY_SIZE(data_errors)];
++	data->bytes_xfered = (random32() % (data->bytes_xfered >> 9)) << 9;
++}
++
++static int __init fail_mmc_request_debugfs(void)
++{
++	return init_fault_attr_dentries(&fail_mmc_request,
++					"fail_mmc_request");
++}
++
++late_initcall(fail_mmc_request_debugfs);
++
++#else /* CONFIG_FAIL_MMC_REQUEST */
++
++static inline void mmc_should_fail_request(struct mmc_host *host,
++					   struct mmc_data *data)
++{
++}
++
++#endif /* CONFIG_FAIL_MMC_REQUEST */
++
++
+ /**
+  *	mmc_request_done - finish processing an MMC request
+  *	@host: MMC host which completed request
+@@ -108,6 +160,8 @@ void mmc_request_done(struct mmc_host *host, struct mmc_request *mrq)
+ 		cmd->error = 0;
+ 		host->ops->request(host, mrq);
+ 	} else {
++		mmc_should_fail_request(host, mrq);
++
+ 		led_trigger_event(host->led, LED_OFF);
+ 
+ 		pr_debug("%s: req done (CMD%u): %d: %08x %08x %08x %08x\n",
+@@ -198,30 +252,88 @@ mmc_start_request(struct mmc_host *host, struct mmc_request *mrq)
+ 
+ static void mmc_wait_done(struct mmc_request *mrq)
+ {
+-	complete(mrq->done_data);
++	complete(&mrq->completion);
+ }
+ 
+ /**
+- *	mmc_wait_for_req - start a request and wait for completion
++ *	mmc_pre_req - Prepare for a new request
++ *	@host: MMC host to prepare command
++ *	@mrq: MMC request to prepare for
++ *	@is_first_req: true if there is no previous started request
++ *                     that may run in parellel to this call, otherwise false
++ *
++ *	mmc_pre_req() is called in prior to mmc_start_req() to let
++ *	host prepare for the new request. Preparation of a request may be
++ *	performed while another request is running on the host.
++ */
++void mmc_pre_req(struct mmc_host *host, struct mmc_request *mrq,
++		 bool is_first_req)
++{
++	if (host->ops->pre_req)
++		host->ops->pre_req(host, mrq, is_first_req);
++}
++EXPORT_SYMBOL(mmc_pre_req);
++
++/**
++ *	mmc_post_req - Post process a completed request
++ *	@host: MMC host to post process command
++ *	@mrq: MMC request to post process for
++ *	@err: Error, if none zero, clean up any resources made in pre_req
++ *
++ *	Let the host post process a completed request. Post processing of
++ *	a request may be performed while another reuqest is running.
++ */
++void mmc_post_req(struct mmc_host *host, struct mmc_request *mrq, int err)
++{
++	if (host->ops->post_req)
++		host->ops->post_req(host, mrq, err);
++}
++EXPORT_SYMBOL(mmc_post_req);
++
++/**
++ *	mmc_start_req - start a request
+  *	@host: MMC host to start command
+  *	@mrq: MMC request to start
+  *
+- *	Start a new MMC custom command request for a host, and wait
+- *	for the command to complete. Does not attempt to parse the
+- *	response.
++ *	Start a new MMC custom command request for a host.
++ *	Does not wait for the command to complete.
+  */
+-void mmc_wait_for_req(struct mmc_host *host, struct mmc_request *mrq)
++void mmc_start_req(struct mmc_host *host, struct mmc_request *mrq)
+ {
+-	DECLARE_COMPLETION_ONSTACK(complete);
+-
+-	mrq->done_data = &complete;
++	init_completion(&mrq->completion);
+ 	mrq->done = mmc_wait_done;
+ 
+ 	mmc_start_request(host, mrq);
++}
++EXPORT_SYMBOL(mmc_start_req);
+ 
+-	wait_for_completion(&complete);
++/**
++ *	mmc_wait_for_req_done - wait for completion of request
++ *	@mrq: MMC request to wait for
++ *
++ *	Wait for the command to complete. Does not attempt to parse the
++ *	response.
++ */
++void mmc_wait_for_req_done(struct mmc_request *mrq)
++{
++	wait_for_completion(&mrq->completion);
+ }
++EXPORT_SYMBOL(mmc_wait_for_req_done);
+ 
++/**
++ *	mmc_wait_for_req - start a request and wait for completion
++ *	@host: MMC host to start command
++ *	@mrq: MMC request to start
++ *
++ *	Start a new MMC custom command request for a host, and wait
++ *	for the command to complete. Does not attempt to parse the
++ *	response.
++ */
++void mmc_wait_for_req(struct mmc_host *host, struct mmc_request *mrq)
++{
++	mmc_start_req(host, mrq);
++	mmc_wait_for_req_done(mrq);
++}
+ EXPORT_SYMBOL(mmc_wait_for_req);
+ 
+ /**
+diff --git a/drivers/mmc/core/debugfs.c b/drivers/mmc/core/debugfs.c
+index 998797e..588e76f 100644
+--- a/drivers/mmc/core/debugfs.c
++++ b/drivers/mmc/core/debugfs.c
+@@ -188,6 +188,11 @@ void mmc_add_host_debugfs(struct mmc_host *host)
+ 				root, &host->clk_delay))
+ 		goto err_node;
+ #endif
++#ifdef CONFIG_FAIL_MMC_REQUEST
++	if (!debugfs_create_u8("make-it-fail", S_IRUSR | S_IWUSR,
++			       root, &host->make_it_fail))
++		goto err_node;
++#endif
+ 	return;
+ 
+ err_node:
 diff --git a/drivers/mmc/host/Kconfig b/drivers/mmc/host/Kconfig
 index 94df405..872ef4a 100644
 --- a/drivers/mmc/host/Kconfig
@@ -40038,10 +41508,10 @@ index 4f1df0a..7133627 100644
  obj-$(CONFIG_MMC_TMIO_CORE)	+= tmio_mmc_core.o
 diff --git a/drivers/mmc/host/glamo-mci.c b/drivers/mmc/host/glamo-mci.c
 new file mode 100644
-index 0000000..f47e88b
+index 0000000..02c4b69
 --- /dev/null
 +++ b/drivers/mmc/host/glamo-mci.c
-@@ -0,0 +1,985 @@
+@@ -0,0 +1,939 @@
 +/*
 + *  linux/drivers/mmc/host/glamo-mmc.c - Glamo MMC driver
 + *
@@ -40093,10 +41563,10 @@ index 0000000..f47e88b
 +	unsigned short vdd;
 +	char power_mode;
 +
-+	unsigned char request_counter;
++	unsigned long transfer_start;
++	unsigned long request_start;
 +
-+	struct workqueue_struct *workqueue;
-+	struct work_struct read_work;
++	unsigned char request_counter;
 +};
 +
 +static void glamo_mci_send_request(struct mmc_host *mmc,
@@ -40117,7 +41587,7 @@ index 0000000..f47e88b
 + * for example
 + */
 +
-+static int sd_max_clk = 21000000;
++static int sd_max_clk = 17000000;
 +module_param(sd_max_clk, int, 0644);
 +
 +/*
@@ -40155,20 +41625,19 @@ index 0000000..f47e88b
 +
 +
 +static inline void glamomci_reg_write(struct glamo_mci_host *glamo,
-+				uint16_t reg, uint16_t val)
++		uint16_t reg, uint16_t val)
 +{
 +	writew(val, glamo->mmio_base + reg);
 +}
 +
 +static inline uint16_t glamomci_reg_read(struct glamo_mci_host *glamo,
-+				      uint16_t reg)
++		uint16_t reg)
 +{
 +	return readw(glamo->mmio_base + reg);
 +}
 +
 +static void glamomci_reg_set_bit_mask(struct glamo_mci_host *glamo,
-+				   uint16_t reg, uint16_t mask,
-+				   uint16_t val)
++		uint16_t reg, uint16_t mask, uint16_t val)
 +{
 +	uint16_t tmp;
 +
@@ -40210,12 +41679,21 @@ index 0000000..f47e88b
 +	return 0;
 +}
 +
++static void __iomem *glamo_mci_get_data_addr(struct glamo_mci_host *host,
++	struct mmc_data *data)
++{
++	void __iomem *addr = host->data_base;
 +
-+#ifndef GLAMO_MCI_WORKER
++	if (data->host_cookie & 1)
++		addr += resource_size(host->data_mem) / 2;
++
++	return addr;
++}
++
 +static void do_pio_read(struct glamo_mci_host *host, struct mmc_data *data)
 +{
++	void __iomem *from_ptr = glamo_mci_get_data_addr(host, data);
 +	struct sg_mapping_iter miter;
-+	uint16_t __iomem *from_ptr = host->data_base;
 +
 +	dev_dbg(&host->pdev->dev, "pio_read():\n");
 +
@@ -40223,34 +41701,31 @@ index 0000000..f47e88b
 +
 +	while (sg_miter_next(&miter)) {
 +		memcpy(miter.addr, from_ptr, miter.length);
-+		from_ptr += miter.length >> 1;
-+
-+		data->bytes_xfered += miter.length;
++		from_ptr += miter.length;
 +	}
 +
 +	sg_miter_stop(&miter);
 +
 +	dev_dbg(&host->pdev->dev, "pio_read(): "
-+			"complete (no more data).\n");
++			"complete (no more data)\n");
 +}
-+#endif
 +
 +static void do_pio_write(struct glamo_mci_host *host, struct mmc_data *data)
 +{
++	void __iomem *to_ptr = glamo_mci_get_data_addr(host, data);
 +	struct sg_mapping_iter miter;
-+	uint16_t __iomem *to_ptr = host->data_base;
 +
 +	dev_dbg(&host->pdev->dev, "pio_write():\n");
 +	sg_miter_start(&miter, data->sg, data->sg_len, SG_MITER_FROM_SG);
 +
 +	while (sg_miter_next(&miter)) {
 +		memcpy(to_ptr, miter.addr, miter.length);
-+		to_ptr += miter.length >> 1;
++		to_ptr += miter.length;
 +
 +		data->bytes_xfered += miter.length;
 +	}
-+
 +	sg_miter_stop(&miter);
++
 +	dev_dbg(&host->pdev->dev, "pio_write(): complete\n");
 +}
 +
@@ -40269,6 +41744,7 @@ index 0000000..f47e88b
 +			       unsigned long timeout)
 +{
 +	uint16_t status;
++
 +	do {
 +		status = glamomci_reg_read(host, GLAMO_REG_MMC_RB_STAT1);
 +	} while (!(status & GLAMO_STAT1_MMC_IDLE) &&
@@ -40322,12 +41798,11 @@ index 0000000..f47e88b
 +	if (mrq->stop)
 +		glamo_mci_send_command(host, mrq->stop);
 +
-+	if (cmd->data->flags & MMC_DATA_READ)
-+#ifndef GLAMO_MCI_WORKER
-+		do_pio_read(host, cmd->data);
-+#else
-+		flush_workqueue(host->workqueue);
-+#endif
++	if (mrq->data && (mrq->data->flags & MMC_DATA_READ)) {
++		mrq->data->bytes_xfered = mrq->data->blocks * mrq->data->blksz;
++		if (!mrq->data->host_cookie)
++			do_pio_read(host, mrq->data);
++	}
 +
 +	if (mrq->stop)
 +		mrq->stop->error = glamo_mci_wait_idle(host, jiffies + HZ);
@@ -40339,66 +41814,8 @@ index 0000000..f47e88b
 +	return IRQ_HANDLED;
 +}
 +
-+#ifdef GLAMO_MCI_WORKER
-+static void glamo_mci_read_worker(struct work_struct *work)
-+{
-+	struct glamo_mci_host *host = container_of(work, struct glamo_mci_host,
-+							read_work);
-+	struct mmc_command *cmd;
-+	uint16_t status;
-+	uint16_t blocks_ready;
-+	size_t data_read = 0;
-+	size_t data_ready;
-+	struct scatterlist *sg;
-+	uint16_t __iomem *from_ptr = host->data_base;
-+	void *sg_pointer;
-+
-+
-+	cmd = host->mrq->cmd;
-+	sg = cmd->data->sg;
-+	do {
-+		/*
-+		 * TODO: How to get rid of that?
-+		 * Maybe just drop it... In fact, it is already handled in
-+		 * the IRQ handler, maybe we should only check cmd->error.
-+		 * But the question is: what happens between the moment
-+		 * the error occurs, and the moment the IRQ handler handles it?
-+		 */
-+		status = glamomci_reg_read(host, GLAMO_REG_MMC_RB_STAT1);
-+
-+		if (status & (GLAMO_STAT1_MMC_RTOUT | GLAMO_STAT1_MMC_DTOUT))
-+			cmd->error = -ETIMEDOUT;
-+		if (status & (GLAMO_STAT1_MMC_BWERR | GLAMO_STAT1_MMC_BRERR))
-+			cmd->error = -EILSEQ;
-+		if (cmd->error) {
-+			dev_info(&host->pdev->dev, "Error after cmd: 0x%x\n",
-+				status);
-+			return;
-+		}
-+
-+		blocks_ready = glamomci_reg_read(host, GLAMO_REG_MMC_RB_BLKCNT);
-+		data_ready = blocks_ready * cmd->data->blksz;
-+
-+		if (data_ready == data_read)
-+			yield();
-+
-+		while (sg && data_read + sg->length <= data_ready) {
-+			sg_pointer = page_address(sg_page(sg)) + sg->offset;
-+			memcpy(sg_pointer, from_ptr, sg->length);
-+			from_ptr += sg->length >> 1;
-+
-+			data_read += sg->length;
-+
-+			sg = sg_next(sg);
-+		}
-+
-+	} while (sg);
-+	cmd->data->bytes_xfered = data_read;
-+}
-+#endif
-+
 +static void glamo_mci_send_command(struct glamo_mci_host *host,
-+				   struct mmc_command *cmd)
++		struct mmc_command *cmd)
 +{
 +	uint8_t u8a[6];
 +	uint16_t fire = 0;
@@ -40577,28 +41994,29 @@ index 0000000..f47e88b
 +					   (readw(&reg_resp[2]) << 24);
 +		}
 +	}
-+
-+#ifdef GLAMO_MCI_WORKER
-+	/* We'll only get an interrupt when all data has been transfered.
-+	   By starting to copy data when it's avaiable we can increase
-+	   throughput by up to 30%. */
-+	if (cmd->data && (cmd->data->flags & MMC_DATA_READ))
-+		queue_work(host->workqueue, &host->read_work);
-+#endif
-+
 +}
 +
 +static int glamo_mci_prepare_pio(struct glamo_mci_host *host,
-+				 struct mmc_data *data)
++		struct mmc_data *data)
 +{
++	unsigned long addr = host->data_mem->start;
++
++	if (data->host_cookie & 1)
++		addr += resource_size(host->data_mem) / 2;
++
 +	/* set up the block info */
 +	glamomci_reg_write(host, GLAMO_REG_MMC_DATBLKLEN, data->blksz);
 +	glamomci_reg_write(host, GLAMO_REG_MMC_DATBLKCNT, data->blocks);
 +
-+	data->bytes_xfered = 0;
++	if (data->flags & MMC_DATA_WRITE) {
++		glamomci_reg_write(host, GLAMO_REG_MMC_WDATADS1, addr);
++		glamomci_reg_write(host, GLAMO_REG_MMC_WDATADS2, addr >> 16);
++	} else {
++		glamomci_reg_write(host, GLAMO_REG_MMC_RDATADS1, addr);
++		glamomci_reg_write(host, GLAMO_REG_MMC_RDATADS2, addr >> 16);
++	}
 +
-+	/* if write, prep the write into the shared RAM before the command */
-+	if (data->flags & MMC_DATA_WRITE)
++	if ((data->flags & MMC_DATA_WRITE) && !data->host_cookie)
 +		do_pio_write(host, data);
 +
 +	dev_dbg(&host->pdev->dev, "(blksz=%d, count=%d)\n",
@@ -40607,12 +42025,14 @@ index 0000000..f47e88b
 +}
 +
 +static void glamo_mci_send_request(struct mmc_host *mmc,
-+				   struct mmc_request *mrq)
++		struct mmc_request *mrq)
 +{
 +	struct glamo_mci_host *host = mmc_priv(mmc);
 +	struct mmc_command *cmd = mrq->cmd;
 +
 +	host->request_counter++;
++	host->request_start = jiffies;
++
 +	if (cmd->data) {
 +		if (glamo_mci_prepare_pio(host, cmd->data)) {
 +			cmd->error = -EIO;
@@ -40733,24 +42153,45 @@ index 0000000..f47e88b
 +		mmc_host_lazy_disable(host->mmc);
 +}
 +
-+
-+/*
-+ * no physical write protect supported by us
-+ */
-+static int glamo_mci_get_ro(struct mmc_host *mmc)
++static void glamo_mci_pre_request(struct mmc_host *mmc,
++		struct mmc_request *mrq, bool is_first_req)
 +{
-+	return 0;
++	struct glamo_mci_host *host = mmc_priv(mmc);
++
++	mrq->data->host_cookie = (host->request_counter & 1) | 2;
++
++	/* if write, prep the write into the shared RAM before the command */
++	if (mrq->data->flags & MMC_DATA_WRITE)
++		do_pio_write(host, mrq->data);
++}
++
++static void glamo_mci_post_request(struct mmc_host *mmc,
++		struct mmc_request *mrq, int err)
++{
++	struct glamo_mci_host *host = mmc_priv(mmc);
++
++	if (!mrq->data->host_cookie)
++		return;
++
++	if (err)
++		return;
++
++	if (mrq->data->flags & MMC_DATA_READ)
++		do_pio_read(host, mrq->data);
++
++	mrq->data->host_cookie = 0;
 +}
 +
 +static struct mmc_host_ops glamo_mci_ops = {
 +	.enable		= glamo_mci_clock_enable,
 +	.disable	= glamo_mci_clock_disable,
 +	.request	= glamo_mci_send_request,
++	.post_req	= glamo_mci_post_request,
++	.pre_req	= glamo_mci_pre_request,
 +	.set_ios	= glamo_mci_set_ios,
-+	.get_ro		= glamo_mci_get_ro,
 +};
 +
-+static int glamo_mci_probe(struct platform_device *pdev)
++static int __devinit glamo_mci_probe(struct platform_device *pdev)
 +{
 +	struct mmc_host *mmc;
 +	struct glamo_mci_host *host;
@@ -40772,12 +42213,8 @@ index 0000000..f47e88b
 +		host->pdata = core->pdata->mmc_data;
 +	host->power_mode = MMC_POWER_OFF;
 +	host->core = core;
-+	host->irq = platform_get_irq(pdev, 0);
 +
-+#ifdef GLAMO_MCI_WORKER
-+	INIT_WORK(&host->read_work, glamo_mci_read_worker);
-+	host->workqueue = create_singlethread_workqueue("glamo-mci-read");
-+#endif
++	host->irq = platform_get_irq(pdev, 0);
 +
 +	host->regulator = regulator_get(pdev->dev.parent, "SD_3V3");
 +	if (IS_ERR(host->regulator)) {
@@ -40866,7 +42303,7 @@ index 0000000..f47e88b
 +
 +	mmc->max_blk_count = (1 << 16) - 1; /* GLAMO_REG_MMC_RB_BLKCNT */
 +	mmc->max_blk_size  = (1 << 12) - 1; /* GLAMO_REG_MMC_RB_BLKLEN */
-+	mmc->max_req_size  = resource_size(host->data_mem);
++	mmc->max_req_size  = resource_size(host->data_mem) / 2;
 +	mmc->max_seg_size  = mmc->max_req_size;
 +	mmc->max_segs = 128;
 +
@@ -40911,23 +42348,15 @@ index 0000000..f47e88b
 +probe_regulator_put:
 +	regulator_put(host->regulator);
 +probe_free_host:
-+#ifdef GLAMO_MCI_WORKER
-+	destroy_workqueue(host->workqueue);
-+#endif
 +	mmc_free_host(mmc);
 +probe_out:
 +	return ret;
 +}
 +
-+static int glamo_mci_remove(struct platform_device *pdev)
++static int __devexit glamo_mci_remove(struct platform_device *pdev)
 +{
 +	struct mmc_host	*mmc = platform_get_drvdata(pdev);
 +	struct glamo_mci_host *host = mmc_priv(mmc);
-+
-+#ifdef GLAMO_MCI_WORKER
-+	flush_workqueue(host->workqueue);
-+	destroy_workqueue(host->workqueue);
-+#endif
 +
 +	mmc_host_enable(mmc);
 +	mmc_remove_host(mmc);
@@ -40987,12 +42416,7 @@ index 0000000..f47e88b
 +	return ret;
 +}
 +
-+static const struct dev_pm_ops glamo_mci_pm_ops = {
-+	.suspend    = glamo_mci_suspend,
-+	.resume     = glamo_mci_resume,
-+	.freeze     = glamo_mci_suspend,
-+	.thaw       = glamo_mci_resume,
-+};
++static SIMPLE_DEV_PM_OPS(glamo_mci_pm_ops, glamo_mci_suspend, glamo_mci_resume);
 +#define GLAMO_MCI_PM_OPS (&glamo_mci_pm_ops)
 +
 +#else /* CONFIG_PM */
@@ -41002,7 +42426,7 @@ index 0000000..f47e88b
 +
 +static struct platform_driver glamo_mci_driver = {
 +	.probe  = glamo_mci_probe,
-+	.remove = glamo_mci_remove,
++	.remove = __devexit_p(glamo_mci_remove),
 +	.driver = {
 +		.name	= "glamo-mci",
 +		.owner	= THIS_MODULE,
@@ -41070,7 +42494,7 @@ index 8385bfa..59530ee 100644
  obj-$(CONFIG_BATTERY_DS2782)	+= ds2782_battery.o
  obj-$(CONFIG_BATTERY_PMU)	+= pmu_battery.o
 diff --git a/drivers/power/pcf50633-charger.c b/drivers/power/pcf50633-charger.c
-index 4fa52e1..a4aa9eb 100644
+index 4fa52e1..97dbcb2 100644
 --- a/drivers/power/pcf50633-charger.c
 +++ b/drivers/power/pcf50633-charger.c
 @@ -24,9 +24,27 @@
@@ -41221,7 +42645,7 @@ index 4fa52e1..a4aa9eb 100644
  
 -	if (mbc->pcf->pdata->mbc_event_callback)
 +	if (mbc->pcf->pdata->mbc_event_callback) {
-+		irq -= mbc->pcf->pdata->irq_base;
++		irq -= mbc->pcf->irq_base;
  		mbc->pcf->pdata->mbc_event_callback(mbc->pcf, irq);
 +	}
 +
@@ -41247,18 +42671,18 @@ index 4fa52e1..a4aa9eb 100644
 -	PCF50633_IRQ_LOWSYS,
 -	PCF50633_IRQ_LOWBAT,
 +static const char *pcf50633_mbc_irq_names[PCF50633_MBC_NUM_IRQS] = {
-+	"AD insert",
-+	"AD remove",
-+	"USB insert",
-+	"USB remove",
-+	"Battery full",
-+	"Charging halt",
-+	"THLIM on",
-+	"THLIM off",
-+	"USB limit on",
-+	"USB limit off",
-+	"Low system power",
-+	"Low battery",
++	"ADPINS",
++	"ADPREM",
++	"USBINS",
++	"USBREM",
++	"BATFULL",
++	"CHGHALT",
++	"THLIMON",
++	"THLIMOFF",
++	"USBLIMON",
++	"USBLIMOFF",
++	"LOWSYS",
++	"LOWBAT",
  };
  
  static int __devinit pcf50633_mbc_probe(struct platform_device *pdev)
@@ -41530,20 +42954,24 @@ index 69a11d9..5e7deb5 100644
  		return PTR_ERR(rdev);
  
 diff --git a/drivers/rtc/rtc-pcf50633.c b/drivers/rtc/rtc-pcf50633.c
-index f90c574..f36fc27 100644
+index f90c574..b0dc8c2 100644
 --- a/drivers/rtc/rtc-pcf50633.c
 +++ b/drivers/rtc/rtc-pcf50633.c
-@@ -63,6 +63,9 @@ struct pcf50633_rtc {
+@@ -58,11 +58,12 @@ struct pcf50633_time {
+ 
+ struct pcf50633_rtc {
+ 	int alarm_enabled;
+-	int second_enabled;
+ 	int alarm_pending;
  
  	struct pcf50633 *pcf;
  	struct rtc_device *rtc_dev;
 +
 +	int irq_alarm;
-+	int irq_second;
  };
  
  static void pcf2rtc_time(struct rtc_time *rtc, struct pcf50633_time *pcf)
-@@ -91,21 +94,32 @@ static int
+@@ -91,15 +92,11 @@ static int
  pcf50633_rtc_alarm_irq_enable(struct device *dev, unsigned int enabled)
  {
  	struct pcf50633_rtc *rtc = dev_get_drvdata(dev);
@@ -41563,28 +42991,7 @@ index f90c574..f36fc27 100644
  
  	rtc->alarm_enabled = enabled;
  
- 	return 0;
- }
- 
-+static int
-+pcf50633_rtc_update_irq_enable(struct device *dev, unsigned int enabled)
-+{
-+	struct pcf50633_rtc *rtc = dev_get_drvdata(dev);
-+
-+	if (enabled && !rtc->second_enabled)
-+		enable_irq(rtc->irq_second);
-+	else if (!enabled && rtc->second_enabled)
-+		disable_irq(rtc->irq_second);
-+
-+	rtc->second_enabled = enabled;
-+
-+	return 0;
-+}
-+
- static int pcf50633_rtc_read_time(struct device *dev, struct rtc_time *tm)
- {
- 	struct pcf50633_rtc *rtc;
-@@ -143,7 +157,7 @@ static int pcf50633_rtc_set_time(struct device *dev, struct rtc_time *tm)
+@@ -143,7 +140,7 @@ static int pcf50633_rtc_set_time(struct device *dev, struct rtc_time *tm)
  {
  	struct pcf50633_rtc *rtc;
  	struct pcf50633_time pcf_tm;
@@ -41593,7 +43000,7 @@ index f90c574..f36fc27 100644
  
  	rtc = dev_get_drvdata(dev);
  
-@@ -162,23 +176,20 @@ static int pcf50633_rtc_set_time(struct device *dev, struct rtc_time *tm)
+@@ -162,23 +159,16 @@ static int pcf50633_rtc_set_time(struct device *dev, struct rtc_time *tm)
  		pcf_tm.time[PCF50633_TI_SEC]);
  
  
@@ -41604,8 +43011,6 @@ index f90c574..f36fc27 100644
 -		pcf50633_irq_mask(rtc->pcf, PCF50633_IRQ_SECOND);
 -	if (!alarm_masked)
 -		pcf50633_irq_mask(rtc->pcf, PCF50633_IRQ_ALARM);
-+	if (rtc->second_enabled)
-+		disable_irq(rtc->irq_second);
 +	if (rtc->alarm_enabled)
 +		disable_irq(rtc->irq_alarm);
  
@@ -41618,14 +43023,12 @@ index f90c574..f36fc27 100644
 -		pcf50633_irq_unmask(rtc->pcf, PCF50633_IRQ_SECOND);
 -	if (!alarm_masked)
 -		pcf50633_irq_unmask(rtc->pcf, PCF50633_IRQ_ALARM);
-+	if (rtc->second_enabled)
-+		enable_irq(rtc->irq_second);
 +	if (rtc->alarm_enabled)
 +		enable_irq(rtc->irq_alarm);
  
  	return ret;
  }
-@@ -210,7 +221,7 @@ static int pcf50633_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+@@ -210,7 +200,7 @@ static int pcf50633_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
  {
  	struct pcf50633_rtc *rtc;
  	struct pcf50633_time pcf_tm;
@@ -41634,7 +43037,7 @@ index f90c574..f36fc27 100644
  
  	rtc = dev_get_drvdata(dev);
  
-@@ -219,11 +230,9 @@ static int pcf50633_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+@@ -219,11 +209,9 @@ static int pcf50633_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
  	/* do like mktime does and ignore tm_wday */
  	pcf_tm.time[PCF50633_TI_WKDAY] = 7;
  
@@ -41648,7 +43051,7 @@ index f90c574..f36fc27 100644
  
  	/* Returns 0 on success */
  	ret = pcf50633_write_block(rtc->pcf, PCF50633_REG_RTCSCA,
-@@ -231,8 +240,8 @@ static int pcf50633_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
+@@ -231,8 +219,8 @@ static int pcf50633_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alrm)
  	if (!alrm->enabled)
  		rtc->alarm_pending = 0;
  
@@ -41659,7 +43062,7 @@ index f90c574..f36fc27 100644
  	rtc->alarm_enabled = alrm->enabled;
  
  	return ret;
-@@ -246,24 +255,41 @@ static struct rtc_class_ops pcf50633_rtc_ops = {
+@@ -246,24 +234,26 @@ static struct rtc_class_ops pcf50633_rtc_ops = {
  	.alarm_irq_enable	= pcf50633_rtc_alarm_irq_enable,
  };
  
@@ -41680,38 +43083,23 @@ index f90c574..f36fc27 100644
 -		break;
 -	}
 +	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t pcf50633_rtc_second_irq(int irq, void *data)
-+{
-+	struct pcf50633_rtc *rtc = data;
-+	rtc_update_irq(rtc->rtc_dev, 1, RTC_UF | RTC_IRQF);
-+
-+	return IRQ_HANDLED;
  }
  
  static int __devinit pcf50633_rtc_probe(struct platform_device *pdev)
  {
  	struct pcf50633_rtc *rtc;
-+	int irq_alarm, irq_second;
++	int irq_alarm;
 +	int ret;
 +
-+	irq_alarm = platform_get_irq_byname(pdev, "alarm");
++	irq_alarm = platform_get_irq_byname(pdev, "ALARM");
 +	if (irq_alarm <= 0) {
 +		dev_err(&pdev->dev, "Failed to get alarm irq: %d\n", irq_alarm);
 +		return irq_alarm ?: -EINVAL;
 +	}
-+
-+	irq_second = platform_get_irq_byname(pdev, "second");
-+	if (irq_second <= 0) {
-+		dev_err(&pdev->dev, "Failed to get second irq: %d\n",
-+			irq_second);
-+		return irq_second ?: -EINVAL;
-+	}
  
  	rtc = kzalloc(sizeof(*rtc), GFP_KERNEL);
  	if (!rtc)
-@@ -280,12 +306,31 @@ static int __devinit pcf50633_rtc_probe(struct platform_device *pdev)
+@@ -280,12 +270,23 @@ static int __devinit pcf50633_rtc_probe(struct platform_device *pdev)
  		return ret;
  	}
  
@@ -41726,16 +43114,8 @@ index f90c574..f36fc27 100644
 +		goto err_free;
 +	}
 +	disable_irq(irq_alarm);
-+	ret = request_threaded_irq(irq_second, NULL, pcf50633_rtc_second_irq, 0,
-+			"pcf50633-rtc second", rtc);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed to request second irq: %d\n", ret);
-+		goto err_free_irq;
-+	}
-+	disable_irq(irq_second);
 +
 +	rtc->irq_alarm = irq_alarm;
-+	rtc->irq_second = irq_second;
  
  	return 0;
 +
@@ -41747,13 +43127,12 @@ index f90c574..f36fc27 100644
  }
  
  static int __devexit pcf50633_rtc_remove(struct platform_device *pdev)
-@@ -294,8 +339,8 @@ static int __devexit pcf50633_rtc_remove(struct platform_device *pdev)
+@@ -294,8 +295,7 @@ static int __devexit pcf50633_rtc_remove(struct platform_device *pdev)
  
  	rtc = platform_get_drvdata(pdev);
  
 -	pcf50633_free_irq(rtc->pcf, PCF50633_IRQ_ALARM);
 -	pcf50633_free_irq(rtc->pcf, PCF50633_IRQ_SECOND);
-+	free_irq(rtc->irq_second, rtc);
 +	free_irq(rtc->irq_alarm, rtc);
  
  	rtc_device_unregister(rtc->rtc_dev);
@@ -41798,35 +43177,14 @@ index 9e2fa8d..318093c 100644
  }
  
  static void
-diff --git a/drivers/usb/gadget/s3c2410_udc.c b/drivers/usb/gadget/s3c2410_udc.c
-index 6d8b040..2a0b7cb 100644
---- a/drivers/usb/gadget/s3c2410_udc.c
-+++ b/drivers/usb/gadget/s3c2410_udc.c
-@@ -846,6 +846,7 @@ static void s3c2410_udc_handle_ep(struct s3c2410_ep *ep)
- 	u32			ep_csr1;
- 	u32			idx;
- 
-+handle_ep_again:
- 	if (likely (!list_empty(&ep->queue)))
- 		req = list_entry(ep->queue.next,
- 				struct s3c2410_request, queue);
-@@ -885,6 +886,8 @@ static void s3c2410_udc_handle_ep(struct s3c2410_ep *ep)
- 
- 		if ((ep_csr1 & S3C2410_UDC_OCSR1_PKTRDY) && req) {
- 			s3c2410_udc_read_fifo(ep,req);
-+			if (s3c2410_udc_fifo_count_out())
-+				goto handle_ep_again;
- 		}
- 	}
- }
 diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
-index e6a8d8c..dd9549a 100644
+index e6a8d8c..03ff799 100644
 --- a/drivers/video/Kconfig
 +++ b/drivers/video/Kconfig
-@@ -2329,6 +2329,22 @@ config FB_MXS
- 	select FB_CFB_IMAGEBLIT
- 	help
- 	  Framebuffer support for the MXS SoC.
+@@ -2341,6 +2341,23 @@ config FB_PUV3_UNIGFX
+ 	  Choose this option if you want to use the Unigfx device as a
+ 	  framebuffer device. Without the support of PCI & AGP.
+ 
 +config FB_GLAMO
 +	tristate "Smedia Glamo 336x/337x framebuffer support"
 +	depends on FB && MFD_GLAMO
@@ -41843,9 +43201,10 @@ index e6a8d8c..dd9549a 100644
 +	  say M here and read <file:Documentation/modules.txt>.
 +
 +	  If unsure, say N.
++
+ source "drivers/video/omap/Kconfig"
+ source "drivers/video/omap2/Kconfig"
  
- config FB_PUV3_UNIGFX
- 	tristate "PKUnity v3 Unigfx framebuffer support"
 diff --git a/drivers/video/Makefile b/drivers/video/Makefile
 index 2ea44b6..c92cacf 100644
 --- a/drivers/video/Makefile
@@ -42845,7 +44204,7 @@ index ef5628d..7d80574 100644
  	platform_set_drvdata(pdev, NULL);
 diff --git a/drivers/video/glamo-fb.c b/drivers/video/glamo-fb.c
 new file mode 100644
-index 0000000..3f8ec8d
+index 0000000..45f5a2b
 --- /dev/null
 +++ b/drivers/video/glamo-fb.c
 @@ -0,0 +1,943 @@
@@ -43721,9 +45080,9 @@ index 0000000..3f8ec8d
 +{
 +	struct glamofb_handle *gfb = dev_get_drvdata(dev);
 +
-+	acquire_console_sem();
++	console_lock();
 +	fb_set_suspend(gfb->fb, 1);
-+	release_console_sem();
++	console_unlock();
 +
 +	/* seriously -- nobody is allowed to touch glamo memory when we
 +	 * are suspended or we lock on nWAIT
@@ -43748,9 +45107,9 @@ index 0000000..3f8ec8d
 +	glamofb_cursor_onoff(gfb, 1);
 +#endif
 +
-+	acquire_console_sem();
++	console_lock();
 +	fb_set_suspend(gfb->fb, 0);
-+	release_console_sem();
++	console_unlock();
 +
 +	return 0;
 +}
@@ -43793,7 +45152,7 @@ index 0000000..3f8ec8d
 +MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:glamo-fb");
 diff --git a/include/linux/fb.h b/include/linux/fb.h
-index df728c1..3e786c4 100644
+index 6a82748..6965285 100644
 --- a/include/linux/fb.h
 +++ b/include/linux/fb.h
 @@ -135,6 +135,7 @@
@@ -44588,10 +45947,10 @@ index 0000000..59848e1
 +#endif /* _GLAMO_REGS_H */
 diff --git a/include/linux/mfd/glamo.h b/include/linux/mfd/glamo.h
 new file mode 100644
-index 0000000..ae52f3d
+index 0000000..b8dfaef
 --- /dev/null
 +++ b/include/linux/mfd/glamo.h
-@@ -0,0 +1,54 @@
+@@ -0,0 +1,53 @@
 +#ifndef __GLAMO_MFD_H
 +#define __GLAMO_MFD_H
 +
@@ -44609,7 +45968,6 @@ index 0000000..ae52f3d
 +
 +struct glamo_gpio_platform_data {
 +	int base;
-+	void (*registered)(struct device *dev);
 +};
 +
 +struct glamo_platform_data {
@@ -44647,7 +46005,7 @@ index 0000000..ae52f3d
 +
 +#endif
 diff --git a/include/linux/mfd/pcf50633/core.h b/include/linux/mfd/pcf50633/core.h
-index 50d4a04..0048cf6 100644
+index 50d4a04..bec3cb7 100644
 --- a/include/linux/mfd/pcf50633/core.h
 +++ b/include/linux/mfd/pcf50633/core.h
 @@ -1,4 +1,5 @@
@@ -44656,7 +46014,7 @@ index 50d4a04..0048cf6 100644
   * core.h  -- Core driver for NXP PCF50633
   *
   * (C) 2006-2008 by Openmoko, Inc.
-@@ -14,11 +15,11 @@
+@@ -14,7 +15,6 @@
  #define __LINUX_MFD_PCF50633_CORE_H
  
  #include <linux/i2c.h>
@@ -44664,12 +46022,7 @@ index 50d4a04..0048cf6 100644
  #include <linux/regulator/driver.h>
  #include <linux/regulator/machine.h>
  #include <linux/power_supply.h>
- #include <linux/mfd/pcf50633/backlight.h>
-+#include <linux/gpio.h>
- 
- struct pcf50633;
- 
-@@ -46,21 +47,11 @@ struct pcf50633_platform_data {
+@@ -46,21 +46,10 @@ struct pcf50633_platform_data {
  	u8 resumers[5];
  
  	struct pcf50633_bl_platform_data *backlight_data;
@@ -44679,7 +46032,6 @@ index 50d4a04..0048cf6 100644
 -	void (*handler) (int, void *);
 -	void *data;
 +	int gpio_base;
-+	int irq_base;
  };
  
 -int pcf50633_register_irq(struct pcf50633 *pcf, int irq,
@@ -44693,7 +46045,7 @@ index 50d4a04..0048cf6 100644
  int pcf50633_read_block(struct pcf50633 *, u8 reg,
  					int nr_regs, u8 *data);
  int pcf50633_write_block(struct pcf50633 *pcf, u8 reg,
-@@ -138,12 +129,11 @@ struct pcf50633 {
+@@ -138,12 +127,11 @@ struct pcf50633 {
  
  	struct pcf50633_platform_data *pdata;
  	int irq;
@@ -44708,7 +46060,7 @@ index 50d4a04..0048cf6 100644
  
  	u8 suspend_irq_masks[5];
  	u8 resume_reason[5];
-@@ -151,12 +141,9 @@ struct pcf50633 {
+@@ -151,12 +139,11 @@ struct pcf50633 {
  
  	int onkey1s_held;
  
@@ -44718,6 +46070,8 @@ index 50d4a04..0048cf6 100644
 -	struct platform_device *input_pdev;
 -	struct platform_device *bl_pdev;
 -	struct platform_device *regulator_pdev[PCF50633_NUM_REGULATORS];
++	unsigned int irq_base;
++
 +	struct pcf50633_mbc *mbc;
 +	struct pcf50633_adc *adc;
 +	struct pcf50633_bl *bl;
@@ -44725,10 +46079,10 @@ index 50d4a04..0048cf6 100644
  
  enum pcf50633_reg_int1 {
 diff --git a/include/linux/mfd/pcf50633/gpio.h b/include/linux/mfd/pcf50633/gpio.h
-index a42b845..e592bf8 100644
+index a42b845..af2c341 100644
 --- a/include/linux/mfd/pcf50633/gpio.h
 +++ b/include/linux/mfd/pcf50633/gpio.h
-@@ -15,38 +15,41 @@
+@@ -15,37 +15,40 @@
  
  #include <linux/mfd/pcf50633/core.h>
  
@@ -44787,17 +46141,79 @@ index a42b845..e592bf8 100644
 -int pcf50633_gpio_set(struct pcf50633 *pcf, int gpio, u8 val);
 -u8 pcf50633_gpio_get(struct pcf50633 *pcf, int gpio);
 +int pcf50633_gpio_set_config(struct pcf50633 *pcf, unsigned gpio,
-+		enum pcf50633_gpio_config config);
++                              enum pcf50633_gpio_config config);
  
 -int pcf50633_gpio_invert_set(struct pcf50633 *, int gpio, int invert);
 -int pcf50633_gpio_invert_get(struct pcf50633 *pcf, int gpio);
 -
 -int pcf50633_gpio_power_supply_set(struct pcf50633 *,
--					int gpio, int regulator, int on);
 +int pcf50633_gpio_power_supply_set(struct pcf50633 *pcf,
-+		int gpio, int regulator, bool on);
+ 					int gpio, int regulator, int on);
  #endif /* __LINUX_MFD_PCF50633_GPIO_H */
  
+diff --git a/include/linux/mmc/core.h b/include/linux/mmc/core.h
+index 07f27af..5bbfb71 100644
+--- a/include/linux/mmc/core.h
++++ b/include/linux/mmc/core.h
+@@ -117,6 +117,7 @@ struct mmc_data {
+ 
+ 	unsigned int		sg_len;		/* size of scatter list */
+ 	struct scatterlist	*sg;		/* I/O scatter list */
++	s32			host_cookie;	/* host private data */
+ };
+ 
+ struct mmc_request {
+@@ -124,13 +125,19 @@ struct mmc_request {
+ 	struct mmc_data		*data;
+ 	struct mmc_command	*stop;
+ 
+-	void			*done_data;	/* completion data */
++	struct completion	completion;
+ 	void			(*done)(struct mmc_request *);/* completion function */
+ };
+ 
+ struct mmc_host;
+ struct mmc_card;
+ 
++extern void mmc_pre_req(struct mmc_host *host, struct mmc_request *mrq,
++			bool is_first_req);
++extern void mmc_post_req(struct mmc_host *host, struct mmc_request *mrq,
++			 int err);
++extern void mmc_start_req(struct mmc_host *host, struct mmc_request *mrq);
++extern void mmc_wait_for_req_done(struct mmc_request *mrq);
+ extern void mmc_wait_for_req(struct mmc_host *, struct mmc_request *);
+ extern int mmc_wait_for_cmd(struct mmc_host *, struct mmc_command *, int);
+ extern int mmc_wait_for_app_cmd(struct mmc_host *, struct mmc_card *,
+diff --git a/include/linux/mmc/host.h b/include/linux/mmc/host.h
+index bcb793e..8b2b44b 100644
+--- a/include/linux/mmc/host.h
++++ b/include/linux/mmc/host.h
+@@ -88,6 +88,15 @@ struct mmc_host_ops {
+ 	 */
+ 	int (*enable)(struct mmc_host *host);
+ 	int (*disable)(struct mmc_host *host, int lazy);
++	/*
++	 * It is optional for the host to implement pre_req and post_req in
++	 * order to support double buffering of requests (prepare one
++	 * request while another request is active).
++	 */
++	void	(*post_req)(struct mmc_host *host, struct mmc_request *req,
++			    int err);
++	void	(*pre_req)(struct mmc_host *host, struct mmc_request *req,
++			   bool is_first_req);
+ 	void	(*request)(struct mmc_host *host, struct mmc_request *req);
+ 	/*
+ 	 * Avoid calling these three functions too often or in a "fast path",
+@@ -242,7 +251,9 @@ struct mmc_host {
+ #endif
+ 
+ 	struct dentry		*debugfs_root;
+-
++#ifdef CONFIG_FAIL_MMC_REQUEST
++	u8			make_it_fail;
++#endif
+ 	unsigned long		private[0] ____cacheline_aligned;
+ };
  
 diff --git a/include/linux/mmc/sdio_ids.h b/include/linux/mmc/sdio_ids.h
 index a36ab3b..c2bb43b 100644
@@ -44831,3 +46247,39 @@ index 0000000..00f7651
 +};
 +
 +#endif
+diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
+index c768bcd..330fc70 100644
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -1057,6 +1057,17 @@ config FAIL_IO_TIMEOUT
+ 	  Only works with drivers that use the generic timeout handling,
+ 	  for others it wont do anything.
+ 
++config FAIL_MMC_REQUEST
++	bool "Fault-injection capability for MMC IO"
++	select DEBUG_FS
++	depends on FAULT_INJECTION
++	help
++	  Provide fault-injection capability for MMC IO.
++	  This will make the mmc core return data errors. This is
++	  useful for testing the error handling in the mmc block device
++	  and how the mmc host driver handle retries from
++	  the block device.
++
+ config FAULT_INJECTION_DEBUG_FS
+ 	bool "Debugfs entries for fault-injection capabilities"
+ 	depends on FAULT_INJECTION && SYSFS && DEBUG_FS
+diff --git a/sound/soc/samsung/neo1973_wm8753.c b/sound/soc/samsung/neo1973_wm8753.c
+index 4522309..4f845fe 100644
+--- a/sound/soc/samsung/neo1973_wm8753.c
++++ b/sound/soc/samsung/neo1973_wm8753.c
+@@ -27,6 +27,9 @@
+ #include "../codecs/wm8753.h"
+ #include "s3c24xx-i2s.h"
+ 
++/* HACK */
++#define machine_is_neo1973_gta01() (0)
++
+ static int neo1973_hifi_hw_params(struct snd_pcm_substream *substream,
+ 	struct snd_pcm_hw_params *params)
+ {

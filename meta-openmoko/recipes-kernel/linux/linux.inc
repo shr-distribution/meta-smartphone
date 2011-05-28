@@ -22,9 +22,8 @@ CMDLINE_at91sam9263ek = "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p1 rootfs
 #CMDLINE_at91sam9263ek = "mem=64M console=ttyS0,115200 root=301 root=/dev/nfs nfsroot=172.20.3.1:/data/at91 ip=172.20.0.5:::255.255.0.0"
 
 # Set the verbosity of kernel messages during runtime
-# You can define CMDLINE_DEBUG in your local.conf or distro.conf to override this behaviour  
+# You can define CMDLINE_DEBUG in your local.conf or distro.conf to override this behaviour
 CMDLINE_DEBUG ?= '${@base_conditional("DISTRO_TYPE", "release", "quiet", "debug", d)}'
-CMDLINE_append = " ${CMDLINE_DEBUG} "
 
 # Kernel bootlogo is distro-specific (default is OE logo).
 # Logo resolution (qvga, vga, ...) is machine-specific.
@@ -132,7 +131,7 @@ do_configure_prepend() {
                 echo "CONFIG_CPU_BIG_ENDIAN=y"          >> ${S}/.config
         fi
 
-        echo "CONFIG_CMDLINE=\"${CMDLINE}\"" >> ${S}/.config
+        echo "CONFIG_CMDLINE=\"${CMDLINE} ${CMDLINE_DEBUG}\"" >> ${S}/.config
 
         sed -e '/CONFIG_AEABI/d' \
             -e '/CONFIG_OABI_COMPAT=/d' \
@@ -222,7 +221,7 @@ do_configure_prepend() {
                 echo "CONFIG_USB_ETH=y"                  >> ${S}/.config
                 echo "CONFIG_NFS_FS=y"                   >> ${S}/.config
                 echo "CONFIG_ROOT_NFS=y"                 >> ${S}/.config
-                echo "CONFIG_CMDLINE=\"${CMDLINE_NFSROOT_USB}\"" >> ${S}/.config
+                echo "CONFIG_CMDLINE=\"${CMDLINE_NFSROOT_USB} ${CMDLINE_DEBUG}\"" >> ${S}/.config
         fi
 		yes '' | oe_runmake oldconfig
 }
@@ -256,6 +255,12 @@ do_devicetree_image() {
 }
 
 addtask devicetree_image after do_install before do_package do_deploy
+
+do_savedefconfig() {
+       oe_runmake savedefconfig
+}
+
+addtask savedefconfig after do_configure
 
 pkg_postinst_kernel-devicetree () {
 	cd /${KERNEL_IMAGEDEST}; update-alternatives --install /${KERNEL_IMAGEDEST}/devicetree devicetree devicetree-${KERNEL_VERSION} ${KERNEL_PRIORITY} || true
