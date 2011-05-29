@@ -13,28 +13,28 @@ PACKAGES = "\
   ${PN}-cli \
 "
 
+#  vagalume \
 RDEPENDS_${PN}-gtk = "\
   pidgin \
   libpurple-protocol-msn \
   libpurple-protocol-icq \
-  vagalume \
   tangogps \
 "
 
+#	eve \
+#	intone \
 RDEPENDS_${PN}-apps += "\
    task-shr-minimal-apps \
 	opimd-utils-notes \
-	eve \
-	intone \
 "
 RDEPENDS_${PN}-cli += "\
-   task-cli-tools \
-   task-cli-tools-debug \
    task-shr-minimal-cli \
+   task-cli-tools-debug \
+   task-cli-tools \
         rsync \
 	openssh-sftp-server \
 "
 
+#	numptyphysics \
 RDEPENDS_${PN}-games += "\
-	numptyphysics \
 "
