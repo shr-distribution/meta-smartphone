@@ -10,6 +10,8 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384
 
 DEPENDS += "task-shr-minimal"
 
+IMAGE_FEATURES += "package-management ssh-server-openssh"
+
 #
 # tinylogin, getty
 # shadow doesn't provide adduser which was find with oe.dev, but busybox from oe-core doesn't provide it neither
@@ -51,6 +53,7 @@ IMAGE_LINGUAS ?= "en-us"
 IMAGE_INSTALL += "${IMAGE_BOOT}"
 
 RDEPENDS_${PN} += "\
+  opkg \
   task-shr-minimal-base \
   task-shr-minimal-cli \
   task-shr-minimal-fso \
@@ -61,6 +64,7 @@ RDEPENDS_${PN} += "\
 "
 
 IMAGE_INSTALL += "\
+  opkg \
   task-shr-minimal-base \
   task-shr-minimal-cli \
   task-shr-minimal-fso \
@@ -70,7 +74,7 @@ IMAGE_INSTALL += "\
   task-shr-minimal-x \
 "
 
-inherit image
+inherit core-image
 
 shr_rootfs_gta02_postprocess() {
     curdir=$PWD
