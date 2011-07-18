@@ -29,5 +29,5 @@ PREFERRED_VERSION_qt4-x11-free-gles = "${PREFERRED_QT_VERSION}"
 PREFERRED_VERSION_pulseaudio = "0.9.15"
 
 # Prefer gcc from meta-oe
-GCCVERSION ?= "4.6"
-SDKGCCVERSION ?= "4.6"
+GCCVERSION ?= "4.6%"
+SDKGCCVERSION ?= "4.6%"
