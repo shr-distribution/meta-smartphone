@@ -5,9 +5,9 @@ SECTION = "console/network"
 DEPENDS = "python-cython-native python-pyrex-native"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
-SRCREV = "89ee765b998b18a692d514b982a2250f5a73958d"
+SRCREV = "c835f64c8e2b994d658a765243c60fb682fb587c"
 PV = "0.9.5.9+gitr${SRCPV}"
-PR = "r13"
+PR = "r14"
 PE = "1"
 
 inherit distutils update-rc.d python-dir
@@ -54,6 +54,8 @@ frameworkd_install_machine_specific_configs() {
         CONF_PATH_MACHINE="${CONF_PATH}"
         if [ -d "${CONF_PATH}/${MACHINE}" ] ; then
                 CONF_PATH_MACHINE="${CONF_PATH}/${MACHINE}"
+        elif [ -d "${CONF_PATH}/${MACHINE_CLASS}" ] ; then
+                CONF_PATH_MACHINE="${CONF_PATH}/${MACHINE_CLASS}"
         fi
         # Install machine specific files
         install -m 0644 ${CONF_PATH_MACHINE}/frameworkd.conf ${D}${sysconfdir}
@@ -63,6 +65,8 @@ frameworkd_install_machine_specific_configs() {
         CONF_PATH_MACHINE="${CONF_PATH}"
         if [ -d "${CONF_PATH}/${MACHINE}" ] ; then
                 CONF_PATH_MACHINE="${CONF_PATH}/${MACHINE}"
+        elif [ -d "${CONF_PATH}/${MACHINE_CLASS}" ] ; then
+                CONF_PATH_MACHINE="${CONF_PATH}/${MACHINE_CLASS}"
         fi
         install -m 0644 ${CONF_PATH_MACHINE}/rules.yaml ${D}${sysconfdir}/freesmartphone/oevents/
 }
