@@ -12,6 +12,8 @@ DEPENDS += "task-shr-minimal"
 
 IMAGE_FEATURES += "package-management ssh-server-openssh"
 
+inherit core-image
+
 #
 # tinylogin, getty
 # shadow doesn't provide adduser which was find with oe.dev, but busybox from oe-core doesn't provide it neither
@@ -74,7 +76,6 @@ IMAGE_INSTALL += "\
   task-shr-minimal-x \
 "
 
-inherit core-image
 
 shr_rootfs_gta02_postprocess() {
     curdir=$PWD
