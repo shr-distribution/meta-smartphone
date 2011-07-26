@@ -76,8 +76,6 @@ LOGO_SIZE = '${@base_conditional("GUI_MACHINE_CLASS", "bigscreen", "vga", "qvga"
 # machine tuning
 ################
 
-TARGET_ARCH = "arm"
-
 SERIAL_CONSOLE = "115200 ttyS0"
 SERIAL_CONSOLE_collie = "115200 ttySA0"
 
