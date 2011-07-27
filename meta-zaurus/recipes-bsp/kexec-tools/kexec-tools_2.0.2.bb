@@ -1,6 +1,6 @@
 require kexec-tools_${PV}.inc
 
-PR = "r1"
+PR = "r6"
 
 EXTRA_OECONF = " --with-zlib=yes"
 export LDFLAGS = "-L${STAGING_LIBDIR}"

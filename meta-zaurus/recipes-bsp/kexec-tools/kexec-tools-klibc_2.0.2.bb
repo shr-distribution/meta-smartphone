@@ -1,10 +1,10 @@
 # the binaries are statically linked against klibc
 require kexec-tools_${PV}.inc
 
-PR = "r3"
+PR = "r6"
 inherit klibc
 
-FILESPATHPKG =. "kexec-tools-${PV}:"
+FILESPATH =. "${FILE_DIRNAME}/kexec-tools-${PV}:"
 
 SRC_URI += "file://elf.patch \
             file://errno.patch \
