@@ -7,7 +7,7 @@ LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
 SRCREV = "c835f64c8e2b994d658a765243c60fb682fb587c"
 PV = "0.9.5.9+gitr${SRCPV}"
-PR = "r14"
+PR = "r15"
 PE = "1"
 
 inherit distutils update-rc.d python-dir
@@ -131,7 +131,6 @@ CONFFILES_${PN}-config = "\
   ${sysconfdir}/freesmartphone/oevents/rules.yaml \
   "
 
-PACKAGE_ARCH_${PN} = "${BASE_PACKAGE_ARCH}"
 FILES_${PN} += "${sysconfdir}/dbus-1 ${sysconfdir}/freesmartphone ${sysconfdir}/init.d ${datadir}"
 FILES_${PN}-dbg += "${PYTHON_SITEPACKAGES_DIR}/framework/subsystems/*/.debug"
 
