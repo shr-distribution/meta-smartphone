@@ -1,19 +1,22 @@
 DESCRIPTION = "Installkit for kexecboot-kernel"
-LICENSE = "zaurus-installer"
+LICENSE = "MIT"
+LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=3f40d7994397109285ec7b81fdeb3b58"
 DEPENDS = "${@base_conditional('MACHINE', 'collie', 'linux-kexecboot', 'zaurus-updater linux-kexecboot', d)}"
 DEPENDS += "${@base_conditional('MACHINE', 'spitz', 'zaurus-legacy-tar', '', d)}"
-PR = "r4"
+PR = "r5"
 
 do_compile() {
+        :
 }
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 PACKAGES = ""
 
-# package_stagefile_shell need to run before populate_sysroot for packaged-staging
-addtask deploy before do_populate_sysroot after do_compile
-
 COMPATIBLE_MACHINE = "(collie|poodle|c7x0|spitz|akita|tosa)"
+
+inherit deploy
+
+addtask deploy before do_populate_sysroot after do_compile
 
 do_deploy() {
         cd ${DEPLOY_DIR_IMAGE}
@@ -29,6 +32,4 @@ do_deploy() {
         tar czf ${DEPLOY_DIR_IMAGE}/installkit-${MACHINE}.tar.gz installkit-${MACHINE}/
         md5sum ${DEPLOY_DIR_IMAGE}/installkit-${MACHINE}.tar.gz > ${DEPLOY_DIR_IMAGE}/installkit-${MACHINE}.tar.gz.md5
         rm -rf ${DEPLOY_DIR_IMAGE}/installkit-${MACHINE}/
-        package_stagefile_shell ${DEPLOY_DIR_IMAGE}/installkit-${MACHINE}.tar.gz
-        package_stagefile_shell ${DEPLOY_DIR_IMAGE}/installkit-${MACHINE}.tar.gz.md5
 }
