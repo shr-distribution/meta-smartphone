@@ -33,9 +33,7 @@ RRECOMMENDS_${PN} = "\
   ${PN}-cli \
 "
 
-PACKAGE_ARCH_${PN}-cli = "all"
-PACKAGE_ARCH_${PN}-data = "all"
-PACKAGE_ARCH_${PN}-notes = "all"
+PACKAGE_ARCH = "all"
 
 SRC_URI = "git://git.shr-project.org/repo/opimd-utils.git;protocol=http"
 S = "${WORKDIR}/git"

@@ -19,7 +19,7 @@ EXTRA_OECONF_append = "\
 
 PACKAGES =+ "${PN}-config"
 FILES_${PN}-config = "${sysconfdir}/freesmartphone/"
-PACKAGE_ARCH_${PN}-config = "${MACHINE_ARCH}"
+PACKAGE_ARCH = "${MACHINE_ARCH}"
 CONFFILES_${PN}-config = " \
   ${sysconfdir}/freesmartphone/conf/openmoko_gta/fsogsmd.conf \
   ${sysconfdir}/freesmartphone/conf/palm_pre/fsogsmd.conf \

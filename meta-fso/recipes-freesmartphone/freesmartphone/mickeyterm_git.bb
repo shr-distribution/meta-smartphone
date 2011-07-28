@@ -24,4 +24,4 @@ RRECOMMENDS_${PN} += "\
   python-dbus \
 "
 
-PACKAGE_ARCH_${PN} = "all"
+PACKAGE_ARCH = "all"

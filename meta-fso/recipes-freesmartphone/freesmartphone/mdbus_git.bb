@@ -20,5 +20,5 @@ RDEPENDS_${PN} = "\
   python-xml \
 "
 
-PACKAGE_ARCH_${PN} = "all"
+PACKAGE_ARCH = "all"
 

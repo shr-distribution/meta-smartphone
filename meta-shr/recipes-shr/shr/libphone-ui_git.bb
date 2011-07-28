@@ -33,7 +33,7 @@ libphone_ui_install_machine_specific_configs() {
 }
 
 PACKAGES =+ "${PN}-config"
-PACKAGE_ARCH_${PN}-config = "${MACHINE_ARCH}"
+PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 RDEPENDS_${PN} = "${PN}-config"
 

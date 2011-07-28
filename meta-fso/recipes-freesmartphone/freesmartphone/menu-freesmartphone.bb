@@ -14,5 +14,5 @@ RCONFLICTS_${PN} = "e-wm-menu"
 CONFFILES_${PN} = "${sysconfdir}/xdg/menus/applications.menu"
 FILES_${PN} = "${sysconfdir}/xdg/menus/applications.menu"
 
-PACKAGE_ARCH_${PN} = "all"
+PACKAGE_ARCH = "all"
 

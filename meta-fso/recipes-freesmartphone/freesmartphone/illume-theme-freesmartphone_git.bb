@@ -40,5 +40,5 @@ RPROVIDES_${PN} = "illume-theme"
 CONFFILES_${PN} = "${sysconfdir}/enlightenment/default_profile"
 FILES_${PN} = "${sysconfdir}/enlightenment ${datadir}/enlightenment"
 
-PACKAGE_ARCH_${PN} = "all"
+PACKAGE_ARCH = "all"
 

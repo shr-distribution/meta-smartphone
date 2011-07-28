@@ -35,7 +35,7 @@ pkg_preinst_${PN}-config () {
 
 PACKAGES =+ "${PN}-config"
 FILES_${PN}-config = "${sysconfdir}/freesmartphone/"
-PACKAGE_ARCH_${PN}-config = "${MACHINE_ARCH}"
+PACKAGE_ARCH = "${MACHINE_ARCH}"
 CONFFILES_${PN}-config = " \
   ${sysconfdir}/freesmartphone/conf/openmoko_gta/fsodeviced.conf \
   ${sysconfdir}/freesmartphone/conf/palm_pre/fsodeviced.conf \

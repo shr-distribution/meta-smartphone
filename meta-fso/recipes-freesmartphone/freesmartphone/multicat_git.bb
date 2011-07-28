@@ -17,4 +17,4 @@ RDEPENDS_${PN} = "\
   python-core \
 "
 
-PACKAGE_ARCH_${PN} = "all"
+PACKAGE_ARCH = "all"

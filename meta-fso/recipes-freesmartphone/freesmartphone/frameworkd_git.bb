@@ -105,7 +105,7 @@ RRECOMMENDS_${PN} += "\
 "
 
 PACKAGES =+ "${PN}-config"
-PACKAGE_ARCH_${PN}-config = "${MACHINE_ARCH}"
+PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 # - add wmiconfig for wireless configuration
 RDEPENDS_${PN}-config = "fso-sounds"
