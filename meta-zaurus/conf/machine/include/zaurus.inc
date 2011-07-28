@@ -30,29 +30,12 @@ IMAGE_DEVICE_TABLES = "files/device_table-minimal.txt \
                        "
 
 #########
-# xserver (FIXME: xserver-xorg is in testing on spitz)
+# xserver
 #########
 
-PREFERRED_PROVIDER_virtual/xserver = "xserver-kdrive"
-XSERVER = "xserver-kdrive-fbdev"
-
-# c7x0 uses kdrive-imageon_1.2.0
-PREFERRED_PROVIDER_virtual/xserver_c7x0 = "xserver-kdrive-imageon"
-XSERVER_c7x0 = "xserver-kdrive-imageon"
-
-# collie uses kdrive-fbdev
-PREFERRED_PROVIDER_virtual/xserver_collie = "xserver-kdrive"
-XSERVER_collie = "xserver-kdrive-fbdev"
-
-# FIXME xserver-kdrive 1.3.0.0 is still the only working version ?
-PREFERRED_PROVIDER_virtual/xserver_akita = "xserver-kdrive-1300"
-XSERVER_akita = "xserver-kdrive-1300-fbdev"
-
-# spitz uses xserver-xorg
-PREFERRED_PROVIDER_virtual/xserver_spitz = "xserver-xorg"
-XSERVER_spitz = "xserver-xorg xf86-video-fbdev xf86-input-keyboard xf86-input-mouse xf86-input-evdev"
-PREFERRED_PROVIDER_virtual/libgl_spitz = "mesa-dri"
-
+PREFERRED_PROVIDER_virtual/xserver = "xserver-xorg"
+XSERVER = "xserver-xorg xf86-video-fbdev xf86-input-keyboard xf86-input-mouse xf86-input-evdev"
+PREFERRED_PROVIDER_virtual/libgl = "mesa-dri"
 
 ########
 # kernel
@@ -65,9 +48,8 @@ PREFERRED_PROVIDER_virtual/kernel = "linux"
 ZAURUS_KERNEL_IMAGETYPE ?= "zImage"
 KERNEL_IMAGETYPE = "${ZAURUS_KERNEL_IMAGETYPE}"
 
-# sane defaults for devices with only 32Mb RAM
-XZ_COMPRESSION_LEVEL = "-7"
-LZMA_COMPRESSION_LEVEL = "-8"
+# sane defaults for devices with only 32Mb RAM (see man xz)
+XZ_COMPRESSION_LEVEL = "-e -7"
 
 # kernel bootlogo
 LOGO_SIZE = '${@base_conditional("GUI_MACHINE_CLASS", "bigscreen", "vga", "qvga", d)}'
