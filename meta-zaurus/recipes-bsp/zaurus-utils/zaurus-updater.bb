@@ -1,7 +1,8 @@
 DESCRIPTION = "Encrypted shellscript for the Zaurus ROM update"
-LICENSE = "zaurus-updater"
+LICENSE = "MIT"
+LIC_FILES_CHKSUM = "file://updater.sh;endline=59;md5=667f442c1e555f21adb58957306612cc"
 DEPENDS = "encdec-updater-native"
-PR = "r25"
+PR = "r26"
 
 SRC_URI = "file://updater.sh"
 
@@ -19,13 +20,14 @@ do_compile() {
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 PACKAGES = ""
 
-# package_stagefile_shell need to run before populate_sysroot for packaged-staging
-addtask deploy before do_populate_sysroot after do_compile
 
 COMPATIBLE_MACHINE = "(poodle|c7x0|spitz|akita|tosa)"
+
+inherit deploy
+
+addtask deploy before do_populate_sysroot after do_compile
 
 do_deploy() {
         install -d ${DEPLOY_DIR_IMAGE}
         install -m 0755 updater.sh ${DEPLOY_DIR_IMAGE}/updater.sh
-        package_stagefile_shell ${DEPLOY_DIR_IMAGE}/updater.sh
 }
