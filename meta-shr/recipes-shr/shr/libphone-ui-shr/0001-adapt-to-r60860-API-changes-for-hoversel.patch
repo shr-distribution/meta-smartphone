@@ -1,0 +1,35 @@
+From ef0b745eab825adaf480723975bf39bb3da3b1a7 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Thu, 28 Jul 2011 20:04:40 +0200
+Subject: [PATCH] adapt to r60860 API changes for hoversel
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ src/view/quick-settings-view.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/view/quick-settings-view.c b/src/view/quick-settings-view.c
+index 94a667b..6e15d23 100644
+--- a/src/view/quick-settings-view.c
++++ b/src/view/quick-settings-view.c
+@@ -357,7 +357,7 @@ _profile_get_current_cb(GError *error, char *profile, gpointer userdata)
+ 			D_("Failed to retrieve the current profile."), error);
+ 	}
+ 	else
+-		elm_hoversel_label_set(view.profiles_combo, profile);
++		elm_object_text_set(view.profiles_combo, profile);
+ 
+ 	/* Whether we got the profile or not, enable it now. */
+ 	elm_object_disabled_set(view.profiles_combo, EINA_FALSE);
+@@ -368,7 +368,7 @@ _profile_changed_signal_cb(void *userdata, const char *profile)
+ {
+ 	/*FIXME: I should probably free this profile, but how?, CHECK DBUS*/
+ 	(void) userdata;
+-	elm_hoversel_label_set(view.profiles_combo, profile);
++	elm_object_text_set(view.profiles_combo, profile);
+ }
+ 
+ static void
+-- 
+1.7.6
+

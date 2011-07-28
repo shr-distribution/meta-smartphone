@@ -1,0 +1,1029 @@
+From 444c186f8f85f6b24bcc063648124ac8e88efc1e Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Thu, 28 Jul 2011 17:38:32 +0200
+Subject: [PATCH] Replace deprecated
+ elm_button_label_set/elm_label_label_set/elm_check_label_set/elm_progressbar_label_set
+ with elm_object_text_set
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ src/util/ui-utils-contacts.c   |    2 +-
+ src/util/ui-utils.c            |   28 ++++++++++++++--------------
+ src/util/window.c              |    4 ++--
+ src/view/call-active-view.c    |    8 ++++----
+ src/view/call-common.c         |    4 ++--
+ src/view/call-incoming-view.c  |    4 ++--
+ src/view/contact-list-common.c |    2 +-
+ src/view/contact-list-view.c   |    6 +++---
+ src/view/contact-view.c        |   22 +++++++++++-----------
+ src/view/dialer-view.c         |   24 ++++++++++++------------
+ src/view/dialog-view.c         |    2 +-
+ src/view/message-list-view.c   |   26 +++++++++++++-------------
+ src/view/message-new-view.c    |   26 +++++++++++++-------------
+ src/view/message-show-view.c   |   14 +++++++-------
+ src/view/phone-log-view.c      |    2 +-
+ src/view/quick-settings-view.c |    6 +++---
+ src/view/sim-auth-input-view.c |    4 ++--
+ src/view/sim-manager-view.c    |   26 +++++++++++++-------------
+ src/view/ussd-view.c           |    2 +-
+ 19 files changed, 106 insertions(+), 106 deletions(-)
+
+diff --git a/src/util/ui-utils-contacts.c b/src/util/ui-utils-contacts.c
+index 961190e..c880f7c 100644
+--- a/src/util/ui-utils-contacts.c
++++ b/src/util/ui-utils-contacts.c
+@@ -232,7 +232,7 @@ _fields_get_cb(GError *error, GHashTable *contact, gpointer data)
+ 	evas_object_size_hint_align_set(btn, EVAS_HINT_FILL, 0.0);
+ 	evas_object_smart_callback_add(btn, "clicked",
+ 				       _number_select_cancel, pack);
+-	elm_button_label_set(btn, D_("Cancel"));
++	elm_object_text_set(btn, D_("Cancel"));
+ 	evas_object_show(btn);
+ 	elm_box_pack_end(box, btn);
+ 
+diff --git a/src/util/ui-utils.c b/src/util/ui-utils.c
+index ee50d2a..39dbc61 100644
+--- a/src/util/ui-utils.c
++++ b/src/util/ui-utils.c
+@@ -288,7 +288,7 @@ ui_utils_view_inwin_dialog(struct View *view, const char *label, GList *buttons,
+ 	elm_box_homogenous_set(bx, 1);
+ 
+ 	Evas_Object *e = elm_label_add(ui_utils_view_window_get(view));
+-	elm_label_label_set(e, label);
++	elm_object_text_set(e, label);
+ 	evas_object_show(e);
+ 	elm_box_pack_end(bx, e);
+ 
+@@ -299,7 +299,7 @@ ui_utils_view_inwin_dialog(struct View *view, const char *label, GList *buttons,
+ 	for (buttons = g_list_first(buttons); buttons;
+ 	     buttons = g_list_next(buttons)) {
+ 		e = elm_button_add(ui_utils_view_window_get(view));
+-		elm_button_label_set(e,
++		elm_object_text_set(e,
+ 				     ((struct InwinButton *) buttons->data)->
+ 				     label);
+ 		evas_object_smart_callback_add(e, "clicked",
+@@ -371,7 +371,7 @@ ui_utils_dialog_check(struct View *view, const char *label, const char *check_la
+ 
+ 	tmp = g_strdup_printf("<font align=center>%s</font>", label);
+ 	lbl = elm_label_add(win);
+-	elm_label_label_set(lbl, tmp);
++	elm_object_text_set(lbl, tmp);
+ 	elm_label_line_wrap_set(lbl, EINA_TRUE);
+ 	evas_object_size_hint_align_set(lbl, EVAS_HINT_FILL, EVAS_HINT_FILL);
+ 	evas_object_size_hint_weight_set(lbl, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+@@ -382,7 +382,7 @@ ui_utils_dialog_check(struct View *view, const char *label, const char *check_la
+ 
+ 	if 	(check_label && strlen(check_label) && check_value) {
+ 		check = elm_check_add(win);
+-		elm_check_label_set(check, check_label);
++		elm_object_text_set(check, check_label);
+ 		elm_check_state_set(check, *check_value);
+ 		elm_check_state_pointer_set(check, check_value);
+ 		elm_box_pack_end(box, check);
+@@ -397,7 +397,7 @@ ui_utils_dialog_check(struct View *view, const char *label, const char *check_la
+ 	/* ok - yes - no - cancel */
+ 	if (buttonflags & DIALOG_OK) {
+ 		btn = elm_button_add(win);
+-		elm_button_label_set(btn, D_("Ok"));
++		elm_object_text_set(btn, D_("Ok"));
+ 		evas_object_data_set(btn, "type", GINT_TO_POINTER(DIALOG_OK));
+ 		evas_object_size_hint_weight_set(btn, EVAS_HINT_EXPAND, 0);
+ 		evas_object_size_hint_align_set(btn, EVAS_HINT_FILL, 0);
+@@ -408,7 +408,7 @@ ui_utils_dialog_check(struct View *view, const char *label, const char *check_la
+ 	}
+ 	if (buttonflags & DIALOG_YES) {
+ 		btn = elm_button_add(win);
+-		elm_button_label_set(btn, D_("Yes"));
++		elm_object_text_set(btn, D_("Yes"));
+ 		evas_object_data_set(btn, "type", GINT_TO_POINTER(DIALOG_YES));
+ 		evas_object_size_hint_weight_set(btn, EVAS_HINT_EXPAND, 0);
+ 		evas_object_size_hint_align_set(btn, EVAS_HINT_FILL, 0);
+@@ -419,7 +419,7 @@ ui_utils_dialog_check(struct View *view, const char *label, const char *check_la
+ 	}
+ 	if (buttonflags & DIALOG_NO) {
+ 		btn = elm_button_add(win);
+-		elm_button_label_set(btn, D_("No"));
++		elm_object_text_set(btn, D_("No"));
+ 		evas_object_data_set(btn, "type", GINT_TO_POINTER(DIALOG_NO));
+ 		evas_object_size_hint_weight_set(btn, EVAS_HINT_EXPAND, 0);
+ 		evas_object_size_hint_align_set(btn, EVAS_HINT_FILL, 0);
+@@ -430,7 +430,7 @@ ui_utils_dialog_check(struct View *view, const char *label, const char *check_la
+ 	}
+ 	if (buttonflags & DIALOG_CANCEL) {
+ 		btn = elm_button_add(win);
+-		elm_button_label_set(btn, D_("Cancel"));
++		elm_object_text_set(btn, D_("Cancel"));
+ 		evas_object_data_set(btn, "type", GINT_TO_POINTER(DIALOG_CANCEL));
+ 		evas_object_size_hint_weight_set(btn, EVAS_HINT_EXPAND, 0);
+ 		evas_object_size_hint_align_set(btn, EVAS_HINT_FILL, 0);
+@@ -540,7 +540,7 @@ ui_utils_view_inwin_list(struct View *view, GList *list,
+  	elm_box_pack_end(box, pack->list);
+ 
+ 	btn = elm_button_add(win);
+-	elm_button_label_set(btn, D_("Cancel"));
++	elm_object_text_set(btn, D_("Cancel"));
+ 	evas_object_size_hint_weight_set(btn, EVAS_HINT_EXPAND, 0);
+ 	evas_object_size_hint_align_set(btn, EVAS_HINT_FILL, 0);
+ 	evas_object_smart_callback_add(btn, "clicked",
+@@ -581,12 +581,12 @@ ui_utils_notify(Evas_Object *parent, const char *label, int timeout)
+ 	evas_object_show(bx);
+ 
+ 	lb = elm_label_add(parent);
+-	elm_label_label_set(lb, label);
++	elm_object_text_set(lb, label);
+ 	elm_box_pack_end(bx, lb);
+ 	evas_object_show(lb);
+ 
+ 	bt = elm_button_add(parent);
+-	elm_button_label_set(bt, "Close");
++	elm_object_text_set(bt, "Close");
+ 	evas_object_smart_callback_add(bt, "clicked", _notify_button_close_cb, notify);
+ 	elm_box_pack_end(bx, bt);
+ 	evas_object_show(bt);
+@@ -642,7 +642,7 @@ ui_utils_error_message_show(struct View *parent, const char *error_msg, const ch
+ 
+ 	Evas_Object *heading = elm_label_add(win);
+ 	//elm_label_line_wrap_set(heading, EINA_TRUE);
+-	elm_label_label_set(heading, error_msg);
++	elm_object_text_set(heading, error_msg);
+ 	evas_object_size_hint_weight_set(heading, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(heading, 0.5, 0.5);
+ 	evas_object_show(heading);
+@@ -651,7 +651,7 @@ ui_utils_error_message_show(struct View *parent, const char *error_msg, const ch
+ 	if (detail_msg) {
+ 		Evas_Object *lb = elm_label_add(win);
+ 		elm_label_line_wrap_set(lb, EINA_TRUE);
+-		elm_label_label_set(lb, detail_msg);
++		elm_object_text_set(lb, detail_msg);
+ 		evas_object_size_hint_weight_set(lb, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+ 		evas_object_size_hint_align_set(lb, EVAS_HINT_FILL, EVAS_HINT_FILL);
+ 		evas_object_show(lb);
+@@ -666,7 +666,7 @@ ui_utils_error_message_show(struct View *parent, const char *error_msg, const ch
+ 	}
+ 
+ 	Evas_Object *bt = elm_button_add(win);
+-	elm_button_label_set(bt, D_("Ok"));
++	elm_object_text_set(bt, D_("Ok"));
+ 	evas_object_size_hint_weight_set(bt, EVAS_HINT_EXPAND, 0.0);
+ 	evas_object_size_hint_align_set(bt, EVAS_HINT_FILL, 1.0);
+ 	evas_object_smart_callback_add(bt, "clicked", error_message_ok_cb, inwin);
+diff --git a/src/util/window.c b/src/util/window.c
+index 99c13e3..fd54189 100644
+--- a/src/util/window.c
++++ b/src/util/window.c
+@@ -304,7 +304,7 @@ window_inwin_dialog(struct Window *win, const char *label, GList * buttons,
+ 	elm_box_homogenous_set(bx, 1);
+ 
+ 	Evas_Object *e = elm_label_add(window_evas_object_get(win));
+-	elm_label_label_set(e, label);
++	elm_object_text_set(e, label);
+ 	evas_object_show(e);
+ 	elm_box_pack_end(bx, e);
+ 
+@@ -315,7 +315,7 @@ window_inwin_dialog(struct Window *win, const char *label, GList * buttons,
+ 	for (buttons = g_list_first(buttons); buttons;
+ 	     buttons = g_list_next(buttons)) {
+ 		e = elm_button_add(window_evas_object_get(win));
+-		elm_button_label_set(e,
++		elm_object_text_set(e,
+ 				     ((struct InwinButton *) buttons->data)->
+ 				     label);
+ 		evas_object_smart_callback_add(e, "clicked",
+diff --git a/src/view/call-active-view.c b/src/view/call-active-view.c
+index f39358b..ca72e89 100644
+--- a/src/view/call-active-view.c
++++ b/src/view/call-active-view.c
+@@ -202,14 +202,14 @@ call_active_view_show(struct Window *win, GHashTable * options)
+ 	evas_object_show(data->mic_slider);
+ 
+ 	data->bt_call_state = elm_button_add(window_evas_object_get(win));
+-	elm_button_label_set(data->bt_call_state, D_("Release"));
++	elm_object_text_set(data->bt_call_state, D_("Release"));
+ 	evas_object_smart_callback_add(data->bt_call_state, "clicked",
+ 				       (Evas_Smart_Cb) call_button_state_clicked, data);
+ 	window_swallow(win, "button_release", data->bt_call_state);
+ 	evas_object_show(data->bt_call_state);
+ 
+ 	data->bt_keypad = elm_button_add(window_evas_object_get(win));
+-	elm_button_label_set(data->bt_keypad, D_("Keypad"));
++	elm_object_text_set(data->bt_keypad, D_("Keypad"));
+ 	evas_object_smart_callback_add(data->bt_keypad, "clicked",
+ 				       (Evas_Smart_Cb) call_button_dtmf_clicked, data);
+ 	window_swallow(win, "button_dtmf", data->bt_keypad);
+@@ -258,12 +258,12 @@ call_button_dtmf_clicked(struct CallActiveViewData *data, Evas_Object * obj,
+ 	if (data->parent.dtmf_active) {
+ 		data->parent.dtmf_active = FALSE;
+ 		call_dtmf_disable((struct CallViewData *) data);
+-		elm_button_label_set(data->bt_keypad, D_("Keypad"));
++		elm_object_text_set(data->bt_keypad, D_("Keypad"));
+ 	}
+ 	else {
+ 		data->parent.dtmf_active = TRUE;
+ 		call_dtmf_enable((struct CallViewData *) data);
+-		elm_button_label_set(data->bt_keypad, D_("Hide Keypad"));
++		elm_object_text_set(data->bt_keypad, D_("Hide Keypad"));
+ 	}
+ }
+ 
+diff --git a/src/view/call-common.c b/src/view/call-common.c
+index c4bb025..3fb497e 100644
+--- a/src/view/call-common.c
++++ b/src/view/call-common.c
+@@ -175,7 +175,7 @@ void
+ call_common_window_to_pending(struct CallActiveViewData *win)
+ {
+ 	if (win->state == CALL_STATE_ACTIVE) {
+-		elm_button_label_set(win->bt_call_state, D_("Pickup"));
++		elm_object_text_set(win->bt_call_state, D_("Pickup"));
+ 	}
+ 	else if (win->state == CALL_STATE_PENDING) {
+ 		/*Do nothing as we want it to be pending */
+@@ -197,7 +197,7 @@ call_common_window_to_active(struct CallActiveViewData *win)
+ 			win->parent.id);
+ 	}
+ 	else if (win->state == CALL_STATE_PENDING) {
+-		elm_button_label_set(win->bt_call_state, D_("Release"));
++		elm_object_text_set(win->bt_call_state, D_("Release"));
+ 	}
+ 	else {
+ 		g_debug("Bad state (%d) for an active call!", win->state);
+diff --git a/src/view/call-incoming-view.c b/src/view/call-incoming-view.c
+index fdf8266..0cc07b1 100644
+--- a/src/view/call-incoming-view.c
++++ b/src/view/call-incoming-view.c
+@@ -69,7 +69,7 @@ call_incoming_view_show(struct Window *win, GHashTable * options)
+ 	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+ 
+ 	data->bt_accept = elm_button_add(window_evas_object_get(win));
+-	elm_button_label_set(data->bt_accept, D_("Accept"));
++	elm_object_text_set(data->bt_accept, D_("Accept"));
+ 	elm_button_icon_set(data->bt_accept, ic);
+ 	evas_object_smart_callback_add(data->bt_accept, "clicked",
+ 				       call_button_accept_clicked, data);
+@@ -81,7 +81,7 @@ call_incoming_view_show(struct Window *win, GHashTable * options)
+ 	elm_icon_file_set(ic, ICON_CALL_REJECT, NULL);
+ 	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+ 	data->bt_reject = elm_button_add(window_evas_object_get(win));
+-	elm_button_label_set(data->bt_reject, D_("Reject"));
++	elm_object_text_set(data->bt_reject, D_("Reject"));
+ 	elm_button_icon_set(data->bt_reject, ic);
+ 	evas_object_smart_callback_add(data->bt_reject, "clicked",
+ 				       (Evas_Smart_Cb) call_button_release_clicked, data);
+diff --git a/src/view/contact-list-common.c b/src/view/contact-list-common.c
+index 68dfa31..f9b8146 100644
+--- a/src/view/contact-list-common.c
++++ b/src/view/contact-list-common.c
+@@ -291,7 +291,7 @@ contact_list_add(struct ContactListData *list_data)
+ 	}
+ 	list_data->progress = elm_progressbar_add(win);
+ 	elm_object_style_set(list_data->progress, "wheel");
+-	elm_progressbar_label_set(list_data->progress, D_("Loading..."));
++	elm_object_text_set(list_data->progress, D_("Loading..."));
+ 	evas_object_size_hint_align_set(list_data->progress, EVAS_HINT_FILL, 0.5);
+ 	evas_object_size_hint_weight_set(list_data->progress, EVAS_HINT_EXPAND,
+ 	                                 EVAS_HINT_EXPAND);
+diff --git a/src/view/contact-list-view.c b/src/view/contact-list-view.c
+index 8b9fea0..e2e580d 100644
+--- a/src/view/contact-list-view.c
++++ b/src/view/contact-list-view.c
+@@ -88,21 +88,21 @@ contact_list_view_init()
+ 				       _list_list_longpressed, win);
+ 
+ 	view.bt1 = elm_button_add(win);
+-	elm_button_label_set(view.bt1, D_("Call"));
++	elm_object_text_set(view.bt1, D_("Call"));
+ 	evas_object_smart_callback_add(view.bt1, "clicked",
+ 				       _list_call_clicked, NULL);
+ 	ui_utils_view_swallow(VIEW_PTR(view), "button_new", view.bt1);
+ 	evas_object_show(view.bt1);
+ 
+ 	view.bt2 = elm_button_add(win);
+-	elm_button_label_set(view.bt2, D_("SMS"));
++	elm_object_text_set(view.bt2, D_("SMS"));
+ 	evas_object_smart_callback_add(view.bt2, "clicked",
+ 				       _list_message_clicked, NULL);
+ 	ui_utils_view_swallow(VIEW_PTR(view), "button_call", view.bt2);
+ 	evas_object_show(view.bt2);
+ 
+ 	view.bt_options = elm_button_add(win);
+-	elm_button_label_set(view.bt_options, D_("New"));
++	elm_object_text_set(view.bt_options, D_("New"));
+ 	evas_object_smart_callback_add(view.bt_options, "clicked",
+ 				       _list_new_clicked, NULL);
+ 	ui_utils_view_swallow(VIEW_PTR(view), "button_options", view.bt_options);
+diff --git a/src/view/contact-view.c b/src/view/contact-view.c
+index fc6bf98..c903315 100644
+--- a/src/view/contact-view.c
++++ b/src/view/contact-view.c
+@@ -188,35 +188,35 @@ l contacts.edc emits*/
+ 	evas_object_show(view->fields);
+ 
+ 	view->btn_save = elm_button_add(win);
+-	elm_button_label_set(view->btn_save, D_("Save"));
++	elm_object_text_set(view->btn_save, D_("Save"));
+ 	evas_object_smart_callback_add(view->btn_save, "clicked",
+ 				       _contact_save_clicked, view);
+ 	elm_layout_content_set(view->pager_layout, "button_save", view->btn_save);
+ 	evas_object_show(view->btn_save);
+ 
+ 	view->btn_cancel = elm_button_add(win);
+-	elm_button_label_set(view->btn_cancel, D_("Cancel"));
++	elm_object_text_set(view->btn_cancel, D_("Cancel"));
+ 	evas_object_smart_callback_add(view->btn_cancel, "clicked",
+ 				       _contact_cancel_clicked, view);
+ 	elm_layout_content_set(view->pager_layout, "button_cancel", view->btn_cancel);
+ 	evas_object_show(view->btn_cancel);
+ 
+ 	view->btn_call = elm_button_add(win);
+-	elm_button_label_set(view->btn_call, D_("Call"));
++	elm_object_text_set(view->btn_call, D_("Call"));
+ 	evas_object_smart_callback_add(view->btn_call, "clicked",
+ 				       _contact_call_clicked, view);
+ 	elm_layout_content_set(view->pager_layout, "button_call", view->btn_call);
+ 	evas_object_show(view->btn_call);
+ 
+ 	view->btn_sms = elm_button_add(win);
+-	elm_button_label_set(view->btn_sms, D_("SMS"));
++	elm_object_text_set(view->btn_sms, D_("SMS"));
+ 	evas_object_smart_callback_add(view->btn_sms, "clicked",
+ 				       _contact_sms_clicked, view);
+ 	elm_layout_content_set(view->pager_layout, "button_sms", view->btn_sms);
+ 	evas_object_show(view->btn_sms);
+ 
+ 	view->btn_delete = elm_button_add(win);
+-	elm_button_label_set(view->btn_delete, D_("Delete"));
++	elm_object_text_set(view->btn_delete, D_("Delete"));
+ 	evas_object_smart_callback_add(view->btn_delete, "clicked",
+ 				       _contact_delete_clicked, view);
+ 	evas_object_show(view->btn_delete);
+@@ -224,7 +224,7 @@ l contacts.edc emits*/
+ 			      view->btn_delete);
+ 
+ 	view->btn_addfield = elm_button_add(win);
+-	elm_button_label_set(view->btn_addfield, D_("Add Field"));
++	elm_object_text_set(view->btn_addfield, D_("Add Field"));
+ 	evas_object_smart_callback_add(view->btn_addfield, "clicked",
+ 				       _contact_add_field_clicked, view);
+ 	evas_object_show(view->btn_addfield);
+@@ -557,7 +557,7 @@ _change_field_cb(const char *field, void *data)
+ 		_update_changes_of_field(fd->view, fd->name, fd->value, "");
+ 		_update_changes_of_field(fd->view, field, "", fd->value);
+ 		fd->name = strdup(field);
+-		elm_button_label_set(fd->field_button, field);
++		elm_object_text_set(fd->field_button, field);
+ 		_set_modify(fd->view, 1);
+ 		phoneui_utils_contacts_field_type_get(fd->name, _change_field_type_cb, fd);
+ 	}
+@@ -803,21 +803,21 @@ _field_edit_add_edit_page(struct ContactFieldData *fd, Evas_Object *content,
+ 
+ 	btn_save = elm_button_add(fd->view->pager);
+ 
+-	elm_button_label_set(btn_save, D_("Save"));
++	elm_object_text_set(btn_save, D_("Save"));
+ 	evas_object_smart_callback_add(btn_save, "clicked",
+ 				       save_cb, fd);
+ 	elm_layout_content_set(layout, "button_save", btn_save);
+ 	evas_object_show(btn_save);
+ 
+ 	btn_back = elm_button_add(fd->view->pager);
+-	elm_button_label_set(btn_back, D_("Back"));
++	elm_object_text_set(btn_back, D_("Back"));
+ 	evas_object_smart_callback_add(btn_back, "clicked",
+ 				       _field_edit_button_back_clicked_cb, fd);
+ 	elm_layout_content_set(layout, "button_back", btn_back);
+ 	evas_object_show(btn_back);
+ 
+ 	btn_remove = elm_button_add(fd->view->pager);
+-	elm_button_label_set(btn_remove, D_("Remove"));
++	elm_object_text_set(btn_remove, D_("Remove"));
+ 	evas_object_smart_callback_add(btn_remove, "clicked",
+ 				       _field_edit_button_remove_clicked_cb, fd);
+ 	elm_layout_content_set(layout, "button_remove", btn_remove);
+@@ -871,7 +871,7 @@ gl_field_icon_get(void *_data, Evas_Object * obj, const char *part)
+ 	struct ContactFieldData *fd = (struct ContactFieldData *) _data;
+ 	if (strcmp(part, "elm.swallow.field_button") == 0) {
+ 		Evas_Object *btn = elm_button_add(obj);
+-		elm_button_label_set(btn, fd->name);
++		elm_object_text_set(btn, fd->name);
+ 		evas_object_smart_callback_add(btn, "clicked",
+ 					       _field_clicked, fd);
+ 		fd->field_button = btn;
+diff --git a/src/view/dialer-view.c b/src/view/dialer-view.c
+index 8586df0..4b16e84 100644
+--- a/src/view/dialer-view.c
++++ b/src/view/dialer-view.c
+@@ -96,13 +96,13 @@ dialer_view_init()
+ 				 "phoneui/dialer/dialer");
+ 
+ 	view.text_number = elm_label_add(win);
+-	elm_label_label_set(view.text_number, "");
++	elm_object_text_set(view.text_number, "");
+ 	evas_object_size_hint_align_set(view.text_number, 0.0, 0.5);
+ 	ui_utils_view_swallow(VIEW_PTR(view), "text_number", view.text_number);
+ 	evas_object_show(view.text_number);
+ 
+ 	view.text_number_info = elm_label_add(win);
+-	elm_label_label_set(view.text_number_info,
++	elm_object_text_set(view.text_number_info,
+ 			    D_("Click to open contact list."));
+ 	ui_utils_view_swallow(VIEW_PTR(view), "text_number_info", view.text_number_info);
+ 	evas_object_show(view.text_number_info);
+@@ -130,28 +130,28 @@ dialer_view_init()
+ 	evas_object_show(view.keypad);
+ 
+ 	view.bt_exit = elm_button_add(win);
+-	elm_button_label_set(view.bt_exit, D_("Close"));
++	elm_object_text_set(view.bt_exit, D_("Close"));
+ 	evas_object_smart_callback_add(view.bt_exit, "clicked",
+ 				       _dialer_exit_clicked_cb, NULL);
+ 	ui_utils_view_swallow(VIEW_PTR(view), "button_exit", view.bt_exit);
+ 	evas_object_show(view.bt_exit);
+ 
+ 	view.bt_suggest = elm_button_add(win);
+-	elm_button_label_set(view.bt_suggest, D_("Suggest"));
++	elm_object_text_set(view.bt_suggest, D_("Suggest"));
+ 	evas_object_smart_callback_add(view.bt_suggest, "clicked",
+ 				       _dialer_suggest_clicked_cb, NULL);
+ 	ui_utils_view_swallow(VIEW_PTR(view), "button_suggest", view.bt_suggest);
+ 	evas_object_show(view.bt_suggest);
+ 
+ 	view.bt_options = elm_button_add(win);
+-	elm_button_label_set(view.bt_options, D_("More"));
++	elm_object_text_set(view.bt_options, D_("More"));
+ 	evas_object_smart_callback_add(view.bt_options, "clicked",
+ 				       _dialer_options_clicked_cb, NULL);
+ 	ui_utils_view_swallow(VIEW_PTR(view), "button_options", view.bt_options);
+ 	evas_object_show(view.bt_options);
+ 
+ 	view.bt_call = elm_button_add(win);
+-	elm_button_label_set(view.bt_call, D_("Call"));
++	elm_object_text_set(view.bt_call, D_("Call"));
+ 	evas_object_smart_callback_add(view.bt_call, "clicked",
+ 				       _dialer_call_clicked_cb, NULL);
+ 	ui_utils_view_swallow(VIEW_PTR(view), "button_call", view.bt_call);
+@@ -180,7 +180,7 @@ dialer_view_init()
+ 
+ 	for (iSuggest = MAX_SUGGEST - 1; iSuggest >= 0; --iSuggest) {
+ 		view.bt_suggest_contact[iSuggest] = elm_button_add(win);
+-		elm_button_label_set(view.bt_suggest_contact[iSuggest], D_("Contact"));
++		elm_object_text_set(view.bt_suggest_contact[iSuggest], D_("Contact"));
+ 		evas_object_size_hint_min_set(view.bt_suggest_contact[iSuggest], 130, 80);
+ 		evas_object_smart_callback_add(view.bt_suggest_contact[iSuggest], "clicked",
+ 				_dialer_suggest_contact_clicked_cb, GINT_TO_POINTER(iSuggest));
+@@ -201,7 +201,7 @@ dialer_view_init()
+ 	evas_object_show(view.bx);
+ 
+ 	view.bt_save = elm_button_add(win);
+-	elm_button_label_set(view.bt_save, D_("Save"));
++	elm_object_text_set(view.bt_save, D_("Save"));
+ 	evas_object_size_hint_min_set(view.bt_save, 130, 80);
+ 	evas_object_smart_callback_add(view.bt_save, "clicked",
+ 				       _dialer_contact_add_clicked_cb, NULL);
+@@ -209,7 +209,7 @@ dialer_view_init()
+ 	elm_box_pack_end(view.bx, view.bt_save);
+ 
+ 	view.bt_message = elm_button_add(win);
+-	elm_button_label_set(view.bt_message, D_("Send SMS"));
++	elm_object_text_set(view.bt_message, D_("Send SMS"));
+ 	evas_object_size_hint_min_set(view.bt_message, 130, 80);
+ 	evas_object_smart_callback_add(view.bt_message, "clicked",
+ 				       _dialer_message_clicked_cb, NULL);
+@@ -307,7 +307,7 @@ _dialer_suggest_clicked_cb(void *data, Evas_Object * obj, void *event_info)
+ 
+ 	int iSuggest;
+ 	for (iSuggest = 0; iSuggest < MAX_SUGGEST; ++iSuggest) {
+-		elm_button_label_set(view.bt_suggest_contact[iSuggest], D_(""));
++		elm_object_text_set(view.bt_suggest_contact[iSuggest], D_(""));
+ 		evas_object_hide(view.bt_suggest_contact[iSuggest]);
+ 	}
+ 
+@@ -352,7 +352,7 @@ _dialer_suggest_clicked_cb(void *data, Evas_Object * obj, void *event_info)
+ 			}
+ 
+ 			if (sName) {
+-				elm_button_label_set(view.bt_suggest_contact[cSuggest], sName);
++				elm_object_text_set(view.bt_suggest_contact[cSuggest], sName);
+ 				evas_object_show(view.bt_suggest_contact[cSuggest]);
+ 				++cSuggest;
+ 			}
+@@ -528,7 +528,7 @@ _dialer_number_update()
+ 		}
+ 	}
+ 
+-	elm_label_label_set(view.text_number, number);
++	elm_object_text_set(view.text_number, number);
+ 	if (length == 0) {
+ 		edje_object_signal_emit(ui_utils_view_layout_get(VIEW_PTR(view)),
+ 					"number_empty", "elm");
+diff --git a/src/view/dialog-view.c b/src/view/dialog-view.c
+index f8b91bf..d8a9fec 100644
+--- a/src/view/dialog-view.c
++++ b/src/view/dialog-view.c
+@@ -70,7 +70,7 @@ dialog_view_show(struct Window *win, void *_options)
+ 		window_text_set(win, "content", D_("Unknown message."));
+ 
+ 	data->bt_close = elm_button_add(win->win);
+-	elm_button_label_set(data->bt_close, D_("Close"));
++	elm_object_text_set(data->bt_close, D_("Close"));
+ 	evas_object_smart_callback_add(data->bt_close, "clicked",
+ 				       dialog_view_close_clicked, data);
+ 	window_swallow(win, "button_close", data->bt_close);
+diff --git a/src/view/message-list-view.c b/src/view/message-list-view.c
+index b0b1829..54e5414 100644
+--- a/src/view/message-list-view.c
++++ b/src/view/message-list-view.c
+@@ -106,7 +106,7 @@ message_list_view_init()
+ 	elm_theme_extension_add(NULL, phoneui_theme);
+ 
+ 	obj = elm_button_add(win);
+-	elm_button_label_set(obj, D_("New"));
++	elm_object_text_set(obj, D_("New"));
+ 	evas_object_smart_callback_add(obj, "clicked", _new_clicked, NULL);
+ 	ui_utils_view_swallow(VIEW_PTR(view), "button_new", obj);
+ 	evas_object_show(obj);
+@@ -115,7 +115,7 @@ message_list_view_init()
+ 	view.hv = elm_hover_add(win);
+ 
+ 	obj = elm_button_add(win);
+-	elm_button_label_set(obj, D_("Options"));
++	elm_object_text_set(obj, D_("Options"));
+ 	evas_object_smart_callback_add(obj, "clicked", _hover_bt_1, NULL);
+ 	ui_utils_view_swallow(VIEW_PTR(view), "button_options", obj);
+ 	evas_object_show(obj);
+@@ -129,7 +129,7 @@ message_list_view_init()
+ 	evas_object_show(box);
+ 
+ 	obj = elm_button_add(win);
+-	elm_button_label_set(obj, D_("Answer"));
++	elm_object_text_set(obj, D_("Answer"));
+ 	evas_object_size_hint_min_set(obj, 130, 80);
+ 	evas_object_smart_callback_add(obj, "clicked", _answer_clicked, NULL);
+ 	evas_object_show(obj);
+@@ -137,7 +137,7 @@ message_list_view_init()
+ 	view.answer_bt = obj;
+ 
+ 	obj = elm_button_add(win);
+-	elm_button_label_set(obj, D_("Call"));
++	elm_object_text_set(obj, D_("Call"));
+ 	evas_object_size_hint_min_set(obj, 130, 80);
+ 	evas_object_smart_callback_add(obj, "clicked", _call_clicked, NULL);
+ 	evas_object_show(obj);
+@@ -145,7 +145,7 @@ message_list_view_init()
+ 	view.call_bt = obj;
+ 
+ 	obj = elm_button_add(win);
+-	elm_button_label_set(obj, D_("Forward"));
++	elm_object_text_set(obj, D_("Forward"));
+ 	evas_object_size_hint_min_set(obj, 130, 80);
+ 	evas_object_smart_callback_add(obj, "clicked", _forward_clicked, NULL);
+ 	evas_object_show(obj);
+@@ -153,7 +153,7 @@ message_list_view_init()
+ 	view.forward_bt = obj;
+ 
+ 	obj = elm_button_add(win);
+-	elm_button_label_set(obj, D_("Delete"));
++	elm_object_text_set(obj, D_("Delete"));
+ 	evas_object_size_hint_min_set(obj, 130, 80);
+ 	evas_object_smart_callback_add(obj, "clicked", _delete_clicked, NULL);
+ 	evas_object_show(obj);
+@@ -162,7 +162,7 @@ message_list_view_init()
+ 	elm_hover_content_set(view.hv, "top", box);
+ 
+ 	obj = elm_button_add(win);
+-	elm_button_label_set(obj, D_("Show"));
++	elm_object_text_set(obj, D_("Show"));
+ 	evas_object_smart_callback_add(obj, "clicked", _show_clicked, NULL);
+ 	ui_utils_view_swallow(VIEW_PTR(view), "button_show", obj);
+ 	evas_object_show(obj);
+@@ -184,7 +184,7 @@ message_list_view_init()
+ 
+ 	view.top_pb = elm_progressbar_add(win);
+ 	elm_object_style_set(view.top_pb, "wheel");
+-	elm_progressbar_label_set(view.top_pb, D_("Loading..."));
++	elm_object_text_set(view.top_pb, D_("Loading..."));
+ 	elm_progressbar_pulse(view.top_pb, EINA_TRUE);
+ 	evas_object_size_hint_align_set(view.top_pb, EVAS_HINT_FILL, 0.5);
+ 	evas_object_size_hint_weight_set(view.top_pb, EVAS_HINT_EXPAND,
+@@ -195,7 +195,7 @@ message_list_view_init()
+ 
+ 	view.bottom_pb = elm_progressbar_add(win);
+ 	elm_object_style_set(view.bottom_pb, "wheel");
+-	elm_progressbar_label_set(view.bottom_pb, D_("Loading..."));
++	elm_object_text_set(view.bottom_pb, D_("Loading..."));
+ 	elm_progressbar_pulse(view.bottom_pb, EINA_TRUE);
+ 	evas_object_size_hint_align_set(view.bottom_pb, EVAS_HINT_FILL, 0.5);
+ 	evas_object_size_hint_weight_set(view.bottom_pb, EVAS_HINT_EXPAND,
+@@ -515,23 +515,23 @@ _selected_changed(void *_data, Evas_Object * obj, void *event_info) {
+ 	}
+ 
+ 	if (new && out) {
+-		elm_button_label_set(view.right_bt, D_("Edit"));
++		elm_object_text_set(view.right_bt, D_("Edit"));
+ 		evas_object_smart_callback_del(view.right_bt, "clicked", _edit_clicked);
+ 		evas_object_smart_callback_del(view.right_bt, "clicked", _show_clicked);
+ 		evas_object_smart_callback_add(view.right_bt, "clicked", _edit_clicked, NULL);
+ 
+-		elm_button_label_set(view.forward_bt, D_("Edit"));
++		elm_object_text_set(view.forward_bt, D_("Edit"));
+ 		evas_object_size_hint_min_set(view.forward_bt, 130, 80);
+ 		evas_object_smart_callback_del(view.forward_bt, "clicked", _edit_clicked);
+ 		evas_object_smart_callback_del(view.forward_bt, "clicked", _forward_clicked);
+ 		evas_object_smart_callback_add(view.forward_bt, "clicked", _edit_clicked, NULL);
+ 	} else {
+-		elm_button_label_set(view.right_bt, D_("Show"));
++		elm_object_text_set(view.right_bt, D_("Show"));
+ 		evas_object_smart_callback_del(view.right_bt, "clicked", _edit_clicked);
+ 		evas_object_smart_callback_del(view.right_bt, "clicked", _show_clicked);
+ 		evas_object_smart_callback_add(view.right_bt, "clicked", _show_clicked, NULL);
+ 
+-		elm_button_label_set(view.forward_bt, D_("Forward"));
++		elm_object_text_set(view.forward_bt, D_("Forward"));
+ 		evas_object_size_hint_min_set(view.forward_bt, 130, 80);
+ 		evas_object_smart_callback_del(view.forward_bt, "clicked", _edit_clicked);
+ 		evas_object_smart_callback_del(view.forward_bt, "clicked", _forward_clicked);
+diff --git a/src/view/message-new-view.c b/src/view/message-new-view.c
+index 2dfd892..a70ea8f 100644
+--- a/src/view/message-new-view.c
++++ b/src/view/message-new-view.c
+@@ -278,7 +278,7 @@ _init_content_page(struct MessageNewViewData *view)
+ 	elm_object_focus(view->content_entry);
+ 
+ 	btn = elm_button_add(win);
+-	elm_button_label_set(btn, D_("Insert"));
++	elm_object_text_set(btn, D_("Insert"));
+ 	evas_object_smart_callback_add(btn, "clicked",
+ 				       _content_button_insert_clicked, view);
+ 	elm_layout_content_set(view->layout_content,
+@@ -286,7 +286,7 @@ _init_content_page(struct MessageNewViewData *view)
+ 	evas_object_show(btn);
+ 
+ 	btn = elm_button_add(win);
+-	elm_button_label_set(btn, D_("Close"));
++	elm_object_text_set(btn, D_("Close"));
+ 	evas_object_smart_callback_add(btn, "clicked",
+ 				       _content_button_close_clicked, view);
+ 	elm_layout_content_set(view->layout_content,
+@@ -294,7 +294,7 @@ _init_content_page(struct MessageNewViewData *view)
+ 	evas_object_show(btn);
+ 
+ 	btn = elm_button_add(win);
+-	elm_button_label_set(btn, D_("Continue"));
++	elm_object_text_set(btn, D_("Continue"));
+ 	evas_object_smart_callback_add(btn, "clicked",
+ 				       _content_button_continue_clicked, view);
+ 	elm_layout_content_set(view->layout_content,
+@@ -338,7 +338,7 @@ _init_recipient_page(struct MessageNewViewData *view)
+ 	g_ptr_array_foreach(view->recipients, _process_recipient, view);
+ 
+ 	btn = elm_button_add(win);
+-	elm_button_label_set(btn, D_("Back"));
++	elm_object_text_set(btn, D_("Back"));
+ 	evas_object_smart_callback_add(btn, "clicked",
+ 				       _recipients_button_back_clicked, view);
+ 	elm_layout_content_set(view->layout_recipients,
+@@ -346,7 +346,7 @@ _init_recipient_page(struct MessageNewViewData *view)
+ 	evas_object_show(btn);
+ 
+ 	btn = elm_button_add(win);
+-	elm_button_label_set(btn, D_("Contact"));
++	elm_object_text_set(btn, D_("Contact"));
+ 	evas_object_smart_callback_add(btn, "clicked",
+ 				       _recipients_button_add_contact_clicked,
+ 				       view);
+@@ -355,7 +355,7 @@ _init_recipient_page(struct MessageNewViewData *view)
+ 	evas_object_show(btn);
+ 
+ 	btn = elm_button_add(win);
+-	elm_button_label_set(btn, D_("Number"));
++	elm_object_text_set(btn, D_("Number"));
+ 	evas_object_smart_callback_add(btn, "clicked",
+ 				       _recipients_button_add_number_clicked,
+ 				       view);
+@@ -364,7 +364,7 @@ _init_recipient_page(struct MessageNewViewData *view)
+ 	evas_object_show(btn);
+ 
+ 	btn = elm_button_add(win);
+-	elm_button_label_set(btn, D_("Send"));
++	elm_object_text_set(btn, D_("Send"));
+ 	evas_object_smart_callback_add(btn, "clicked",
+ 				       _recipients_button_send_clicked, view);
+ 	elm_layout_content_set(view->layout_recipients,
+@@ -394,14 +394,14 @@ _init_contacts_page(struct MessageNewViewData *view)
+ 	contact_list_add(&view->contact_list_data);
+ 
+ 	btn = elm_button_add(win);
+-	elm_button_label_set(btn, D_("Back"));
++	elm_object_text_set(btn, D_("Back"));
+ 	evas_object_smart_callback_add(btn, "clicked",
+ 				       _contacts_button_back_clicked, view);
+ 	elm_layout_content_set(view->layout_contacts, "contacts_button_back", btn);
+ 	evas_object_show(btn);
+ 
+ 	btn = elm_button_add(win);
+-	elm_button_label_set(btn, D_("Add"));
++	elm_object_text_set(btn, D_("Add"));
+ 	evas_object_smart_callback_add(btn, "clicked",
+ 				       _contacts_button_add_clicked, view);
+ 	elm_layout_content_set(view->layout_contacts, "contacts_button_add", btn);
+@@ -430,14 +430,14 @@ _init_number_page(struct MessageNewViewData *view)
+ 			"number_title", D_("Add Number"));
+ 
+ 	btn = elm_button_add(win);
+-	elm_button_label_set(btn, D_("Back"));
++	elm_object_text_set(btn, D_("Back"));
+ 	evas_object_smart_callback_add(btn, "clicked",
+ 				       _number_button_back_clicked, view);
+ 	elm_layout_content_set(view->layout_number, "number_button_back", btn);
+ 	evas_object_show(btn);
+ 
+ 	btn = elm_button_add(win);
+-	elm_button_label_set(btn, D_("Add"));
++	elm_object_text_set(btn, D_("Add"));
+ 	evas_object_smart_callback_add(btn, "clicked",
+ 				       _number_button_add_clicked, view);
+ 	elm_layout_content_set(view->layout_number, "number_button_add", btn);
+@@ -487,14 +487,14 @@ _content_button_insert_clicked(void *data, Evas_Object *obj, void *event_info)
+ 	contact_list_add(&view->contact_list_data);
+ 
+ 	btn = elm_button_add(win);
+-	elm_button_label_set(btn, D_("Back"));
++	elm_object_text_set(btn, D_("Back"));
+ 	evas_object_smart_callback_add(btn, "clicked",
+ 				       _insert_contacts_button_back_clicked, view);
+ 	elm_layout_content_set(view->layout_contacts, "contacts_button_back", btn);
+ 	evas_object_show(btn);
+ 
+ 	btn = elm_button_add(win);
+-	elm_button_label_set(btn, D_("Add"));
++	elm_object_text_set(btn, D_("Add"));
+ 	evas_object_smart_callback_add(btn, "clicked",
+ 				       _insert_contacts_button_add_clicked, view);
+ 	elm_layout_content_set(view->layout_contacts, "contacts_button_add", btn);
+diff --git a/src/view/message-show-view.c b/src/view/message-show-view.c
+index 61ad0e7..bf33ece 100644
+--- a/src/view/message-show-view.c
++++ b/src/view/message-show-view.c
+@@ -198,7 +198,7 @@ message_show_view_init(char* path, GHashTable *properties)
+ 
+ 
+ 	obj = elm_button_add(win);
+-	elm_button_label_set(obj, D_("Close"));
++	elm_object_text_set(obj, D_("Close"));
+ 	evas_object_smart_callback_add(obj, "clicked",
+ 				       _close_clicked, view);
+ 	ui_utils_view_swallow(VIEW_PTR(*view), "button_close", obj);
+@@ -208,7 +208,7 @@ message_show_view_init(char* path, GHashTable *properties)
+ 	view->hv = elm_hover_add(win);
+ 
+ 	obj = elm_button_add(win);
+-	elm_button_label_set(obj, D_("Options"));
++	elm_object_text_set(obj, D_("Options"));
+ 	evas_object_smart_callback_add(obj, "clicked", _hover_bt_1,
+ 				       view->hv);
+ 	ui_utils_view_swallow(VIEW_PTR(*view), "button_options", obj);
+@@ -223,7 +223,7 @@ message_show_view_init(char* path, GHashTable *properties)
+ 	evas_object_show(box);
+ 
+ 	obj = elm_button_add(win);
+-	elm_button_label_set(obj, D_("Delete"));
++	elm_object_text_set(obj, D_("Delete"));
+ 	evas_object_size_hint_min_set(obj, 140, 80);
+ 	evas_object_smart_callback_add(obj, "clicked",
+ 				       _delete_clicked, view);
+@@ -232,7 +232,7 @@ message_show_view_init(char* path, GHashTable *properties)
+ 
+ 	if (in_msg) {
+ 		obj = elm_button_add(win);
+-		elm_button_label_set(obj, D_("Call"));
++		elm_object_text_set(obj, D_("Call"));
+ 		evas_object_size_hint_min_set(obj, 140, 80);
+ 		evas_object_smart_callback_add(obj, "clicked",
+ 						   _call_clicked, view);
+@@ -241,7 +241,7 @@ message_show_view_init(char* path, GHashTable *properties)
+ 	}
+ 
+ 	obj = elm_button_add(win);
+-	elm_button_label_set(obj, D_("Add Contact"));
++	elm_object_text_set(obj, D_("Add Contact"));
+ 	evas_object_size_hint_min_set(obj, 140, 80);
+ 	evas_object_smart_callback_add(obj, "clicked",
+ 					   _new_contact_clicked,
+@@ -251,7 +251,7 @@ message_show_view_init(char* path, GHashTable *properties)
+ 	view->add_contact_bt = obj;
+ 
+ 	obj = elm_button_add(win);
+-	elm_button_label_set(obj, D_("Forward"));
++	elm_object_text_set(obj, D_("Forward"));
+ 	evas_object_size_hint_min_set(obj, 140, 80);
+ 	evas_object_smart_callback_add(obj, "clicked", _forward_clicked, view);
+ 	evas_object_show(obj);
+@@ -261,7 +261,7 @@ message_show_view_init(char* path, GHashTable *properties)
+ 
+ 
+ 	obj = elm_button_add(win);
+-	elm_button_label_set(obj, D_("Answer"));
++	elm_object_text_set(obj, D_("Answer"));
+ 	evas_object_smart_callback_add(obj, "clicked",
+ 				       _answer_clicked, view);
+ 	ui_utils_view_swallow(VIEW_PTR(*view), "button_answer", obj);
+diff --git a/src/view/phone-log-view.c b/src/view/phone-log-view.c
+index 9e45c07..cd67147 100644
+--- a/src/view/phone-log-view.c
++++ b/src/view/phone-log-view.c
+@@ -405,7 +405,7 @@ gl_icon_get(void *data, Evas_Object * obj, const char *part)
+ 	(void) data;
+ 	if (!strcmp(part,"elm.swallow.end")) {
+ 		Evas_Object *btn = elm_button_add(obj);
+-		elm_button_label_set(btn, "Action");
++		elm_object_text_set(btn, "Action");
+ 		return (btn);
+ 	}
+ 	return (NULL);
+diff --git a/src/view/quick-settings-view.c b/src/view/quick-settings-view.c
+index 048a04c..94a667b 100644
+--- a/src/view/quick-settings-view.c
++++ b/src/view/quick-settings-view.c
+@@ -190,21 +190,21 @@ _init_profiles_power_page()
+ 	evas_object_smart_callback_add(view.profiles_combo, "selected", _profile_selected_cb, NULL);
+ 
+ 	view.button_lock = elm_button_add(win);
+-	elm_button_label_set(view.button_lock, D_("Lock"));
++	elm_object_text_set(view.button_lock, D_("Lock"));
+ 	elm_layout_content_set(view.layout1, "power-frame-lock-button", view.button_lock);
+ 	evas_object_smart_callback_add(view.button_lock, "clicked",
+ 				       _button_lock_clicked_cb, NULL);
+ 	evas_object_show(view.button_lock);
+ 
+ 	view.button_suspend = elm_button_add(win);
+-	elm_button_label_set(view.button_suspend, D_("Suspend"));
++	elm_object_text_set(view.button_suspend, D_("Suspend"));
+ 	elm_layout_content_set(view.layout1, "power-frame-suspend-button", view.button_suspend);
+ 	evas_object_smart_callback_add(view.button_suspend, "clicked",
+ 				       _button_suspend_clicked_cb, NULL);
+ 	evas_object_show(view.button_suspend);
+ 
+ 	view.button_shutdown = elm_button_add(win);
+-	elm_button_label_set(view.button_shutdown, D_("Shutdown"));
++	elm_object_text_set(view.button_shutdown, D_("Shutdown"));
+ 	elm_layout_content_set(view.layout1, "power-frame-shutdown-button", view.button_shutdown);
+ 	evas_object_smart_callback_add(view.button_shutdown, "clicked",
+ 				       _button_shutdown_clicked_cb, NULL);
+diff --git a/src/view/sim-auth-input-view.c b/src/view/sim-auth-input-view.c
+index d5cf99c..78fbad7 100644
+--- a/src/view/sim-auth-input-view.c
++++ b/src/view/sim-auth-input-view.c
+@@ -98,14 +98,14 @@ sim_auth_input_view_init()
+ 				 "phoneui/notification/sim_auth_input");
+ 
+ 	view.bt1 = elm_button_add(win);
+-	elm_button_label_set(view.bt1, D_("Delete"));
++	elm_object_text_set(view.bt1, D_("Delete"));
+ 	evas_object_smart_callback_add(view.bt1, "clicked",
+ 				       _sim_auth_delete_clicked, NULL);
+ 	ui_utils_view_swallow(VIEW_PTR(view), "button_delete", view.bt1);
+ 	evas_object_show(view.bt1);
+ 
+ 	view.bt2 = elm_button_add(win);
+-	elm_button_label_set(view.bt2, D_("OK"));
++	elm_object_text_set(view.bt2, D_("OK"));
+ 	evas_object_smart_callback_add(view.bt2, "clicked",
+ 				       _sim_auth_ok_clicked, NULL);
+ 	ui_utils_view_swallow(VIEW_PTR(view), "button_ok", view.bt2);
+diff --git a/src/view/sim-manager-view.c b/src/view/sim-manager-view.c
+index b9087ad..9135ca4 100644
+--- a/src/view/sim-manager-view.c
++++ b/src/view/sim-manager-view.c
+@@ -195,7 +195,7 @@ contact_select_view(void (*cb)(const char *, void *), void *data)
+ 	contact_list_add(&pack->contact_list_data);
+ 
+ 	pack->cbutton = elm_button_add(win);
+-	elm_button_label_set(pack->cbutton, D_("Cancel"));
++	elm_object_text_set(pack->cbutton, D_("Cancel"));
+ 	evas_object_smart_callback_add(pack->cbutton, "clicked",
+ 				       _contact_select_cancel, pack);
+ 	ui_utils_view_swallow(VIEW_PTR(pack), "contacts_button_back",
+@@ -203,7 +203,7 @@ contact_select_view(void (*cb)(const char *, void *), void *data)
+ 	evas_object_show(pack->cbutton);
+ 
+ 	pack->sbutton = elm_button_add(win);
+-	elm_button_label_set(pack->sbutton, D_("Select"));
++	elm_object_text_set(pack->sbutton, D_("Select"));
+ 	evas_object_smart_callback_add(pack->sbutton, "clicked",
+ 				       _contact_select_add, pack);
+ 	ui_utils_view_swallow(VIEW_PTR(*pack), "contacts_button_add",
+@@ -432,7 +432,7 @@ _number_add_contact_get_cb(GError *error, GHashTable *properties, gpointer data)
+ 	elm_win_resize_object_add(win, name_lb);
+ 	evas_object_size_hint_weight_set(name_lb, EVAS_HINT_EXPAND, 0.0);
+ 	evas_object_size_hint_align_set(name_lb, EVAS_HINT_FILL, 0.0);
+-	elm_label_label_set(name_lb, D_("Name:"));
++	elm_object_text_set(name_lb, D_("Name:"));
+ 	evas_object_show(name_lb);
+ 	elm_box_pack_end(box, name_lb);
+ 
+@@ -458,7 +458,7 @@ _number_add_contact_get_cb(GError *error, GHashTable *properties, gpointer data)
+ 	elm_win_resize_object_add(win, number_lb);
+ 	evas_object_size_hint_weight_set(number_lb, EVAS_HINT_EXPAND, 0.0);
+ 	evas_object_size_hint_align_set(number_lb, EVAS_HINT_FILL, 0.0);
+-	elm_label_label_set(number_lb, D_("Number:"));
++	elm_object_text_set(number_lb, D_("Number:"));
+ 	evas_object_show(number_lb);
+ 	elm_box_pack_end(box, number_lb);
+ 
+@@ -491,7 +491,7 @@ _number_add_contact_get_cb(GError *error, GHashTable *properties, gpointer data)
+ 	evas_object_size_hint_align_set(sbtn, EVAS_HINT_FILL, 0.0);
+ 	evas_object_smart_callback_add(sbtn, "clicked",
+ 				       _number_add_save, pack);
+-	elm_button_label_set(sbtn, D_("Save"));
++	elm_object_text_set(sbtn, D_("Save"));
+ 	evas_object_show(sbtn);
+ 	elm_box_pack_start(box0, sbtn);
+ 
+@@ -501,7 +501,7 @@ _number_add_contact_get_cb(GError *error, GHashTable *properties, gpointer data)
+ 	evas_object_size_hint_align_set(cbtn, EVAS_HINT_FILL, 0.0);
+ 	evas_object_smart_callback_add(cbtn, "clicked",
+ 				       _number_add_cancel, pack);
+-	elm_button_label_set(cbtn, D_("Cancel"));
++	elm_object_text_set(cbtn, D_("Cancel"));
+ 	evas_object_show(cbtn);
+ 	elm_box_pack_end(box0, cbtn);
+ 
+@@ -817,7 +817,7 @@ sim_manager_view_init()
+ 	sim_manager_list_add(&view.list_data);
+ 
+ 	view.bt_import_all = elm_button_add(win);
+-	elm_button_label_set(view.bt_import_all, D_("Import all"));
++	elm_object_text_set(view.bt_import_all, D_("Import all"));
+ 	evas_object_smart_callback_add(view.bt_import_all, "clicked",
+ 				       _list_import_all_clicked, NULL);
+ 	ui_utils_view_swallow(VIEW_PTR(view), "button_import_all",
+@@ -825,7 +825,7 @@ sim_manager_view_init()
+ 	evas_object_show(view.bt_import_all);
+ 
+ 	view.bt_copy_to_sim = elm_button_add(win);
+-	elm_button_label_set(view.bt_copy_to_sim, D_("Copy to SIM"));
++	elm_object_text_set(view.bt_copy_to_sim, D_("Copy to SIM"));
+ 	evas_object_smart_callback_add(view.bt_copy_to_sim, "clicked",
+ 				       _list_copy_to_sim_clicked, NULL);
+ 	ui_utils_view_swallow(VIEW_PTR(view), "button_new",
+@@ -833,7 +833,7 @@ sim_manager_view_init()
+ 	evas_object_show(view.bt_copy_to_sim);
+ 
+ 	view.bt_options = elm_button_add(win);
+-	elm_button_label_set(view.bt_options, D_("Options"));
++	elm_object_text_set(view.bt_options, D_("Options"));
+ 	evas_object_smart_callback_add(view.bt_options, "clicked",
+ 				       _list_options_clicked, NULL);
+ 	ui_utils_view_swallow(VIEW_PTR(view), "button_options",
+@@ -851,7 +851,7 @@ sim_manager_view_init()
+ 	evas_object_show(view.bx);
+ 
+ 	view.bt_message = elm_button_add(win);
+-	elm_button_label_set(view.bt_message, D_("Import"));
++	elm_object_text_set(view.bt_message, D_("Import"));
+ 	evas_object_size_hint_min_set(view.bt_message, 130, 80);
+ 	evas_object_smart_callback_add(view.bt_message, "clicked",
+ 				       _list_import_clicked, NULL);
+@@ -859,7 +859,7 @@ sim_manager_view_init()
+ 	elm_box_pack_end(view.bx, view.bt_message);
+ 
+ 	view.bt_edit = elm_button_add(win);
+-	elm_button_label_set(view.bt_edit, D_("Edit"));
++	elm_object_text_set(view.bt_edit, D_("Edit"));
+ 	evas_object_size_hint_min_set(view.bt_edit, 130, 80);
+ 	evas_object_smart_callback_add(view.bt_edit, "clicked",
+ 				       _list_edit_clicked, NULL);
+@@ -867,7 +867,7 @@ sim_manager_view_init()
+ 	elm_box_pack_end(view.bx, view.bt_edit);
+ 
+ 	view.bt_delete = elm_button_add(win);
+-	elm_button_label_set(view.bt_delete, D_("Delete"));
++	elm_object_text_set(view.bt_delete, D_("Delete"));
+ 	evas_object_size_hint_min_set(view.bt_delete, 130, 80);
+ 	evas_object_smart_callback_add(view.bt_delete, "clicked",
+ 				       _list_delete_clicked, NULL);
+@@ -879,7 +879,7 @@ sim_manager_view_init()
+ 	/* loading indicator */
+ 	view.pb = elm_progressbar_add(win);
+ 	elm_object_style_set(view.pb, "wheel");
+-	elm_progressbar_label_set(view.pb, D_("Loading..."));
++	elm_object_text_set(view.pb, D_("Loading..."));
+ 	evas_object_size_hint_align_set(view.pb, EVAS_HINT_FILL, 0.5);
+ 	evas_object_size_hint_weight_set(view.pb, EVAS_HINT_EXPAND,
+ 					 EVAS_HINT_EXPAND);
+diff --git a/src/view/ussd-view.c b/src/view/ussd-view.c
+index a1fc1fb..2ec8346 100644
+--- a/src/view/ussd-view.c
++++ b/src/view/ussd-view.c
+@@ -89,7 +89,7 @@ frame_ussd_show(void *_data)
+ 	window_text_set(win, "message", data->message);
+ 
+ 	data->bt_close = elm_button_add(window_evas_object_get(win));
+-	elm_button_label_set(data->bt_close, D_("Close"));
++	elm_object_text_set(data->bt_close, D_("Close"));
+ 	evas_object_smart_callback_add(data->bt_close, "clicked",
+ 				       frame_ussd_close_clicked, data);
+ 	window_swallow(win, "button_close", data->bt_close);
+-- 
+1.7.6
+

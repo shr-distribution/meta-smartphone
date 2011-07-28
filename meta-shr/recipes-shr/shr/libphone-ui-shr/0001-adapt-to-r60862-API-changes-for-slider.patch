@@ -1,0 +1,35 @@
+From e123ba731db6259474848ec70c53262610d4f37f Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Thu, 28 Jul 2011 20:01:54 +0200
+Subject: [PATCH] adapt to r60862 API changes for slider
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ src/view/call-active-view.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/view/call-active-view.c b/src/view/call-active-view.c
+index 19def00..9b14092 100644
+--- a/src/view/call-active-view.c
++++ b/src/view/call-active-view.c
+@@ -178,7 +178,7 @@ call_active_view_show(struct Window *win, GHashTable * options)
+ 
+ 	g_debug("adding the volume slider...");
+ 	data->volume_slider = elm_slider_add(window_evas_object_get(win));
+-	elm_slider_label_set(data->volume_slider, D_("Volume"));
++	elm_object_text_set(data->volume_slider, D_("Volume"));
+ 	elm_slider_min_max_set(data->volume_slider, 0.0, 100.0);
+ 	elm_slider_value_set(data->volume_slider,
+ 			(double)phoneui_utils_sound_volume_get(
+@@ -191,7 +191,7 @@ call_active_view_show(struct Window *win, GHashTable * options)
+ 
+ 	g_debug("adding the mic slider...");
+ 	data->mic_slider = elm_slider_add(window_evas_object_get(win));
+-	elm_slider_label_set(data->mic_slider, D_("Mic"));
++	elm_object_text_set(data->mic_slider, D_("Mic"));
+ 	elm_slider_min_max_set(data->mic_slider, 0.0, 100.0);
+ 	elm_slider_value_set(data->mic_slider,
+ 			(double)phoneui_utils_sound_volume_get(
+-- 
+1.7.6
+

@@ -1,0 +1,61 @@
+From 8620bee2f56525e47e1d1725ee6379e4e5ba127c Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Thu, 28 Jul 2011 19:38:18 +0200
+Subject: [PATCH] message-new-view: addapt to elm API change from r60438
+
+* elm_scrolled_entry and elm_entry_entry APIs are now unified
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ src/view/message-new-view.c |   11 ++++++-----
+ 1 files changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/src/view/message-new-view.c b/src/view/message-new-view.c
+index a70ea8f..a4bfe48 100644
+--- a/src/view/message-new-view.c
++++ b/src/view/message-new-view.c
+@@ -266,11 +266,12 @@ _init_content_page(struct MessageNewViewData *view)
+ 	edje_object_part_text_set(elm_layout_edje_get(view->layout_content),
+ 			"content_title", D_("Enter your message"));
+ 
+-	view->content_entry = elm_scrolled_entry_add(win);
++	view->content_entry = elm_entry_add(win);
++	elm_entry_scrollable_set(view->content_entry, EINA_TRUE);
+ 	evas_object_smart_callback_add(view->content_entry, "changed",
+ 				       _content_changed, view);
+ 	if (view->content != NULL) {
+-		elm_scrolled_entry_entry_set(view->content_entry,
++		elm_entry_entry_set(view->content_entry,
+ 				    elm_entry_utf8_to_markup(view->content));
+ 	}
+ 	evas_object_show(view->content_entry);
+@@ -546,7 +547,7 @@ _insert_contacts_add_number_callback(const char *number, void *data)
+ 	int len;
+ 
+ 	view = (struct MessageNewViewData *)data;
+-	content = elm_entry_markup_to_utf8(elm_scrolled_entry_entry_get(view->content_entry));
++	content = elm_entry_markup_to_utf8(elm_entry_entry_get(view->content_entry));
+ 	len = phone_utils_gsm_sms_strlen(content);
+ 
+ 	// Make space for text, number and ending null character
+@@ -560,7 +561,7 @@ _insert_contacts_add_number_callback(const char *number, void *data)
+ 	view->content = content;
+ 
+ 	if (view->content != NULL) {
+-		elm_scrolled_entry_entry_set(view->content_entry,
++		elm_entry_entry_set(view->content_entry,
+ 				    elm_entry_utf8_to_markup(view->content));
+ 	}
+ }
+@@ -802,7 +803,7 @@ _content_changed(void *_data, Evas_Object * obj, void *event_info)
+ 
+ 	/*FIXME: consider changing to an iterative way by using get_size (emulating what's
+ 	 * being done in phone_utils) as calculating for all the string on every keystroke is a bit sluggish. */
+-	content = elm_entry_markup_to_utf8(elm_scrolled_entry_entry_get(obj));
++	content = elm_entry_markup_to_utf8(elm_entry_entry_get(obj));
+ 
+ 	/* if the entry is still empty elm_entry_markup_to_utf8 will return
+ 	 * NULL - which makes g_strstrip segfault :|
+-- 
+1.7.6
+

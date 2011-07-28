@@ -1,0 +1,35 @@
+From a2e8585204f0b73486b5555bb15f04a99ab1cba0 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Thu, 28 Jul 2011 19:58:34 +0200
+Subject: [PATCH] adapt to r60802 API changes for toggle
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ src/view/call-active-view.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/view/call-active-view.c b/src/view/call-active-view.c
+index ca72e89..19def00 100644
+--- a/src/view/call-active-view.c
++++ b/src/view/call-active-view.c
+@@ -157,7 +157,7 @@ call_active_view_show(struct Window *win, GHashTable * options)
+ 
+ 	g_debug("adding the speaker toggle...");
+ 	data->speaker_toggle = elm_toggle_add(window_evas_object_get(win));
+-	elm_toggle_label_set(data->speaker_toggle, D_("Speaker"));
++	elm_object_text_set(data->speaker_toggle, D_("Speaker"));
+ 	//elm_toggle_icon_set(data->speaker_toggle, ico);
+ 	elm_toggle_state_set(data->speaker_toggle, EINA_FALSE);
+ 	elm_object_scale_set(data->speaker_toggle, 1.2);
+@@ -168,7 +168,7 @@ call_active_view_show(struct Window *win, GHashTable * options)
+ 
+ 	g_debug("adding the mute toggle...");
+ 	data->mute_toggle = elm_toggle_add(window_evas_object_get(win));
+-	elm_toggle_label_set(data->mute_toggle, D_("Mute"));
++	elm_object_text_set(data->mute_toggle, D_("Mute"));
+ 	elm_toggle_state_set(data->mute_toggle, EINA_FALSE);
+ 	elm_object_scale_set(data->mute_toggle, 1.2);
+ 	evas_object_smart_callback_add(data->mute_toggle, "changed",
+-- 
+1.7.6
+
