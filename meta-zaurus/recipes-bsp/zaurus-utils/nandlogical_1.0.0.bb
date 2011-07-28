@@ -1,6 +1,7 @@
 DESCRIPTION = "Nandlogical for Sharp mtd1"
-LICENSE = "GPL"
-PR = "r4"
+LICENSE = "GPLv2"
+LIC_FILES_CHKSUM = "file://nandlogical.c;md5=a734efd470f4d5be324e5d408a1f38a5"
+PR = "r5"
 
 SRC_URI = "file://nandlogical.c"
 

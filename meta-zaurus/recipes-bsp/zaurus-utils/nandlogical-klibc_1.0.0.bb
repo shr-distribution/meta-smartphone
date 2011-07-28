@@ -6,4 +6,4 @@ do_compile() {
         ${CC} ${CFLAGS} ${LDFLAGS} -static -I${STAGING_INCDIR} nandlogical.c -o nandlogical
 }
 
-FILESPATHPKG =. "nandlogical:"
+FILESPATH =. "${FILE_DIRNAME}/nandlogical:"
