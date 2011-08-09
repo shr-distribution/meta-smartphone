@@ -9,14 +9,13 @@ DEPENDS = "elementary libeflvala libical"
 RDEPENDS_${PN} = "atd alsa-utils-amixer ttf-dejavu-sans libical"
 RSUGGESTS_${PN} = "mplayer alsa-utils-aplay frameworkd"
 PV = "0.4+gitr${SRCPV}"
-PR = "r9"
 
 #disable as-needed for now, fails on many undefined symbols otherwise
 ASNEEDED = ""
 
 SRC_URI = "git://git.shr-project.org/repo/ffalarms.git;protocol=http;branch=master"
 
-SRCREV = "ff2b00ed3dd459af10b6964db299edac4095fb2f"
+SRCREV = "eaa4ee75b16f6c7d5563a71fc59ad9eb9df09e94"
 S = "${WORKDIR}/git"
 
 inherit vala

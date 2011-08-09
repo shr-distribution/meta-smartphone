@@ -1,0 +1,180 @@
+From 60f8b2a01370260ba2bc558d91b541adfa9b0be8 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Tue, 9 Aug 2011 11:16:55 +0200
+Subject: [PATCH] adapt to vala bindings changes
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ src/view_main.vala |   40 ++++++++++++++++++++--------------------
+ 1 files changed, 20 insertions(+), 20 deletions(-)
+
+diff --git a/src/view_main.vala b/src/view_main.vala
+index 03f561e..eaff984 100644
+--- a/src/view_main.vala
++++ b/src/view_main.vala
+@@ -56,7 +56,7 @@ namespace iliwi.View {
+     generate_window();
+     
+     wifi.status_change.connect((t) => {
+-      status.label_set(wifi.status);
++      status.text_set(wifi.status);
+     });
+     wifi.network_list_change.connect((t) => {
+       button.disabled_set(false);
+@@ -111,12 +111,12 @@ namespace iliwi.View {
+     status = new Label(win);
+     status.size_hint_weight_set(0, 0);
+     status.size_hint_align_set(0.5, 0.5);
+-    status.label_set(wifi.status);
++    status.text_set(wifi.status);
+     status.show();
+     box.pack_end(status);
+     
+     button = new Button(win);
+-    button.label_set("Refresh list");
++    button.text_set("Refresh list");
+     button.disabled_set(true);
+     button.show();
+     button.smart_callback_add("clicked", refresh_list_elements );
+@@ -212,7 +212,7 @@ namespace iliwi.View {
+     title.size_hint_weight_set(1, 1);
+     title.size_hint_align_set(0.5, 0.5);
+     title.scale_set(2);
+-    title.label_set(network.get_title());
++    title.text_set(network.get_title());
+     title.show();
+     title_padding.content_set(title);
+     gui_container2 += (owned) title;
+@@ -222,7 +222,7 @@ namespace iliwi.View {
+ 
+     if(network.authentication) {
+       Frame username_container = new Frame(win);
+-      username_container.label_set("Username");
++      username_container.text_set("Username");
+       username_container.size_hint_weight_set(1, -1);
+       username_container.size_hint_align_set(-1, -1);
+       username = new Entry(win);
+@@ -237,7 +237,7 @@ namespace iliwi.View {
+ 
+     if(network.encryption) {
+       Frame password_container = new Frame(win);
+-      password_container.label_set("Password");
++      password_container.text_set("Password");
+       password_container.size_hint_weight_set(1, -1);
+       password_container.size_hint_align_set(-1, -1);
+       password = new Entry(win);
+@@ -251,7 +251,7 @@ namespace iliwi.View {
+       
+       if(!network.authentication) {
+         Toggle ascii_hex = new Toggle(win);
+-        ascii_hex.label_set("Password format");
++        ascii_hex.text_set("Password format");
+         ascii_hex.states_labels_set("ASCII","Hex");
+         ascii_hex.smart_callback_add("changed", change_network_ascii_hex );
+         ascii_hex.state_set(network.password_in_ascii);
+@@ -263,7 +263,7 @@ namespace iliwi.View {
+ 
+     if(network.authentication) {
+       Frame certificate_container = new Frame(win);
+-      certificate_container.label_set("Server Certificate");
++      certificate_container.text_set("Server Certificate");
+       certificate_container.size_hint_weight_set(1, -1);
+       certificate_container.size_hint_align_set(-1, -1);
+       certificate_container.show();
+@@ -278,7 +278,7 @@ namespace iliwi.View {
+       cert_status = new Label(win);
+       cert_status.size_hint_weight_set(1, 1);
+       cert_status.size_hint_align_set(-1, -1);
+-      certlist_label_set();
++      certlist_text_set();
+       cert_status.show();
+       cert_box.pack_end(cert_status);
+ 
+@@ -292,7 +292,7 @@ namespace iliwi.View {
+       Button cert_add_button = new Button(win);
+       cert_add_button.size_hint_weight_set(1, 1);
+       cert_add_button.size_hint_align_set(-1, -1);
+-      cert_add_button.label_set("Select");
++      cert_add_button.text_set("Select");
+       cert_add_button.show();
+       cert_button_box.pack_end(cert_add_button);
+       cert_add_button.smart_callback_add("clicked", show_cert_chooser);
+@@ -301,7 +301,7 @@ namespace iliwi.View {
+       Button cert_del_button = new Button(win);
+       cert_del_button.size_hint_weight_set(1, 1);
+       cert_del_button.size_hint_align_set(-1, -1);
+-      cert_del_button.label_set("Clear");
++      cert_del_button.text_set("Clear");
+       cert_del_button.show();
+       cert_button_box.pack_end(cert_del_button);
+       cert_del_button.smart_callback_add("clicked", clear_cert);
+@@ -317,7 +317,7 @@ namespace iliwi.View {
+ 
+     Toggle preferred = new Toggle(win);
+     preferred.smart_callback_add("changed", change_network_preferred );
+-    preferred.label_set( "Preferred network");
++    preferred.text_set( "Preferred network");
+     preferred.states_labels_set("Yes","No");
+     preferred.state_set(network.preferred_network);
+     preferred.show();
+@@ -327,7 +327,7 @@ namespace iliwi.View {
+     Button button = new Button(win);
+     button.size_hint_weight_set(1,-1);
+     button.size_hint_align_set(-1,-1);
+-    button.label_set("Connect");
++    button.text_set("Connect");
+     button.disabled_set(network.status!=NetworkStatus.UNCONNECTED);
+     button.show();
+     button.smart_callback_add("clicked", connect_to );
+@@ -337,7 +337,7 @@ namespace iliwi.View {
+     button = new Button(win);
+     button.size_hint_weight_set(1,-1);
+     button.size_hint_align_set(-1,-1);
+-    button.label_set("Back");
++    button.text_set("Back");
+     button.show();
+     button.smart_callback_add("clicked", back_to_list );
+     network_page.pack_end(button);
+@@ -404,7 +404,7 @@ namespace iliwi.View {
+     Button back_button = new Button(win);
+     back_button.size_hint_weight_set(1,-1);
+     back_button.size_hint_align_set(-1,-1);
+-    back_button.label_set("Back");
++    back_button.text_set("Back");
+     back_button.show();
+     back_button.smart_callback_add("clicked", back_to_net_definition);
+     cert_chooser_page.pack_end(back_button);
+@@ -453,17 +453,17 @@ namespace iliwi.View {
+     gui_container3 = {}; //inserted here due to error below in method back_to_net_definition()
+   }
+   private void back_to_net_definition() {
+-    certlist_label_set();
++    certlist_text_set();
+     pager.content_pop();
+ //  gui_container3 = {}; causes error - see below, moved to method back_to_list()
+ //ERR:elementary elm_widget.c:1303 elm_widget_type_check() Passing Object: 0x1ce5e0, of type: '(unknown)' when expecting type: 'genlist'
+   }
+-  private void certlist_label_set() {
++  private void certlist_text_set() {
+       if (network.cert != "") {
+-         cert_status.label_set(Certificate.trim_cert_name(network.cert));
++         cert_status.text_set(Certificate.trim_cert_name(network.cert));
+       }
+       else {
+-         cert_status.label_set("Not Set - Password recipient unverified!");
++         cert_status.text_set("Not Set - Password recipient unverified!");
+       }
+   }
+   private void list_cert_dir() {
+@@ -488,7 +488,7 @@ namespace iliwi.View {
+   private void clear_cert() {
+     network.cert = "";
+     network.cert_dir = "";
+-    certlist_label_set();
++    certlist_text_set();
+   }
+   
+   // Genlist stuff
+-- 
+1.7.6
+
