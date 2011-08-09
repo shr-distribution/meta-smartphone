@@ -1,0 +1,82 @@
+From fb30591679ebdfeac69e2cbce580cb1caf6dd5ff Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Tue, 9 Aug 2011 10:49:06 +0200
+Subject: [PATCH] adapt to elm_genlist API change from r62117
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ src/view/contact-list-common.c |    2 +-
+ src/view/contact-view.c        |    2 +-
+ src/view/message-new-view.c    |    2 +-
+ src/view/phone-log-view.c      |    2 +-
+ src/view/sim-manager-view.c    |    2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/src/view/contact-list-common.c b/src/view/contact-list-common.c
+index f9b8146..028a37c 100644
+--- a/src/view/contact-list-common.c
++++ b/src/view/contact-list-common.c
+@@ -274,7 +274,7 @@ contact_list_add(struct ContactListData *list_data)
+ 	win = ui_utils_view_window_get(list_data->view);
+ 	list_data->index = NULL;
+ 	list_data->list = elm_genlist_add(win);
+-	elm_genlist_horizontal_mode_set(list_data->list, ELM_LIST_LIMIT);
++	elm_genlist_horizontal_set(list_data->list, ELM_LIST_LIMIT);
+ 	elm_genlist_longpress_timeout_set(list_data->list, 0.5);
+ 	elm_genlist_multi_select_set(list_data->list, EINA_TRUE);
+ 	evas_object_size_hint_align_set(list_data->list, 0.0, 0.0);
+diff --git a/src/view/contact-view.c b/src/view/contact-view.c
+index c903315..7189589 100644
+--- a/src/view/contact-view.c
++++ b/src/view/contact-view.c
+@@ -170,7 +170,7 @@ contact_view_init(char *path, GHashTable *properties)
+ 	view->fields = elm_genlist_add(win);
+ 	elm_scroller_policy_set(view->fields, ELM_SCROLLER_POLICY_OFF,
+ 				ELM_SCROLLER_POLICY_AUTO);
+-	elm_genlist_horizontal_mode_set(view->fields, ELM_LIST_LIMIT);
++	elm_genlist_horizontal_set(view->fields, ELM_LIST_LIMIT);
+ 	evas_object_size_hint_align_set(view->fields, 0.0, 0.0);
+ 	elm_layout_content_set(view->pager_layout, "fields", view->fields);
+ 
+diff --git a/src/view/message-new-view.c b/src/view/message-new-view.c
+index a4bfe48..882e05b 100644
+--- a/src/view/message-new-view.c
++++ b/src/view/message-new-view.c
+@@ -322,7 +322,7 @@ _init_recipient_page(struct MessageNewViewData *view)
+ 			"recipients_title", D_("Define Recipients"));
+ 
+ 	view->list_recipients = elm_genlist_add(win);
+-	elm_genlist_horizontal_mode_set(view->list_recipients, ELM_LIST_LIMIT);
++	elm_genlist_horizontal_set(view->list_recipients, ELM_LIST_LIMIT);
+ 	evas_object_size_hint_align_set(view->list_recipients, 0.0, 0.0);
+ 	evas_object_size_hint_weight_set(view->list_recipients,
+ 					 EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+diff --git a/src/view/phone-log-view.c b/src/view/phone-log-view.c
+index cd67147..41be5a9 100644
+--- a/src/view/phone-log-view.c
++++ b/src/view/phone-log-view.c
+@@ -190,7 +190,7 @@ static Evas_Object *
+ _add_genlist(Evas_Object *win)
+ {
+ 	Evas_Object *list = elm_genlist_add(win);
+-	elm_genlist_horizontal_mode_set(list, ELM_LIST_LIMIT);
++	elm_genlist_horizontal_set(list, ELM_LIST_LIMIT);
+ 	evas_object_size_hint_align_set(list, 0.0, 0.0);
+ 	evas_object_show(list);
+ 
+diff --git a/src/view/sim-manager-view.c b/src/view/sim-manager-view.c
+index 9135ca4..b237d7a 100644
+--- a/src/view/sim-manager-view.c
++++ b/src/view/sim-manager-view.c
+@@ -718,7 +718,7 @@ sim_manager_list_add(struct SimManagerListData *list_data)
+ 	win = ui_utils_view_window_get(VIEW_PTR(view));
+ 	list_data->index = NULL;
+ 	list_data->list = elm_genlist_add(win);
+-	elm_genlist_horizontal_mode_set(list_data->list, ELM_LIST_LIMIT);
++	elm_genlist_horizontal_set(list_data->list, ELM_LIST_LIMIT);
+ 	evas_object_size_hint_align_set(list_data->list, 0.0, 0.0);
+ 	elm_object_scale_set(list_data->list, 1.0);
+ 	itc.item_style = "sim-contact";
+-- 
+1.7.6
+
