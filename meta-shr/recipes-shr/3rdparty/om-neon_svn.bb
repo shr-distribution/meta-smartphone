@@ -1,6 +1,7 @@
 DESCRIPTION = "Simple image viewer"
 HOMEPAGE = "http://neon.projects.openmoko.org/"
 LICENSE = "GPLv3"
+LIC_FILES_CHKSUM = "file://COPYING;md5=f27defe1e96c2e1ecd4e0c9be8967949"
 AUTHOR = "Valéry Febvre <vfebvre@easter-eggs.com>"
 SECTION = "x11/applications"
 PRIORITY = "optional"

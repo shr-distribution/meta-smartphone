@@ -1,6 +1,7 @@
 DESCRIPTION = "GUI for CLI program spoje.py (http://code.google.com/p/spoje/) for searching public transport connections in Czech Republic."
 HOMEPAGE = "http://multi.xeres.cz/programovani/spojegui"
 LICENSE = "GPLv3"
+LIC_FILES_CHKSUM = "file://src/spoje-gui.py;beginline=6;endline=17;md5=b9c4fb15d796c1241daf1c28217bf8a1"
 AUTHOR = "Josef Jebavy <josef.jebavy@gmail.com>"
 SECTION = "x11/applications"
 PRIORITY = "optional"
