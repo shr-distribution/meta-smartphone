@@ -52,7 +52,7 @@ KERNEL_IMAGETYPE = "${ZAURUS_KERNEL_IMAGETYPE}"
 XZ_COMPRESSION_LEVEL = "-e -7"
 
 # kernel bootlogo
-LOGO_SIZE = '${@base_conditional("GUI_MACHINE_CLASS", "bigscreen", "vga", "qvga", d)}'
+LOGO_SIZE = '${@base_conditional("MACHINE_GUI_CLASS", "bigscreen", "vga", "qvga", d)}'
 
 ################
 # machine tuning
