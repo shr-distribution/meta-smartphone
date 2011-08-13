@@ -8,8 +8,9 @@ inherit task
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-RDEPENDS_${PN} += "\
-		babiloo-efl \
+MISSING = "\
+		elmdentica \
+		enjoy \
 		bootchart-lite \
 		claws-mail \
 		claws-plugin-mailmbox \
@@ -19,146 +20,69 @@ RDEPENDS_${PN} += "\
 		dosbox \
 		enotes \
 		epdfview \
-		mupdf \
 		estardict \
+		mupdf \
 		evopedia \
 		fbreader \
-		ffalarms \
-		foxtrotgps \
-		gpe-calendar \
-		gpe-todo \
-		gpe-scap \
-		gpe-sketchbook \
-		gpe-filemanager \
-		gpe-gallery \
-		gpe-timesheet \
-		gpe-contacts \
-		gtkmm \
-		guitartune \
-		jefliks \
 		libyaml-perl \
-		libnet-dbus-perl \
-		mc \
 		mplayer \
-		navit \
-		omhacks \
 		orrery \
-		python-elementary \
 		pythm \
 		python-wifi \
 		openmoko-agpsui \
-		openvpn \
 		pyphonelog \
-		ffphonelog \
-		shr-theme-neo \
-		shr-theme-o2 \
-		shr-theme-niebiee \
-		shr-theme-sixteen \
-		shr-splash \
-		shr-splash-theme-simple \
-		shr-splash-theme-dontpanic \
-		shr-splash-theme-handy \
-		shr-splash-theme-tux \
-		shr-splash-theme-logo \
-		shr-splash-theme-openmoko \
-		vagalume \
 		wireshark \
-		x11vnc \
-
 		pingus \
 		openmoocow \
 		python-pygame \
 		obexpush \
 		obexftp \
-		obex-data-server \
 		mtpaint \
-		telepathy-python \
 		intone-video \
-		opkg-utils \
 		mysql \
 		fltk-chess \
 		remoko \
 		openbmap-logger \
-		pisi \
-		libnotify \
 		accelges \
 		ebrainy \
 		sms-sentry \
 		cellhunter \
 		dillo2 \
 		pyefl-sudoku \
-		dates \
 		omnewrotate \
 		xchat \
 		python-pyid3lib \
 		intone \
-		vim \
 		vpnc \
 		emacs-x11 \
 		mg \
 		mcabber \
-		gdb \
-		oh-puzzles \
 		links-x11 \
-		e-wm-illume-dict-pl \
 		callrec \
-		midori \
-		numptyphysics \
-		pidgin \
-		libpurple-protocol-msn \
-		libpurple-protocol-icq \
-		vagalume \
-		udev \
-		ppp \
-		bluez-hcidump \
 		kbdd \
-		kexec \
-		mc \
 		iotop \
-		xprop \
 		xev \
-		xwininfo \
-		tcpdump \
-		thone \
-		lsof \
 		zsh \
-		gzip \
-		zip \
 		microcom \
-		minicom \
-		leafpad \
-		abiword \
-		aspell \
-		enchant \
 		joe \
-		nano \
 		ntpclient \
-		ntp \
 		tor \
 		vnc \
 		wxwidgets \
-		x11vnc \
 		cacao \
 		openjdk-6-jre \
-		dbus-x11 \
 		xournal \
-		git \
 		ruby \
 		synergy \
 		irssi \
-		zhone \
 		cu \
-		net-tools \
-		iproute2 \
-		iputils \
-		i2c-tools \
-		psmisc \
 		debianutils \
+		shr-installer \
+		numptyphysics \
+		libnet-dbus-perl \
 		tcptraceroute \
 		task-proper-tools \
-		wmiconfig \
 		netkit-telnet \
-		bind-utils \
 		font-adobe-100dpi \
 		font-adobe-75dpi \
 		font-adobe-utopia-100dpi \
@@ -186,12 +110,145 @@ RDEPENDS_${PN} += "\
 		font-sony-misc \
 		font-sun-misc \
 		font-winitzki-cyrillic \
+		qwo \
+		omgps \
+		python-xlib \
+		xcompmgr \
+		aceofpenguins-launcher \
+		ipython \
+ 		phoneme-advanced-foundation \
+		python-pybluez \
+		pyring \
+		bt-configure \
+		bt-gps \
+		bonnie++ \
+		reiserfsprogs \
+		blipomoko \
+		xboard \
+		sox \
+		zile \
+		podpooch \
+		fltkclock \
+		fltkhackdiet \
+		fltkwwpointcal \
+		transmission \
+		fltkcocktailbar \
+		fltkcurrency \
+		fltkspacetrader \
+		mokoeightball \
+		libsyncml \
+		pisi \
+		wpa-gui \
+		gabriel \
+		stopwatch \
+		qgpslog \
+		litephone \
+		linphone \
+		unixbench \
+		xfsprogs \
+		xfsdump \
+		supertux-qvga \
+		wesnoth \
+		mokosuite2 \
+		mokowm-imf-ecore \
+		mokohome \
+		mokopanel \
+		mokophone \
+		gnuplot \
+		galculator \
+		xterm \
+		inkspill \
+		dns2tcp \
+		gwaterpas \
+		sflphone-common \
+		rtmom \
+\
+		gpe-calendar \
+		gpe-todo \
+		gpe-sketchbook \
+		gpe-filemanager \
+		gpe-gallery \
+		gpe-timesheet \
+		gpe-contacts \
+		jefliks \
+		vagalume \
+		podboy \
+		shr-theme-neo \
+"
+
+RDEPENDS_${PN} += "\
+		babiloo-efl \
+		ffalarms \
+		foxtrotgps \
+		gpe-scap \
+		gtkmm \
+		guitartune \
+		mc \
+		navit \
+		omhacks \
+		python-elementary \
+		openvpn \
+		ffphonelog \
+		shr-theme-o2 \
+		shr-theme-niebiee \
+		shr-theme-sixteen \
+		shr-splash \
+		shr-splash-theme-simple \
+		shr-splash-theme-dontpanic \
+		shr-splash-theme-handy \
+		shr-splash-theme-tux \
+		shr-splash-theme-logo \
+		shr-splash-theme-openmoko \
+		x11vnc \
+
+		obex-data-server \
+		telepathy-python \
+		opkg-utils \
+		libnotify \
+		dates \
+		vim \
+		gdb \
+		oh-puzzles \
+		e-wm-illume-dict-pl \
+		midori \
+		pidgin \
+		libpurple-protocol-msn \
+		libpurple-protocol-icq \
+		udev \
+		ppp \
+		bluez-hcidump \
+		kexec \
+		mc \
+		xprop \
+		xwininfo \
+		tcpdump \
+		thone \
+		lsof \
+		gzip \
+		zip \
+		minicom \
+		leafpad \
+		abiword \
+		aspell \
+		enchant \
+		nano \
+		ntp \
+		x11vnc \
+		dbus-x11 \
+		git \
+		zhone \
+		net-tools \
+		iproute2 \
+		iputils \
+		i2c-tools \
+		psmisc \
+		wmiconfig \
+		bind-utils \
 		ttf-droid-sans \
 		ttf-droid-sans-mono \
 		ttf-droid-sans-fallback \
 		ttf-droid-sans-japanese \
 		ttf-droid-serif \
-		qwo \
 		fso-apm \
 		fsousaged \
 		fsodeviced \
@@ -199,10 +256,7 @@ RDEPENDS_${PN} += "\
 		mdbus \
 		mickeyterm \
 		opimd-utils \
-		omgps \
 		e-tasks \
-		elmdentica \
-		shr-installer \
 		eject \
 		illume-keyboard-arabic \
 		illume-keyboard-browse \
@@ -218,88 +272,37 @@ RDEPENDS_${PN} += "\
 		illume-keyboard-default-numeric \
 		illume-keyboard-russian \
 		illume-keyboard-russian-terminal \
-		python-xlib \
-		xcompmgr \
 		man \
 		man-pages \
-		aceofpenguins-launcher \
 		om-neon \
-		ipython \
- 		phoneme-advanced-foundation \
 		eve \
-		python-pybluez \
 		x11perf \
-		pyring \
-		bt-configure \
-		bt-gps \
 		advancedcaching \
-		bonnie++ \
-		reiserfsprogs \
-		blipomoko \
 		imagemagick \
-		xboard \
-		sox \
-		zile \
 		speex \
-		podpooch \
-		fltkclock \
-		fltkhackdiet \
-		fltkwwpointcal \
-		transmission \
 		xf86-input-tslib \
 		xf86-video-fbdev \
-		fltkcocktailbar \
-		fltkcurrency \
-		fltkspacetrader \
-		mokoeightball \
 		babiloo-efl \
 		make \
 		dnsmasq \
-		libsyncml \
-		wpa-gui \
 		iliwi \
-		gabriel \
-		stopwatch \
-		qgpslog \
-		litephone \
-		linphone \
-		rtmom \
 		emtooth \
 		emtooth2 \
-		podboy \
 		mcnavi \
 		neolight \
 		spojegui \
 		dbus-daemon-proxy \
-		unixbench \
-		xfsprogs \
-		xfsdump \
 		numberx \
 		neomis \
-		supertux-qvga \
-		wesnoth \
-		mokosuite2 \
-		mokowm-imf-ecore \
 		mokojeweled \
-		mokohome \
-		mokopanel \
-		mokophone \
 		atrack \
 		minneo \
-		gnuplot \
-		galculator \
-		xterm \
 		ca-certificates \
-		inkspill \
-		dns2tcp \
 		efm-nav \
 		efm-path \
 		efm-pathbar \
 		setxkbmap \
-		enjoy \
 		shr-theme-efenniht \
-		gwaterpas \
-		sflphone-common \
 		samba \
 		bison \
 		automake \
