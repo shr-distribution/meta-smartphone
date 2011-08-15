@@ -309,6 +309,6 @@ RDEPENDS_${PN} += "\
 "
 
 # this is only usefull on gta02 and on other devices it's trying to pull mesa-dri (not respecting DEFAULT_PROVIDER for virtual/libgl)
-RDEPENDS_${PN}_append_om-gta02 = "glamo-dri-tests \
-		valacompass \
-"
+#RDEPENDS_${PN}_append_om-gta02 = "glamo-dri-tests \
+#		valacompass \
+#"
