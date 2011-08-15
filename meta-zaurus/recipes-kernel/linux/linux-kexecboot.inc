@@ -173,12 +173,3 @@ do_install() {
         :
 }
 
-#python do_package() {
-#        :
-#}
-
-do_savedefconfig() {
-	oe_runmake savedefconfig
-}
-
-addtask savedefconfig after do_configure
