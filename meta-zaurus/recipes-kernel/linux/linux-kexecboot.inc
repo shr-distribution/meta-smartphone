@@ -177,27 +177,6 @@ do_install() {
 #        :
 #}
 
-
-# With 2.6.37 mips has no uImage target upstream.
-# use custom task in the meantime
-
-DEPENDS_mipsel += "u-boot-mkimage-native"
-
-do_uboot_mkimage_mipsel() {
-        cd ${S}
-        kernel_entry=`nm vmlinux | grep " kernel_entry" | cut -d' ' -f1`
-
-        cd ${S}/arch/mips/boot
-        rm -f vmlinux.bin.gz
-        gzip -c9 vmlinux.bin > vmlinux.bin.gz
-
-        uboot-mkimage -A ${UBOOT_ARCH} -O linux -T kernel -C gzip -a 0x80010000 -e 0x${kernel_entry} \
-        -n "${DISTRO_NAME}/${PV}/${MACHINE}" -d vmlinux.bin.gz uImage-kexecboot-${PV}-${PR}-${MACHINE}.bin
-
-        install -d ${DEPLOY_DIR_IMAGE}
-        install -m 0644 uImage-kexecboot-${PV}-${PR}-${MACHINE}.bin ${DEPLOY_DIR_IMAGE}
-}
-
 do_savedefconfig() {
 	oe_runmake savedefconfig
 }
