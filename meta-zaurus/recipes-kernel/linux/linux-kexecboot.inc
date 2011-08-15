@@ -48,7 +48,6 @@ LOCALVERSION ?= ""
 
 # we want the smallest size
 INITRAMFS_IMAGE = "initramfs-kexecboot-klibc-image"
-DEPENDS += ${INITRAMFS_IMAGE}
 
 # use custom function until base_version_less_or_equal is fixed
 #
