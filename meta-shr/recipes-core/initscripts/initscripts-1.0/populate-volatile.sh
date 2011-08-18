@@ -1,4 +1,12 @@
 #!/bin/sh
+### BEGIN INIT INFO
+# Provides:             volatile
+# Required-Start:       $local_fs
+# Required-Stop:      $local_fs
+# Default-Start:        S
+# Default-Stop:
+# Short-Description:  Populate the volatile filesystem
+### END INIT INFO
 
 . /etc/default/rcS
 
@@ -9,44 +17,44 @@ COREDEF="00_core"
 [ "${VERBOSE}" != "no" ] && echo "Populating volatile Filesystems."
 
 create_file() {
-	EXEC="
-	touch \"$1\";
-	chown ${TUSER}.${TGROUP} $1 || echo \"Failed to set owner -${TUSER}- for -$1-.\" >/dev/tty0 2>&1;
-	chmod ${TMODE} $1 || echo \"Failed to set mode -${TMODE}- for -$1-.\" >/dev/tty0 2>&1 "
+	EXEC=" 
+	touch \"$1\"; 
+	chown ${TUSER}.${TGROUP} $1 || echo \"Failed to set owner -${TUSER}- for -$1-.\" >/dev/tty0 2>&1; 
+	chmod ${TMODE} $1 || echo \"Failed to set mode -${TMODE}- for -$1-.\" >/dev/tty0 2>&1 " 
 
 	test "$VOLATILE_ENABLE_CACHE" = yes && echo "$EXEC" >> /etc/volatile.cache
 
 	[ -e "$1" ] && {
 	  [ "${VERBOSE}" != "no" ] && echo "Target already exists. Skipping."
 	} || {
-	  eval $EXEC
+	  eval $EXEC &
 	}
 }
 
 mk_dir() {
-	EXEC="
-	mkdir -p \"$1\";
-	chown ${TUSER}.${TGROUP} $1 || echo \"Failed to set owner -${TUSER}- for -$1-.\" >/dev/tty0 2>&1;
+	EXEC=" 
+	mkdir -p \"$1\"; 
+	chown ${TUSER}.${TGROUP} $1 || echo \"Failed to set owner -${TUSER}- for -$1-.\" >/dev/tty0 2>&1; 
 	chmod ${TMODE} $1 || echo \"Failed to set mode -${TMODE}- for -$1-.\" >/dev/tty0 2>&1 "
 
 	test "$VOLATILE_ENABLE_CACHE" = yes && echo "$EXEC" >> /etc/volatile.cache
-
+	
 	[ -e "$1" ] && {
 	  [ "${VERBOSE}" != "no" ] && echo "Target already exists. Skipping."
 	} || {
-	  eval $EXEC
+	  eval $EXEC &
 	}
 }
 
 link_file() {
-	EXEC="test -e \"$2\" -o -L $2 || ln -s \"$1\" \"$2\" >/dev/tty0 2>&1"
+	EXEC="test -e \"$2\" -o -L $2 || ln -s \"$1\" \"$2\" >/dev/tty0 2>&1" 
 
 	test "$VOLATILE_ENABLE_CACHE" = yes && echo "	$EXEC" >> /etc/volatile.cache
-
+	
 	[ -e "$2" ] && {
 	  echo "Cannot create link over existing -${TNAME}-." >&2
 	} || {
-	  eval $EXEC
+	  eval $EXEC &
 	}
 }
 
@@ -57,7 +65,7 @@ check_requirements() {
     rm "${TMP_DEFINED}"
     rm "${TMP_COMBINED}"
     }
-
+    
   CFGFILE="$1"
 
   [ `basename "${CFGFILE}"` = "${COREDEF}" ] && return 0
@@ -123,7 +131,7 @@ apply_cfgfile() {
       TSOURCE="$TLTARGET"
       [ -L "${TNAME}" ] || {
         [ "${VERBOSE}" != "no" ] && echo "Creating link -${TNAME}- pointing to -${TSOURCE}-."
-        link_file "${TSOURCE}" "${TNAME}"
+        link_file "${TSOURCE}" "${TNAME}" &
         }
       continue
       }
@@ -142,10 +150,10 @@ apply_cfgfile() {
 
     case "${TTYPE}" in
       "f")  [ "${VERBOSE}" != "no" ] && echo "Creating file -${TNAME}-."
-            create_file "${TNAME}"
+            create_file "${TNAME}" &
 	    ;;
       "d")  [ "${VERBOSE}" != "no" ] && echo "Creating directory -${TNAME}-."
-            mk_dir "${TNAME}"
+            mk_dir "${TNAME}" &
 	    # Add check to see if there's an entry in fstab to mount.
 	    ;;
       *)    [ "${VERBOSE}" != "no" ] && echo "Invalid type -${TTYPE}-."
@@ -160,89 +168,30 @@ apply_cfgfile() {
 
   }
 
-SKEL_DIR="/etc/volatile/skel"
+clearcache=0
+exec 9</proc/cmdline
+while read line <&9
+do
+	case "$line" in
+		*clearcache*)  clearcache=1
+			       ;;
+		*)	       continue
+			       ;;
+	esac
+done
+exec 9>&-
 
-skel_mount() {
-	VOLATILE="$1"
-
-	[ -d "$VOLATILE" ] || mkdir -p "$VOLATILE"
-
-	mount -t tmpfs volatile "$VOLATILE" -omode=0755
-}
-
-skel_load() {
-	VOLATILE="$1"
-
-	if ! skel_mount "$VOLATILE"; then
-		echo "failed to mount $VOLATILE"
-		return 1
-	fi
-
-	cp -a "$SKEL_DIR"/* "$VOLATILE"/
-}
-
-skel_update() {
-	VOLATILE="$1"
-
-	if ! skel_mount "$VOLATILE"; then
-		echo "failed to update"
-		return 1
-	fi
-
-	echo -n "Populating volatile directory..."
+if test -e /etc/volatile.cache -a "$VOLATILE_ENABLE_CACHE" = "yes" -a "x$1" != "xupdate" -a "x$clearcache" = "x0"
+then
+	sh /etc/volatile.cache
+else	
+	rm -f /etc/volatile.cache
 	for file in `ls -1 "${CFGDIR}" | sort`; do
 		apply_cfgfile "${CFGDIR}/${file}"
 	done
-	echo "done"
+fi
 
-	if [ -d "$SKEL_DIR" ]; then
-		rm -rf "$SKEL_DIR"
-	fi
-
-	mkdir -p "$SKEL_DIR"/tmp
-	cp -a "$VOLATILE"/* "$SKEL_DIR"/
-}
-
-populate() {
-	if [ -d "$SKEL_DIR"/tmp ]; then
-		skel_load /var/volatile
-	else
-		skel_update /var/volatile
-	fi
-
-	for d in /var/volatile/*
-	do
-		ln -sf "$d" /var
-	done
-
-	if ! test -L /tmp; then
-		rm -rf /tmp
-		ln -sf /var/tmp /tmp
-	fi
-}
-
-case "$1" in
-	start)
-	if grep -q "^volatile " /proc/mounts; then
-		echo "volatile directory is already mounted"
-	else
-		populate
-	fi
-	;;
-	stop)
-	: # no-op
-	;;
-	update)
-	if skel_update /var/volatile; then
-		umount /var/volatile
-		if grep -q "^volatile " /proc/mounts; then
-			cp -a "$SKEL_DIR"/* /var/volatile
-		fi
-	fi
-	;;
-	*)
-	echo "Usage: /etc/init.d/populate-volatile {start|stop|update}"
-	;;
-esac
-
-: exit 0
+if test -f /etc/ld.so.cache -a ! -f /var/run/ld.so.cache
+then
+	ln -s /etc/ld.so.cache /var/run/ld.so.cache
+fi

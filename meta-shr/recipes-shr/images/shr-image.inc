@@ -38,7 +38,7 @@ IMAGE_INIT_MANAGER ?= "sysvinit sysvinit-pidof"
 # initscripts, initscripts-shr
 #
 # IMAGE_INITSCRIPTS ?= "initscripts"
-IMAGE_INITSCRIPTS = "initscripts-shr"
+IMAGE_INITSCRIPTS = "initscripts"
 
 # set sane default for the SPLASH variable
 SPLASH ?= ""
