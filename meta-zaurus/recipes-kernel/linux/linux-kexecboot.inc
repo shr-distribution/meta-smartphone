@@ -1,5 +1,5 @@
 # We set INC_PR here, since a change in the kexecboot recipe will need to get picked up by *all* the kernels:
-INC_PR = "r41"
+INC_PR = "r42"
 
 inherit kernel siteinfo
 
@@ -7,18 +7,13 @@ LICENSE = "GPLv2"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=d7810fab7487fb0aad327b76f1be7cd7"
 
-# Additional Sources for 2.6.24 and 2.6.26
-RPSRC = "http://www.rpsys.net/openzaurus/patches/archive"
-TKSRC = "http://www.informatik.hu-berlin.de/~tkunze/zaurus/patches"
-
 # Kernel bootlogo is distro-specific (default is OE logo).
 # Logo resolution (qvga, vga, ...) is machine-specific.
 LOGO_SIZE ?= "."
 SRC_URI = "file://${LOGO_SIZE}/logo_linux_clut224.ppm.bz2"
 
 # Set the verbosity of kernel messages during runtime
-# You can define CMDLINE_DEBUG in your local.conf or distro.conf to override this behaviour..
-CMDLINE_DEBUG ?= '${@base_conditional("DISTRO_TYPE", "release", "loglevel=3", "debug", d)}'
+CMDLINE_DEBUG ?= '${@base_contains("IMAGE_FEATURES", "debug-tweaks", "debug", "loglevel=3", d)}'
 
 # Note how we set master console on serial to protect bootlogo.
 CMDLINE_c7x0 = "console=tty1 console=ttyS0,115200n8 ${CMDLINE_DEBUG}"
@@ -27,8 +22,6 @@ CMDLINE_poodle = "console=tty1 console=ttyS0,115200n8 fbcon=rotate:1 ${CMDLINE_D
 CMDLINE_akita = "console=tty1 console=ttyS0,115200n8 fbcon=rotate:1 ${CMDLINE_DEBUG}"
 CMDLINE_collie = "console=tty1 console=ttySA0,115200n8 fbcon=rotate:1 mem=64M ${CMDLINE_DEBUG}"
 CMDLINE_spitz = "console=tty1 console=ttyS0,115200n8 fbcon=rotate:1 ${CMDLINE_DEBUG}"
-CMDLINE_hx4700 = "console=tty1 console=ttyS0,115200n8 fbcon=rotate:1 ${CMDLINE_DEBUG}"
-CMDLINE_ben-nanonote = "console=tty0 console=ttyS0,57600n8 mem=32M ${CMDLINE_DEBUG}"
 
 PACKAGES = ""
 PROVIDES = ""
