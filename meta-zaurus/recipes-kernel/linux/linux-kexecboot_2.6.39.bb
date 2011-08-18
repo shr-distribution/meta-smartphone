@@ -1,6 +1,6 @@
 require linux-kexecboot.inc
 
-PR = "${INC_PR}.2"
+PR = "${INC_PR}.3"
 
 S = "${WORKDIR}/linux-${PV}"
 
@@ -16,6 +16,8 @@ DEFAULT_PREFERENCE_tosa = "1"
 
 SRC_URI += "${KERNELORG_MIRROR}/linux/kernel/v2.6/linux-${PV}.tar.bz2;name=kernel \
             ${KERNELORG_MIRROR}/linux/kernel/v2.6/patch-${PV}.3.bz2;apply=yes;name=stablepatch \
+            file://0001-pcmcia-pxa2xx_sharpsl-retain-ops-structure-on-collie.patch \
+            file://locomo_kbd_tweak-r2.patch \
             file://defconfig \
             "
 
