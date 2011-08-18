@@ -1,11 +1,13 @@
 # We set INC_PR here, since a change in the kexecboot recipe will need to get picked up by *all* the kernels:
-INC_PR = "r42"
+INC_PR = "r43"
 
 inherit kernel siteinfo
 
 LICENSE = "GPLv2"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=d7810fab7487fb0aad327b76f1be7cd7"
+
+DEPENDS += "xz-native"
 
 # Kernel bootlogo is distro-specific (default is OE logo).
 # Logo resolution (qvga, vga, ...) is machine-specific.
@@ -42,37 +44,7 @@ LOCALVERSION ?= ""
 # we want the smallest size
 INITRAMFS_IMAGE = "initramfs-kexecboot-klibc-image"
 
-# use custom function until base_version_less_or_equal is fixed
-#
-def kernel_version_less_or_equal(variable, checkvalue, truevalue, falsevalue, d):
-    from bb import utils
-    result = bb.utils.vercmp_part(bb.data.getVar(variable,d,True), checkvalue)
-    if result <= 0:
-        return truevalue
-    else:
-        return falsevalue
-
-# force lzma compression for kernel (linux-kexecboot >= 2.6.32)
-# force lzma compression for initramfs (linux-kexecboot >= 2.6.30)
-DEPENDS += '${@kernel_version_less_or_equal("PV", "2.6.29", "", "xz-native", d)}'
-
-KERNEL_COMPRESSION = '${@kernel_version_less_or_equal("PV", "2.6.31", "", "CONFIG_KERNEL_LZMA=y", d)}'
-
-INITRAMFS_COMPRESSION = '${@kernel_version_less_or_equal("PV", "2.6.29", "", "CONFIG_INITRAMFS_COMPRESSION_LZMA=y", d)}'
-INITRAMFS_COMPRESSION_SUFFIX = '${@kernel_version_less_or_equal("PV", "2.6.29", "gz", "lzma", d)}'
-RD_COMPRESSION = '${@kernel_version_less_or_equal("PV", "2.6.29", "", "CONFIG_RD_LZMA=y", d)}'
-
 do_configure_prepend() {
-
-        # Rename getline in ./scripts/unifdef.c
-        # Kernels up to 2.6.29 are currently failing to build unifdef.c,
-        # clashing with exposed getline() from <stdio.h>
-        # see https://patchwork.kernel.org/patch/11166/
-        # committed in 2.6.29 (commit d15bd1067b1fcb2b7250d22bc0c7c7fea0b759f7)
-
-        if [ -e ${S}/scripts/unifdef.c ]; then
-                sed -i -e 's/getline/parseline/g' ${S}/scripts/unifdef.c
-        fi
 
         echo "" > ${S}/.config
 
@@ -149,10 +121,10 @@ do_configure_prepend() {
                -e /CONFIG_RD/d \
                ${S}/.config
 
-               echo '${KERNEL_COMPRESSION}' >>${S}/.config
-               echo '${INITRAMFS_COMPRESSION}' >>${S}/.config
-               echo 'CONFIG_INITRAMFS_SOURCE="initramfs.cpio.${INITRAMFS_COMPRESSION_SUFFIX}"' >>${S}/.config
-               echo '${RD_COMPRESSION}' >>${S}/.config
+               echo 'CONFIG_KERNEL_LZMA=y' >>${S}/.config
+               echo 'CONFIG_INITRAMFS_COMPRESSION_LZMA=y' >>${S}/.config
+               echo 'CONFIG_INITRAMFS_SOURCE="initramfs.cpio.lzma"' >>${S}/.config
+               echo 'CONFIG_RD_LZMA=y' >>${S}/.config
         fi
 
         yes '' | oe_runmake oldconfig
