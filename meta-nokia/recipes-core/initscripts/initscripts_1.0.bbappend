@@ -1,5 +1,5 @@
 THISDIR-NOKIA := "${@os.path.dirname(bb.data.getVar('FILE', d, True))}"
-FILESPATH =. "${@base_set_filespath(["${THISDIR-NOKIA}/${P}"], d)}:"
+FILESPATH =. "${@base_set_filespath(["${THISDIR-NOKIA}/${PN}"], d)}:"
 
 EXTRA_DEPS = ""
 EXTRA_DEPS_nokia900 = "phonet-utils"

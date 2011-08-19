@@ -1,5 +1,5 @@
 THISDIR-OM := "${@os.path.dirname(bb.data.getVar('FILE', d, True))}"
-FILESPATH =. "${@base_set_filespath(["${THISDIR-OM}/${P}"], d)}:"
+FILESPATH =. "${@base_set_filespath(["${THISDIR-OM}/${PN}"], d)}:"
 
 SRC_URI_append_om-gta02 = " file://g_ether.sh"
 PACKAGE_ARCH_om-gta02 = "${MACHINE_ARCH}"
