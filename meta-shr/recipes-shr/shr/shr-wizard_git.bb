@@ -7,13 +7,18 @@ RDEPENDS_${PN} = "python-elementary shr-settings python-phoneutils e-wm python-d
 SECTION = "x11/application"
 SRCREV = "94deff37e2f17dce0e7b4f51e16ee8e5981de58a"
 PV = "0.0.0+gitr${SRCPV}"
-PR = "r9"
+PR = "r10"
 
 inherit autotools
 
 SRC_URI = "git://git.shr-project.org/repo/shr-wizard.git;protocol=http;branch=master"
+SRC_URI += "file://volatiles-98-appshadow"
 S = "${WORKDIR}/git"
 
+do_install_append() {
+        install -d ${D}${sysconfdir}/default/volatiles
+        install -m 0644    ${WORKDIR}/volatiles-98-appshadow   ${D}${sysconfdir}/default/volatiles/98-appshadow
+}
+
 FILES_${PN} += "${libdir}/enlightenment/modules/wizard/*/page_900.so"
-
-
+FILES_${PN} += "${sysconfdir}/default/volatiles/98-appshadow"
