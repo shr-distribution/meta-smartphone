@@ -1,2 +1,1 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}-${PV}"
-PACKAGE_ARCH_shr = "${MACHINE_ARCH}"
