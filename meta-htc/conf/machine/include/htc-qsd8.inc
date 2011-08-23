@@ -9,7 +9,6 @@ XSERVER = " \
 	xserver-xorg-extension-glx \
 	xserver-xorg-extension-dri \
 	xf86-input-tslib \
-	xf86-input-evtouch \
 	xf86-input-evdev \
 	xf86-input-mouse \
 	xf86-input-keyboard \
