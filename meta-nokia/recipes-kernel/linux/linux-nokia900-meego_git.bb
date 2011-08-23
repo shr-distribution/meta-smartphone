@@ -2,6 +2,7 @@ require linux.inc
 
 KERNEL_RELEASE = "2.6.37"
 PV = "${KERNEL_RELEASE}+gitr${SRCPV}"
+PR = "r1"
 
 SRCREV = "7b81b4d55839514f2d801cd06855c8d422cfc3ac"
 
