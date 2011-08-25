@@ -6,7 +6,7 @@ RPROVIDES_${PN} = "openmoko-alsa-scenarios virtual/alsa-scenarios"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
 PV = "0.9.4+gitr${SRCPV}"
 PE = "2"
-PR = "${INC_PR}.22"
+PR = "${INC_PR}.23"
 
 EXTRA_OECONF = "\
   --enable-kernel26-rfkill \
@@ -81,6 +81,7 @@ FILES_${PN}-module-accelerometer-lis302-dev = "${CORNUCOPIA_MODULE_DIR}/accelero
 FILES_${PN}-module-accelerometer-lis302-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/accelerometer_lis302*"
 RDEPENDS_${PN}-config_om-gta01 += "${PN}-module-accelerometer-lis302"
 RDEPENDS_${PN}-config_om-gta02 += "${PN}-module-accelerometer-lis302"
+RDEPENDS_${PN}-config_nokia900 += "${PN}-module-accelerometer-lis302"
 
 PACKAGES =+ "${PN}-module-openmoko-powercontrol ${PN}-module-openmoko-powercontrol-dev ${PN}-module-openmoko-powercontrol-dbg"
 FILES_${PN}-module-openmoko-powercontrol = "${CORNUCOPIA_MODULE_DIR}/openmoko_powercontrol.so"
