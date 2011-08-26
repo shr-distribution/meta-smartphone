@@ -9,7 +9,7 @@ PV = "0.1.0+gitr${SRCPV}"
 PE = "1"
 DEPENDS = "glib-2.0"
 
-SRC_URI = "${FREESMARTPHONE_GIT}/cornucopia.git;protocol=git;branch=master"
+SRC_URI = "${FREESMARTPHONE_GIT}/cornucopia;protocol=git;branch=master"
 S = "${WORKDIR}/git/tools/mioctl"
 
 inherit autotools vala
