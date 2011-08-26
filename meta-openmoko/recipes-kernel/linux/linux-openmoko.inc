@@ -48,14 +48,6 @@ module_autoload_s3cmci = "s3cmci"
 # extra stuff we need for openmoko that is not in linux.inc
 #
 
-# symlink the latest uImage (should go to linux.inc IMO)
-do_deploy_append() {
-	# ${DEPLOY_DIR_IMAGE} directory and link target are created later
-	mkdir -p ${DEPLOY_DIR_IMAGE}
-	rm -f ${KERNEL_IMAGE_SYMLINK_NAME}.bin
-	ln -sf uImage-${PV}-${PR}-${MACHINE_ARCH}.bin ${DEPLOY_DIR_IMAGE}/uImage-${MACHINE_ARCH}-latest.bin
-}
-
 # opkg flash update service
 RDEPENDS_kernel-image += "mtd-utils"
 
