@@ -3,12 +3,12 @@ rebased on top of openmoko kernel repository
 
 https://gitorious.org/shr/linux/commits/shr-2.6.39-nodrm
 
-c2046f23 lis302dl: use ABS events rather then REL events
-d51b2df input: lis302dl: fix the resume path
-9157619 lis302dl accelerometer driver
-0f0f23a Force GPS power up on resume if it were powered up on suspend
-1c83000 Fix high power consumption in suspend
-8dae2c6 wm8753: use snd_soc_jack on neo1973
+35c701e lis302dl: use ABS events rather then REL events
+1d5cd43 input: lis302dl: fix the resume path
+9521296 lis302dl accelerometer driver
+eefe7bf Force GPS power up on resume if it were powered up on suspend
+fd88443 Fix high power consumption in suspend
+ae31803 wm8753: use snd_soc_jack on neo1973
 104353d ar6000_delay.patch
 235c131 usbhost.patch
 e342a4d Enable powering off after 8s POWER press
@@ -4047,7 +4047,7 @@ index 330fc70..c768bcd 100644
  	bool "Debugfs entries for fault-injection capabilities"
  	depends on FAULT_INJECTION && SYSFS && DEBUG_FS
 diff --git a/sound/soc/samsung/neo1973_wm8753.c b/sound/soc/samsung/neo1973_wm8753.c
-index 4f845fe..a4700c0 100644
+index 4f845fe..a3a1cc8 100644
 --- a/sound/soc/samsung/neo1973_wm8753.c
 +++ b/sound/soc/samsung/neo1973_wm8753.c
 @@ -19,6 +19,7 @@
@@ -4058,10 +4058,12 @@ index 4f845fe..a4700c0 100644
  
  #include <asm/mach-types.h>
  #include <plat/regs-iis.h>
-@@ -204,6 +205,27 @@ static const struct snd_soc_dapm_widget neo1973_wm8753_dapm_widgets[] = {
+@@ -204,6 +205,29 @@ static const struct snd_soc_dapm_widget neo1973_wm8753_dapm_widgets[] = {
  	SND_SOC_DAPM_MIC("Handset Mic", NULL),
  };
  
++static struct snd_soc_jack hs_jack;
++
 +static struct snd_soc_jack_pin hs_jack_pins[] = {
 +	{
 +		.pin = "Headset Mic",
@@ -4086,40 +4088,31 @@ index 4f845fe..a4700c0 100644
  static const struct snd_soc_dapm_route neo1973_wm8753_routes[] = {
  	/* Connections to the GSM Module */
  	{"GSM Line Out", NULL, "MONO1"},
-@@ -377,6 +399,8 @@ static int neo1973_wm8753_init(struct snd_soc_pcm_runtime *rtd)
+@@ -311,6 +335,24 @@ static int neo1973_gta02_wm8753_init(struct snd_soc_codec *codec)
+ 	snd_soc_dapm_ignore_suspend(dapm, "Stereo Out");
+ 	snd_soc_dapm_ignore_suspend(dapm, "Handset Spk");
  
- /* GTA01 specific controls */
- 
-+static struct snd_soc_jack hs_jack;
-+
- #ifdef CONFIG_MACH_NEO1973_GTA01
- 
- static const struct snd_soc_dapm_route neo1973_lm4857_routes[] = {
-@@ -512,6 +536,24 @@ static int __init neo1973_init(void)
- 	if (ret)
- 		goto err_put_device;
- 
-+	err = snd_soc_jack_new(codec, "Headset Jack", SND_JACK_HEADSET, &hs_jack);
-+	if (err) {
++	ret = snd_soc_jack_new(codec, "Headset Jack", SND_JACK_HEADSET, &hs_jack);
++	if (ret) {
 +		dev_err(codec->card->dev, "failed to alloc headset jack\n");
-+		return err;
++		return ret;
 +	}
 +
-+	err = snd_soc_jack_add_pins(&hs_jack, ARRAY_SIZE(hs_jack_pins), hs_jack_pins);
-+	if (err) {
++	ret = snd_soc_jack_add_pins(&hs_jack, ARRAY_SIZE(hs_jack_pins), hs_jack_pins);
++	if (ret) {
 +		dev_err(codec->card->dev, "failed to add headset jack pins\n");
-+		return err;
++		return ret;
 +	}
 +
-+	err = snd_soc_jack_add_gpios(&hs_jack, ARRAY_SIZE(hs_jack_gpios), hs_jack_gpios);
-+	if (err) {
++	ret = snd_soc_jack_add_gpios(&hs_jack, ARRAY_SIZE(hs_jack_gpios), hs_jack_gpios);
++	if (ret) {
 +		dev_err(codec->card->dev, "failed to add headset jack gpios\n");
-+		return err;
++		return ret;
 +	}
 +
  	return 0;
+ }
  
- err_put_device:
 @@ -527,6 +569,7 @@ module_init(neo1973_init);
  
  static void __exit neo1973_exit(void)
