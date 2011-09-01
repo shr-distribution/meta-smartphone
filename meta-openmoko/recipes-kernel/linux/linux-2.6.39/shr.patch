@@ -1,30 +1,33 @@
 All patches from shr kernel repository
-rebased on top of openmoko kernel repository
+rebased on top of openmoko kernel repository (om-2.6.39-stable)
 
 https://gitorious.org/shr/linux/commits/shr-2.6.39-nodrm
 
-35c701e lis302dl: use ABS events rather then REL events
-1d5cd43 input: lis302dl: fix the resume path
-9521296 lis302dl accelerometer driver
-eefe7bf Force GPS power up on resume if it were powered up on suspend
-fd88443 Fix high power consumption in suspend
-ae31803 wm8753: use snd_soc_jack on neo1973
-104353d ar6000_delay.patch
-235c131 usbhost.patch
-e342a4d Enable powering off after 8s POWER press
-b9dfb66 glamo-display: fix WSOD for 242 timming
-d952c22 Openmoko resume reason sysfs node ported from 2.6.29
-2d7ec7a nand/s3c2410: add mising badblocksbits value
-2a067d5 glamo-mci: revert changes for Per's patchset
-d9b3bc8 Revert "mmc: add none blocking mmc request function"
-a194e92 Revert "mmc: mmc_test: add debugfs file to list all tests"
-8a3a7aa Revert "mmc: mmc_test: add test for none blocking transfers"
-711299a Revert "mmc: add member in mmc queue struct to hold request data"
-101511c Revert "mmc: add a block request prepare function"
-023e4b8 Revert "mmc: move error code in mmc_block_issue_rw_rq to a separate function."
-6dd67d8 Revert "mmc: add a second mmc queue request member"
-cc53cf6 Revert "mmc: add handling for two parallel block requests in issue_rw_rq"
-76cc5df Revert "mmc: test: add random fault injection in core.c"
+446f3c0 s3c2410_ts: jitter less touchscreen for glamo, version 4
+4470172 touchscreen: ignore unexpected interrupts
+3e661ce tslib relies on ts pressures events so this hack is needed to get tslib stuff working
+e05c7e5 lis302dl: use ABS events rather then REL events
+f46b2a2 input: lis302dl: fix the resume path
+53af78f lis302dl accelerometer driver
+fef580f Force GPS power up on resume if it were powered up on suspend
+72c5f72 Fix high power consumption in suspend
+d46d1e3 wm8753: use snd_soc_jack on neo1973
+3eb0b99 ar6000_delay.patch
+7017ab6 usbhost.patch
+5c7e368 Enable powering off after 8s POWER press
+dd73aa3 glamo-display: fix WSOD for 242 timming
+919ad8a Openmoko resume reason sysfs node ported from 2.6.29
+833339c nand/s3c2410: add mising badblocksbits value
+a733111 glamo-mci: revert changes for Per's patchset
+abc0b94 Revert "mmc: add none blocking mmc request function"
+63d4443 Revert "mmc: mmc_test: add debugfs file to list all tests"
+9130c20 Revert "mmc: mmc_test: add test for none blocking transfers"
+0b706f9 Revert "mmc: add member in mmc queue struct to hold request data"
+bfb4da0 Revert "mmc: add a block request prepare function"
+5a632dd Revert "mmc: move error code in mmc_block_issue_rw_rq to a separate function."
+770f451 Revert "mmc: add a second mmc queue request member"
+fbc0064 Revert "mmc: add handling for two parallel block requests in issue_rw_rq"
+26cda7b Revert "mmc: test: add random fault injection in core.c"
 
 diff --git a/arch/arm/mach-s3c2440/Makefile b/arch/arm/mach-s3c2440/Makefile
 index 035d116..16d9855 100644
@@ -277,7 +280,7 @@ index 0000000..233340a
 +MODULE_AUTHOR("Harald Welte <laforge@openmoko.org>");
 +MODULE_DESCRIPTION("Openmoko Freerunner USBHOST Power Management");
 diff --git a/arch/arm/mach-s3c2440/mach-gta02.c b/arch/arm/mach-s3c2440/mach-gta02.c
-index aa31b8d..6f82f5a 100644
+index aa31b8d..0ee315d 100644
 --- a/arch/arm/mach-s3c2440/mach-gta02.c
 +++ b/arch/arm/mach-s3c2440/mach-gta02.c
 @@ -62,6 +62,7 @@
@@ -288,7 +291,15 @@ index aa31b8d..6f82f5a 100644
  
  #include <linux/leds.h>
  #include <linux/leds_pwm.h>
-@@ -127,6 +128,10 @@ static long gta02_panic_blink(int state)
+@@ -109,6 +110,7 @@
+ #include <linux/jbt6k74.h>
+ #include <linux/glamofb.h>
+ #include <linux/mfd/glamo.h>
++#include <linux/mfd/glamo-core.h>
+ 
+ static struct pcf50633 *gta02_pcf;
+ 
+@@ -127,6 +129,10 @@ static long gta02_panic_blink(int state)
  	return delay;
  }
  
@@ -299,7 +310,7 @@ index aa31b8d..6f82f5a 100644
  
  static struct map_desc gta02_iodesc[] __initdata = {
  	{
-@@ -177,6 +182,10 @@ static struct platform_device gta02_pm_gsm_dev = {
+@@ -177,6 +183,10 @@ static struct platform_device gta02_pm_gsm_dev = {
  	.name = "gta02-pm-gsm",
  };
  
@@ -310,7 +321,7 @@ index aa31b8d..6f82f5a 100644
  static struct platform_device gta02_pm_wlan_dev = {
  	.name = "gta02-pm-wlan",
  };
-@@ -186,6 +195,11 @@ static struct regulator_consumer_supply gsm_supply_consumer = {
+@@ -186,6 +196,11 @@ static struct regulator_consumer_supply gsm_supply_consumer = {
  	.supply = "GSM",
  };
  
@@ -322,7 +333,7 @@ index aa31b8d..6f82f5a 100644
  static struct regulator_init_data gsm_supply_init_data = {
  	.constraints = {
  		.min_uV = 3700000,
-@@ -197,6 +211,17 @@ static struct regulator_init_data gsm_supply_init_data = {
+@@ -197,6 +212,17 @@ static struct regulator_init_data gsm_supply_init_data = {
  	.consumer_supplies = &gsm_supply_consumer,
  };
  
@@ -340,7 +351,7 @@ index aa31b8d..6f82f5a 100644
  static struct fixed_voltage_config gsm_supply_config = {
  	.supply_name = "GSM",
  	.microvolts = 3700000,
-@@ -205,6 +230,14 @@ static struct fixed_voltage_config gsm_supply_config = {
+@@ -205,6 +231,14 @@ static struct fixed_voltage_config gsm_supply_config = {
  	.init_data = &gsm_supply_init_data,
  };
  
@@ -355,7 +366,7 @@ index aa31b8d..6f82f5a 100644
  static struct platform_device gta02_gsm_supply_device = {
  	.name = "reg-fixed-voltage",
  	.id = 1,
-@@ -213,6 +246,14 @@ static struct platform_device gta02_gsm_supply_device = {
+@@ -213,6 +247,14 @@ static struct platform_device gta02_gsm_supply_device = {
  	},
  };
  
@@ -370,7 +381,7 @@ index aa31b8d..6f82f5a 100644
  /*
   * we crank down SD Card clock dynamically when GPS is powered
   */
-@@ -297,6 +338,202 @@ static struct glamo_platform_data gta02_glamo_pdata = {
+@@ -297,6 +339,202 @@ static struct glamo_platform_data gta02_glamo_pdata = {
  	.glamo_external_reset = gta02_glamo_external_reset,
  };
  
@@ -573,7 +584,7 @@ index aa31b8d..6f82f5a 100644
  /* JBT6k74 display controller */
  static void gta02_jbt6k74_probe_completed(struct device *dev)
  {
-@@ -487,6 +724,11 @@ static struct regulator_consumer_supply hcldo_consumers[] = {
+@@ -487,6 +725,11 @@ static struct regulator_consumer_supply hcldo_consumers[] = {
  	},
  };
  
@@ -585,7 +596,7 @@ index aa31b8d..6f82f5a 100644
  struct pcf50633_platform_data gta02_pcf_pdata = {
  	.resumers = {
  		[0] =	PCF50633_INT1_USBINS |
-@@ -522,7 +764,7 @@ struct pcf50633_platform_data gta02_pcf_pdata = {
+@@ -522,7 +765,7 @@ struct pcf50633_platform_data gta02_pcf_pdata = {
  				.min_uV = 1300000,
  				.max_uV = 1600000,
  				.valid_modes_mask = REGULATOR_MODE_NORMAL,
@@ -594,7 +605,7 @@ index aa31b8d..6f82f5a 100644
  				.apply_uV = 1,
  			},
  		},
-@@ -614,6 +856,7 @@ struct pcf50633_platform_data gta02_pcf_pdata = {
+@@ -614,6 +857,7 @@ struct pcf50633_platform_data gta02_pcf_pdata = {
  	},
  	.probe_done = gta02_pmu_attach_child_devices,
  	.mbc_event_callback = gta02_pmu_event_callback,
@@ -602,7 +613,41 @@ index aa31b8d..6f82f5a 100644
  };
  
  
-@@ -1053,6 +1296,9 @@ static struct platform_device *gta02_devices[] __initdata = {
+@@ -707,11 +951,31 @@ static struct s3c2410_hcd_info gta02_usb_info __initdata = {
+ 	},
+ };
+ 
++static int glamo_slowed = 0;
++
++static void gta02_ts_hook_before_adc () 
++{
++	if (!glamo_slowed) {
++		glamo_slowed = 1;
++		glamo_pixclock_slow(dev_get_drvdata (&gta02_glamo_dev.dev));
++	}
++};
++
++static void gta02_ts_hook_after_adc () 
++{
++	if (glamo_slowed) {
++		glamo_slowed = 0;
++		glamo_pixclock_fast(dev_get_drvdata (&gta02_glamo_dev.dev));
++	}
++};
++
+ /* Touchscreen */
+ static struct s3c2410_ts_mach_info gta02_ts_info = {
+-	.delay			= 10000,
++	.delay			= 1000,
+ 	.presc			= 0xff, /* slow as we can go */
+-	.oversampling_shift	= 2,
++	.oversampling_shift	= 2,    /* 2.6.37 had 0 */
++	.before_adc_hook 	= gta02_ts_hook_before_adc,
++	.after_adc_hook 	= gta02_ts_hook_after_adc,
+ };
+ 
+ /* Buttons */
+@@ -1053,6 +1317,9 @@ static struct platform_device *gta02_devices[] __initdata = {
  static struct platform_device *gta02_devices_pmu_children[] = {
  	&gta02_hdq_device,
  	&gta02_platform_bat,
@@ -612,7 +657,7 @@ index aa31b8d..6f82f5a 100644
  };
  
  
-@@ -1080,11 +1326,6 @@ static void gta02_pmu_attach_child_devices(struct pcf50633 *pcf)
+@@ -1080,11 +1347,6 @@ static void gta02_pmu_attach_child_devices(struct pcf50633 *pcf)
  			     ARRAY_SIZE(gta02_devices_pmu_children));
  }
  
@@ -624,7 +669,7 @@ index aa31b8d..6f82f5a 100644
  struct gta02_device_children {
  	const char *dev_name;
  	size_t num_children;
-@@ -1098,12 +1339,17 @@ static struct platform_device *gta02_glamo_gpio_children[] = {
+@@ -1098,12 +1360,17 @@ static struct platform_device *gta02_glamo_gpio_children[] = {
  
  static struct platform_device *gta02_pcf50633_gpio_children[] = {
  	&gta02_gsm_supply_device,
@@ -642,7 +687,7 @@ index aa31b8d..6f82f5a 100644
  static struct platform_device *gta02_hdq_children[] = {
  	&bq27000_battery_device,
  };
-@@ -1126,6 +1372,11 @@ static struct gta02_device_children gta02_device_children[] = {
+@@ -1126,6 +1393,11 @@ static struct gta02_device_children gta02_device_children[] = {
  		.children = gta02_gsm_supply_children,
  	},
  	{
@@ -654,7 +699,7 @@ index aa31b8d..6f82f5a 100644
  		.dev_name = "spi2.0",
  		.probed_callback = gta02_jbt6k74_probe_completed,
  	},
-@@ -1199,6 +1450,10 @@ static void __init gta02_machine_init(void)
+@@ -1199,6 +1471,10 @@ static void __init gta02_machine_init(void)
  
  	s3c_pm_init();
  
@@ -665,6 +710,19 @@ index aa31b8d..6f82f5a 100644
  #ifdef CONFIG_CHARGER_PCF50633
  	INIT_DELAYED_WORK(&gta02_charger_work, gta02_charger_worker);
  #endif
+diff --git a/arch/arm/plat-samsung/include/plat/ts.h b/arch/arm/plat-samsung/include/plat/ts.h
+index 26fdb22..f475349 100644
+--- a/arch/arm/plat-samsung/include/plat/ts.h
++++ b/arch/arm/plat-samsung/include/plat/ts.h
+@@ -15,6 +15,8 @@ struct s3c2410_ts_mach_info {
+        int             presc;
+        int             oversampling_shift;
+ 	void    (*cfg_gpio)(struct platform_device *dev);
++       void          (*before_adc_hook)(void);
++       void          (*after_adc_hook)(void);
+ };
+ 
+ extern void s3c24xx_ts_set_platdata(struct s3c2410_ts_mach_info *);
 diff --git a/drivers/ar6000/hif/hif2.c b/drivers/ar6000/hif/hif2.c
 index 386d96e..90178d0 100644
 --- a/drivers/ar6000/hif/hif2.c
@@ -1610,6 +1668,243 @@ index 0000000..1ba7a8f
 +
 +module_init(lis302dl_init);
 +module_exit(lis302dl_exit);
+diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
+index 8feb7f3..9b4815d 100644
+--- a/drivers/input/touchscreen/s3c2410_ts.c
++++ b/drivers/input/touchscreen/s3c2410_ts.c
+@@ -20,7 +20,7 @@
+  * Copyright 2009 Simtec Electronics <linux@simtec.co.uk>
+  *
+  * Additional work by Herbert Pötzl <herbert@13thfloor.at> and
+- * Harald Welte <laforge@openmoko.org>
++ * Harald Welte <laforge@openmoko.org> and Gennady Kupava <gb@bsdmn.com>
+  */
+ 
+ #include <linux/errno.h>
+@@ -85,10 +85,19 @@ struct s3c2410ts {
+ 	int count;
+ 	int shift;
+ 	int features;
++	int expectedintr; /* kind of interrupt we are waiting for */
++#ifdef CONFIG_MACH_NEO1973_GTA02
++	void          (*before_adc_hook)(void);
++	void          (*after_adc_hook)(void);
++#endif
+ };
+ 
+ static struct s3c2410ts ts;
+ 
++#define WAITFORINT_UP (0)
++#define WAITFORINT_DOWN (1)
++#define WAITFORINT_NOTHING (2)
++
+ /**
+  * get_down - return the down state of the pen
+  * @data0: The data read from ADCDAT0 register.
+@@ -126,6 +135,7 @@ static void touch_timer_fire(unsigned long data)
+ 			input_report_abs(ts.input, ABS_Y, ts.yp);
+ 
+ 			input_report_key(ts.input, BTN_TOUCH, 1);
++			input_report_abs(ts.input, ABS_PRESSURE, 1);
+ 			input_sync(ts.input);
+ 
+ 			ts.xp = 0;
+@@ -133,6 +143,9 @@ static void touch_timer_fire(unsigned long data)
+ 			ts.count = 0;
+ 		}
+ 
++#ifdef CONFIG_MACH_NEO1973_GTA02
++		ts.before_adc_hook();
++#endif
+ 		s3c_adc_start(ts.client, 0, 1 << ts.shift);
+ 	} else {
+ 		ts.xp = 0;
+@@ -140,8 +153,10 @@ static void touch_timer_fire(unsigned long data)
+ 		ts.count = 0;
+ 
+ 		input_report_key(ts.input, BTN_TOUCH, 0);
++		input_report_abs(ts.input, ABS_PRESSURE, 0);
+ 		input_sync(ts.input);
+-
++		
++		ts.expectedintr = WAITFORINT_DOWN;
+ 		writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
+ 	}
+ }
+@@ -166,13 +181,22 @@ static irqreturn_t stylus_irq(int irq, void *dev_id)
+ 
+ 	down = get_down(data0, data1);
+ 
+-	/* TODO we should never get an interrupt with down set while
+-	 * the timer is running, but maybe we ought to verify that the
+-	 * timer isn't running anyways. */
++	/* sitautions below can actually happen on openmoko hardware while 
++	   various debugging facilities are turned off */
++	if (ts.expectedintr == WAITFORINT_NOTHING)
++	  return IRQ_HANDLED;
++	if (!down && ts.expectedintr == WAITFORINT_DOWN) {
++	  writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
++	  return IRQ_HANDLED;
++	} else if (down && ts.expectedintr == WAITFORINT_UP) {
++	  writel(WAIT4INT | INT_UP, ts.io + S3C2410_ADCTSC);
++	  return IRQ_HANDLED;
++	}
++	ts.expectedintr = WAITFORINT_NOTHING;
+ 
+-	if (down)
+-		s3c_adc_start(ts.client, 0, 1 << ts.shift);
+-	else
++	if (down) {
++		mod_timer(&touch_timer, jiffies + 2);
++	} else
+ 		dev_dbg(ts.dev, "%s: count=%d\n", __func__, ts.count);
+ 
+ 	if (ts.features & FEAT_PEN_IRQ) {
+@@ -203,6 +227,11 @@ static void s3c24xx_ts_conversion(struct s3c_adc_client *client,
+ 
+ 	ts.count++;
+ 
++#ifdef CONFIG_MACH_NEO1973_GTA02
++	if (!*left) 
++		ts.after_adc_hook();
++#endif
++
+ 	/* From tests, it seems that it is unlikely to get a pen-up
+ 	 * event during the conversion process which means we can
+ 	 * ignore any pen-up events with less than the requisite
+@@ -226,7 +255,8 @@ static void s3c24xx_ts_select(struct s3c_adc_client *client, unsigned select)
+ 		writel(S3C2410_ADCTSC_PULL_UP_DISABLE | AUTOPST,
+ 		       ts.io + S3C2410_ADCTSC);
+ 	} else {
+-		mod_timer(&touch_timer, jiffies+1);
++		mod_timer(&touch_timer, jiffies + 3);
++		ts.expectedintr = WAITFORINT_UP;
+ 		writel(WAIT4INT | INT_UP, ts.io + S3C2410_ADCTSC);
+ 	}
+ }
+@@ -304,6 +334,7 @@ static int __devinit s3c2410ts_probe(struct platform_device *pdev)
+ 	if ((info->delay & 0xffff) > 0)
+ 		writel(info->delay & 0xffff, ts.io + S3C2410_ADCDLY);
+ 
++	ts.expectedintr = WAITFORINT_DOWN;
+ 	writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
+ 
+ 	input_dev = input_allocate_device();
+@@ -318,6 +349,7 @@ static int __devinit s3c2410ts_probe(struct platform_device *pdev)
+ 	ts.input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+ 	input_set_abs_params(ts.input, ABS_X, 0, 0x3FF, 0, 0);
+ 	input_set_abs_params(ts.input, ABS_Y, 0, 0x3FF, 0, 0);
++	input_set_abs_params(ts.input, ABS_PRESSURE, 0, 1, 0, 0);
+ 
+ 	ts.input->name = "S3C24XX TouchScreen";
+ 	ts.input->id.bustype = BUS_HOST;
+@@ -382,6 +414,7 @@ static int __devexit s3c2410ts_remove(struct platform_device *pdev)
+ #ifdef CONFIG_PM
+ static int s3c2410ts_suspend(struct device *dev)
+ {
++  	ts.expectedintr = WAITFORINT_NOTHING;
+ 	writel(TSC_SLEEP, ts.io + S3C2410_ADCTSC);
+ 	disable_irq(ts.irq_tc);
+ 	clk_disable(ts.clock);
+@@ -401,6 +434,7 @@ static int s3c2410ts_resume(struct device *dev)
+ 	if ((info->delay & 0xffff) > 0)
+ 		writel(info->delay & 0xffff, ts.io + S3C2410_ADCDLY);
+ 
++	ts.expectedintr = WAITFORINT_DOWN;
+ 	writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
+ 
+ 	return 0;
+diff --git a/drivers/mfd/glamo-core.c b/drivers/mfd/glamo-core.c
+index c9b2ae5..9fd6076 100644
+--- a/drivers/mfd/glamo-core.c
++++ b/drivers/mfd/glamo-core.c
+@@ -160,6 +160,19 @@ static void reg_set_bit_mask(struct glamo_core *glamo,
+ 	spin_unlock(&glamo->lock);
+ }
+ 
++
++
++static void reg_checkandset_bit_mask(struct glamo_core *glamo,
++				uint16_t reg, uint16_t mask,
++				uint16_t val, uint16_t check)
++{
++	spin_lock(&glamo->lock);
++	if (__reg_read(glamo, reg) & mask == check)
++	    __reg_set_bit_mask(glamo, reg, mask, val);
++	spin_unlock(&glamo->lock);
++}
++
++
+ static inline void __reg_set_bit(struct glamo_core *glamo,
+ 				 uint16_t reg, uint16_t bit)
+ {
+@@ -169,6 +182,49 @@ static inline void __reg_set_bit(struct glamo_core *glamo,
+ 	__reg_write(glamo, reg, tmp);
+ }
+ 
++void glamo_pixclock_slow (struct glamo_core *glamo) 
++{
++	
++	int x, lastx = 0;
++	int timeout = 1000000;
++	int threshold = 5;
++	int fa;
++
++ 	int evcnt = 0;
++
++	for (fa = 0; fa < timeout; fa++) {
++		x = glamo_reg_read(glamo, 0x1100 + GLAMO_REG_LCD_STATUS1) & 0x3ff;
++
++
++		if (x == lastx) {
++			evcnt++;
++			if (evcnt == threshold)
++				break;
++		} else {
++			evcnt = 0;
++			lastx = x;
++		}		
++	}
++	if (fa == timeout) {
++		printk (KERN_WARNING "Glamo: Error waiting for stable x position.\n");
++	}
++
++	/* then, make glamo slower */
++	/* it's not a problems if in rare case we do not slow down glamo properly
++	   as all we'll get in that case is singe jittered value */
++	
++	glamo->slowed_divider = glamo_reg_read (glamo, 0x36) & 0xFF;
++	reg_set_bit_mask (glamo, 0x36, 0xFF, 0xFF);
++
++}
++
++void glamo_pixclock_fast (struct glamo_core *glamo) 
++{
++	reg_checkandset_bit_mask (glamo, 0x36, 0xFF, glamo->slowed_divider, 0xFF);
++}
++EXPORT_SYMBOL_GPL(glamo_pixclock_fast);
++EXPORT_SYMBOL_GPL(glamo_pixclock_slow);
++
+ static inline void __reg_clear_bit(struct glamo_core *glamo,
+ 					uint16_t reg, uint16_t bit)
+ {
+@@ -901,6 +957,7 @@ static int __devinit glamo_probe(struct platform_device *pdev)
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	glamo->irq = platform_get_irq(pdev, 0);
+ 	glamo->pdata = pdev->dev.platform_data;
++	glamo->slowed_divider = 0xFF;
+ 
+ 	if (glamo->irq < 0) {
+ 		ret = glamo->irq;
+@@ -938,7 +995,7 @@ static int __devinit glamo_probe(struct platform_device *pdev)
+ 		goto err_irq_free_descs;
+ 	}
+ 
+-	glamo->base = ioremap(glamo->mem->start, resource_size(glamo->mem));
++	glamo->base = ioremap(glamo->mem->start, resource_size(glamo->mem)+0x1100);
+ 	if (!glamo->base) {
+ 		dev_err(&pdev->dev, "Failed to ioremap() memory region\n");
+ 		goto err_release_mem_region;
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
 index 4e007c6..c3f53c7 100644
 --- a/drivers/misc/Kconfig
@@ -3960,6 +4255,25 @@ index 0000000..01c4ac9
 +
 +#endif /* _LINUX_LIS302DL_H */
 +
+diff --git a/include/linux/mfd/glamo-core.h b/include/linux/mfd/glamo-core.h
+index 8275a2f..8e3e56e 100644
+--- a/include/linux/mfd/glamo-core.h
++++ b/include/linux/mfd/glamo-core.h
+@@ -37,6 +37,7 @@ struct glamo_core {
+ 	enum glamo_engine_state engine_state[__NUM_GLAMO_ENGINES];
+ 	spinlock_t lock;
+ 	uint16_t saved_irq_mask;
++	int slowed_divider;
+ #ifdef CONFIG_DEBUG_FS
+ 	struct dentry *debugfs_dir;
+ #endif
+@@ -55,4 +56,6 @@ int glamo_engine_disable(struct glamo_core *glamo, enum glamo_engine engine);
+ void glamo_engine_reset(struct glamo_core *glamo, enum glamo_engine engine);
+ int glamo_engine_reclock(struct glamo_core *glamo,
+ 			 enum glamo_engine engine, int ps);
++void glamo_pixclock_slow (struct glamo_core *glamo);
++void glamo_pixclock_fast (struct glamo_core *glamo);
+ #endif /* __GLAMO_CORE_H */
 diff --git a/include/linux/mmc/core.h b/include/linux/mmc/core.h
 index 5bbfb71..07f27af 100644
 --- a/include/linux/mmc/core.h
