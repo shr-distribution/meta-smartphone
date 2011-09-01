@@ -200,7 +200,6 @@ RDEPENDS_${PN} += "\
 		shr-splash-theme-logo \
 		shr-splash-theme-openmoko \
 		x11vnc \
-
 		obex-data-server \
 		telepathy-python \
 		opkg-utils \
