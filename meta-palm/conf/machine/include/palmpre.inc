@@ -1,7 +1,14 @@
-# use this for overrides
-MACHINE_CLASS = "palmpre"
+#@TYPE: Machine
+#@NAME: Palm Pre Smartphone
+#@DESCRIPTION: Machine configuration for the Palm Pre
 
 TARGET_ARCH = "arm"
+SOC_FAMILY = "omap3"
+
+require conf/machine/include/tune-cortexa8.inc
+
+# use this for overrides
+MACHINE_CLASS = "palmpre"
 
 PREFERRED_PROVIDER_virtual/xserver = "xserver-xorg"
 XSERVER = "xserver-xorg \
@@ -14,8 +21,6 @@ MACHINE_DISPLAY_WIDTH_PIXELS = "320"
 MACHINE_DISPLAY_HEIGHT_PIXELS = "480"
 MACHINE_DISPLAY_ORIENTATION = "0"
 MACHINE_DISPLAY_PPI = "185"
-
-require conf/machine/include/omap3.inc
 
 PREFERRED_PROVIDER_virtual/kernel = "linux-palmpre"
 
@@ -33,4 +38,7 @@ MACHINE_FEATURES = "kernel26 screen apm usbgadget usbhost vfat alsa phone blueto
 # marvell-sdio-fw \
 #"
 
-PREFERRED_PROVIDER_udev-compat = "udev-compat141"
+# PREFERRED_PROVIDER_udev-compat = "udev-compat141"
+
+# Increase this everytime you change something in the kernel
+MACHINE_KERNEL_PR = "r0"
