@@ -1,7 +1,7 @@
-From b01c195db0ea0b66f8382ff09472d9904bcaf461 Mon Sep 17 00:00:00 2001
+From 550672fd35e57ca4c4762a928a0198aa80ba0a93 Mon Sep 17 00:00:00 2001
 From: Alistair Buxton <a.j.buxton@gmail.com>
-Date: Mon, 6 Sep 2010 03:01:34 +0100
-Subject: [PATCH 4/9] Nokia RX-51 aka N900 support
+Date: Thu, 1 Sep 2011 16:00:12 +0100
+Subject: [PATCH 4/6] Nokia RX-51 aka N900 support
 
 This board definition results in a u-boot.bin which can be chainloaded
 from NOLO in qemu or on a real N900. It does very little hardware config
@@ -22,13 +22,13 @@ booting.
 
 Signed-off-by: Alistair Buxton <a.j.buxton@gmail.com>
 ---
- board/nokia/rx51/Makefile    |   49 ++++++
+ board/nokia/rx51/Makefile    |   50 ++++++
  board/nokia/rx51/config.mk   |   33 ++++
- board/nokia/rx51/rx51.c      |  255 ++++++++++++++++++++++++++++
+ board/nokia/rx51/rx51.c      |  246 +++++++++++++++++++++++++++
  board/nokia/rx51/rx51.h      |  382 ++++++++++++++++++++++++++++++++++++++++++
  boards.cfg                   |    1 +
- include/configs/nokia_rx51.h |  329 ++++++++++++++++++++++++++++++++++++
- 6 files changed, 1049 insertions(+), 0 deletions(-)
+ include/configs/nokia_rx51.h |  302 +++++++++++++++++++++++++++++++++
+ 6 files changed, 1014 insertions(+), 0 deletions(-)
  create mode 100644 board/nokia/rx51/Makefile
  create mode 100644 board/nokia/rx51/config.mk
  create mode 100644 board/nokia/rx51/rx51.c
@@ -37,10 +37,10 @@ Signed-off-by: Alistair Buxton <a.j.buxton@gmail.com>
 
 diff --git a/board/nokia/rx51/Makefile b/board/nokia/rx51/Makefile
 new file mode 100644
-index 0000000..31ad6fd
+index 0000000..92a0c9a
 --- /dev/null
 +++ b/board/nokia/rx51/Makefile
-@@ -0,0 +1,49 @@
+@@ -0,0 +1,50 @@
 +#
 +# (C) Copyright 2000, 2001, 2002
 +# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -66,15 +66,16 @@ index 0000000..31ad6fd
 +
 +include $(TOPDIR)/config.mk
 +
-+LIB	= $(obj)lib$(BOARD).a
++LIB	= $(obj)lib$(BOARD).o
 +
-+COBJS	:= rx51.o
++COBJS-y	:= $(BOARD).o
 +
++COBJS	:= $(sort $(COBJS-y))
 +SRCS	:= $(COBJS:.o=.c)
 +OBJS	:= $(addprefix $(obj),$(COBJS))
 +
 +$(LIB):	$(obj).depend $(OBJS)
-+	$(AR) $(ARFLAGS) $@ $(OBJS)
++	$(call cmd_link_o_target, $(OBJS))
 +
 +clean:
 +	rm -f $(OBJS)
@@ -92,7 +93,7 @@ index 0000000..31ad6fd
 +#########################################################################
 diff --git a/board/nokia/rx51/config.mk b/board/nokia/rx51/config.mk
 new file mode 100644
-index 0000000..6c81a34
+index 0000000..3477f09
 --- /dev/null
 +++ b/board/nokia/rx51/config.mk
 @@ -0,0 +1,33 @@
@@ -128,13 +129,13 @@ index 0000000..6c81a34
 +# (mem base + reserved)
 +
 +# For use with external or internal boots.
-+TEXT_BASE = 0x80e80000
++CONFIG_SYS_TEXT_BASE = 0x80008000
 diff --git a/board/nokia/rx51/rx51.c b/board/nokia/rx51/rx51.c
 new file mode 100644
-index 0000000..3149a79
+index 0000000..47484d3
 --- /dev/null
 +++ b/board/nokia/rx51/rx51.c
-@@ -0,0 +1,255 @@
+@@ -0,0 +1,246 @@
 +/*
 + * (C) Copyright 2010
 + * Alistair Buxton <a.j.buxton@gmail.com>
@@ -208,17 +209,9 @@ index 0000000..3149a79
 +	gdev.frameAdrs = 0x8f9c0000;
 +	gdev.winSizeX = 800;
 +	gdev.winSizeY = 480;
-+	/* check sys_boot */
-+	if (readw(0x480022f0)&0xf) { /* in qemu */
-+		gdev.gdfBytesPP = 4;
-+		gdev.gdfIndex = GDF_32BIT_X888RGB;
-+		memset((void *)gdev.frameAdrs, 0, 0x177000);
-+	} else { /* real hardware */
-+		gdev.gdfBytesPP = 2;
-+		gdev.gdfIndex = GDF_16BIT_565RGB;
-+		memset((void *)gdev.frameAdrs, 0, 0xbb800);
-+	}
-+
++	gdev.gdfBytesPP = 2;
++	gdev.gdfIndex = GDF_16BIT_565RGB;
++	memset((void *)gdev.frameAdrs, 0, 0xbb800);
 +	return (void *) &gdev;
 +}
 +
@@ -231,13 +224,13 @@ index 0000000..3149a79
 +#ifdef CONFIG_CHAINLOADER
 +	char buf[12];
 +	printf("Getting NOLO supplied boot parameters...\n");
-+	sprintf(buf, "0x%x", readl(0x82000004));
++	sprintf(buf, "0x%x", readl(0x82000000));
 +	setenv("nolo_loadaddr", buf);
-+	sprintf(buf, "0x%x", readl(0x82000004)+0x40000);
++	sprintf(buf, "0x%x", readl(0x82000000)+0x40000);
 +	setenv("nolo_kernaddr", buf);
-+	sprintf(buf, "0x%x", readl(0x82000008));
++	sprintf(buf, "0x%x", readl(0x82000004));
 +	setenv("nolo_machtype", buf);
-+	sprintf(buf, "0x%x", readl(0x8200000c));
++	sprintf(buf, "0x%x", readl(0x82000008));
 +	setenv("nolo_atagaddr", buf);
 +#endif
 +
@@ -322,7 +315,7 @@ index 0000000..3149a79
 +	return ret;
 +}
 +
-+char rx51_kp_fill(u8 k, u8 mods)
++void rx51_kp_fill(u8 k, u8 mods)
 +{
 +	if (mods & 2) { /* fn */
 +		k = keymap[k+64];
@@ -343,7 +336,7 @@ index 0000000..3149a79
 +
 +int rx51_kp_tstc(void)
 +{
-+	u8 c, r, dk, k, i;
++	u8 c, r, dk, i;
 +	u8 intr;
 +	u8 mods;
 +
@@ -389,7 +382,6 @@ index 0000000..3149a79
 +		;
 +	return keybuf[keybuf_head++];
 +}
-+
 diff --git a/board/nokia/rx51/rx51.h b/board/nokia/rx51/rx51.h
 new file mode 100644
 index 0000000..625129c
@@ -779,23 +771,23 @@ index 0000000..625129c
 +
 +#endif
 diff --git a/boards.cfg b/boards.cfg
-index 69c6897..1a65ae6 100644
+index dfefc3f..8fcbda8 100644
 --- a/boards.cfg
 +++ b/boards.cfg
-@@ -265,6 +265,7 @@ omap4_panda	arm	armv7		panda		ti		omap4
- omap4_sdp4430	arm	armv7		sdp4430		ti		omap4
- am3517_evm	arm	armv7		am3517evm	logicpd		omap3
- devkit8000	arm	armv7		devkit8000	timll		omap3
-+nokia_rx51      arm     armv7           rx51            nokia           omap3
- s5p_goni	arm	armv7		goni		samsung		s5pc1xx
- smdkc100	arm	armv7		smdkc100	samsung		s5pc1xx
- ixdpg425	arm	ixp
+@@ -155,6 +155,7 @@ omap3_beagle                 arm         armv7       beagle              ti
+ omap3_evm                    arm         armv7       evm                 ti             omap3
+ omap3_sdp3430                arm         armv7       sdp3430             ti             omap3
+ devkit8000                   arm         armv7       devkit8000          timll          omap3
++nokia_rx51                   arm         armv7       rx51                nokia          omap3
+ omap4_panda                  arm         armv7       panda               ti             omap4
+ omap4_sdp4430                arm         armv7       sdp4430             ti             omap4
+ s5p_goni                     arm         armv7       goni                samsung        s5pc1xx
 diff --git a/include/configs/nokia_rx51.h b/include/configs/nokia_rx51.h
 new file mode 100644
-index 0000000..45b942a
+index 0000000..e389f21
 --- /dev/null
 +++ b/include/configs/nokia_rx51.h
-@@ -0,0 +1,329 @@
+@@ -0,0 +1,302 @@
 +/*
 + * (C) Copyright 2010
 + * Alistair Buxton <a.j.buxton@gmail.com>
@@ -839,6 +831,9 @@ index 0000000..45b942a
 +#define CONFIG_OMAP3430		1	/* which is in a 3430 */
 +#define CONFIG_OMAP3_RX51	1	/* working with RX51 */
 +#define CONFIG_CHAINLOADER	1	/* Loaded by NOLO */
++#define CONFIG_L2_OFF		1	/* kernel won't boot if l2 enabled */
++					/* (old u-boot tried but failed to */
++					/*  enable it, due to a bug.)      */
 +
 +#define CONFIG_SDRC	/* The chip has SDRC controller */
 +
@@ -926,7 +921,7 @@ index 0000000..45b942a
 +
 +#define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 +#define CONFIG_CMD_MMC		/* MMC support			*/
-+#define CONFIG_CMD_ONENAND	/* NAND support			*/
++#undef CONFIG_CMD_ONENAND	/* NAND support			*/
 +
 +#undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
 +#undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
@@ -986,16 +981,23 @@ index 0000000..45b942a
 +	"vgacon=setenv con vga; run setcon\0" \
 +	"loadaddr=0x82000000\0" \
 +	"meegoargs=setenv bootargs\0" \
-+	"loadbootscript=fatload mmc 0 ${loadaddr} boot.scr\0" \
++	"loadbootscript=${loadtype} mmc ${mmcpart} ${loadaddr} boot.scr\0" \
 +	"bootscript=echo Running bootscript from mmc ...; " \
 +		"source ${loadaddr}\0" \
-+	"loaduimage=fatload mmc 0:3 ${loadaddr} uImage\0" \
++	"loaduimage=${loadtype} mmc ${mmcpart} ${loadaddr} uImage\0" \
 +	"mmcboot=echo Booting from mmc ...; " \
 +		"run meegoargs; " \
 +		"bootm ${loadaddr}\0" \
 +	"noloboot=echo Booting NOLO supplied kernel ...; " \
 +		"setenv atags ${nolo_atagaddr};" \
-+		"bootm ${nolo_kernaddr}\0"
++		"bootm ${nolo_kernaddr}\0" \
++	"trymmc=if run loadbootscript; then " \
++			"run bootscript; " \
++		"else " \
++			"if run loaduimage; then " \
++				"run mmcboot; " \
++			"fi; " \
++		"fi;\0"
 +
 +#define CONFIG_PREBOOT \
 +	"echo Extra commands:;" \
@@ -1007,15 +1009,17 @@ index 0000000..45b942a
 +
 +#define CONFIG_BOOTCOMMAND \
 +	"if mmc init; then " \
-+		"if run loadbootscript; then " \
-+			"run bootscript; " \
-+		"else " \
-+			"if run loaduimage; then " \
-+				"run mmcboot; " \
-+			"else run noloboot; " \
-+			"fi; " \
-+		"fi; " \
-+	"else run noloboot; fi"
++		"setenv loadtype fatload; " \
++		"setenv mmcpart 0:1; run trymmc; " \
++		"setenv mmcpart 0:2; run trymmc; " \
++		"setenv mmcpart 0:3; run trymmc; " \
++		"setenv mmcpart 0:4; run trymmc; " \
++		"setenv loadtype ext2load; " \
++		"setenv mmcpart 0:1; run trymmc; " \
++		"setenv mmcpart 0:2; run trymmc; " \
++		"setenv mmcpart 0:3; run trymmc; " \
++		"setenv mmcpart 0:4; run trymmc; " \
++	"fi; run noloboot;"
 +
 +#define CONFIG_AUTO_COMPLETE		1
 +/*
@@ -1076,55 +1080,16 @@ index 0000000..45b942a
 + * FLASH and environment organization
 + */
 +
-+/* **** PISMO SUPPORT *** */
++#define CONFIG_ENV_IS_NOWHERE	1
 +
-+/* Configure the PISMO */
-+#define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-+#define PISMO1_ONEN_SIZE		GPMC_SIZE_128M
-+
-+#define CONFIG_SYS_MAX_FLASH_SECT	520	/* max number of sectors on */
-+						/* one chip */
-+#define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max number of flash banks */
-+#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
-+
-+#define CONFIG_SYS_FLASH_BASE		boot_flash_base
-+
-+/* Monitor at start of flash */
-+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
-+#define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
-+
-+#define CONFIG_ENV_IS_IN_ONENAND	1
-+#define ONENAND_ENV_OFFSET		0x260000 /* environment starts here */
-+#define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
-+
-+#define CONFIG_SYS_ENV_SECT_SIZE	boot_flash_sec
-+#define CONFIG_ENV_OFFSET		boot_flash_off
-+#define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
-+
-+/*-----------------------------------------------------------------------
-+ * CFI FLASH driver setup
-+ */
-+/* timeout values are in ticks */
-+#define CONFIG_SYS_FLASH_ERASE_TOUT	(100 * CONFIG_SYS_HZ)
-+#define CONFIG_SYS_FLASH_WRITE_TOUT	(100 * CONFIG_SYS_HZ)
-+
-+/* Flash banks JFFS2 should use */
-+#define CONFIG_SYS_MAX_MTD_BANKS	(CONFIG_SYS_MAX_FLASH_BANKS + \
-+					CONFIG_SYS_MAX_NAND_DEVICE)
-+#define CONFIG_SYS_JFFS2_MEM_NAND
-+/* use flash_info[2] */
-+#define CONFIG_SYS_JFFS2_FIRST_BANK	CONFIG_SYS_MAX_FLASH_BANKS
-+#define CONFIG_SYS_JFFS2_NUM_BANKS	1
-+
-+#ifndef __ASSEMBLY__
-+extern unsigned int boot_flash_base;
-+extern volatile unsigned int boot_flash_env_addr;
-+extern unsigned int boot_flash_off;
-+extern unsigned int boot_flash_sec;
-+extern unsigned int boot_flash_type;
-+#endif
++#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
++#define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
++#define CONFIG_SYS_INIT_RAM_SIZE	0x800
++#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
++					 CONFIG_SYS_INIT_RAM_SIZE - \
++					 GENERATED_GBL_DATA_SIZE)
 +
 +#endif /* __CONFIG_H */
 -- 
-1.7.3.2
+1.7.6.1
 

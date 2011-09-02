@@ -1,7 +1,15 @@
-From 1b46029e60f9a40aad72fabbb5a2ef57440ead97 Mon Sep 17 00:00:00 2001
+From 624b92c22592bfc8d0afbda30edefbd698c2c188 Mon Sep 17 00:00:00 2001
 From: Martin Jansa <Martin.Jansa@gmail.com>
 Date: Tue, 7 Dec 2010 12:41:39 +0100
-Subject: [PATCH] configs/nokia_rx51.h: start shr as default and change expected partition layout
+Subject: [PATCH 8/8] configs/nokia_rx51.h: update saved env
+
+* use ext2 instead of fat for 1st and 3rd partition
+* integrate SHR boot.scr to default env
+* call mmc init manually, because mmc init in CONFIG_BOOTCOMMAND is called only after timeout
+* don't set atags when booting from uSD except shr2
+    overwrites supplied bootargs ie root=
+    is needed only for old 2.6.28.10 kernel soundmodule checking revision
+    so keep only for shr2 option
 
 * use layout like this:
 * boot.scr:  optional on 1st ext2 partition /boot.scr
@@ -12,27 +20,36 @@ Subject: [PATCH] configs/nokia_rx51.h: start shr as default and change expected 
 
 Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
 ---
- include/configs/nokia_rx51.h |   42 ++++++++++++++++++++++++++----------------
- 1 files changed, 26 insertions(+), 16 deletions(-)
+ include/configs/nokia_rx51.h |   74 +++++++++++++++++++++++++-----------------
+ 1 files changed, 44 insertions(+), 30 deletions(-)
 
 diff --git a/include/configs/nokia_rx51.h b/include/configs/nokia_rx51.h
-index 5c3b068..62770c9 100644
+index e16cc64..477395c 100644
 --- a/include/configs/nokia_rx51.h
 +++ b/include/configs/nokia_rx51.h
-@@ -187,38 +187,47 @@ int rx51_kp_getc(void);
+@@ -193,47 +193,61 @@ int rx51_kp_getc(void);
  	"usbcon=setenv con usbtty; run setcon\0" \
  	"vgacon=setenv con vga; run setcon\0" \
  	"loadaddr=0x82000000\0" \
 -	"meegoargs=setenv bootargs\0" \
--	"loadbootscript=fatload mmc 0 ${loadaddr} boot.scr\0" \
+-	"loadbootscript=${loadtype} mmc ${mmcpart} ${loadaddr} boot.scr\0" \
 +	"loadbootscript=mmc init; ext2load mmc 0:1 ${loadaddr} boot.scr\0" \
  	"bootscript=echo Running bootscript from mmc ...; " \
  		"source ${loadaddr}\0" \
--	"loaduimage=fatload mmc 0:3 ${loadaddr} uImage\0" \
+-	"loaduimage=${loadtype} mmc ${mmcpart} ${loadaddr} uImage\0" \
 -	"mmcboot=echo Booting from mmc ...; " \
 -		"run meegoargs; " \
 -		"bootm ${loadaddr}\0" \
 -	"noloboot=echo Booting NOLO supplied kernel ...; " \
+-		"setenv atagaddr ${init_atagaddr};" \
+-		"bootm ${init_kernaddr}\0" \
+-	"trymmc=if run loadbootscript; then " \
+-			"run bootscript; " \
+-		"else " \
+-			"if run loaduimage; then " \
+-				"run mmcboot; " \
+-			"fi; " \
+-		"fi;\0"
 +	"meegoargs=root=/dev/mmcblk0p2 rootwait console=tty0 omapfb.vram=0:2M,1:2M,2:2M mtdoops.mtddev=2 nosplash\0" \
 +	"shrargs=snd-soc-rx51.hp_lim=42 snd-soc-tlv320aic3x.hp_dac_lim=6 console=tty1 root=/dev/mmcblk0p1 rootwait panic=20 debug\0" \
 +	"boot1stcmd=mmc init; ext2load mmc 0:1 0x82000000 /boot/uImage; bootm 0x82000000\0" \
@@ -51,12 +68,22 @@ index 5c3b068..62770c9 100644
 +		"setenv bootcmd ${boot3rdcmd}; " \
 +		"boot\0" \
 +	"maemo=echo Booting Maemo from eMMC, NOLO supplied kernel ...; " \
- 		"setenv atags ${nolo_atagaddr};" \
- 		"bootm ${nolo_kernaddr}\0"
++		"setenv atags ${nolo_atagaddr};" \
++		"bootm ${nolo_kernaddr}\0"
  
  #define CONFIG_PREBOOT \
 -	"if test $slide_sw != open ; then run noloboot; fi ;" \
-+	"if test $slide_sw != open ; then run shr; fi ;" \
++	"if test $slide_sw != open ; then " \
++		"if mmc init; then " \
++			"if run loadbootscript; then " \
++				"run bootscript; " \
++			"else " \
++				"run maemo; " \
++			"fi; " \
++		"else " \
++			"run maemo; " \
++		"fi; " \
++	"fi; " \
  	"echo Extra commands:;" \
  	"echo run sercon - Use serial port for control.;" \
  	"echo run usbcon - Use usbtty for control.;" \
@@ -70,19 +97,28 @@ index 5c3b068..62770c9 100644
  
  #define CONFIG_BOOTCOMMAND \
  	"if mmc init; then " \
- 		"if run loadbootscript; then " \
- 			"run bootscript; " \
--		"else " \
--			"if run loaduimage; then " \
--				"run mmcboot; " \
--			"else run noloboot; " \
--			"fi; " \
- 		"fi; " \
--	"else run noloboot; fi"
-+	"else run shr; fi"
+-		"setenv loadtype fatload; " \
+-		"setenv mmcpart 0:1; run trymmc; " \
+-		"setenv mmcpart 0:2; run trymmc; " \
+-		"setenv mmcpart 0:3; run trymmc; " \
+-		"setenv mmcpart 0:4; run trymmc; " \
+-		"setenv loadtype ext2load; " \
+-		"setenv mmcpart 0:1; run trymmc; " \
+-		"setenv mmcpart 0:2; run trymmc; " \
+-		"setenv mmcpart 0:3; run trymmc; " \
+-		"setenv mmcpart 0:4; run trymmc; " \
+-	"fi; run noloboot;"
++		"if run loadbootscript; then " \
++			"run bootscript; " \
++		"else " \
++			"run shr; " \
++		"fi; " \
++	"else " \
++		"run maemo; " \
++	"fi; "
  
  #define CONFIG_AUTO_COMPLETE		1
  /*
 -- 
-1.7.3.4
+1.7.6.1
 

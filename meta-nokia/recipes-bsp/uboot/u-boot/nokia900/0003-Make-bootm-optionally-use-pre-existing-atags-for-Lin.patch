@@ -1,7 +1,8 @@
-From b05e635c24a65e5efc540694bbaa33055f3180c6 Mon Sep 17 00:00:00 2001
+From 0d82ae200c656c79bb646840a996ea525260a5bf Mon Sep 17 00:00:00 2001
 From: Alistair Buxton <a.j.buxton@gmail.com>
-Date: Wed, 1 Sep 2010 23:07:20 +0100
-Subject: [PATCH 2/9] Make bootm optionally use pre-existing atags for Linux kernel boot.
+Date: Thu, 1 Sep 2011 15:59:30 +0100
+Subject: [PATCH 3/6] Make bootm optionally use pre-existing atags for Linux
+ kernel boot.
 
 This patch adapts the bootm command so that it can use an existing atags command
 set up by a previous bootloader. If the environment variable "atags" is unset,
@@ -13,34 +14,34 @@ setenv atags 0x80000100; bootm 0x80008000
 
 Signed-off-by: Alistair Buxton <a.j.buxton@gmail.com>
 ---
- arch/arm/lib/bootm.c |   35 +++++++++++++++++++++++++----------
- 1 files changed, 25 insertions(+), 10 deletions(-)
+ arch/arm/lib/bootm.c |   33 +++++++++++++++++++++++++--------
+ 1 files changed, 25 insertions(+), 8 deletions(-)
 
 diff --git a/arch/arm/lib/bootm.c b/arch/arm/lib/bootm.c
-index 3101321..82186f8 100644
+index 802e833..72ca76b 100644
 --- a/arch/arm/lib/bootm.c
 +++ b/arch/arm/lib/bootm.c
-@@ -55,6 +55,12 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
- 	bd_t	*bd = gd->bd;
+@@ -99,6 +99,12 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
  	char	*s;
  	int	machid = bd->bi_arch_number;
+ 	void	(*kernel_entry)(int zero, int arch, uint params);
 +#ifdef CONFIG_CHAINLOADER
-+	uint	params;
-+	#define PARAMS params
++	uint	bi_boot_params;
++	#define PARAMS bi_boot_params
 +#else
 +	#define PARAMS (bd->bi_boot_params)
 +#endif
- 	void	(*theKernel)(int zero, int arch, uint params);
  
  #ifdef CONFIG_CMDLINE_TAG
-@@ -77,31 +83,40 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
+ 	char *commandline = getenv ("bootargs");
+@@ -125,29 +131,40 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
  	debug ("## Transferring control to Linux (at address %08lx) ...\n",
- 	       (ulong) theKernel);
+ 	       (ulong) kernel_entry);
  
 +#ifdef CONFIG_CHAINLOADER
 +	s = getenv ("atags");
 +	if (s) {
-+		params = simple_strtoul (s, NULL, 16);
++		bi_boot_params = simple_strtoul (s, NULL, 16);
 +		printf ("Using existing atags at 0x%x\n", params);
 +	} else {
 +#endif
@@ -73,25 +74,15 @@ index 3101321..82186f8 100644
 +		if (images->rd_start && images->rd_end)
 +			setup_initrd_tag (bd, images->rd_start, images->rd_end);
  #endif
--	setup_end_tag (bd);
-+		setup_end_tag (bd);
+-	setup_end_tag(bd);
++		setup_end_tag(bd);
 +#endif
 +#ifdef CONFIG_CHAINLOADER
++		bi_boot_params = bd->bi_boot_params;
 +	}
  #endif
--
- 	/* we assume that the kernel is in place */
- 	printf ("\nStarting kernel ...\n\n");
  
-@@ -114,7 +129,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
- 
- 	cleanup_before_linux ();
- 
--	theKernel (0, machid, bd->bi_boot_params);
-+	theKernel (0, machid, PARAMS);
- 	/* does not return */
- 
- 	return 1;
+ 	announce_and_cleanup();
 -- 
-1.7.3.2
+1.7.6.1
 

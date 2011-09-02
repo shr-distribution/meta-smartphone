@@ -1,0 +1,26 @@
+From 0c5b23a78df22b901e5d8db294f1d4419746db12 Mon Sep 17 00:00:00 2001
+From: Alistair Buxton <a.j.buxton@gmail.com>
+Date: Thu, 1 Sep 2011 21:39:00 +0100
+Subject: [PATCH 6/6] We don't need that init_loadaddr in env.
+
+Signed-off-by: Alistair Buxton <a.j.buxton@gmail.com>
+---
+ board/nokia/rx51/rx51.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
+
+diff --git a/board/nokia/rx51/rx51.c b/board/nokia/rx51/rx51.c
+index 5f9f056..fba348a 100644
+--- a/board/nokia/rx51/rx51.c
++++ b/board/nokia/rx51/rx51.c
+@@ -89,8 +89,6 @@ int misc_init_r(void)
+ #ifdef CONFIG_CHAINLOADER
+ 	char buf[12];
+ 	printf("Getting NOLO supplied boot parameters...\n");
+-	sprintf(buf, "%#x", _INIT_LOADADDR);
+-	setenv("init_loadaddr", buf);
+ 	sprintf(buf, "%#x", _INIT_LOADADDR+0x40000);
+ 	setenv("init_kernaddr", buf);
+ 	sprintf(buf, "%#x", _INIT_ATAGADDR);
+-- 
+1.7.6.1
+
