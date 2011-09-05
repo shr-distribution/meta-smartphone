@@ -3,9 +3,7 @@ rebased on top of openmoko kernel repository (om-2.6.39-stable)
 
 https://gitorious.org/shr/linux/commits/shr-2.6.39-nodrm
 
-446f3c0 s3c2410_ts: jitter less touchscreen for glamo, version 4
-4470172 touchscreen: ignore unexpected interrupts
-3e661ce tslib relies on ts pressures events so this hack is needed to get tslib stuff working
+f61036a s3c2410_ts: jitter less touchscreen for glamo, version 4
 e05c7e5 lis302dl: use ABS events rather then REL events
 f46b2a2 input: lis302dl: fix the resume path
 53af78f lis302dl accelerometer driver
@@ -1669,23 +1667,13 @@ index 0000000..1ba7a8f
 +module_init(lis302dl_init);
 +module_exit(lis302dl_exit);
 diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
-index 8feb7f3..9b4815d 100644
+index 8feb7f3..09ce8c2 100644
 --- a/drivers/input/touchscreen/s3c2410_ts.c
 +++ b/drivers/input/touchscreen/s3c2410_ts.c
-@@ -20,7 +20,7 @@
-  * Copyright 2009 Simtec Electronics <linux@simtec.co.uk>
-  *
-  * Additional work by Herbert Pötzl <herbert@13thfloor.at> and
-- * Harald Welte <laforge@openmoko.org>
-+ * Harald Welte <laforge@openmoko.org> and Gennady Kupava <gb@bsdmn.com>
-  */
- 
- #include <linux/errno.h>
-@@ -85,10 +85,19 @@ struct s3c2410ts {
+@@ -85,6 +85,10 @@ struct s3c2410ts {
  	int count;
  	int shift;
  	int features;
-+	int expectedintr; /* kind of interrupt we are waiting for */
 +#ifdef CONFIG_MACH_NEO1973_GTA02
 +	void          (*before_adc_hook)(void);
 +	void          (*after_adc_hook)(void);
@@ -1693,23 +1681,7 @@ index 8feb7f3..9b4815d 100644
  };
  
  static struct s3c2410ts ts;
- 
-+#define WAITFORINT_UP (0)
-+#define WAITFORINT_DOWN (1)
-+#define WAITFORINT_NOTHING (2)
-+
- /**
-  * get_down - return the down state of the pen
-  * @data0: The data read from ADCDAT0 register.
-@@ -126,6 +135,7 @@ static void touch_timer_fire(unsigned long data)
- 			input_report_abs(ts.input, ABS_Y, ts.yp);
- 
- 			input_report_key(ts.input, BTN_TOUCH, 1);
-+			input_report_abs(ts.input, ABS_PRESSURE, 1);
- 			input_sync(ts.input);
- 
- 			ts.xp = 0;
-@@ -133,6 +143,9 @@ static void touch_timer_fire(unsigned long data)
+@@ -133,6 +137,9 @@ static void touch_timer_fire(unsigned long data)
  			ts.count = 0;
  		}
  
@@ -1719,37 +1691,9 @@ index 8feb7f3..9b4815d 100644
  		s3c_adc_start(ts.client, 0, 1 << ts.shift);
  	} else {
  		ts.xp = 0;
-@@ -140,8 +153,10 @@ static void touch_timer_fire(unsigned long data)
- 		ts.count = 0;
- 
- 		input_report_key(ts.input, BTN_TOUCH, 0);
-+		input_report_abs(ts.input, ABS_PRESSURE, 0);
- 		input_sync(ts.input);
--
-+		
-+		ts.expectedintr = WAITFORINT_DOWN;
- 		writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
- 	}
- }
-@@ -166,13 +181,22 @@ static irqreturn_t stylus_irq(int irq, void *dev_id)
- 
- 	down = get_down(data0, data1);
- 
--	/* TODO we should never get an interrupt with down set while
--	 * the timer is running, but maybe we ought to verify that the
--	 * timer isn't running anyways. */
-+	/* sitautions below can actually happen on openmoko hardware while 
-+	   various debugging facilities are turned off */
-+	if (ts.expectedintr == WAITFORINT_NOTHING)
-+	  return IRQ_HANDLED;
-+	if (!down && ts.expectedintr == WAITFORINT_DOWN) {
-+	  writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
-+	  return IRQ_HANDLED;
-+	} else if (down && ts.expectedintr == WAITFORINT_UP) {
-+	  writel(WAIT4INT | INT_UP, ts.io + S3C2410_ADCTSC);
-+	  return IRQ_HANDLED;
-+	}
-+	ts.expectedintr = WAITFORINT_NOTHING;
+@@ -170,9 +177,9 @@ static irqreturn_t stylus_irq(int irq, void *dev_id)
+ 	 * the timer is running, but maybe we ought to verify that the
+ 	 * timer isn't running anyways. */
  
 -	if (down)
 -		s3c_adc_start(ts.client, 0, 1 << ts.shift);
@@ -1760,7 +1704,7 @@ index 8feb7f3..9b4815d 100644
  		dev_dbg(ts.dev, "%s: count=%d\n", __func__, ts.count);
  
  	if (ts.features & FEAT_PEN_IRQ) {
-@@ -203,6 +227,11 @@ static void s3c24xx_ts_conversion(struct s3c_adc_client *client,
+@@ -203,6 +210,11 @@ static void s3c24xx_ts_conversion(struct s3c_adc_client *client,
  
  	ts.count++;
  
@@ -1772,48 +1716,15 @@ index 8feb7f3..9b4815d 100644
  	/* From tests, it seems that it is unlikely to get a pen-up
  	 * event during the conversion process which means we can
  	 * ignore any pen-up events with less than the requisite
-@@ -226,7 +255,8 @@ static void s3c24xx_ts_select(struct s3c_adc_client *client, unsigned select)
+@@ -226,7 +238,7 @@ static void s3c24xx_ts_select(struct s3c_adc_client *client, unsigned select)
  		writel(S3C2410_ADCTSC_PULL_UP_DISABLE | AUTOPST,
  		       ts.io + S3C2410_ADCTSC);
  	} else {
 -		mod_timer(&touch_timer, jiffies+1);
 +		mod_timer(&touch_timer, jiffies + 3);
-+		ts.expectedintr = WAITFORINT_UP;
  		writel(WAIT4INT | INT_UP, ts.io + S3C2410_ADCTSC);
  	}
  }
-@@ -304,6 +334,7 @@ static int __devinit s3c2410ts_probe(struct platform_device *pdev)
- 	if ((info->delay & 0xffff) > 0)
- 		writel(info->delay & 0xffff, ts.io + S3C2410_ADCDLY);
- 
-+	ts.expectedintr = WAITFORINT_DOWN;
- 	writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
- 
- 	input_dev = input_allocate_device();
-@@ -318,6 +349,7 @@ static int __devinit s3c2410ts_probe(struct platform_device *pdev)
- 	ts.input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
- 	input_set_abs_params(ts.input, ABS_X, 0, 0x3FF, 0, 0);
- 	input_set_abs_params(ts.input, ABS_Y, 0, 0x3FF, 0, 0);
-+	input_set_abs_params(ts.input, ABS_PRESSURE, 0, 1, 0, 0);
- 
- 	ts.input->name = "S3C24XX TouchScreen";
- 	ts.input->id.bustype = BUS_HOST;
-@@ -382,6 +414,7 @@ static int __devexit s3c2410ts_remove(struct platform_device *pdev)
- #ifdef CONFIG_PM
- static int s3c2410ts_suspend(struct device *dev)
- {
-+  	ts.expectedintr = WAITFORINT_NOTHING;
- 	writel(TSC_SLEEP, ts.io + S3C2410_ADCTSC);
- 	disable_irq(ts.irq_tc);
- 	clk_disable(ts.clock);
-@@ -401,6 +434,7 @@ static int s3c2410ts_resume(struct device *dev)
- 	if ((info->delay & 0xffff) > 0)
- 		writel(info->delay & 0xffff, ts.io + S3C2410_ADCDLY);
- 
-+	ts.expectedintr = WAITFORINT_DOWN;
- 	writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
- 
- 	return 0;
 diff --git a/drivers/mfd/glamo-core.c b/drivers/mfd/glamo-core.c
 index c9b2ae5..9fd6076 100644
 --- a/drivers/mfd/glamo-core.c
