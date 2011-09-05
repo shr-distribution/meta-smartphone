@@ -3,7 +3,6 @@ rebased on top of openmoko kernel repository (om-2.6.39-stable)
 
 https://gitorious.org/shr/linux/commits/shr-2.6.39-nodrm
 
-f61036a s3c2410_ts: jitter less touchscreen for glamo, version 4
 e05c7e5 lis302dl: use ABS events rather then REL events
 f46b2a2 input: lis302dl: fix the resume path
 53af78f lis302dl accelerometer driver
@@ -278,7 +277,7 @@ index 0000000..233340a
 +MODULE_AUTHOR("Harald Welte <laforge@openmoko.org>");
 +MODULE_DESCRIPTION("Openmoko Freerunner USBHOST Power Management");
 diff --git a/arch/arm/mach-s3c2440/mach-gta02.c b/arch/arm/mach-s3c2440/mach-gta02.c
-index aa31b8d..0ee315d 100644
+index aa31b8d..6f82f5a 100644
 --- a/arch/arm/mach-s3c2440/mach-gta02.c
 +++ b/arch/arm/mach-s3c2440/mach-gta02.c
 @@ -62,6 +62,7 @@
@@ -289,15 +288,7 @@ index aa31b8d..0ee315d 100644
  
  #include <linux/leds.h>
  #include <linux/leds_pwm.h>
-@@ -109,6 +110,7 @@
- #include <linux/jbt6k74.h>
- #include <linux/glamofb.h>
- #include <linux/mfd/glamo.h>
-+#include <linux/mfd/glamo-core.h>
- 
- static struct pcf50633 *gta02_pcf;
- 
-@@ -127,6 +129,10 @@ static long gta02_panic_blink(int state)
+@@ -127,6 +128,10 @@ static long gta02_panic_blink(int state)
  	return delay;
  }
  
@@ -308,7 +299,7 @@ index aa31b8d..0ee315d 100644
  
  static struct map_desc gta02_iodesc[] __initdata = {
  	{
-@@ -177,6 +183,10 @@ static struct platform_device gta02_pm_gsm_dev = {
+@@ -177,6 +182,10 @@ static struct platform_device gta02_pm_gsm_dev = {
  	.name = "gta02-pm-gsm",
  };
  
@@ -319,7 +310,7 @@ index aa31b8d..0ee315d 100644
  static struct platform_device gta02_pm_wlan_dev = {
  	.name = "gta02-pm-wlan",
  };
-@@ -186,6 +196,11 @@ static struct regulator_consumer_supply gsm_supply_consumer = {
+@@ -186,6 +195,11 @@ static struct regulator_consumer_supply gsm_supply_consumer = {
  	.supply = "GSM",
  };
  
@@ -331,7 +322,7 @@ index aa31b8d..0ee315d 100644
  static struct regulator_init_data gsm_supply_init_data = {
  	.constraints = {
  		.min_uV = 3700000,
-@@ -197,6 +212,17 @@ static struct regulator_init_data gsm_supply_init_data = {
+@@ -197,6 +211,17 @@ static struct regulator_init_data gsm_supply_init_data = {
  	.consumer_supplies = &gsm_supply_consumer,
  };
  
@@ -349,7 +340,7 @@ index aa31b8d..0ee315d 100644
  static struct fixed_voltage_config gsm_supply_config = {
  	.supply_name = "GSM",
  	.microvolts = 3700000,
-@@ -205,6 +231,14 @@ static struct fixed_voltage_config gsm_supply_config = {
+@@ -205,6 +230,14 @@ static struct fixed_voltage_config gsm_supply_config = {
  	.init_data = &gsm_supply_init_data,
  };
  
@@ -364,7 +355,7 @@ index aa31b8d..0ee315d 100644
  static struct platform_device gta02_gsm_supply_device = {
  	.name = "reg-fixed-voltage",
  	.id = 1,
-@@ -213,6 +247,14 @@ static struct platform_device gta02_gsm_supply_device = {
+@@ -213,6 +246,14 @@ static struct platform_device gta02_gsm_supply_device = {
  	},
  };
  
@@ -379,7 +370,7 @@ index aa31b8d..0ee315d 100644
  /*
   * we crank down SD Card clock dynamically when GPS is powered
   */
-@@ -297,6 +339,202 @@ static struct glamo_platform_data gta02_glamo_pdata = {
+@@ -297,6 +338,202 @@ static struct glamo_platform_data gta02_glamo_pdata = {
  	.glamo_external_reset = gta02_glamo_external_reset,
  };
  
@@ -582,7 +573,7 @@ index aa31b8d..0ee315d 100644
  /* JBT6k74 display controller */
  static void gta02_jbt6k74_probe_completed(struct device *dev)
  {
-@@ -487,6 +725,11 @@ static struct regulator_consumer_supply hcldo_consumers[] = {
+@@ -487,6 +724,11 @@ static struct regulator_consumer_supply hcldo_consumers[] = {
  	},
  };
  
@@ -594,7 +585,7 @@ index aa31b8d..0ee315d 100644
  struct pcf50633_platform_data gta02_pcf_pdata = {
  	.resumers = {
  		[0] =	PCF50633_INT1_USBINS |
-@@ -522,7 +765,7 @@ struct pcf50633_platform_data gta02_pcf_pdata = {
+@@ -522,7 +764,7 @@ struct pcf50633_platform_data gta02_pcf_pdata = {
  				.min_uV = 1300000,
  				.max_uV = 1600000,
  				.valid_modes_mask = REGULATOR_MODE_NORMAL,
@@ -603,7 +594,7 @@ index aa31b8d..0ee315d 100644
  				.apply_uV = 1,
  			},
  		},
-@@ -614,6 +857,7 @@ struct pcf50633_platform_data gta02_pcf_pdata = {
+@@ -614,6 +856,7 @@ struct pcf50633_platform_data gta02_pcf_pdata = {
  	},
  	.probe_done = gta02_pmu_attach_child_devices,
  	.mbc_event_callback = gta02_pmu_event_callback,
@@ -611,41 +602,7 @@ index aa31b8d..0ee315d 100644
  };
  
  
-@@ -707,11 +951,31 @@ static struct s3c2410_hcd_info gta02_usb_info __initdata = {
- 	},
- };
- 
-+static int glamo_slowed = 0;
-+
-+static void gta02_ts_hook_before_adc () 
-+{
-+	if (!glamo_slowed) {
-+		glamo_slowed = 1;
-+		glamo_pixclock_slow(dev_get_drvdata (&gta02_glamo_dev.dev));
-+	}
-+};
-+
-+static void gta02_ts_hook_after_adc () 
-+{
-+	if (glamo_slowed) {
-+		glamo_slowed = 0;
-+		glamo_pixclock_fast(dev_get_drvdata (&gta02_glamo_dev.dev));
-+	}
-+};
-+
- /* Touchscreen */
- static struct s3c2410_ts_mach_info gta02_ts_info = {
--	.delay			= 10000,
-+	.delay			= 1000,
- 	.presc			= 0xff, /* slow as we can go */
--	.oversampling_shift	= 2,
-+	.oversampling_shift	= 2,    /* 2.6.37 had 0 */
-+	.before_adc_hook 	= gta02_ts_hook_before_adc,
-+	.after_adc_hook 	= gta02_ts_hook_after_adc,
- };
- 
- /* Buttons */
-@@ -1053,6 +1317,9 @@ static struct platform_device *gta02_devices[] __initdata = {
+@@ -1053,6 +1296,9 @@ static struct platform_device *gta02_devices[] __initdata = {
  static struct platform_device *gta02_devices_pmu_children[] = {
  	&gta02_hdq_device,
  	&gta02_platform_bat,
@@ -655,7 +612,7 @@ index aa31b8d..0ee315d 100644
  };
  
  
-@@ -1080,11 +1347,6 @@ static void gta02_pmu_attach_child_devices(struct pcf50633 *pcf)
+@@ -1080,11 +1326,6 @@ static void gta02_pmu_attach_child_devices(struct pcf50633 *pcf)
  			     ARRAY_SIZE(gta02_devices_pmu_children));
  }
  
@@ -667,7 +624,7 @@ index aa31b8d..0ee315d 100644
  struct gta02_device_children {
  	const char *dev_name;
  	size_t num_children;
-@@ -1098,12 +1360,17 @@ static struct platform_device *gta02_glamo_gpio_children[] = {
+@@ -1098,12 +1339,17 @@ static struct platform_device *gta02_glamo_gpio_children[] = {
  
  static struct platform_device *gta02_pcf50633_gpio_children[] = {
  	&gta02_gsm_supply_device,
@@ -685,7 +642,7 @@ index aa31b8d..0ee315d 100644
  static struct platform_device *gta02_hdq_children[] = {
  	&bq27000_battery_device,
  };
-@@ -1126,6 +1393,11 @@ static struct gta02_device_children gta02_device_children[] = {
+@@ -1126,6 +1372,11 @@ static struct gta02_device_children gta02_device_children[] = {
  		.children = gta02_gsm_supply_children,
  	},
  	{
@@ -697,7 +654,7 @@ index aa31b8d..0ee315d 100644
  		.dev_name = "spi2.0",
  		.probed_callback = gta02_jbt6k74_probe_completed,
  	},
-@@ -1199,6 +1471,10 @@ static void __init gta02_machine_init(void)
+@@ -1199,6 +1450,10 @@ static void __init gta02_machine_init(void)
  
  	s3c_pm_init();
  
@@ -708,19 +665,6 @@ index aa31b8d..0ee315d 100644
  #ifdef CONFIG_CHARGER_PCF50633
  	INIT_DELAYED_WORK(&gta02_charger_work, gta02_charger_worker);
  #endif
-diff --git a/arch/arm/plat-samsung/include/plat/ts.h b/arch/arm/plat-samsung/include/plat/ts.h
-index 26fdb22..f475349 100644
---- a/arch/arm/plat-samsung/include/plat/ts.h
-+++ b/arch/arm/plat-samsung/include/plat/ts.h
-@@ -15,6 +15,8 @@ struct s3c2410_ts_mach_info {
-        int             presc;
-        int             oversampling_shift;
- 	void    (*cfg_gpio)(struct platform_device *dev);
-+       void          (*before_adc_hook)(void);
-+       void          (*after_adc_hook)(void);
- };
- 
- extern void s3c24xx_ts_set_platdata(struct s3c2410_ts_mach_info *);
 diff --git a/drivers/ar6000/hif/hif2.c b/drivers/ar6000/hif/hif2.c
 index 386d96e..90178d0 100644
 --- a/drivers/ar6000/hif/hif2.c
@@ -1666,156 +1610,6 @@ index 0000000..1ba7a8f
 +
 +module_init(lis302dl_init);
 +module_exit(lis302dl_exit);
-diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
-index 8feb7f3..09ce8c2 100644
---- a/drivers/input/touchscreen/s3c2410_ts.c
-+++ b/drivers/input/touchscreen/s3c2410_ts.c
-@@ -85,6 +85,10 @@ struct s3c2410ts {
- 	int count;
- 	int shift;
- 	int features;
-+#ifdef CONFIG_MACH_NEO1973_GTA02
-+	void          (*before_adc_hook)(void);
-+	void          (*after_adc_hook)(void);
-+#endif
- };
- 
- static struct s3c2410ts ts;
-@@ -133,6 +137,9 @@ static void touch_timer_fire(unsigned long data)
- 			ts.count = 0;
- 		}
- 
-+#ifdef CONFIG_MACH_NEO1973_GTA02
-+		ts.before_adc_hook();
-+#endif
- 		s3c_adc_start(ts.client, 0, 1 << ts.shift);
- 	} else {
- 		ts.xp = 0;
-@@ -170,9 +177,9 @@ static irqreturn_t stylus_irq(int irq, void *dev_id)
- 	 * the timer is running, but maybe we ought to verify that the
- 	 * timer isn't running anyways. */
- 
--	if (down)
--		s3c_adc_start(ts.client, 0, 1 << ts.shift);
--	else
-+	if (down) {
-+		mod_timer(&touch_timer, jiffies + 2);
-+	} else
- 		dev_dbg(ts.dev, "%s: count=%d\n", __func__, ts.count);
- 
- 	if (ts.features & FEAT_PEN_IRQ) {
-@@ -203,6 +210,11 @@ static void s3c24xx_ts_conversion(struct s3c_adc_client *client,
- 
- 	ts.count++;
- 
-+#ifdef CONFIG_MACH_NEO1973_GTA02
-+	if (!*left) 
-+		ts.after_adc_hook();
-+#endif
-+
- 	/* From tests, it seems that it is unlikely to get a pen-up
- 	 * event during the conversion process which means we can
- 	 * ignore any pen-up events with less than the requisite
-@@ -226,7 +238,7 @@ static void s3c24xx_ts_select(struct s3c_adc_client *client, unsigned select)
- 		writel(S3C2410_ADCTSC_PULL_UP_DISABLE | AUTOPST,
- 		       ts.io + S3C2410_ADCTSC);
- 	} else {
--		mod_timer(&touch_timer, jiffies+1);
-+		mod_timer(&touch_timer, jiffies + 3);
- 		writel(WAIT4INT | INT_UP, ts.io + S3C2410_ADCTSC);
- 	}
- }
-diff --git a/drivers/mfd/glamo-core.c b/drivers/mfd/glamo-core.c
-index c9b2ae5..9fd6076 100644
---- a/drivers/mfd/glamo-core.c
-+++ b/drivers/mfd/glamo-core.c
-@@ -160,6 +160,19 @@ static void reg_set_bit_mask(struct glamo_core *glamo,
- 	spin_unlock(&glamo->lock);
- }
- 
-+
-+
-+static void reg_checkandset_bit_mask(struct glamo_core *glamo,
-+				uint16_t reg, uint16_t mask,
-+				uint16_t val, uint16_t check)
-+{
-+	spin_lock(&glamo->lock);
-+	if (__reg_read(glamo, reg) & mask == check)
-+	    __reg_set_bit_mask(glamo, reg, mask, val);
-+	spin_unlock(&glamo->lock);
-+}
-+
-+
- static inline void __reg_set_bit(struct glamo_core *glamo,
- 				 uint16_t reg, uint16_t bit)
- {
-@@ -169,6 +182,49 @@ static inline void __reg_set_bit(struct glamo_core *glamo,
- 	__reg_write(glamo, reg, tmp);
- }
- 
-+void glamo_pixclock_slow (struct glamo_core *glamo) 
-+{
-+	
-+	int x, lastx = 0;
-+	int timeout = 1000000;
-+	int threshold = 5;
-+	int fa;
-+
-+ 	int evcnt = 0;
-+
-+	for (fa = 0; fa < timeout; fa++) {
-+		x = glamo_reg_read(glamo, 0x1100 + GLAMO_REG_LCD_STATUS1) & 0x3ff;
-+
-+
-+		if (x == lastx) {
-+			evcnt++;
-+			if (evcnt == threshold)
-+				break;
-+		} else {
-+			evcnt = 0;
-+			lastx = x;
-+		}		
-+	}
-+	if (fa == timeout) {
-+		printk (KERN_WARNING "Glamo: Error waiting for stable x position.\n");
-+	}
-+
-+	/* then, make glamo slower */
-+	/* it's not a problems if in rare case we do not slow down glamo properly
-+	   as all we'll get in that case is singe jittered value */
-+	
-+	glamo->slowed_divider = glamo_reg_read (glamo, 0x36) & 0xFF;
-+	reg_set_bit_mask (glamo, 0x36, 0xFF, 0xFF);
-+
-+}
-+
-+void glamo_pixclock_fast (struct glamo_core *glamo) 
-+{
-+	reg_checkandset_bit_mask (glamo, 0x36, 0xFF, glamo->slowed_divider, 0xFF);
-+}
-+EXPORT_SYMBOL_GPL(glamo_pixclock_fast);
-+EXPORT_SYMBOL_GPL(glamo_pixclock_slow);
-+
- static inline void __reg_clear_bit(struct glamo_core *glamo,
- 					uint16_t reg, uint16_t bit)
- {
-@@ -901,6 +957,7 @@ static int __devinit glamo_probe(struct platform_device *pdev)
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	glamo->irq = platform_get_irq(pdev, 0);
- 	glamo->pdata = pdev->dev.platform_data;
-+	glamo->slowed_divider = 0xFF;
- 
- 	if (glamo->irq < 0) {
- 		ret = glamo->irq;
-@@ -938,7 +995,7 @@ static int __devinit glamo_probe(struct platform_device *pdev)
- 		goto err_irq_free_descs;
- 	}
- 
--	glamo->base = ioremap(glamo->mem->start, resource_size(glamo->mem));
-+	glamo->base = ioremap(glamo->mem->start, resource_size(glamo->mem)+0x1100);
- 	if (!glamo->base) {
- 		dev_err(&pdev->dev, "Failed to ioremap() memory region\n");
- 		goto err_release_mem_region;
 diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
 index 4e007c6..c3f53c7 100644
 --- a/drivers/misc/Kconfig
@@ -4166,25 +3960,6 @@ index 0000000..01c4ac9
 +
 +#endif /* _LINUX_LIS302DL_H */
 +
-diff --git a/include/linux/mfd/glamo-core.h b/include/linux/mfd/glamo-core.h
-index 8275a2f..8e3e56e 100644
---- a/include/linux/mfd/glamo-core.h
-+++ b/include/linux/mfd/glamo-core.h
-@@ -37,6 +37,7 @@ struct glamo_core {
- 	enum glamo_engine_state engine_state[__NUM_GLAMO_ENGINES];
- 	spinlock_t lock;
- 	uint16_t saved_irq_mask;
-+	int slowed_divider;
- #ifdef CONFIG_DEBUG_FS
- 	struct dentry *debugfs_dir;
- #endif
-@@ -55,4 +56,6 @@ int glamo_engine_disable(struct glamo_core *glamo, enum glamo_engine engine);
- void glamo_engine_reset(struct glamo_core *glamo, enum glamo_engine engine);
- int glamo_engine_reclock(struct glamo_core *glamo,
- 			 enum glamo_engine engine, int ps);
-+void glamo_pixclock_slow (struct glamo_core *glamo);
-+void glamo_pixclock_fast (struct glamo_core *glamo);
- #endif /* __GLAMO_CORE_H */
 diff --git a/include/linux/mmc/core.h b/include/linux/mmc/core.h
 index 5bbfb71..07f27af 100644
 --- a/include/linux/mmc/core.h
