@@ -1,5 +1,5 @@
 DESCRIPTION = "SHR Fat Image Feed"
-PR = "r10"
+PR = "r11"
 PV = "2.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -13,7 +13,7 @@ PACKAGES = "\
   ${PN}-cli \
 "
 
-#  vagalume \
+#  vagalume
 RDEPENDS_${PN}-gtk = "\
   pidgin \
   libpurple-protocol-msn \
@@ -21,8 +21,8 @@ RDEPENDS_${PN}-gtk = "\
   tangogps \
 "
 
-#	eve \
-#	intone \
+#	eve
+#	intone
 RDEPENDS_${PN}-apps += "\
    task-shr-minimal-apps \
 	opimd-utils-notes \
@@ -35,6 +35,6 @@ RDEPENDS_${PN}-cli += "\
 	openssh-sftp-server \
 "
 
-#	numptyphysics \
+#	numptyphysics
 RDEPENDS_${PN}-games += "\
 "

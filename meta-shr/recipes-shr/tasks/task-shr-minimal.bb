@@ -1,5 +1,5 @@
 DESCRIPTION = "SHR Lite Image Feed"
-PR = "r43"
+PR = "r44"
 PV = "2.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -98,7 +98,8 @@ RDEPENDS_${PN}-fso = "\
 
 
 #FIXME: libcanberra-alsa should be pulled in by fsodeviced but isn't
-#  libcanberra-alsa \
+#  libcanberra-alsa
+
 RDEPENDS_${PN}-audio = "\
   alsa-utils-alsactl \
   alsa-utils-alsamixer \
