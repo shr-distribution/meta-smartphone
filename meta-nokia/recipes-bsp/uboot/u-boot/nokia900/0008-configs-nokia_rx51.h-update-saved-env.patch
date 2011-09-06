@@ -1,4 +1,4 @@
-From 624b92c22592bfc8d0afbda30edefbd698c2c188 Mon Sep 17 00:00:00 2001
+From 55ae391eaabe1bc8367b60332886c142fad33aa8 Mon Sep 17 00:00:00 2001
 From: Martin Jansa <Martin.Jansa@gmail.com>
 Date: Tue, 7 Dec 2010 12:41:39 +0100
 Subject: [PATCH 8/8] configs/nokia_rx51.h: update saved env
@@ -24,7 +24,7 @@ Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
  1 files changed, 44 insertions(+), 30 deletions(-)
 
 diff --git a/include/configs/nokia_rx51.h b/include/configs/nokia_rx51.h
-index e16cc64..477395c 100644
+index e16cc64..2cfcff8 100644
 --- a/include/configs/nokia_rx51.h
 +++ b/include/configs/nokia_rx51.h
 @@ -193,47 +193,61 @@ int rx51_kp_getc(void);
@@ -59,7 +59,7 @@ index e16cc64..477395c 100644
 +		"setenv bootcmd ${boot1stcmd}; " \
 +		"boot\0" \
 +	"shr2=echo Booting SHR from uSD 1st part, kernel on 3rd ...; " \
-+		"setenv atags ${nolo_atagaddr};" \
++		"setenv atags ${init_atagaddr};" \
 +		"setenv bootargs ${shrargs}; " \
 +		"setenv bootcmd ${boot3rdcmd}; " \
 +		"boot\0" \
@@ -68,8 +68,8 @@ index e16cc64..477395c 100644
 +		"setenv bootcmd ${boot3rdcmd}; " \
 +		"boot\0" \
 +	"maemo=echo Booting Maemo from eMMC, NOLO supplied kernel ...; " \
-+		"setenv atags ${nolo_atagaddr};" \
-+		"bootm ${nolo_kernaddr}\0"
++		"setenv atags ${init_atagaddr};" \
++		"bootm ${init_kernaddr}\0"
  
  #define CONFIG_PREBOOT \
 -	"if test $slide_sw != open ; then run noloboot; fi ;" \

@@ -1,7 +1,7 @@
 From 550672fd35e57ca4c4762a928a0198aa80ba0a93 Mon Sep 17 00:00:00 2001
 From: Alistair Buxton <a.j.buxton@gmail.com>
 Date: Thu, 1 Sep 2011 16:00:12 +0100
-Subject: [PATCH 4/6] Nokia RX-51 aka N900 support
+Subject: [PATCH 4/8] Nokia RX-51 aka N900 support
 
 This board definition results in a u-boot.bin which can be chainloaded
 from NOLO in qemu or on a real N900. It does very little hardware config

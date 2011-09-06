@@ -1,7 +1,7 @@
 From 1915b800ba53a91da9fa358e3605592bc37a59e6 Mon Sep 17 00:00:00 2001
 From: Alistair Buxton <a.j.buxton@gmail.com>
 Date: Thu, 1 Sep 2011 21:36:28 +0100
-Subject: [PATCH 5/6] Tidy up the patches.
+Subject: [PATCH 5/8] Tidy up the patches.
 
 Signed-off-by: Alistair Buxton <a.j.buxton@gmail.com>
 ---

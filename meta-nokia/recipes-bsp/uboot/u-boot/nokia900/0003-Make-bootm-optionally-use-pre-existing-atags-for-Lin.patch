@@ -1,7 +1,7 @@
 From 0d82ae200c656c79bb646840a996ea525260a5bf Mon Sep 17 00:00:00 2001
 From: Alistair Buxton <a.j.buxton@gmail.com>
 Date: Thu, 1 Sep 2011 15:59:30 +0100
-Subject: [PATCH 3/6] Make bootm optionally use pre-existing atags for Linux
+Subject: [PATCH 3/8] Make bootm optionally use pre-existing atags for Linux
  kernel boot.
 
 This patch adapts the bootm command so that it can use an existing atags command

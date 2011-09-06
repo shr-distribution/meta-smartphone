@@ -1,7 +1,7 @@
 From 35669073e8f785acbc11c01faae531b5183ec3ba Mon Sep 17 00:00:00 2001
 From: Alistair Buxton <a.j.buxton@gmail.com>
 Date: Thu, 1 Sep 2011 15:48:14 +0100
-Subject: [PATCH 1/6] Copy u-boot.bin to CONFIG_SYS_TEXT_BASE if chainloading.
+Subject: [PATCH 1/8] Copy u-boot.bin to CONFIG_SYS_TEXT_BASE if chainloading.
 
 When chainloading, u-boot.bin is loaded into RAM by the previous bootloader.
 We have no control over where it ends up so we cannot set CONFIG_SYS_TEXT_BASE

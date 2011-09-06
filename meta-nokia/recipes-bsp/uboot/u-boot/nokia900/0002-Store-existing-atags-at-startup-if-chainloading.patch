@@ -1,7 +1,7 @@
 From ea249ebe6a7acf4426de35935973f841f05cb268 Mon Sep 17 00:00:00 2001
 From: Alistair Buxton <a.j.buxton@gmail.com>
 Date: Thu, 1 Sep 2011 15:48:35 +0100
-Subject: [PATCH 2/6] Store existing atags at startup if chainloading.
+Subject: [PATCH 2/8] Store existing atags at startup if chainloading.
 
 This patch causes u-boot to store any Linux kernel atags which it was passed
 by a previous bootloader. The original load address of u-boot is also stored.

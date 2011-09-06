@@ -1,7 +1,7 @@
 From 0c5b23a78df22b901e5d8db294f1d4419746db12 Mon Sep 17 00:00:00 2001
 From: Alistair Buxton <a.j.buxton@gmail.com>
 Date: Thu, 1 Sep 2011 21:39:00 +0100
-Subject: [PATCH 6/6] We don't need that init_loadaddr in env.
+Subject: [PATCH 6/8] We don't need that init_loadaddr in env.
 
 Signed-off-by: Alistair Buxton <a.j.buxton@gmail.com>
 ---
