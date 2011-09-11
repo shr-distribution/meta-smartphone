@@ -1,2 +1,2 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}"
-PRINC = "1"
+FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}"
+PRINC = "2"
