@@ -1,0 +1,2 @@
+FILESEXTRAPATHS_prepend := "${THISDIR}"
+PRINC = "1"
