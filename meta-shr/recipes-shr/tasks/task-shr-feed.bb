@@ -185,6 +185,7 @@ RDEPENDS_${PN} += "\
 		guitartune \
 		mc \
 		navit \
+		elfe \
 		omhacks \
 		python-elementary \
 		openvpn \
