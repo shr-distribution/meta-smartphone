@@ -1,6 +1,6 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-PRINC = "1"
+PRINC = "2"
 
 do_install_append() {
         if [ "${MACHINE}" = "palmpre" ]; then
