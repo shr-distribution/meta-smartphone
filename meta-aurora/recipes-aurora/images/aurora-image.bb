@@ -3,7 +3,7 @@
 #------------------------------------------------------
 
 PV = "1.0"
-PR = "r2"
+PR = "r3"
 
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -31,9 +31,16 @@ IMAGE_BOOT ?= " \
 "
 
 IMAGE_LINGUAS ?= "en-us"
-IMAGE_INSTALL += "${IMAGE_BOOT}"
 IMAGE_BASENAME = "aurora-image"
+
+RDEPENDS_${PN} += " \
+  opkg \
+  task-fso2-compliance \
+"
+
 IMAGE_INSTALL += " \
   task-core-boot \
+  ${IMAGE_BOOT} \
   opkg \
+  task-fso2-compliance \
 "
