@@ -9,9 +9,7 @@ RDEPENDS_${PN} = "python-vobject python-core python-pygtk python-pygobject pytho
            python-gdata python-webdav python-ldap python-epydoc python-core\
            python-dateutil python-sqlite3 python-netserver python-netclient\
            python-misc python-ctypes libsyncml"
-PR = "r1"
-
-PACKAGE_ARCH = "all"
+PR = "r2"
 
 SRC_URI = "http://github.com/downloads/kichkasch/pisi/pisi-src-${PV}.tar.gz"
 SRC_URI[md5sum] = "c416b316668575f8506dc54e19475795"

@@ -7,9 +7,7 @@ PRIORITY = "optional"
 
 SRCREV = "16"
 PV = "1.4.0+svnr${SRCPV}"
-PR = "r1"
-
-PACKAGE_ARCH = "all"
+PR = "r2"
 
 SRC_URI = "svn://neolight.googlecode.com/svn;module=trunk;proto=http"
 S = "${WORKDIR}/trunk"

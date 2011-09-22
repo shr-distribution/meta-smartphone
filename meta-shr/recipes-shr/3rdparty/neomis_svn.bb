@@ -9,11 +9,9 @@ DEPENDS = "python-native edje-native"
 SRCREV = "8"
 # actually it's 1.0.3 :/ but don't want to downgrade now/bump PE
 PV = "1.1.0+svnr${SRCPV}"
-PR = "r2"
+PR = "r3"
 
 S = "${WORKDIR}/trunk"
-
-PACKAGE_ARCH = "all"
 
 SRC_URI = "svn://neomis.googlecode.com/svn;module=trunk;proto=http"
 

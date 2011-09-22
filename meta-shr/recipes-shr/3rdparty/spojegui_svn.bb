@@ -9,10 +9,9 @@ RDEPENDS_${PN} = "python-core python-elementary python-sqlite3 python-netclient"
 
 SRCREV = "68"
 PV = "0.4.2+svnr${SRCPV}"
+PR = "r1"
 
 S = "${WORKDIR}/build"
-
-PACKAGE_ARCH = "all"
 
 SRC_URI = "svn://xeres.cz/spoje/trunk;module=build"
 

@@ -1,7 +1,7 @@
 DESCRIPTION = "XDG menu file for the freesmartphone.org project"
 LICENSE = "PD"
 PV = "0.1"
-PR = "r1"
+PR = "r2"
 
 SRC_URI = "file://applications.menu"
 
@@ -13,6 +13,3 @@ do_install() {
 RCONFLICTS_${PN} = "e-wm-menu"
 CONFFILES_${PN} = "${sysconfdir}/xdg/menus/applications.menu"
 FILES_${PN} = "${sysconfdir}/xdg/menus/applications.menu"
-
-PACKAGE_ARCH = "all"
-

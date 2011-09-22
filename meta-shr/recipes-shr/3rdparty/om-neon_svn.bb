@@ -9,12 +9,9 @@ DEPENDS = "edje-native python-native"
 
 SRCREV = "68"
 PV = "1.0.0+svnr${SRCPV}"
-PR = "r4"
+PR = "r5"
 
 S = "${WORKDIR}/trunk"
-
-# Pure Python plus Edje interface
-PACKAGE_ARCH = "all"
 
 SRC_URI = "svn://svn.projects.openmoko.org/svnroot/neon;module=trunk"
 

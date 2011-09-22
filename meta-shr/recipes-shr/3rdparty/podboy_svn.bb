@@ -7,9 +7,7 @@ PRIORITY = "optional"
 
 SRCREV = "210"
 PV = "1.7.2+svnr${SRCPV}"
-PR = "r3"
-
-PACKAGE_ARCH = "all"
+PR = "r4"
 
 SRC_URI = "svn://podboy.googlecode.com/svn;module=trunk;proto=http"
 S = "${WORKDIR}/trunk"

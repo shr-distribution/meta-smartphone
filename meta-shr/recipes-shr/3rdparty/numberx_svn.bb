@@ -8,11 +8,9 @@ DEPENDS = "python-native"
 
 SRCREV = "4"
 PV = "1.0.0+svnr${SRCPV}"
-PR = "r1"
+PR = "r2"
 
 S = "${WORKDIR}/trunk"
-
-PACKAGE_ARCH = "all"
 
 SRC_URI = "svn://numberx.googlecode.com/svn;module=trunk;proto=http"
 

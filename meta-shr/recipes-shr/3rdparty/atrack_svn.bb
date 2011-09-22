@@ -7,8 +7,7 @@ PRIORITY = "optional"
 
 SRCREV = "128"
 PV = "0.0.81+svnr${SRCPV}"
-
-PACKAGE_ARCH = "all"
+PR = "r1"
 
 SRC_URI = "svn://atrack.googlecode.com/svn;module=trunk;proto=http"
 S = "${WORKDIR}/trunk"

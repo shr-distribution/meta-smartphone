@@ -5,7 +5,7 @@ DEPENDS = "edje-native eet-native"
 SRCREV = "b1b0f6adc59e6f72a3929771058e3750bf181bc5"
 PV = "0.1.0+gitr${SRCPV}"
 PE = "1"
-PR = "r0"
+PR = "r1"
 
 SRC_URI = "${FREESMARTPHONE_GIT}/artwork.git;protocol=git;branch=master"
 S = "${WORKDIR}/git/illume"
@@ -39,6 +39,3 @@ do_install() {
 RPROVIDES_${PN} = "illume-theme"
 CONFFILES_${PN} = "${sysconfdir}/enlightenment/default_profile"
 FILES_${PN} = "${sysconfdir}/enlightenment ${datadir}/enlightenment"
-
-PACKAGE_ARCH = "all"
-

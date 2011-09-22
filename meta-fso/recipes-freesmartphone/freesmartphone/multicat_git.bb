@@ -6,7 +6,7 @@ require python-helpers.inc
 
 SRCREV = "${FSO_PYTHONHELPERS_SRCREV}"
 PV = "0.0.0+gitr${SRCPV}"
-PR = "r1"
+PR = "r2"
 
 do_install() {
 	install -d ${D}${bindir}
@@ -16,5 +16,3 @@ do_install() {
 RDEPENDS_${PN} = "\
   python-core \
 "
-
-PACKAGE_ARCH = "all"

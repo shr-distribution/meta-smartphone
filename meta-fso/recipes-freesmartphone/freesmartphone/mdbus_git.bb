@@ -6,7 +6,7 @@ require python-helpers.inc
 
 SRCREV = "${FSO_PYTHONHELPERS_SRCREV}"
 PV = "0.9.2+gitr${SRCPV}"
-PR = "r2"
+PR = "r3"
 
 do_install() {
 	install -d ${D}${bindir}
@@ -19,6 +19,3 @@ RDEPENDS_${PN} = "\
   python-pprint \
   python-xml \
 "
-
-PACKAGE_ARCH = "all"
-

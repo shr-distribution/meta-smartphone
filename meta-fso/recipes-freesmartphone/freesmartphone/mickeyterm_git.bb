@@ -23,5 +23,3 @@ RRECOMMENDS_${PN} += "\
   fso-gsm0710muxd \
   python-dbus \
 "
-
-PACKAGE_ARCH = "all"

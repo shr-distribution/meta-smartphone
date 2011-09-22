@@ -7,7 +7,7 @@ SECTION = "x11/application"
 SRCREV = "ebe1e6b9eece448ba302d819a6033782e912bea7"
 PE = "1"
 PV = "0.1.1+gitr${SRCPV}"
-PR = "r13"
+PR = "r14"
 
 inherit setuptools
 
@@ -32,9 +32,6 @@ do_install_append() {
   install -d ${D}/${sysconfdir}/profile.d/
   install -m 0755 "${WORKDIR}/elementary.sh" "${D}/${sysconfdir}/profile.d/elementary.sh"
 }
-
-PACKAGE_ARCH_${PN}-addons-illume = "all"
-PACKAGE_ARCH_${PN}-backup-configuration = "all"
 
 SRC_URI = "git://git.shr-project.org/repo/shr-settings.git;protocol=http;branch=master \
            file://elementary.sh"
