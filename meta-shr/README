@@ -6,13 +6,13 @@ layers: meta
 branch: master
 revision: HEAD
 
-URI: git://git.openembedded.net/meta-openembedded
-layers: meta-oe, meta-efl, meta-gnome
+URI: git://git.openembedded.org/meta-openembedded
+layers: meta-oe, meta-efl, meta-gnome, meta-gpe
 branch: master
 revision: HEAD
 
 URI: http://git.shr-project.org/repo/meta-smartphone.git
-layers: meta-fso
+layers: meta-fso, meta-aurora
 branch: master
 revision: HEAD
 
