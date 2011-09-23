@@ -1,7 +1,7 @@
-From 9e52170e04bbae8ff491503984b49640b1d40325 Mon Sep 17 00:00:00 2001
+From e755764796ad99dba8fa2fc6c2ae92c74bb30a2f Mon Sep 17 00:00:00 2001
 From: Martin Jansa <Martin.Jansa@gmail.com>
 Date: Tue, 7 Dec 2010 12:41:39 +0100
-Subject: [PATCH 8/8] configs/nokia_rx51.h: update saved env
+Subject: [PATCH 15/16] configs/nokia_rx51.h: update saved env
 
 * use ext2 instead of fat for 1st and 3rd partition
 * integrate SHR boot.scr to default env
@@ -24,10 +24,10 @@ Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
  1 files changed, 43 insertions(+), 29 deletions(-)
 
 diff --git a/include/configs/nokia_rx51.h b/include/configs/nokia_rx51.h
-index e16cc64..59c87c2 100644
+index f6b340a..f3bf2b7 100644
 --- a/include/configs/nokia_rx51.h
 +++ b/include/configs/nokia_rx51.h
-@@ -193,47 +193,61 @@ int rx51_kp_getc(void);
+@@ -197,47 +197,61 @@ int rx51_kp_getc(void);
  	"usbcon=setenv con usbtty; run setcon\0" \
  	"vgacon=setenv con vga; run setcon\0" \
  	"loadaddr=0x82000000\0" \
@@ -116,7 +116,7 @@ index e16cc64..59c87c2 100644
 +		"run maemo; " \
 +	"fi; "
  
- #define CONFIG_AUTO_COMPLETE		1
+ #define CONFIG_AUTO_COMPLETE
  /*
 -- 
 1.7.6.1

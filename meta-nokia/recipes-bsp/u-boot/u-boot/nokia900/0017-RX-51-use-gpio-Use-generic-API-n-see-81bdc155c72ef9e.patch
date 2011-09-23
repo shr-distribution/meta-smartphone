@@ -1,0 +1,31 @@
+From bf198993889aac586f0d4d8b2068ef52cbb4f06a Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Fri, 23 Sep 2011 15:28:55 +0200
+Subject: [PATCH 17/17] RX-51: use gpio: Use generic API\n* see
+ 81bdc155c72ef9e093b388b90c58d8134d870976 for details
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ board/nokia/rx51/rx51.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/board/nokia/rx51/rx51.c b/board/nokia/rx51/rx51.c
+index e578c34..bead564 100644
+--- a/board/nokia/rx51/rx51.c
++++ b/board/nokia/rx51/rx51.c
+@@ -100,9 +100,9 @@ int misc_init_r(void)
+ #endif
+ 
+ 	/* set environment variable slide_sw if keyboard slide is open/close */
+-	omap_set_gpio_direction(71, 1);
+-	unsigned val = omap_get_gpio_datain(71);
+-	omap_free_gpio(71);
++	gpio_direction_output(71, 1);
++	unsigned val = gpio_direction_input(71);
++	gpio_free(71);
+ 	setenv("slide_sw", val ? "close" : "open");
+ 
+ 	dieid_num_r();
+-- 
+1.7.6.1
+

@@ -1,8 +1,9 @@
-From 805c27329cca278be513110752e48b1909776a56 Mon Sep 17 00:00:00 2001
+From c2bd4c26813d490e80b7881dfac5afe2f7c68575 Mon Sep 17 00:00:00 2001
 From: Matan Ziv-Av <matan@svgalib.org>
 Date: Tue, 7 Dec 2010 12:01:34 +0100
-Subject: [PATCH 7/8] Only delay boot if keyboard open
+Subject: [PATCH 05/16] Only delay boot if keyboard open
 
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
 ---
  board/nokia/rx51/rx51.c      |    7 +++++++
  include/configs/nokia_rx51.h |    1 +

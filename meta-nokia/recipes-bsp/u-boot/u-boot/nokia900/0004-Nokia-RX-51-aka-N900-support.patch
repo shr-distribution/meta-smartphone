@@ -1,7 +1,7 @@
-From 550672fd35e57ca4c4762a928a0198aa80ba0a93 Mon Sep 17 00:00:00 2001
+From 4d7df48a6ebdc0018a3cb1e35abb372c7805d471 Mon Sep 17 00:00:00 2001
 From: Alistair Buxton <a.j.buxton@gmail.com>
-Date: Thu, 1 Sep 2011 16:00:12 +0100
-Subject: [PATCH 4/8] Nokia RX-51 aka N900 support
+Date: Thu, 1 Sep 2011 23:13:38 +0100
+Subject: [PATCH 04/16] Nokia RX-51 aka N900 support
 
 This board definition results in a u-boot.bin which can be chainloaded
 from NOLO in qemu or on a real N900. It does very little hardware config
@@ -21,16 +21,15 @@ works but is disabled because it prevents the current Maemo kernel from
 booting.
 
 Signed-off-by: Alistair Buxton <a.j.buxton@gmail.com>
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
 ---
  board/nokia/rx51/Makefile    |   50 ++++++
- board/nokia/rx51/config.mk   |   33 ++++
- board/nokia/rx51/rx51.c      |  246 +++++++++++++++++++++++++++
+ board/nokia/rx51/rx51.c      |  245 +++++++++++++++++++++++++++
  board/nokia/rx51/rx51.h      |  382 ++++++++++++++++++++++++++++++++++++++++++
  boards.cfg                   |    1 +
- include/configs/nokia_rx51.h |  302 +++++++++++++++++++++++++++++++++
- 6 files changed, 1014 insertions(+), 0 deletions(-)
+ include/configs/nokia_rx51.h |  304 +++++++++++++++++++++++++++++++++
+ 5 files changed, 982 insertions(+), 0 deletions(-)
  create mode 100644 board/nokia/rx51/Makefile
- create mode 100644 board/nokia/rx51/config.mk
  create mode 100644 board/nokia/rx51/rx51.c
  create mode 100644 board/nokia/rx51/rx51.h
  create mode 100644 include/configs/nokia_rx51.h
@@ -91,51 +90,12 @@ index 0000000..92a0c9a
 +sinclude $(obj).depend
 +
 +#########################################################################
-diff --git a/board/nokia/rx51/config.mk b/board/nokia/rx51/config.mk
-new file mode 100644
-index 0000000..3477f09
---- /dev/null
-+++ b/board/nokia/rx51/config.mk
-@@ -0,0 +1,33 @@
-+#
-+# (C) Copyright 2006
-+# Texas Instruments, <www.ti.com>
-+#
-+# Nokia N900 uses OMAP3 (ARM-CortexA8) cpu
-+# see http://www.ti.com/ for more information on Texas Instruments
-+#
-+# See file CREDITS for list of people who contributed to this
-+# project.
-+#
-+# This program is free software; you can redistribute it and/or
-+# modify it under the terms of the GNU General Public License as
-+# published by the Free Software Foundation; either version 2 of
-+# the License, or (at your option) any later version.
-+#
-+# This program is distributed in the hope that it will be useful,
-+# but WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+# GNU General Public License for more details.
-+#
-+# You should have received a copy of the GNU General Public License
-+# along with this program; if not, write to the Free Software
-+# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-+# MA 02111-1307 USA
-+#
-+# Physical Address:
-+# 8000'0000 (bank0)
-+# 8800/0000 (bank1)
-+# Linux-Kernel is expected to be at 8000'8000, entry 8000'8000
-+# (mem base + reserved)
-+
-+# For use with external or internal boots.
-+CONFIG_SYS_TEXT_BASE = 0x80008000
 diff --git a/board/nokia/rx51/rx51.c b/board/nokia/rx51/rx51.c
 new file mode 100644
-index 0000000..47484d3
+index 0000000..fba348a
 --- /dev/null
 +++ b/board/nokia/rx51/rx51.c
-@@ -0,0 +1,246 @@
+@@ -0,0 +1,245 @@
 +/*
 + * (C) Copyright 2010
 + * Alistair Buxton <a.j.buxton@gmail.com>
@@ -182,6 +142,9 @@ index 0000000..47484d3
 +
 +GraphicDevice gdev;
 +
++extern unsigned int _INIT_LOADADDR;
++extern unsigned int _INIT_ATAGADDR;
++
 +/*
 + * Routine: board_init
 + * Description: Early hardware init.
@@ -224,14 +187,10 @@ index 0000000..47484d3
 +#ifdef CONFIG_CHAINLOADER
 +	char buf[12];
 +	printf("Getting NOLO supplied boot parameters...\n");
-+	sprintf(buf, "0x%x", readl(0x82000000));
-+	setenv("nolo_loadaddr", buf);
-+	sprintf(buf, "0x%x", readl(0x82000000)+0x40000);
-+	setenv("nolo_kernaddr", buf);
-+	sprintf(buf, "0x%x", readl(0x82000004));
-+	setenv("nolo_machtype", buf);
-+	sprintf(buf, "0x%x", readl(0x82000008));
-+	setenv("nolo_atagaddr", buf);
++	sprintf(buf, "%#x", _INIT_LOADADDR+0x40000);
++	setenv("init_kernaddr", buf);
++	sprintf(buf, "%#x", _INIT_ATAGADDR);
++	setenv("init_atagaddr", buf);
 +#endif
 +
 +	dieid_num_r();
@@ -771,10 +730,10 @@ index 0000000..625129c
 +
 +#endif
 diff --git a/boards.cfg b/boards.cfg
-index dfefc3f..8fcbda8 100644
+index 8a5bfc1..3a2e9b6 100644
 --- a/boards.cfg
 +++ b/boards.cfg
-@@ -155,6 +155,7 @@ omap3_beagle                 arm         armv7       beagle              ti
+@@ -176,6 +176,7 @@ omap3_beagle                 arm         armv7       beagle              ti
  omap3_evm                    arm         armv7       evm                 ti             omap3
  omap3_sdp3430                arm         armv7       sdp3430             ti             omap3
  devkit8000                   arm         armv7       devkit8000          timll          omap3
@@ -784,10 +743,10 @@ index dfefc3f..8fcbda8 100644
  s5p_goni                     arm         armv7       goni                samsung        s5pc1xx
 diff --git a/include/configs/nokia_rx51.h b/include/configs/nokia_rx51.h
 new file mode 100644
-index 0000000..e389f21
+index 0000000..8058913
 --- /dev/null
 +++ b/include/configs/nokia_rx51.h
-@@ -0,0 +1,302 @@
+@@ -0,0 +1,304 @@
 +/*
 + * (C) Copyright 2010
 + * Alistair Buxton <a.j.buxton@gmail.com>
@@ -825,15 +784,20 @@ index 0000000..e389f21
 +/*
 + * High Level Configuration Options
 + */
++
 +#define CONFIG_ARMV7		1	/* This is an ARM V7 CPU core */
 +#define CONFIG_OMAP		1	/* in a TI OMAP core */
 +#define CONFIG_OMAP34XX		1	/* which is a 34XX */
 +#define CONFIG_OMAP3430		1	/* which is in a 3430 */
-+#define CONFIG_OMAP3_RX51	1	/* working with RX51 */
 +#define CONFIG_CHAINLOADER	1	/* Loaded by NOLO */
 +#define CONFIG_L2_OFF		1	/* kernel won't boot if l2 enabled */
 +					/* (old u-boot tried but failed to */
 +					/*  enable it, due to a bug.)      */
++
++/* It doesn't really matter what we set this to. NOLO will load u-boot.bin
++ * in a random place anyway, and we have to copy.
++ */
++#define CONFIG_SYS_TEXT_BASE    0x80008000
 +
 +#define CONFIG_SDRC	/* The chip has SDRC controller */
 +
@@ -863,10 +827,8 @@ index 0000000..e389f21
 + * Size of malloc() pool
 + */
 +#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
-+						/* Sector */
++							/* Sector */
 +#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
-+#define CONFIG_SYS_GBL_DATA_SIZE	128	/* bytes reserved for */
-+						/* initial data */
 +
 +/*
 + * Hardware drivers
@@ -989,8 +951,8 @@ index 0000000..e389f21
 +		"run meegoargs; " \
 +		"bootm ${loadaddr}\0" \
 +	"noloboot=echo Booting NOLO supplied kernel ...; " \
-+		"setenv atags ${nolo_atagaddr};" \
-+		"bootm ${nolo_kernaddr}\0" \
++		"setenv atagaddr ${init_atagaddr};" \
++		"bootm ${init_kernaddr}\0" \
 +	"trymmc=if run loadbootscript; then " \
 +			"run bootscript; " \
 +		"else " \
@@ -1070,7 +1032,6 @@ index 0000000..e389f21
 + */
 +#define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 +#define PHYS_SDRAM_1		OMAP34XX_SDRC_CS0
-+#define PHYS_SDRAM_1_SIZE	(32 << 20)	/* at least 32 MiB */
 +#define PHYS_SDRAM_2		OMAP34XX_SDRC_CS1
 +
 +/* SDRAM Bank Allocation method */

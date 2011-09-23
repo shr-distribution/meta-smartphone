@@ -1,0 +1,61 @@
+From 0251d570c0effc0eb740216829a30222dfc2f6e8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
+Date: Wed, 31 Aug 2011 11:02:08 +0200
+Subject: [PATCH 09/16] RX-51: Fix keymap
+
+ * add support for additional key combination with ctrl and fn
+ * add support for keys: up, down, left, right, volume_up, volume_down
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ board/nokia/rx51/rx51.c |   20 ++++++++++++--------
+ 1 files changed, 12 insertions(+), 8 deletions(-)
+
+diff --git a/board/nokia/rx51/rx51.c b/board/nokia/rx51/rx51.c
+index c03ef87..e578c34 100644
+--- a/board/nokia/rx51/rx51.c
++++ b/board/nokia/rx51/rx51.c
+@@ -146,21 +146,21 @@ static const char keymap[] = {
+ 	/* normal */
+ 	'q',  'o',  'p',  ',', '\b',    0,  'a',  's',
+ 	'w',  'd',  'f',  'g',  'h',  'j',  'k',  'l',
+-	'e',  '.',    0,  '\r',   0,  'z',  'x',  'c',
+-	'r',  'v',  'b',  'n',  'm',  ' ',    0,    0,
+-	't',    0,    0,    0,    0,    0,    0,    0,
++	'e',  '.',   24,  '\r',   0,  'z',  'x',  'c',
++	'r',  'v',  'b',  'n',  'm',  ' ',  ' ',   27,
++	't',   25,   26,    0,    0,    0,    0,    0,
+ 	'y',    0,    0,    0,    0,    0,    0,    0,
+ 	'u',    0,    0,    0,    0,    0,    0,    0,
+-	'i',    0,    0,    0,    0,    0,    0,    0,
++	'i',    5,    6,    0,    0,    0,    0,    0,
+ 	/* fn */
+ 	'1',  '9',  '0',  '=', '\b',    0,  '*',  '+',
+ 	'2',  '#',  '-',  '_',  '(',  ')',  '&',  '!',
+-	'3',  '?',    0, '\r',    0,    0,  '$',    0,
+-	'4',  '/', '\\',  '"', '\'',  '@',    0,    0,
+-	'5',    0,    0,    0,    0,    0,    0,    0,
++	'3',  '?',  '^', '\r',    0,  156,  '$',  238,
++	'4',  '/', '\\',  '"', '\'',  '@',    0,  '<',
++	'5',  '|',  '>',    0,    0,    0,    0,    0,
+ 	'6',    0,    0,    0,    0,    0,    0,    0,
+ 	'7',    0,    0,    0,    0,    0,    0,    0,
+-	'8',    0,    0,    0,    0,    0,    0,    0,
++	'8',   16,   17,    0,    0,    0,    0,    0,
+ };
+ 
+ static u8 keys[8];
+@@ -209,6 +209,10 @@ static void rx51_kp_fill(u8 k, u8 mods)
+ 		k = keymap[k+64];
+ 	} else {
+ 		k = keymap[k];
++		if (mods & 1) { /* ctrl */
++			if (k >= 'a' && k <= 'z')
++				k -= 'a' + 1;
++		}
+ 		if (mods & 4) { /* shift */
+ 			if (k >= 'a' && k <= 'z')
+ 				k += 'A' - 'a';
+-- 
+1.7.6.1
+

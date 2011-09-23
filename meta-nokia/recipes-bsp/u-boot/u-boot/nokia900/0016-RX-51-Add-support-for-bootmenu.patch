@@ -1,0 +1,57 @@
+From 9b57bf41f4a4f0236969c091ed9e4353ee936971 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
+Date: Wed, 31 Aug 2011 22:47:04 +0200
+Subject: [PATCH 16/16] RX-51: Add support for bootmenu
+
+---
+ include/configs/nokia_rx51.h |   13 +++++++++++--
+ 1 files changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/include/configs/nokia_rx51.h b/include/configs/nokia_rx51.h
+index f3bf2b7..4d32e88 100644
+--- a/include/configs/nokia_rx51.h
++++ b/include/configs/nokia_rx51.h
+@@ -139,6 +139,8 @@
+ #define CONFIG_CMD_MMC		/* MMC support			*/
+ #undef CONFIG_CMD_ONENAND	/* NAND support			*/
+ 
++#define CONFIG_CMD_BOOTMENU	/* ANSI terminal Boot Menu	*/
++
+ #undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
+ #undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
+ #undef CONFIG_CMD_IMI		/* iminfo			*/
+@@ -185,7 +187,7 @@ int rx51_kp_getc(void);
+ #endif
+ 
+ /* Environment information */
+-#define CONFIG_BOOTDELAY		3
++#define CONFIG_MENU
+ 
+ #define CONFIG_EXTRA_ENV_SETTINGS \
+ 	"usbtty=cdc_acm\0" \
+@@ -219,7 +221,12 @@ int rx51_kp_getc(void);
+ 		"boot\0" \
+ 	"maemo=echo Booting Maemo from eMMC, NOLO supplied kernel ...; " \
+ 		"setenv atagaddr ${init_atagaddr};" \
+-		"bootm ${init_kernaddr}\0"
++		"bootm ${init_kernaddr}\0" \
++	"bootmenu_0=Boot Maemo 5 from eMMC, kernel loaded by NOLO: run maemo\0" \
++	"bootmenu_1=Boot SHR from uSD 1st part (/boot/uImage): run shr\0" \
++	"bootmenu_2=Boot SHR from uSD 1st part, kernel on 3rd: run shr2\0" \
++	"bootmenu_3=Boot from uSD 2nd part, kernel on 3rd: run p2\0" \
++	"bootmenu_delay=3\0"
+ 
+ #define CONFIG_PREBOOT \
+ 	"if test $slide_sw != open ; then " \
+@@ -233,6 +240,8 @@ int rx51_kp_getc(void);
+ 			"run maemo; " \
+ 		"fi; " \
+ 	"fi; " \
++
++#define CONFIG_PREMONITOR \
+ 	"echo Extra commands:;" \
+ 	"echo run sercon - Use serial port for control.;" \
+ 	"echo run usbcon - Use usbtty for control.;" \
+-- 
+1.7.6.1
+

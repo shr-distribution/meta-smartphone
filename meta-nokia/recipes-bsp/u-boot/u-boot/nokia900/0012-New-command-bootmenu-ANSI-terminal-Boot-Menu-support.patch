@@ -1,0 +1,386 @@
+From a6e98422c3805abd5e9408c59ede2bbcfaa55f88 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
+Date: Wed, 31 Aug 2011 12:07:50 +0200
+Subject: [PATCH 12/16] New command bootmenu: ANSI terminal Boot Menu support
+
+ * Configuration is done via env variables bootmenu_delay and bootmenu_<num>:
+
+    bootmenu_delay=<delay>
+    bootmenu_<num>="<title>: <commands>" (title and commands are separated by first char ':')
+
+    <delay> is delay in seconds of autobooting first entry
+    <num> is boot menu entry, starting from zero
+    <title> is text shown in boot screen
+    <commands> are commands which will be executed when menu entry will be selected
+
+ * First argument of bootmenu command override bootmenu_delay env
+ * If env bootmenu_delay or bootmenu argument is not specified, 10 seconds for delay will be used
+ * If delay is 0, no entry will be show on screen, screen will not be cleared and first entry will be called
+ * If delay is less then 0, no autoboot delay will be used
+ * Boot Menu will stop finding next menu entry if last was not defined
+ * Boot Menu always add menu entry "U-Boot console" at end of all entries
+
+ * Example using:
+
+    setenv bootmenu_0 "First: bootm 0x82000000"  # Set first menu entry
+    setenv bootmenu_1 "Second: bootm 0x83000000" # Set second menu entry
+    setenv bootmenu_2 "Reset: reset"             # Set third menu entry
+    bootmenu 20                                  # Run bootmenu with autoboot delay 20s
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ common/Makefile          |    1 +
+ common/cmd_bootmenu.c    |  316 ++++++++++++++++++++++++++++++++++++++++++++++
+ include/config_cmd_all.h |    1 +
+ 3 files changed, 318 insertions(+), 0 deletions(-)
+ create mode 100644 common/cmd_bootmenu.c
+
+diff --git a/common/Makefile b/common/Makefile
+index 2edbd71..f596a0b 100644
+--- a/common/Makefile
++++ b/common/Makefile
+@@ -68,6 +68,7 @@ COBJS-$(CONFIG_CMD_SOURCE) += cmd_source.o
+ COBJS-$(CONFIG_CMD_BDI) += cmd_bdinfo.o
+ COBJS-$(CONFIG_CMD_BEDBUG) += bedbug.o cmd_bedbug.o
+ COBJS-$(CONFIG_CMD_BMP) += cmd_bmp.o
++COBJS-$(CONFIG_CMD_BOOTMENU) += cmd_bootmenu.o
+ COBJS-$(CONFIG_CMD_BOOTLDR) += cmd_bootldr.o
+ COBJS-$(CONFIG_CMD_CACHE) += cmd_cache.o
+ COBJS-$(CONFIG_CMD_CONSOLE) += cmd_console.o
+diff --git a/common/cmd_bootmenu.c b/common/cmd_bootmenu.c
+new file mode 100644
+index 0000000..7f8e6a8
+--- /dev/null
++++ b/common/cmd_bootmenu.c
+@@ -0,0 +1,316 @@
++/*
++ * (C) Copyright 2011 Pali Rohár <pali.rohar@gmail.com>
++ *
++ * See file CREDITS for list of people who contributed to this
++ * project.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of
++ * the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
++ * MA 02111-1307 USA
++ */
++
++#include <common.h>
++#include <command.h>
++#include <watchdog.h>
++#include <linux/string.h>
++
++#ifdef CONFIG_SYS_HUSH_PARSER
++#include <hush.h>
++#endif
++
++static char * get_option(int n) {
++
++	char name[] = "bootmenu_\0\0";
++
++	if ( n < 0 || n > 99 )
++		return NULL;
++
++	sprintf(name+9, "%d", n);
++
++	return getenv(name);
++
++}
++
++static char * get_end_of_title(char * str) {
++
++	if ( ! str )
++		return NULL;
++
++	return strchr(str, ':');
++
++}
++
++static int print_title(char * begin, char * end) {
++
++	if ( ! begin || ! end || end < begin )
++		return 1;
++
++	while ( begin != end )
++		putc(*(begin++));
++
++	return 0;
++
++}
++
++static int print_entry(int n, int reverse) {
++
++	char * str = get_option(n);
++	char * end = get_end_of_title(str);
++
++	if ( ! end )
++		return 1;
++
++	printf(ANSI_CURSOR_POSITION, n+4, 1);
++
++	if ( reverse )
++		printf(ANSI_COLOR, ANSI_COLOR_ATTR_REVERSE);
++
++	printf("     ");
++	print_title(str, end);
++	printf(ANSI_CLEAR_LINE_TO_END);
++
++	if ( reverse ) {
++
++		putc('\n'); //HACK: this prevent to draw black cursor by cfb_console driver
++		printf(ANSI_COLOR, ANSI_COLOR_ATTR_RESET);
++
++	}
++
++	return 0;
++
++}
++
++static int print_menu(int active) {
++
++	int n = 0;
++
++	printf(ANSI_CURSOR_POSITION, 1, 1);
++	printf(ANSI_CLEAR_LINE);
++	printf(ANSI_CURSOR_POSITION, 2, 1);
++	printf("  *** U-Boot BOOT MENU ***");
++	printf(ANSI_CLEAR_LINE_TO_END);
++	printf(ANSI_CURSOR_POSITION, 3, 1);
++	printf(ANSI_CLEAR_LINE);
++
++	while ( 1 ) {
++
++		int ret = print_entry(n, n == active ? 1 : 0);
++
++		if ( ret == 1 )
++			break;
++
++		++n;
++
++	}
++
++	printf(ANSI_CURSOR_POSITION, n+4, 1);
++
++	if ( n == active )
++		printf(ANSI_COLOR, ANSI_COLOR_ATTR_REVERSE);
++
++	printf("     U-Boot console");
++	printf(ANSI_CLEAR_LINE_TO_END);
++
++	if ( n == active ) {
++
++		putc('\n'); //HACK: this prevent to draw black cursor by cfb_console driver
++		printf(ANSI_COLOR, ANSI_COLOR_ATTR_RESET);
++
++	}
++
++	printf(ANSI_CURSOR_POSITION, n+5, 1);
++	printf(ANSI_CLEAR_LINE);
++	printf(ANSI_CURSOR_POSITION, n+6, 1);
++	printf("  Press UP/DOWN to move, ENTER to select");
++	printf(ANSI_CLEAR_LINE_TO_END);
++	printf(ANSI_CURSOR_POSITION, n+7, 1);
++	printf(ANSI_CLEAR_LINE);
++
++	return n;
++
++}
++
++int do_bootmenu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]) {
++
++	int active = 0;
++	int abort = 0;
++	int key = 0;
++	int count = 0;
++	int delay = 10;
++	int instant = 0;
++	char * delay_str = NULL;
++
++	if ( argc >= 2 )
++		delay_str = argv[1];
++
++	if ( ! delay_str )
++		delay_str = getenv("bootmenu_delay");
++
++	if ( delay_str )
++		delay = (int)simple_strtol(delay_str, NULL, 10);
++
++	if ( delay == 0 ) {
++
++		if ( get_end_of_title(get_option(0)) ) // prevent setting U-Boot console as first menu entry
++			count = 1;
++
++		instant = 1;
++
++	}
++
++	if ( delay < 0 )
++		abort = 1;
++
++	if ( ! instant ) {
++
++		printf(ANSI_CLEAR_CONSOLE);
++		printf(ANSI_CURSOR_POSITION, 1, 1);
++
++	}
++
++	while ( 1 ) {
++
++		if ( abort || delay > 0 )
++			count = print_menu(active);
++
++		if ( ! abort ) {
++
++			if ( delay > 0 )
++				printf("  Hit any key to stop autoboot: %2d ", delay);
++
++			while ( delay > 0 ) {
++
++				int i;
++
++				for ( i = 0; i < 100; ++i ) {
++
++					if ( tstc() ) {
++
++						abort = 1;
++						key = getc();
++						break;
++
++					}
++
++					WATCHDOG_RESET();
++					udelay(10000);
++
++				}
++
++				if ( abort )
++					break;
++
++				--delay;
++				printf("\b\b\b%2d ", delay);
++
++			}
++
++			if ( delay <= 0 )
++				key = '\r';
++
++		} else {
++
++			while ( ! tstc() ) {
++
++				WATCHDOG_RESET();
++				udelay(10000);
++
++			}
++
++			key = getc();
++
++		}
++
++		if ( key == 24 ) {
++
++			if ( active > 0 )
++				--active;
++
++		} else if ( key == 25 ) {
++
++			if ( active < count )
++				++active;
++
++		} else if ( key == '\r' ) {
++
++			char * str;
++			char * end;
++
++			putc('\n');
++
++			if ( ! instant ) {
++
++				printf(ANSI_CLEAR_CONSOLE);
++				printf(ANSI_CURSOR_POSITION, 1, 1);
++
++			}
++
++			WATCHDOG_RESET();
++
++			if ( active == count ) { // Last entry is always U-Boot console
++
++				printf("Starting U-Boot console\n\n");
++				return 0;
++
++			}
++
++			str = get_option(active);
++			end = get_end_of_title(str);
++
++			if ( ! end ) {
++
++				printf("Invalid Boot Menu entry %d\nStarting U-Boot console\n\n", active);
++				return 0;
++
++			}
++
++			if ( ! end[1] ) {
++
++				printf("Invalid Boot Menu entry %d: ", active);
++				print_title(str, end);
++				printf("\nStarting U-Boot console\n\n");
++				return 0;
++
++			}
++
++			printf("Booting Boot Menu entry %d: ", active);
++			print_title(str, end);
++			printf(" ...\n\n");
++
++# ifndef CONFIG_SYS_HUSH_PARSER
++			run_command(end+1, 0);
++# else
++			parse_string_outer(end+1, FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
++# endif
++
++			printf("\nFailed booting Boot Menu entry %d: ", active);
++			print_title(str, end);
++			printf("\nStarting U-Boot console\n\n");
++			return 0;
++
++		}
++
++	}
++
++	/* never happends */
++	return 1;
++
++}
++
++U_BOOT_CMD(
++	bootmenu, 2, 1, do_bootmenu,
++	"ANSI terminal bootmenu",
++	"[delay]\n"
++	"    - show ANSI terminal bootmenu with autoboot delay (default 10s)"
++);
+diff --git a/include/config_cmd_all.h b/include/config_cmd_all.h
+index 9716f9c..360cc10 100644
+--- a/include/config_cmd_all.h
++++ b/include/config_cmd_all.h
+@@ -20,6 +20,7 @@
+ #define CONFIG_CMD_BEDBUG	/* Include BedBug Debugger	*/
+ #define CONFIG_CMD_BMP		/* BMP support			*/
+ #define CONFIG_CMD_BOOTD	/* bootd			*/
++#define CONFIG_CMD_BOOTMENU	/* ANSI terminal Boot Menu	*/
+ #define CONFIG_CMD_BSP		/* Board Specific functions	*/
+ #define CONFIG_CMD_CACHE	/* icache, dcache		*/
+ #define CONFIG_CMD_CDP		/* Cisco Discovery Protocol	*/
+-- 
+1.7.6.1
+

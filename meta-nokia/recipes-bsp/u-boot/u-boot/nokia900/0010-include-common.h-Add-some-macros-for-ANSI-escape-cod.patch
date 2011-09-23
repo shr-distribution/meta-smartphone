@@ -1,0 +1,57 @@
+From 0231004c9e7d108147a8da3439dede71261d6d11 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
+Date: Wed, 31 Aug 2011 15:40:58 +0200
+Subject: [PATCH 10/16] include/common.h: Add some macros for ANSI escape
+ codes
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ include/common.h |   32 ++++++++++++++++++++++++++++++++
+ 1 files changed, 32 insertions(+), 0 deletions(-)
+
+diff --git a/include/common.h b/include/common.h
+index d244bd4..fac13bb 100644
+--- a/include/common.h
++++ b/include/common.h
+@@ -702,6 +702,38 @@ void	clear_ctrlc (void);	/* clear the Control-C condition */
+ int	disable_ctrlc (int);	/* 1 to disable, 0 to enable Control-C detect */
+ 
+ /*
++ * ANSI terminal
++ */
++
++#define ANSI_CURSOR_UP			"\e[%dA"
++#define ANSI_CURSOR_DOWN		"\e[%dB"
++#define ANSI_CURSOR_FORWARD		"\e[%dC"
++#define ANSI_CURSOR_BACK		"\e[%dD"
++#define ANSI_CURSOR_NEXTLINE		"\e[%dE"
++#define ANSI_CURSOR_PREVIOUSLINE	"\e[%dF"
++#define ANSI_CURSOR_COLUMN		"\e[%dG"
++#define ANSI_CURSOR_POSITION		"\e[%d;%dH"
++#define ANSI_CLEAR_CONSOLE		"\e[2J"
++#define ANSI_CLEAR_LINE_TO_END		"\e[0K"
++#define ANSI_CLEAR_LINE			"\e[2K"
++#define ANSI_COLOR			"\e[%dm"
++
++#define BLACK	0
++#define RED	1
++#define GREEN	2
++#define YELLOW	3
++#define BLUE	4
++#define MAGENTA 5
++#define CYAN	6
++#define WHITE	7
++#define DEFAULT	8
++
++#define ANSI_COLOR_ATTR_RESET	0
++#define ANSI_COLOR_ATTR_REVERSE	7
++#define ANSI_COLOR_TEXT(c)	(30+c)
++#define ANSI_COLOR_BG(c)	(40+c)
++
++/*
+  * STDIO based functions (can always be used)
+  */
+ /* serial stuff */
+-- 
+1.7.6.1
+

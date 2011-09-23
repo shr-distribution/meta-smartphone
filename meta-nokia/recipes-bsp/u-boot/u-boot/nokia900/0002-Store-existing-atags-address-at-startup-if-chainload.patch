@@ -1,0 +1,60 @@
+From 1190f0114c8e45cf501c3b1e619a4c832e96cc75 Mon Sep 17 00:00:00 2001
+From: Alistair Buxton <a.j.buxton@gmail.com>
+Date: Thu, 1 Sep 2011 21:57:56 +0100
+Subject: [PATCH 02/16] Store existing atags address at startup if
+ chainloading.
+
+This patch stores the atag address at startup. It also stores the address
+which u-boot was originally loaded to. These two pieces of information are
+REQUIRED to successfully boot the uImage appended to u-boot.bin at offset
+0x40000.
+
+The atag address is required in order to pass through the atags set by NOLO.
+NOLO is a proprietary bootloader, therefore we don't know what atags it can
+set. The only option is to back up the atags which it sets at runtime. Since
+this information is passed through r2, it is lost as soon as u-boot begins
+execution. Therefore it MUST be backed up before any other code executes.
+
+The load address of u-boot.bin is required because without it we do not know
+where the uImage was loaded. This information can only be obtained before
+u-boot is copied to _TEXT_BASE since that moves the location of _start.
+
+Signed-off-by: Alistair Buxton <a.j.buxton@gmail.com>
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ arch/arm/cpu/armv7/start.S |   12 ++++++++++++
+ 1 files changed, 12 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/cpu/armv7/start.S b/arch/arm/cpu/armv7/start.S
+index 536171e..3919537 100644
+--- a/arch/arm/cpu/armv7/start.S
++++ b/arch/arm/cpu/armv7/start.S
+@@ -93,6 +93,16 @@ _armboot_start:
+ 	.word _start
+ #endif
+ 
++#ifdef CONFIG_CHAINLOADER
++.globl _INIT_LOADADDR
++_INIT_LOADADDR:
++	.word 0x0badc0de
++
++.globl _INIT_ATAGADDR
++_INIT_ATAGADDR:
++	.word 0x0badc0de
++#endif
++
+ /*
+  * These are defined in the board-specific linker script.
+  */
+@@ -138,6 +148,8 @@ reset:
+ #if (CONFIG_CHAINLOADER)
+ 	/* Copy u-boot.bin to TEXT_BASE if it isn't already there. */
+ 	adr	r0, _start		@ Where u-boot.bin was loaded
++	str	r0, _INIT_LOADADDR
++	str	r2, _INIT_ATAGADDR
+ 	adr	r2, _start
+ 	add	r2, r2, #0x40000	@ Load address + 0x40000
+ 	ldr	r1, _TEXT_BASE		@ Where u-boot.bin needs to be
+-- 
+1.7.6.1
+

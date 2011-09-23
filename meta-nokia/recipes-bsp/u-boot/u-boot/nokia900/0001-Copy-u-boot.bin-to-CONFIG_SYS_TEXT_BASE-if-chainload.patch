@@ -1,7 +1,8 @@
-From 35669073e8f785acbc11c01faae531b5183ec3ba Mon Sep 17 00:00:00 2001
+From 0d3233fd10cb115b854528f3588a5338169d41b9 Mon Sep 17 00:00:00 2001
 From: Alistair Buxton <a.j.buxton@gmail.com>
-Date: Thu, 1 Sep 2011 15:48:14 +0100
-Subject: [PATCH 1/8] Copy u-boot.bin to CONFIG_SYS_TEXT_BASE if chainloading.
+Date: Thu, 1 Sep 2011 21:53:27 +0100
+Subject: [PATCH 01/16] Copy u-boot.bin to CONFIG_SYS_TEXT_BASE if
+ chainloading.
 
 When chainloading, u-boot.bin is loaded into RAM by the previous bootloader.
 We have no control over where it ends up so we cannot set CONFIG_SYS_TEXT_BASE
@@ -9,18 +10,19 @@ in advance. Instead, this patch makes u-boot copy itself from wherever it ends
 up, to CONFIG_SYS_TEXT_BASE, and then jumps into the correctly located copy.
 
 Signed-off-by: Alistair Buxton <a.j.buxton@gmail.com>
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
 ---
  arch/arm/cpu/armv7/start.S |   19 +++++++++++++++++++
  1 files changed, 19 insertions(+), 0 deletions(-)
 
 diff --git a/arch/arm/cpu/armv7/start.S b/arch/arm/cpu/armv7/start.S
-index d91ae12..a41ecce 100644
+index db8e9d2..536171e 100644
 --- a/arch/arm/cpu/armv7/start.S
 +++ b/arch/arm/cpu/armv7/start.S
-@@ -119,6 +119,25 @@ IRQ_STACK_START_IN:
-  */
+@@ -135,6 +135,25 @@ IRQ_STACK_START_IN:
  
  reset:
+ 	bl	save_boot_params
 +#if (CONFIG_CHAINLOADER)
 +	/* Copy u-boot.bin to TEXT_BASE if it isn't already there. */
 +	adr	r0, _start		@ Where u-boot.bin was loaded

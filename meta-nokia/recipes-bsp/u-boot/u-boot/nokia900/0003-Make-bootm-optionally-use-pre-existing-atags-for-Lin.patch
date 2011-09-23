@@ -1,7 +1,7 @@
-From 0d82ae200c656c79bb646840a996ea525260a5bf Mon Sep 17 00:00:00 2001
+From 74f7c95885d4b9d4d9dfc06176d366488e6f3a01 Mon Sep 17 00:00:00 2001
 From: Alistair Buxton <a.j.buxton@gmail.com>
-Date: Thu, 1 Sep 2011 15:59:30 +0100
-Subject: [PATCH 3/8] Make bootm optionally use pre-existing atags for Linux
+Date: Thu, 1 Sep 2011 23:12:23 +0100
+Subject: [PATCH 03/16] Make bootm optionally use pre-existing atags for Linux
  kernel boot.
 
 This patch adapts the bootm command so that it can use an existing atags command
@@ -12,37 +12,28 @@ loader already set up the atags struct at 0x80000100:
 
 setenv atags 0x80000100; bootm 0x80008000
 
+This is intended to be used in combination with the previous patch to pass
+atags set by the previous bootloader.
+
 Signed-off-by: Alistair Buxton <a.j.buxton@gmail.com>
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
 ---
- arch/arm/lib/bootm.c |   33 +++++++++++++++++++++++++--------
- 1 files changed, 25 insertions(+), 8 deletions(-)
+ arch/arm/lib/bootm.c |   26 ++++++++++++++++++--------
+ 1 files changed, 18 insertions(+), 8 deletions(-)
 
 diff --git a/arch/arm/lib/bootm.c b/arch/arm/lib/bootm.c
-index 802e833..72ca76b 100644
+index 802e833..57c9475 100644
 --- a/arch/arm/lib/bootm.c
 +++ b/arch/arm/lib/bootm.c
-@@ -99,6 +99,12 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
- 	char	*s;
- 	int	machid = bd->bi_arch_number;
- 	void	(*kernel_entry)(int zero, int arch, uint params);
-+#ifdef CONFIG_CHAINLOADER
-+	uint	bi_boot_params;
-+	#define PARAMS bi_boot_params
-+#else
-+	#define PARAMS (bd->bi_boot_params)
-+#endif
- 
- #ifdef CONFIG_CMDLINE_TAG
- 	char *commandline = getenv ("bootargs");
-@@ -125,29 +131,40 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
+@@ -125,29 +125,39 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
  	debug ("## Transferring control to Linux (at address %08lx) ...\n",
  	       (ulong) kernel_entry);
  
 +#ifdef CONFIG_CHAINLOADER
-+	s = getenv ("atags");
++	s = getenv ("atagaddr");
 +	if (s) {
-+		bi_boot_params = simple_strtoul (s, NULL, 16);
-+		printf ("Using existing atags at 0x%x\n", params);
++		bd->bi_boot_params = simple_strtoul(s, NULL, 16);
++		printf("Using existing atags at %#x\n", params);
 +	} else {
 +#endif
  #if defined (CONFIG_SETUP_MEMORY_TAGS) || \
@@ -78,7 +69,6 @@ index 802e833..72ca76b 100644
 +		setup_end_tag(bd);
 +#endif
 +#ifdef CONFIG_CHAINLOADER
-+		bi_boot_params = bd->bi_boot_params;
 +	}
  #endif
  

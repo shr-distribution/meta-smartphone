@@ -1,0 +1,51 @@
+From 93f5c4f611e1893e5cd0c1ca3f82505e81878bf1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
+Date: Wed, 31 Aug 2011 14:12:06 +0200
+Subject: [PATCH 14/16] New config variable CONFIG_PREMONITOR
+
+ * if defined run env "premonitor" before Main Loop for Monitor Command Processing
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ common/env_common.c |    3 +++
+ common/main.c       |   10 ++++++++++
+ 2 files changed, 13 insertions(+), 0 deletions(-)
+
+diff --git a/common/env_common.c b/common/env_common.c
+index 19149b5..fe9e525 100644
+--- a/common/env_common.c
++++ b/common/env_common.c
+@@ -99,6 +99,9 @@ const uchar default_environment[] = {
+ #ifdef	CONFIG_PREBOOT
+ 	"preboot="	CONFIG_PREBOOT			"\0"
+ #endif
++#ifdef	CONFIG_PREMONITOR
++	"premonitor="	CONFIG_PREMONITOR		"\0"
++#endif
+ #ifdef	CONFIG_ROOTPATH
+ 	"rootpath="	MK_STR(CONFIG_ROOTPATH)		"\0"
+ #endif
+diff --git a/common/main.c b/common/main.c
+index f28b250..b1fb453 100644
+--- a/common/main.c
++++ b/common/main.c
+@@ -413,6 +413,16 @@ void main_loop (void)
+ 	}
+ #endif
+ 
++#ifdef CONFIG_PREMONITOR
++	if ((s = getenv ("premonitor")) != NULL) {
++# ifndef CONFIG_SYS_HUSH_PARSER
++		run_command (s, 0);
++# else
++		parse_string_outer(s, FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP);
++# endif
++	}
++#endif /* CONFIG_PREMONITOR */
++
+ 	/*
+ 	 * Main Loop for Monitor Command Processing
+ 	 */
+-- 
+1.7.6.1
+

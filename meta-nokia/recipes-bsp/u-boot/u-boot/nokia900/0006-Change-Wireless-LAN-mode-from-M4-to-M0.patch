@@ -1,0 +1,44 @@
+From cbe684838f83eb53b8b895d25caa9c1a8aafdd8f Mon Sep 17 00:00:00 2001
+From: Matan Ziv-Av <matan@svgalib.org>
+Date: Tue, 7 Dec 2010 12:03:38 +0100
+Subject: [PATCH 06/16] Change Wireless LAN mode from M4 to M0
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ board/nokia/rx51/rx51.h |   20 ++++++++++----------
+ 1 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/board/nokia/rx51/rx51.h b/board/nokia/rx51/rx51.h
+index 625129c..cb58053 100644
+--- a/board/nokia/rx51/rx51.h
++++ b/board/nokia/rx51/rx51.h
+@@ -199,16 +199,16 @@ const omap3_sysinfo sysinfo = {
+ 	MUX_VAL(CP(MMC1_DAT6),		(IEN  | PTU | EN  | M0)) /*MMC1_DAT6*/\
+ 	MUX_VAL(CP(MMC1_DAT7),		(IEN  | PTU | EN  | M0)) /*MMC1_DAT7*/\
+  /*Wireless LAN */\
+-	MUX_VAL(CP(MMC2_CLK),		(IEN  | PTU | EN  | M4)) /*GPIO_130*/\
+-	MUX_VAL(CP(MMC2_CMD),		(IEN  | PTU | EN  | M4)) /*GPIO_131*/\
+-	MUX_VAL(CP(MMC2_DAT0),		(IEN  | PTU | EN  | M4)) /*GPIO_132*/\
+-	MUX_VAL(CP(MMC2_DAT1),		(IEN  | PTU | EN  | M4)) /*GPIO_133*/\
+-	MUX_VAL(CP(MMC2_DAT2),		(IEN  | PTU | EN  | M4)) /*GPIO_134*/\
+-	MUX_VAL(CP(MMC2_DAT3),		(IEN  | PTU | EN  | M4)) /*GPIO_135*/\
+-	MUX_VAL(CP(MMC2_DAT4),		(IEN  | PTU | EN  | M4)) /*GPIO_136*/\
+-	MUX_VAL(CP(MMC2_DAT5),		(IEN  | PTU | EN  | M4)) /*GPIO_137*/\
+-	MUX_VAL(CP(MMC2_DAT6),		(IEN  | PTU | EN  | M4)) /*GPIO_138*/\
+-	MUX_VAL(CP(MMC2_DAT7),		(IEN  | PTU | EN  | M4)) /*GPIO_139*/\
++	MUX_VAL(CP(MMC2_CLK),		(IEN  | PTU | EN  | M0)) /*GPIO_130*/\
++	MUX_VAL(CP(MMC2_CMD),		(IEN  | PTU | EN  | M0)) /*GPIO_131*/\
++	MUX_VAL(CP(MMC2_DAT0),		(IEN  | PTU | EN  | M0)) /*GPIO_132*/\
++	MUX_VAL(CP(MMC2_DAT1),		(IEN  | PTU | EN  | M0)) /*GPIO_133*/\
++	MUX_VAL(CP(MMC2_DAT2),		(IEN  | PTU | EN  | M0)) /*GPIO_134*/\
++	MUX_VAL(CP(MMC2_DAT3),		(IEN  | PTU | EN  | M0)) /*GPIO_135*/\
++	MUX_VAL(CP(MMC2_DAT4),		(IEN  | PTU | EN  | M0)) /*GPIO_136*/\
++	MUX_VAL(CP(MMC2_DAT5),		(IEN  | PTU | EN  | M0)) /*GPIO_137*/\
++	MUX_VAL(CP(MMC2_DAT6),		(IEN  | PTU | EN  | M0)) /*GPIO_138*/\
++	MUX_VAL(CP(MMC2_DAT7),		(IEN  | PTU | EN  | M0)) /*GPIO_139*/\
+  /*Bluetooth*/\
+ 	MUX_VAL(CP(MCBSP3_DX),		(IEN  | PTD | DIS | M1)) /*UART2_CTS*/\
+ 	MUX_VAL(CP(MCBSP3_DR),		(IDIS | PTD | DIS | M1)) /*UART2_RTS*/\
+-- 
+1.7.6.1
+

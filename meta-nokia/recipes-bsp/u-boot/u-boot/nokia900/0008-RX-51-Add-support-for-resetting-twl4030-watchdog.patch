@@ -1,0 +1,91 @@
+From 0cfd2a620143bcf02d44f3a2db6eb231529239bc Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
+Date: Wed, 31 Aug 2011 10:58:35 +0200
+Subject: [PATCH 08/16] RX-51: Add support for resetting twl4030 watchdog
+
+ * use test_and_set_bit and __clear_bit to access twl4030 i2c bus only once at same time
+ * do not reset watchdog too often (max every 2 seconds)
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ board/nokia/rx51/rx51.c      |   24 +++++++++++++++++++++++-
+ include/configs/nokia_rx51.h |    1 +
+ 2 files changed, 24 insertions(+), 1 deletions(-)
+
+diff --git a/board/nokia/rx51/rx51.c b/board/nokia/rx51/rx51.c
+index 079a9ab..c03ef87 100644
+--- a/board/nokia/rx51/rx51.c
++++ b/board/nokia/rx51/rx51.c
+@@ -39,6 +39,7 @@
+ #include <i2c.h>
+ #include <video_fb.h>
+ #include <asm/io.h>
++#include <asm/bitops.h>
+ #include <asm/arch/mux.h>
+ #include <asm/arch/sys_proto.h>
+ #include <asm/omap_gpio.h>
+@@ -120,6 +121,23 @@ void set_muxconf_regs(void)
+ 	MUX_RX51();
+ }
+ 
++static unsigned long int twl_wd_start = 0;
++static volatile unsigned long int twl_chip_lock;
++
++void hw_watchdog_reset(void)
++{
++
++	if ( get_timer(twl_wd_start) < 2 * CONFIG_SYS_HZ )
++		return;
++
++	if ( test_and_set_bit(0, &twl_chip_lock) )
++		return;
++	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, 31, TWL4030_PM_RECEIVER_WATCHDOG_CFG);
++	__clear_bit(0, &twl_chip_lock);
++
++	twl_wd_start = get_timer(0);
++}
++
+ /*
+  * TWL4030 keypad handler for cfb_console
+  */
+@@ -210,6 +228,9 @@ int rx51_kp_tstc(void)
+ 	u8 intr;
+ 	u8 mods;
+ 
++	if ( test_and_set_bit(0, &twl_chip_lock) )
++		return 0;
++
+ 	/* twl4030 remembers up to 2 events */
+ 	for (i = 0; i < 2; i++) {
+ 
+@@ -245,6 +266,7 @@ int rx51_kp_tstc(void)
+ 		}
+ 
+ 	}
++	__clear_bit(0, &twl_chip_lock);
+ 	return (KEYBUF_SIZE + keybuf_tail - keybuf_head)%KEYBUF_SIZE;
+ }
+ 
+@@ -252,6 +274,6 @@ int rx51_kp_getc(void)
+ {
+ 	keybuf_head %= KEYBUF_SIZE;
+ 	while (!rx51_kp_tstc())
+-		;
++		udelay(10000);
+ 	return keybuf[keybuf_head++];
+ }
+diff --git a/include/configs/nokia_rx51.h b/include/configs/nokia_rx51.h
+index ab7ddea..f6b340a 100644
+--- a/include/configs/nokia_rx51.h
++++ b/include/configs/nokia_rx51.h
+@@ -153,6 +153,7 @@
+ #define CONFIG_SYS_I2C_BUS		0
+ #define CONFIG_SYS_I2C_BUS_SELECT	1
+ #define CONFIG_DRIVER_OMAP34XX_I2C	1
++#define CONFIG_HW_WATCHDOG
+ 
+ /*
+  * TWL4030
+-- 
+1.7.6.1
+

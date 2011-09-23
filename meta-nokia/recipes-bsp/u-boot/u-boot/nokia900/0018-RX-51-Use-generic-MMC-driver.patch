@@ -1,0 +1,60 @@
+From 5166a4bc6f057239b54dcf9e45380ea422d26689 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Fri, 23 Sep 2011 15:51:07 +0200
+Subject: [PATCH 18/18] RX-51: Use generic MMC driver
+
+Switch from the legacy mmc driver to the
+new generic mmc driver.
+
+This patch is based on similar patch for beagle[1].
+
+[1] http://git.denx.de/?p=u-boot.git;a=commitdiff_plain;h=0cd31144240
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ board/nokia/rx51/rx51.c      |   10 ++++++++++
+ include/configs/nokia_rx51.h |    3 ++-
+ 2 files changed, 12 insertions(+), 1 deletions(-)
+
+diff --git a/board/nokia/rx51/rx51.c b/board/nokia/rx51/rx51.c
+index bead564..1245dbc 100644
+--- a/board/nokia/rx51/rx51.c
++++ b/board/nokia/rx51/rx51.c
+@@ -42,6 +42,8 @@
+ #include <asm/bitops.h>
+ #include <asm/arch/mux.h>
+ #include <asm/arch/sys_proto.h>
++#include <asm/arch/mmc_host_def.h>
++#include <asm/gpio.h>
+ #include <asm/omap_gpio.h>
+ #include <asm/mach-types.h>
+ #include "rx51.h"
+@@ -281,3 +283,11 @@ int rx51_kp_getc(void)
+ 		udelay(10000);
+ 	return keybuf[keybuf_head++];
+ }
++
++#ifdef CONFIG_GENERIC_MMC
++int board_mmc_init(bd_t *bis)
++{
++        omap_mmc_init(0);
++        return 0;
++}
++#endif
+diff --git a/include/configs/nokia_rx51.h b/include/configs/nokia_rx51.h
+index 4d32e88..c50c758 100644
+--- a/include/configs/nokia_rx51.h
++++ b/include/configs/nokia_rx51.h
+@@ -111,7 +111,8 @@
+ #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
+ 					115200}
+ #define CONFIG_MMC
+-#define CONFIG_OMAP3_MMC
++#define CONFIG_GENERIC_MMC
++#define CONFIG_OMAP_HSMMC
+ #define CONFIG_DOS_PARTITION
+ 
+ /* DDR - I use Micron DDR */
+-- 
+1.7.6.1
+
