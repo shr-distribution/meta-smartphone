@@ -126,8 +126,6 @@ RDEPENDS_${PN}-apps = "\
   phoneui-apps-quick-settings \
   phonefsod \
   phoneuid \
-  libphone-ui \
-  libphone-ui-shr \
   ffalarms \
   shr-settings \
   shr-theme \
