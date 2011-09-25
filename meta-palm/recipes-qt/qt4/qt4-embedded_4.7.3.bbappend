@@ -1,0 +1,3 @@
+FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+PACKAGE_ARCH_palmpre = "${MACHINE_ARCH}"
+PRINC = "1"
