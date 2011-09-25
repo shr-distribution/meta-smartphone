@@ -38,9 +38,23 @@ RDEPENDS_${PN} += " \
   task-fso2-compliance \
 "
 
+TOUCH = ' ${@base_contains("MACHINE_FEATURES", "touchscreen", "tslib tslib-calibrate tslib-tests", "",d)}'
+
 IMAGE_INSTALL += " \
   task-core-boot \
   ${IMAGE_BOOT} \
   opkg \
   task-fso2-compliance \
+  aurora-theme \
+  aurora-applications \
+  aurora-daemon \
+  aurora-components \
+  \
+  ${TOUCH} \
+  pointercal \
+  \
+  qt4-embedded \
 "
+
+ROOTFS_POSTPROCESS_COMMAND += "zap_root_password ;"
+
