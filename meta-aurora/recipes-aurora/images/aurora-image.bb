@@ -49,6 +49,7 @@ IMAGE_INSTALL += " \
   aurora-applications \
   aurora-daemon \
   aurora-components \
+  aurora-systemmanager \
   \
   ${TOUCH} \
   pointercal \
