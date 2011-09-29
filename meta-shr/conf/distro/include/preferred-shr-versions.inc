@@ -34,6 +34,8 @@ PREFERRED_VERSION_pulseaudio = "0.9.15"
 # Prefer gcc from meta-oe
 GCCVERSION ?= "4.6%"
 SDKGCCVERSION ?= "4.6%"
+# and newer eglibc
+EGLIBCVERSION ?= "2.14"
 
 # We need git version of tslib as the old 1.0 release does not the support the features we
 # need for some mobile handset devices
