@@ -4,7 +4,7 @@ LICENSE = "LGPLv2.1"
 LIC_FILES_CHKSUM = "file://COPYING;md5=fad9b3332be894bab9bc501572864b29"
 SECTION = "devel"
 DEPENDS = "glib-2.0-native glib-2.0 shr-specs"
-SRCREV = "de87dda3aaf83bcfa08a0add5d31801ec9a9d85c"
+SRCREV = "0730d15507270a307861d9bc1b6af84d9977c622"
 PV = "2011.03.08.2+gitr${SRCPV}"
 PR = "r0"
 
