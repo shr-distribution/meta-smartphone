@@ -1,0 +1,2 @@
+INC_PR = "r0"
+OSMOCOM_SRCREV ?= "2a64b42111e50d71198bfec1ab28d01e6d1cfd2b"
