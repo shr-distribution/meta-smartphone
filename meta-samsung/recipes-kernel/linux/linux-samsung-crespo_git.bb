@@ -12,7 +12,7 @@ SRC_URI = " \
 
 S = "${WORKDIR}/git/"
 
-SRCREV = "f28873908974cb257c0e9699e8e052ba56fd6e7a"
+SRCREV = "8c09704fb3eb357916ef38c59dd4993abfc29a5e"
 
 KV = "2.6.35"
 PR = "r1"
