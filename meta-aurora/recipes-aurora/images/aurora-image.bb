@@ -71,7 +71,6 @@ IMAGE_INSTALL += " \
   qt4-embedded-plugin-iconengine-svgicon \
   qt4-embedded-plugin-imageformat-jpeg \
   qt4-embedded-plugin-imageformat-svg \
-  qt4-embedded-plugin-mousedriver-tslib \
   qt4-embedded-plugin-phonon-backend-gstreamer \
   qt4-embedded-plugin-script-dbus \
   qt4-embedded-plugin-sqldriver-sqlite2 \
