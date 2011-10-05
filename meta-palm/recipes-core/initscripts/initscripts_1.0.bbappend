@@ -2,6 +2,11 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 PRINC = "2"
 
+# NOTE:
+# 1. We need an additional initscript to mount devtmpfs as we're coming from an initramfs
+# which already has a mounted /dev by CONFIG_DEVTMPFS_MOUNT.
+#
+
 do_install_append() {
         if [ "${MACHINE}" = "palmpre" ]; then
                 install -m 0755 ${WORKDIR}/mountdevtmpfs.sh ${D}${sysconfdir}/init.d
