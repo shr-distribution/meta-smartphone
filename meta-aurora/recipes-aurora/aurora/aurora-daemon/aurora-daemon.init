@@ -8,15 +8,7 @@
 
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
 NAME=aurora-daemon
-
-[ -f /etc/default/aurora ] && . /etc/default/aurora
-ARGS="-qws ${AURORA_EXTRA_ARGS}"
-
-[ -f /etc/default/rcS ] && . /etc/default/rcS
-
-# to get the correct configuration of the touchscreen as /etc/profile is maybe not
-# evaluated at this time.
-[ -f /etc/profile.d/qte.sh ] && . /etc/profile.d/qte.sh
+ARGS=
 
 case "$1" in
     start)
