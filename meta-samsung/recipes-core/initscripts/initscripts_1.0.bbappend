@@ -2,6 +2,12 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 PRINC = "2"
 
+# NOTE:
+# 1. We need an additional initscript to mount devtmpfs as we're coming from an initramfs
+# which already has a mounted /dev by CONFIG_DEVTMPFS_MOUNT.
+# 2. As we're using android usb composite driver we need to enable rndis support manually
+# on startup.
+
 do_install_append() {
     if [ "${MACHINE}" = "crespo" ]; then
         install -m 0755 ${WORKDIR}/rndissetup.sh ${D}${sysconfdir}/init.d
