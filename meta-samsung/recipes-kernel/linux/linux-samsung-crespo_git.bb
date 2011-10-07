@@ -15,7 +15,7 @@ S = "${WORKDIR}/git/"
 SRCREV = "8c09704fb3eb357916ef38c59dd4993abfc29a5e"
 
 KV = "2.6.35"
-PR = "r2"
+PR = "r3"
 PV = "${KV}+gitr${SRCPV}"
 
 # Workaround default -Werror setting and some warnings in kernel compilation
