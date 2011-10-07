@@ -40,6 +40,7 @@ RDEPENDS_${PN} += " \
 
 TOUCH = ' ${@base_contains("MACHINE_FEATURES", "touchscreen", "tslib tslib-calibrate tslib-tests", "",d)}'
 
+# FIXME: We need to separate the things below into a task later
 IMAGE_INSTALL += " \
   task-core-boot \
   ${IMAGE_BOOT} \
@@ -54,4 +55,14 @@ IMAGE_INSTALL += " \
   \
   task-x11-server \
   task-x11-utils \
+  ${XSERVER} \
+  task-fonts-truetype-core \
+  xcursor-transparent-theme \
+  xinput-calibrator \
+  libx11-locale \
+  \
+  alsa-utils-alsactl \
+  alsa-utils-alsamixer \
+  alsa-utils-aplay \
+  alsa-utils-amixer \
 "
