@@ -2,7 +2,7 @@ require linux.inc
 DEPENDS += "android-image-utils-native"
 
 PV = "2.6.37+${PR}+gitr${SRCREV}"
-PR = "r1"
+PR = "r2"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=d7810fab7487fb0aad327b76f1be7cd7"
 
@@ -26,4 +26,8 @@ do_deploy_append() {
               --cmdline "${CMDLINE}" \
               --base 0x20000000 \
               --output ${DEPLOY_DIR_IMAGE}/${KERNEL_IMAGE_BASE_NAME}.fastboot
+
+    cd ${DEPLOYDIR}
+    rm -f ${KERNEL_IMAGE_SYMLINK_NAME}.fastboot
+    ln -sf ${KERNEL_IMAGE_BASE_NAME}.fastboot ${KERNEL_IMAGE_SYMLINK_NAME}.fastboot
 }
