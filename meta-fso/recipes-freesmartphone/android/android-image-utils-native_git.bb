@@ -2,7 +2,7 @@ DESCRIPTION = "Android Image Creation and Booting Utilities"
 SECTION = "console/utils"
 LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://COPYING;md5=c19179f3430fd533888100ab6616e114"
-SRCREV = "2812c0ff528e85b394c52cef736ecc07393b8d27"
+SRCREV = "b4da9e72d55007f00056d7febc021f19120dd93d"
 PV = "1.0+gitr${SRCREV}"
 PR = "r1"
 SRC_URI = "\
