@@ -3,16 +3,17 @@ inherit fso-plugin
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
-PR = "${INC_PR}.3"
+PR = "${INC_PR}.4"
 PV = "0.5.0+gitr${SRCPV}"
 PE = "1"
 
-DEPENDS += "libfsoresource libgsm0710mux libgisi ppp connman msmcomm-specs"
+DEPENDS += "libfsoresource libgsm0710mux libgisi ppp connman msmcomm-specs libsamsung-ipc"
 
 EXTRA_OECONF_append = "\
   --enable-libgsm0710mux \
   --enable-modem-nokia-isi \
   --enable-modem-qualcomm-palm \
+  --enable-modem-samsung \
 "
 
 # package modules with extra dependencies in extra packages RDEPENDed by config package
@@ -87,6 +88,17 @@ FILES_${PN}-module-lowlevel-motorola-ezx-dev = "${CORNUCOPIA_MODULE_DIR}/lowleve
 FILES_${PN}-module-lowlevel-motorola-ezx-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/lowlevel_motorola_ezx*"
 RDEPENDS_${PN}-config_motorola-ezx += "${PN}-module-lowlevel-motorola-ezx"
 
+PACKAGES =+ "${PN}-module-lowlevel-samsung-crespo ${PN}-module-lowlevel-samsung-crespo-dev ${PN}-module-samsung-crespo-dbg"
+FILES_${PN}-module-lowlevel-samsung-crespo = "${CORNUCOPIA_MODULE_DIR}/lowlevel_samsung_crespo.so"
+FILES_${PN}-module-lowlevel-samsung-crspo-dev = "${CORNUCOPIA_MODULE_DIR}/lowlevel_samsung_crespo.la"
+FILES_${PN}-module-lowlevel-samsung-crespo-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/lowlevel_samsung_crespo*"
+RDEPENDS_${PN}-config_crespo += "${PN}-module-lowlevel-samsung-crespo"
+
+PACKAGES =+ "${PN}-module-modem-samsung ${PN}-module-modem-samsung-dev ${PN}-module-modem-samsung-dbg"
+FILES_${PN}-module-modem-samsung = "${CORNUCOPIA_MODULE_DIR}/modem_samsung.so"
+FILES_${PN}-module-modem-samsung-dev = "${CORNUCOPIA_MODULE_DIR}/modem_samsung.la"
+FILES_${PN}-module-modem-samsung-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/modem_samsung*"
+RDEPENDS_${PN}-config_crespo += "${PN}-module-modem-samsung"
 
 ## shared modules or modules without known OE machine to RDEPEND on them (so kept in main module for now)
 #  dbus_service.so
@@ -117,4 +129,3 @@ RDEPENDS_${PN}-config_motorola-ezx += "${PN}-module-lowlevel-motorola-ezx"
 
 ## htcdream
 #  modem_qualcomm_htc.so
-
