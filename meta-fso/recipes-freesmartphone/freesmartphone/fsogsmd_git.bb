@@ -3,7 +3,7 @@ inherit fso-plugin
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
-PR = "${INC_PR}.4"
+PR = "${INC_PR}.5"
 PV = "0.5.0+gitr${SRCPV}"
 PE = "1"
 
@@ -88,9 +88,9 @@ FILES_${PN}-module-lowlevel-motorola-ezx-dev = "${CORNUCOPIA_MODULE_DIR}/lowleve
 FILES_${PN}-module-lowlevel-motorola-ezx-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/lowlevel_motorola_ezx*"
 RDEPENDS_${PN}-config_motorola-ezx += "${PN}-module-lowlevel-motorola-ezx"
 
-PACKAGES =+ "${PN}-module-lowlevel-samsung-crespo ${PN}-module-lowlevel-samsung-crespo-dev ${PN}-module-samsung-crespo-dbg"
+PACKAGES =+ "${PN}-module-lowlevel-samsung-crespo ${PN}-module-lowlevel-samsung-crespo-dev ${PN}-module-lowlevel-samsung-crespo-dbg"
 FILES_${PN}-module-lowlevel-samsung-crespo = "${CORNUCOPIA_MODULE_DIR}/lowlevel_samsung_crespo.so"
-FILES_${PN}-module-lowlevel-samsung-crspo-dev = "${CORNUCOPIA_MODULE_DIR}/lowlevel_samsung_crespo.la"
+FILES_${PN}-module-lowlevel-samsung-crespo-dev = "${CORNUCOPIA_MODULE_DIR}/lowlevel_samsung_crespo.la"
 FILES_${PN}-module-lowlevel-samsung-crespo-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/lowlevel_samsung_crespo*"
 RDEPENDS_${PN}-config_crespo += "${PN}-module-lowlevel-samsung-crespo"
 
