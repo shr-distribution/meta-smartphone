@@ -3,32 +3,33 @@ rebased on top of openmoko kernel repository (om-2.6.39-stable)
 
 https://gitorious.org/shr/linux/commits/shr-2.6.39-nodrm
 
-ba8e603 s3c2410_ts: jitter less touchscreen for glamo, version 4
-6b22f57 touchscreen: ignore unexpected interrupts
-317ca52 tslib relies on ts pressures events so this hack is needed to get tslib stuff working
-dde831c Fix compile error for gta02 accelerometer.
-e05c7e5 lis302dl: use ABS events rather then REL events
-f46b2a2 input: lis302dl: fix the resume path
-53af78f lis302dl accelerometer driver
-fef580f Force GPS power up on resume if it were powered up on suspend
-72c5f72 Fix high power consumption in suspend
-d46d1e3 wm8753: use snd_soc_jack on neo1973
-3eb0b99 ar6000_delay.patch
-7017ab6 usbhost.patch
-5c7e368 Enable powering off after 8s POWER press
-dd73aa3 glamo-display: fix WSOD for 242 timming
-919ad8a Openmoko resume reason sysfs node ported from 2.6.29
-833339c nand/s3c2410: add mising badblocksbits value
-a733111 glamo-mci: revert changes for Per's patchset
-abc0b94 Revert "mmc: add none blocking mmc request function"
-63d4443 Revert "mmc: mmc_test: add debugfs file to list all tests"
-9130c20 Revert "mmc: mmc_test: add test for none blocking transfers"
-0b706f9 Revert "mmc: add member in mmc queue struct to hold request data"
-bfb4da0 Revert "mmc: add a block request prepare function"
-5a632dd Revert "mmc: move error code in mmc_block_issue_rw_rq to a separate function."
-770f451 Revert "mmc: add a second mmc queue request member"
-fbc0064 Revert "mmc: add handling for two parallel block requests in issue_rw_rq"
-26cda7b Revert "mmc: test: add random fault injection in core.c"
+df40067: wm8753: allow setting DAI mode even while pcm is active
+ba8e603: s3c2410_ts: jitter less touchscreen for glamo, version 4
+6b22f57: touchscreen: ignore unexpected interrupts
+317ca52: tslib relies on ts pressures events so this hack is needed to get tslib stuff working
+dde831c: Fix compile error for gta02 accelerometer.
+e05c7e5: lis302dl: use ABS events rather then REL events
+f46b2a2: input: lis302dl: fix the resume path
+53af78f: lis302dl accelerometer driver
+fef580f: Force GPS power up on resume if it were powered up on suspend
+72c5f72: Fix high power consumption in suspend
+d46d1e3: wm8753: use snd_soc_jack on neo1973
+3eb0b99: ar6000_delay.patch
+7017ab6: usbhost.patch
+5c7e368: Enable powering off after 8s POWER press
+dd73aa3: glamo-display: fix WSOD for 242 timming
+919ad8a: Openmoko resume reason sysfs node ported from 2.6.29
+833339c: nand/s3c2410: add mising badblocksbits value
+a733111: glamo-mci: revert changes for Per's patchset
+abc0b94: Revert "mmc: add none blocking mmc request function"
+63d4443: Revert "mmc: mmc_test: add debugfs file to list all tests"
+9130c20: Revert "mmc: mmc_test: add test for none blocking transfers"
+0b706f9: Revert "mmc: add member in mmc queue struct to hold request data"
+bfb4da0: Revert "mmc: add a block request prepare function"
+5a632dd: Revert "mmc: move error code in mmc_block_issue_rw_rq to a separate function."
+770f451: Revert "mmc: add a second mmc queue request member"
+fbc0064: Revert "mmc: add handling for two parallel block requests in issue_rw_rq"
+26cda7b: Revert "mmc: test: add random fault injection in core.c"
 
 diff --git a/arch/arm/mach-s3c2440/Makefile b/arch/arm/mach-s3c2440/Makefile
 index 035d116..16d9855 100644
@@ -2141,10 +2142,15 @@ index 4b530ae..61d233a 100644
 -	struct request *req = mqrq->req;
 -
 -	memset(brq, 0, sizeof(struct mmc_blk_request));
--
++	struct mmc_blk_data *md = mq->data;
++	struct mmc_card *card = md->queue.card;
++	struct mmc_blk_request brq;
++	int ret = 1, disable_multi = 0;
+ 
 -	brq->mrq.cmd = &brq->cmd;
 -	brq->mrq.data = &brq->data;
--
++	mmc_claim_host(card->host);
+ 
 -	brq->cmd.arg = blk_rq_pos(req);
 -	if (!mmc_card_blockaddr(card))
 -		brq->cmd.arg <<= 9;
@@ -2154,10 +2160,9 @@ index 4b530ae..61d233a 100644
 -	brq->stop.arg = 0;
 -	brq->stop.flags = MMC_RSP_SPI_R1B | MMC_RSP_R1B | MMC_CMD_AC;
 -	brq->data.blocks = blk_rq_sectors(req);
-+	struct mmc_blk_data *md = mq->data;
-+	struct mmc_card *card = md->queue.card;
-+	struct mmc_blk_request brq;
-+	int ret = 1, disable_multi = 0;
++	do {
++		struct mmc_command cmd;
++		u32 readcmd, writecmd, status = 0;
  
 -	/*
 -	 * The block layer doesn't support all sector count
@@ -2166,7 +2171,9 @@ index 4b530ae..61d233a 100644
 -	 */
 -	if (brq->data.blocks > card->host->max_blk_count)
 -		brq->data.blocks = card->host->max_blk_count;
-+	mmc_claim_host(card->host);
++		memset(&brq, 0, sizeof(struct mmc_blk_request));
++		brq.mrq.cmd = &brq.cmd;
++		brq.mrq.data = &brq.data;
  
 -	/*
 -	 * After a read error, we redo the request one sector at a time
@@ -2175,14 +2182,6 @@ index 4b530ae..61d233a 100644
 -	 */
 -	if (disable_multi && brq->data.blocks > 1)
 -		brq->data.blocks = 1;
-+	do {
-+		struct mmc_command cmd;
-+		u32 readcmd, writecmd, status = 0;
-+
-+		memset(&brq, 0, sizeof(struct mmc_blk_request));
-+		brq.mrq.cmd = &brq.cmd;
-+		brq.mrq.data = &brq.data;
-+
 +		brq.cmd.arg = blk_rq_pos(req);
 +		if (!mmc_card_blockaddr(card))
 +			brq.cmd.arg <<= 9;
@@ -2225,6 +2224,14 @@ index 4b530ae..61d233a 100644
  
 -	brq->data.sg = mqrq->sg;
 -	brq->data.sg_len = mmc_queue_map_sg(mq, mqrq);
+-
+-	/*
+-	 * Adjust the sg list so it is the same size as the
+-	 * request.
+-	 */
+-	if (brq->data.blocks != blk_rq_sectors(req)) {
+-		int i, data_size = brq->data.blocks << 9;
+-		struct scatterlist *sg;
 +		/*
 +		 * After a read error, we redo the request one sector at a time
 +		 * in order to accurately determine which sectors can be read
@@ -2233,14 +2240,6 @@ index 4b530ae..61d233a 100644
 +		if (disable_multi && brq.data.blocks > 1)
 +			brq.data.blocks = 1;
  
--	/*
--	 * Adjust the sg list so it is the same size as the
--	 * request.
--	 */
--	if (brq->data.blocks != blk_rq_sectors(req)) {
--		int i, data_size = brq->data.blocks << 9;
--		struct scatterlist *sg;
--
 -		for_each_sg(brq->data.sg, sg, brq->data.sg_len, i) {
 -			data_size -= sg->length;
 -			if (data_size <= 0) {
@@ -2306,7 +2305,8 @@ index 4b530ae..61d233a 100644
 -		       req->rq_disk->disk_name, brq->cmd.error,
 -		       brq->cmd.resp[0], status);
 -	}
--
++		mmc_set_data_timeout(&brq.data, card);
+ 
 -	if (brq->data.error) {
 -		if (brq->data.error == -ETIMEDOUT && brq->mrq.stop)
 -			/* 'Stop' response contains card status */
@@ -2317,7 +2317,8 @@ index 4b530ae..61d233a 100644
 -		       (unsigned)blk_rq_pos(req),
 -		       (unsigned)blk_rq_sectors(req), status);
 -	}
-+		mmc_set_data_timeout(&brq.data, card);
++		brq.data.sg = mq->sg;
++		brq.data.sg_len = mmc_queue_map_sg(mq);
  
 -	if (brq->stop.error) {
 -		printk(KERN_ERR "%s: error %d sending stop command, "
@@ -2325,13 +2326,18 @@ index 4b530ae..61d233a 100644
 -		       req->rq_disk->disk_name, brq->stop.error,
 -		       brq->stop.resp[0], status);
 -	}
-+		brq.data.sg = mq->sg;
-+		brq.data.sg_len = mmc_queue_map_sg(mq);
- 
+-
 -	if (!mmc_host_is_spi(card->host) && rq_data_dir(req) != READ) {
 -		do {
 -			int err;
--
++		/*
++		 * Adjust the sg list so it is the same size as the
++		 * request.
++		 */
++		if (brq.data.blocks != blk_rq_sectors(req)) {
++			int i, data_size = brq.data.blocks << 9;
++			struct scatterlist *sg;
+ 
 -			cmd.opcode = MMC_SEND_STATUS;
 -			cmd.arg = card->rca << 16;
 -			cmd.flags = MMC_RSP_R1 | MMC_CMD_AC;
@@ -2341,14 +2347,6 @@ index 4b530ae..61d233a 100644
 -				       req->rq_disk->disk_name, err);
 -				ret = MMC_BLK_CMD_ERR;
 -				goto out;
-+		/*
-+		 * Adjust the sg list so it is the same size as the
-+		 * request.
-+		 */
-+		if (brq.data.blocks != blk_rq_sectors(req)) {
-+			int i, data_size = brq.data.blocks << 9;
-+			struct scatterlist *sg;
-+
 +			for_each_sg(brq.data.sg, sg, brq.data.sg_len, i) {
 +				data_size -= sg->length;
 +				if (data_size <= 0) {
@@ -2387,11 +2385,9 @@ index 4b530ae..61d233a 100644
 -	}
 - out:
 -	return ret;
-+		mmc_wait_for_req(card->host, &brq.mrq);
- 
+-
 -}
-+		mmc_queue_bounce_post(mq);
- 
+-
 -static int mmc_blk_issue_rw_rq(struct mmc_queue *mq, struct request *rqc)
 -{
 -	struct mmc_blk_data *md = mq->data;
@@ -2403,10 +2399,12 @@ index 4b530ae..61d233a 100644
 -	int ret = 0;
 -	int disable_multi = 0;
 -	enum mmc_blk_status status;
--
++		mmc_wait_for_req(card->host, &brq.mrq);
+ 
 -	if (!rqc && !rqp)
 -		return 0;
--
++		mmc_queue_bounce_post(mq);
+ 
 -	if (rqc) {
 -		/* Claim host for the first request in a serie of requests */
 -		if (!rqp)
@@ -2469,7 +2467,13 @@ index 4b530ae..61d233a 100644
 -			ret = __blk_end_request(rqp, 0,
 -						brqp->data.bytes_xfered);
 -			spin_unlock_irq(&md->lock);
--
++		if (brq.cmd.error) {
++			printk(KERN_ERR "%s: error %d sending read/write "
++			       "command, response %#x, card status %#x\n",
++			       req->rq_disk->disk_name, brq.cmd.error,
++			       brq.cmd.resp[0], status);
++		}
+ 
 -			if (rqc)
 -				mmc_post_req(card->host, &brqc->mrq, -EINVAL);
 -			break;
@@ -2492,11 +2496,15 @@ index 4b530ae..61d233a 100644
 -			if (rqc && !ret)
 -				mmc_pre_req(card->host, &brqc->mrq, false);
 -			break;
-+		if (brq.cmd.error) {
-+			printk(KERN_ERR "%s: error %d sending read/write "
-+			       "command, response %#x, card status %#x\n",
-+			       req->rq_disk->disk_name, brq.cmd.error,
-+			       brq.cmd.resp[0], status);
++		if (brq.data.error) {
++			if (brq.data.error == -ETIMEDOUT && brq.mrq.stop)
++				/* 'Stop' response contains card status */
++				status = brq.mrq.stop->resp[0];
++			printk(KERN_ERR "%s: error %d transferring data,"
++			       " sector %u, nr %u, card status %#x\n",
++			       req->rq_disk->disk_name, brq.data.error,
++			       (unsigned)blk_rq_pos(req),
++			       (unsigned)blk_rq_sectors(req), status);
  		}
  
 -		if (ret) {
@@ -2509,27 +2517,20 @@ index 4b530ae..61d233a 100644
 -			mmc_start_req(card->host, &brqp->mrq);
 -			if (rqc)
 -				mmc_pre_req(card->host, &brqc->mrq, false);
-+		if (brq.data.error) {
-+			if (brq.data.error == -ETIMEDOUT && brq.mrq.stop)
-+				/* 'Stop' response contains card status */
-+				status = brq.mrq.stop->resp[0];
-+			printk(KERN_ERR "%s: error %d transferring data,"
-+			       " sector %u, nr %u, card status %#x\n",
-+			       req->rq_disk->disk_name, brq.data.error,
-+			       (unsigned)blk_rq_pos(req),
-+			       (unsigned)blk_rq_sectors(req), status);
++		if (brq.stop.error) {
++			printk(KERN_ERR "%s: error %d sending stop command, "
++			       "response %#x, card status %#x\n",
++			       req->rq_disk->disk_name, brq.stop.error,
++			       brq.stop.resp[0], status);
  		}
 -	} while (ret);
  
 -	/* Previous request is completed, start the new request if any */
 -	if (rqc)
 -		mmc_start_req(card->host, &brqc->mrq);
-+		if (brq.stop.error) {
-+			printk(KERN_ERR "%s: error %d sending stop command, "
-+			       "response %#x, card status %#x\n",
-+			       req->rq_disk->disk_name, brq.stop.error,
-+			       brq.stop.resp[0], status);
-+		}
++		if (!mmc_host_is_spi(card->host) && rq_data_dir(req) != READ) {
++			do {
++				int err;
  
 -	/*
 -	 * Post process the previous request while the new request is active.
@@ -2538,10 +2539,6 @@ index 4b530ae..61d233a 100644
 -	if (status == MMC_BLK_SUCCESS) {
 -		mmc_post_req(card->host, &brqp->mrq, 0);
 -		mmc_queue_bounce_post(mqrqp);
-+		if (!mmc_host_is_spi(card->host) && rq_data_dir(req) != READ) {
-+			do {
-+				int err;
-+
 +				cmd.opcode = MMC_SEND_STATUS;
 +				cmd.arg = card->rca << 16;
 +				cmd.flags = MMC_RSP_R1 | MMC_CMD_AC;
@@ -4321,7 +4318,7 @@ index 5bbfb71..07f27af 100644
  extern int mmc_wait_for_cmd(struct mmc_host *, struct mmc_command *, int);
  extern int mmc_wait_for_app_cmd(struct mmc_host *, struct mmc_card *,
 diff --git a/include/linux/mmc/host.h b/include/linux/mmc/host.h
-index 8b2b44b..bcb793e 100644
+index 8b2b44b1..bcb793e 100644
 --- a/include/linux/mmc/host.h
 +++ b/include/linux/mmc/host.h
 @@ -88,15 +88,6 @@ struct mmc_host_ops {
@@ -4373,6 +4370,20 @@ index 330fc70..c768bcd 100644
  config FAULT_INJECTION_DEBUG_FS
  	bool "Debugfs entries for fault-injection capabilities"
  	depends on FAULT_INJECTION && SYSFS && DEBUG_FS
+diff --git a/sound/soc/codecs/wm8753.c b/sound/soc/codecs/wm8753.c
+index ffa2ffe..772428a 100644
+--- a/sound/soc/codecs/wm8753.c
++++ b/sound/soc/codecs/wm8753.c
+@@ -189,6 +189,9 @@ static int wm8753_set_dai(struct snd_kcontrol *kcontrol,
+ 	struct wm8753_priv *wm8753 = snd_soc_codec_get_drvdata(codec);
+ 	u16 ioctl;
+ 
++	if (wm8753->dai_func == ucontrol->value.integer.value[0])
++		return 1;
++
+ 	if (codec->active)
+ 		return -EBUSY;
+ 
 diff --git a/sound/soc/samsung/neo1973_wm8753.c b/sound/soc/samsung/neo1973_wm8753.c
 index 4f845fe..a3a1cc8 100644
 --- a/sound/soc/samsung/neo1973_wm8753.c
