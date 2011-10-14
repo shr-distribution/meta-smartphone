@@ -7,7 +7,7 @@ DEPENDS = "openssl"
 SRC_URI = "git://github.com/morphis/libsamsung-ipc.git;protocol=git;branch=master"
 S = "${WORKDIR}/git"
 
-SRCREV = "3d4089b973c72520ceab6d7b576a499cb89547fd"
+SRCREV = "3ce2d8a1817efaa5280eeef716356503582553dd"
 PV = "0.1.0+gitr${SRCPV}"
 
 inherit autotools
