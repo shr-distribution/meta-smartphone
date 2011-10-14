@@ -35,4 +35,5 @@ SRCREV_pn-vala-dbus-binding-tool = "${AUTOREV}"
 SRCREV_pn-vala = "${AUTOREV}"
 SRCREV_pn-zhone = "${AUTOREV}"
 SRCREV_pn-zhone2 = "${AUTOREV}"
+SRCREV_pn-libsamsung-ipc = "${AUTOREV}"
 
