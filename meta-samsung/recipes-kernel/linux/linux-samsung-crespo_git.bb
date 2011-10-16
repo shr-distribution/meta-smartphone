@@ -11,10 +11,10 @@ SRC_URI = " \
 
 S = "${WORKDIR}/git/"
 
-SRCREV = "de61809743a1980dbffbecef2fa39c3af66aa212"
+SRCREV = "0ccb0d31bdf40fa1bc25f9275c25637e51602110"
 
 KV = "2.6.35"
-PR = "r6"
+PR = "r7"
 PV = "${KV}+gitr${SRCPV}"
 
 # Workaround default -Werror setting and some warnings in kernel compilation
