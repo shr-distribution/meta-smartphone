@@ -1,5 +1,6 @@
 DESCRIPTION = "A phone UI based on the freesmartphone.org framework"
-LICENSE = "GPL"
+LICENSE = "GPLv2"
+LIC_FILES_CHKSUM = "file://COPYING;md5=59530bdf33659b29e73d4adb9f9f6552"
 SECTION = "x11"
 DEPENDS = "edje-native python-pyrex-native python-cython-native"
 SRCREV = "f2b39bfe7d6e7e2288337f83f3a02f5541027ea8"

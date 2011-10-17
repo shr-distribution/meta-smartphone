@@ -1,8 +1,9 @@
 DESCRIPTION = "cmtspeechdata library test"
 SECTION = "devel"
-LICENSE = "GPL"
-SRCREV = "c7839fb454307bcd9228afc5596c7cdba78b3288"
-DEPENDS = "libcmtspeechdata"
+LICENSE = "GPLv3"
+LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
+SRCREV = "e4cf49712b2c9c0d4170357b3a98b3f686f0799f"
+DEPENDS = "libcmtspeechdata libfso-glib"
 PV = "0.0+gitr${SRCPV}"
 PR = "r0"
 
