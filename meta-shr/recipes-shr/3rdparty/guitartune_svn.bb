@@ -1,7 +1,8 @@
 DESCRIPTION = "guitar tuner for openmoko phones"
 HOMEPAGE = "http://code.google.com/p/guitartune"
 AUTHOR = "cchandel"
-LICENSE = "GPLv2"
+LICENSE = "GPLv3"
+LIC_FILES_CHKSUM = "file://COPYING;md5=f27defe1e96c2e1ecd4e0c9be8967949"
 SECTION = "e/apps"
 DEPENDS = "gtk+ libglade fftw sqlite3"
 

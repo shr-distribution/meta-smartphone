@@ -2,6 +2,7 @@ DESCRIPTION = "A bejeweled clone in Elementary"
 HOMEPAGE = "http://gitorious.org/mokosuite2/mokojeweled"
 AUTHOR = "Daniele Ricci"
 LICENSE = "GPLv3"
+LIC_FILES_CHKSUM = "file://COPYING;md5=f27defe1e96c2e1ecd4e0c9be8967949"
 DEPENDS = "elementary edje-native"
 SECTION = "x11/games"
 
