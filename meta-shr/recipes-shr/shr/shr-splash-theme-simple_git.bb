@@ -1,7 +1,7 @@
 DESCRIPTION = "SHR splash screen - simple SHR theme"
 SECTION = "x11/data"
-LICENSE = "MIT BSD"
-SRCREV = "1cc80e26a4558dfc2268b349d9a1f468e515bcfb"
+
+SRCREV = "de6a366bf753d691f80a45e2f103c8a7b3d94b8c"
 PV = "1.2+gitr${SRCPV}"
 PR = "${INC_PR}.0"
 

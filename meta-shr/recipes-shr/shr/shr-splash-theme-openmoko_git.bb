@@ -1,7 +1,7 @@
 DESCRIPTION = "SHR splash screen - OM2009 theme"
 SECTION = "x11/data"
-LICENSE = "MIT BSD"
-SRCREV = "ebf38849a2328ed4dab1ad143214c6b8c90bed35"
+
+SRCREV = "de6a366bf753d691f80a45e2f103c8a7b3d94b8c"
 PV = "1.0+gitr${SRCPV}"
 PR = "${INC_PR}.0"
 
