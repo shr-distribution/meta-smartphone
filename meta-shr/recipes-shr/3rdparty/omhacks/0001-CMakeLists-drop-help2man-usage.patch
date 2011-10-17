@@ -1,0 +1,47 @@
+From f1dafe071c869dae610920fbd5bf7338a9de5bf3 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Mon, 17 Oct 2011 12:03:14 +0200
+Subject: [PATCH] CMakeLists: drop help2man usage
+
+* because oe-core dropped help2man support completely in
+  http://git.openembedded.org/openembedded-core/commit/?id=288343e30604b944dc18fd82172febd314d9c520
+  and that dummy script fails
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ src/CMakeLists.txt |   21 ---------------------
+ 1 files changed, 0 insertions(+), 21 deletions(-)
+
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 1ea96e5..3248253 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -8,25 +8,4 @@ add_executable(om-led om-led.c om-cmdline.c)
+ set( bindir ${CMAKE_CURRENT_BINARY_DIR} )
+ set( srcdir ${CMAKE_CURRENT_SOURCE_DIR} )
+ 
+-find_program(HELP2MAN help2man)
+-if (HELP2MAN)
+-	message("-- help2man found at ${HELP2MAN}: building man page")
+-
+-	add_custom_command(
+-	    TARGET om
+-	    POST_BUILD
+-	    DEPENDS om
+-	    COMMAND ${HELP2MAN} -n "control OpenMoko phone hardware" --no-info -I${srcdir}/om.help2man ${bindir}/om > ${bindir}/om.1 )
+-
+-	add_custom_command(
+-	    TARGET om-led
+-	    POST_BUILD
+-	    DEPENDS om-led
+-	    COMMAND ${HELP2MAN} -n "control OpenMoko phone LEDs" --no-info -I${srcdir}/om-led.help2man ${bindir}/om-led > ${bindir}/om-led.1 )
+-
+-	install(FILES ${bindir}/om.1 ${bindir}/om-led.1 DESTINATION share/man/man1 )
+-else ()
+-	message("-- help2man not found: not building man page")
+-endif ()
+-
+ install(TARGETS om om-led RUNTIME DESTINATION bin)
+-- 
+1.7.7
+
