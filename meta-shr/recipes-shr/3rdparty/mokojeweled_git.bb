@@ -7,10 +7,12 @@ DEPENDS = "elementary edje-native"
 SECTION = "x11/games"
 
 PV = "0.1+gitr${SRCPV}"
-PR = "r2"
+PR = "r3"
 SRCREV = "fb43d53ea3ca2cd3760c3d4296b6a7e96573dd17"
 
-SRC_URI = "git://gitorious.org/mokosuite2/mokojeweled.git;protocol=git"
+SRC_URI = "git://gitorious.org/mokosuite2/mokojeweled.git;protocol=git \
+           file://0001-theme.edc-fix-edje_cc-build.patch \
+"
 S = "${WORKDIR}/git"
 
 CFLAGS += "-DOPENMOKO"
