@@ -297,9 +297,6 @@ RDEPENDS_${PN} += "\
 		atrack \
 		minneo \
 		ca-certificates \
-		efm-nav \
-		efm-path \
-		efm-pathbar \
 		setxkbmap \
 		shr-theme-efenniht \
 		samba \
