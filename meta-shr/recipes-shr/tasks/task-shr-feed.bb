@@ -286,7 +286,6 @@ RDEPENDS_${PN} += "\
 		make \
 		dnsmasq \
 		iliwi \
-		emtooth \
 		emtooth2 \
 		mcnavi \
 		neolight \
