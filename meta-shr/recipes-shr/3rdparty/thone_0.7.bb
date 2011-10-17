@@ -1,10 +1,10 @@
 DESCRIPTION = "Terminal phone for OpenMoko/FSO"
 HOMEPAGE = "http://code.google.com/p/thone/"
 LICENSE = "GPLv3"
-LIC_FILES_CHKSUM = "file://LICENSE;md5=2c12447f794c304d9cd353f87a432c9e"
+LIC_FILES_CHKSUM = "file://${WORKDIR}/LICENSE;md5=2c12447f794c304d9cd353f87a432c9e"
 AUTHOR = "pike"
 RDEPENDS_${PN} = "bash python python-dbus"
-PR = "r2"
+PR = "r3"
 
 SRC_URI = "http://thone.googlecode.com/files/${P}.tgz;name=archive \
            file://LICENSE \
