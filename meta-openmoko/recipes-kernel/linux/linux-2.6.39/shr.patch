@@ -282,7 +282,7 @@ index 0000000..233340a
 +MODULE_AUTHOR("Harald Welte <laforge@openmoko.org>");
 +MODULE_DESCRIPTION("Openmoko Freerunner USBHOST Power Management");
 diff --git a/arch/arm/mach-s3c2440/mach-gta02.c b/arch/arm/mach-s3c2440/mach-gta02.c
-index aa31b8d..0ee315d 100644
+index aa31b8d..34b7a8d 100644
 --- a/arch/arm/mach-s3c2440/mach-gta02.c
 +++ b/arch/arm/mach-s3c2440/mach-gta02.c
 @@ -62,6 +62,7 @@
@@ -689,6 +689,15 @@ index aa31b8d..0ee315d 100644
  static struct platform_device *gta02_hdq_children[] = {
  	&bq27000_battery_device,
  };
+@@ -1117,7 +1384,7 @@ static struct gta02_device_children gta02_device_children[] = {
+ 	},
+ 	{
+ 		.dev_name = "pcf50633-gpio",
+-		.num_children = 1,
++		.num_children = 2,
+ 		.children = gta02_pcf50633_gpio_children,
+ 	},
+ 	{
 @@ -1126,6 +1393,11 @@ static struct gta02_device_children gta02_device_children[] = {
  		.children = gta02_gsm_supply_children,
  	},
