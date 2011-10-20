@@ -11,6 +11,8 @@ SRCREV_pn-gobject-introspection = "8d64bc23d2b837421ecf9c7b0e4b8d5d95ca0d21"
 SRCREV_pn-gobject-introspection-native = "8d64bc23d2b837421ecf9c7b0e4b8d5d95ca0d21"
 PREFERRED_VERSION_openssl = "1.0.0e"
 PREFERRED_VERSION_openssl-native = "1.0.0e"
+PREFERRED_VERSION_subversion = "1.7.0"
+PREFERRED_VERSION_subversion-native = "1.7.0"
 
 # we need new headers for libc, now OLDEST_KERNEL_linux-gnueabi = "2.6.24"
 # and 2.6.31 for fsodeviced
