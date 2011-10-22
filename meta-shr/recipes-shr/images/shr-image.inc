@@ -26,6 +26,7 @@ IMAGE_LOGIN_MANAGER = "tinylogin"
 IMAGE_DEV_MANAGER ?= "${@base_contains("MACHINE_FEATURES", "kernel26",  "udev","",d)} "
 IMAGE_DEV_MANAGER_om-gta01 = ""
 IMAGE_DEV_MANAGER_om-gta02 = ""
+IMAGE_DEV_MANAGER_om-gta04 = ""
 IMAGE_DEV_MANAGER_htcdream = ""
 IMAGE_DEV_MANAGER_nokia900 = ""
 
