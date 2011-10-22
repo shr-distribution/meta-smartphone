@@ -17,8 +17,17 @@ IMAGE_FEATURES += " \
 inherit core-image
 
 IMAGE_LOGIN_MANAGER = "tinylogin"
-# Per default we don't want udev and prefer devtmpfs
-IMAGE_DEV_MANAGER ?= ""
+
+# udev, devfsd, busybox-mdev (from busybox) or none
+IMAGE_DEV_MANAGER ?= "${@base_contains("MACHINE_FEATURES", "kernel26",  "udev","",d)} "
+IMAGE_DEV_MANAGER_om-gta01 = ""
+IMAGE_DEV_MANAGER_om-gta02 = ""
+IMAGE_DEV_MANAGER_om-gta04 = ""
+IMAGE_DEV_MANAGER_htcdream = ""
+IMAGE_DEV_MANAGER_nokia900 = ""
+IMAGE_DEV_MANAGER_palmpre = ""
+IMAGE_DEV_MANAGER_crespo = ""
+
 IMAGE_INIT_MANAGER ?= "sysvinit sysvinit-pidof"
 IMAGE_INITSCRIPTS = "initscripts"
 SPLASH ?= ""
