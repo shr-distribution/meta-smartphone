@@ -1,7 +1,7 @@
 DESCRIPTION = "SHR splash screen - SHR logo theme"
 SECTION = "x11/data"
 
-SRCREV = "de6a366bf753d691f80a45e2f103c8a7b3d94b8c"
+SRCREV = "e0838ba9a55c63907332755b10654762738a3730"
 PV = "0.1+gitr${SRCPV}"
 PR = "${INC_PR}.1"
 
@@ -13,6 +13,7 @@ SS = "${S}"
 SS_append_nokia900 = "/nokia900"
 SS_append_om-gta01 = "/om-gta01"
 SS_append_om-gta02 = "/om-gta02"
+SS_append_om-gta04 = "/om-gta04"
 SS_append_htcdream = "/htcdream"
 SS_append_palmpre  = "/palmpre"
 
