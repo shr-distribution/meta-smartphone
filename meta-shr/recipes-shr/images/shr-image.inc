@@ -30,6 +30,7 @@ IMAGE_DEV_MANAGER_om-gta04 = ""
 IMAGE_DEV_MANAGER_htcdream = ""
 IMAGE_DEV_MANAGER_nokia900 = ""
 IMAGE_DEV_MANAGER_palmpre = ""
+IMAGE_DEV_MANAGER_crespo = ""
 
 #
 # sysvinit, upstart
