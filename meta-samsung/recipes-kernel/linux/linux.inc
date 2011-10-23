@@ -6,108 +6,124 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=d7810fab7487fb0aad327b76f1be7cd7"
 
 inherit kernel siteinfo
 
-# Quirk for udev greater or equal 141
-UDEV_GE_141 ?= "0"
+# Enable OABI compat for people stuck with obsolete userspace
+ARM_KEEP_OABI ?= "1"
 
 # Set the verbosity of kernel messages during runtime
 # You can define CMDLINE_DEBUG in your local.conf or distro.conf to override this behaviour
-CMDLINE_DEBUG ?= '${@base_conditional("DISTRO_TYPE", "release", "quiet", "debug", d)}'
+CMDLINE_DEBUG ?= '${@base_contains("IMAGE_FEATURES", "debug-tweaks", "debug", "loglevel=3", d)}'
+
+# Kernel bootlogo is distro-specific (default is OE logo).
+# Logo resolution (qvga, vga, ...) is machine-specific.
+LOGO_SIZE ?= "."
+# To use this, add file://${LOGO_SIZE}/logo_linux_clut224.ppm.bz2 or similar
+# to your kernel recipe, and then structure your logos for each resolution
+# accordingly.
+
+LOCALVERSION ?= ""
+
+#kernel_conf_variable CMDLINE "\"${CMDLINE} ${CMDLINE_DEBUG}\""
+kernel_conf_variable() {
+	CONF_SED_SCRIPT="$CONF_SED_SCRIPT /CONFIG_$1/d;"
+	if test "$2" = "n"
+	then
+		echo "# CONFIG_$1 is not set" >> ${S}/.config
+	else
+		echo "CONFIG_$1=$2" >> ${S}/.config
+	fi
+}
 
 do_configure_prepend() {
-  # Rename getline in ./scripts/unifdef.c
-  # Kernels up to 2.6.29 are currently failing to build unifdef.c,
-  # clashing with exposed getline() from <stdio.h>
-  # see https://patchwork.kernel.org/patch/11166/
-  # committed in 2.6.29 (commit d15bd1067b1fcb2b7250d22bc0c7c7fea0b759f7)
+        echo "" > ${S}/.config
+	CONF_SED_SCRIPT=""
 
-  if [ -e ${S}/scripts/unifdef.c ]; then
-    sed -i -e 's/getline/parseline/g' ${S}/scripts/unifdef.c
-  fi
+        #
+        # logo support, if you supply logo_linux_clut224.ppm in SRC_URI, then it's going to be used
+        #
+        if [ -e ${WORKDIR}/logo_linux_clut224.ppm ]; then
+                install -m 0644 ${WORKDIR}/logo_linux_clut224.ppm drivers/video/logo/logo_linux_clut224.ppm
+		kernel_conf_variable LOGO y
+		kernel_conf_variable LOGO_LINUX_CLUT224 y
+        fi
 
-  echo "" > ${S}/.config
+        #
+        # oabi / eabi support
+        #
+	kernel_conf_variable AEABI y
+	if [ "${ARM_KEEP_OABI}" = "1" ] ; then
+		kernel_conf_variable OABI_COMPAT y
+	else
+		kernel_conf_variable OABI_COMPAT n
+	fi
 
-  # When enabling thumb for userspace we also need thumb support in the kernel
-  if [ "${ARM_INSTRUCTION_SET}" = "thumb" ] ; then
-    sed -i -e /CONFIG_ARM_THUMB/d ${WORKDIR}/defconfig 
-    echo "CONFIG_ARM_THUMB=y" >> ${S}/.config
-  fi
+        # When enabling thumb for userspace we also need thumb support in the kernel
+        if [ "${ARM_INSTRUCTION_SET}" = "thumb" ] ; then
+		kernel_conf_variable ARM_THUMB y
+        fi
 
-  #
-  # endian support
-  #
-  if [ "${SITEINFO_ENDIANNESS}" = "be" ]; then
-    echo "CONFIG_CPU_BIG_ENDIAN=y" >> ${S}/.config
-  fi
+	kernel_conf_variable CMDLINE "\"${CMDLINE} ${CMDLINE_DEBUG}\""
 
-  echo "CONFIG_CMDLINE=\"${CMDLINE} ${CMDLINE_DEBUG}\"" >> ${S}/.config
+	kernel_conf_variable LOCALVERSION "\"${LOCALVERSION}\""
+	kernel_conf_variable LOCALVERSION_AUTO n
 
-  cat '${WORKDIR}/defconfig' >>'${S}/.config'
+	kernel_conf_variable SYSFS_DEPRECATED n
+	kernel_conf_variable SYSFS_DEPRECATED_V2 n
+        kernel_conf_variable HOTPLUG y
+        kernel_conf_variable UEVENT_HELPER_PATH \"\"
+        kernel_conf_variable UNIX y
+        kernel_conf_variable SYSFS y
+        kernel_conf_variable PROC_FS y
+        kernel_conf_variable TMPFS y
+        kernel_conf_variable INOTIFY_USER y
+        kernel_conf_variable SIGNALFD y
+        kernel_conf_variable TMPFS_POSIX_ACL y
+        kernel_conf_variable BLK_DEV_BSG y
+        kernel_conf_variable DEVTMPFS y
+        kernel_conf_variable DEVTMPFS_MOUNT y
 
-  #
-  # Udev quirks
-  #
+        # Newer inits like systemd need cgroup support
+        if [ "${KERNEL_ENABLE_CGROUPS}" = "1" ] ; then
+            kernel_conf_variable CGROUP_SCHED y
+            kernel_conf_variable CGROUPS y
+            kernel_conf_variable CGROUP_NS y
+            kernel_conf_variable CGROUP_FREEZER y
+            kernel_conf_variable CGROUP_DEVICE y
+            kernel_conf_variable CPUSETS y
+            kernel_conf_variable PROC_PID_CPUSET y
+            kernel_conf_variable CGROUP_CPUACCT y
+            kernel_conf_variable RESOURCE_COUNTERS y
+        fi
 
-  # Newer versions of udev mandate that sysfs doesn't have deprecated entries
-  if [ "${UDEV_GE_141}" = "1" ] ; then
-    sed -e /CONFIG_SYSFS_DEPRECATED/d \
-        -e /CONFIG_SYSFS_DEPRECATED_V2/d \
-        -e /CONFIG_HOTPLUG/d \
-        -e /CONFIG_UEVENT_HELPER_PATH/d \
-        -e /CONFIG_UNIX/d \
-        -e /CONFIG_SYSFS/d \
-        -e /CONFIG_PROC_FS/d \
-        -e /CONFIG_TMPFS/d \
-        -e /CONFIG_INOTIFY_USER/d \
-        -e /CONFIG_SIGNALFD/d \
-        -e /CONFIG_TMPFS_POSIX_ACL/d \
-        -e /CONFIG_BLK_DEV_BSG/d \
-        -i '${S}/.config'
+        #
+        # root-over-nfs-over-usb-eth support. Limited, but should cover some cases.
+        # Enable this by setting a proper CMDLINE_NFSROOT_USB.
+        #
+        if [ ! -z "${CMDLINE_NFSROOT_USB}" ]; then
+                bbnote "Configuring the kernel for root-over-nfs-over-usb-eth with CMDLINE ${CMDLINE_NFSROOT_USB}"
+                kernel_conf_variable INET y
+                kernel_conf_variable IP_PNP y
+                kernel_conf_variable USB_GADGET y
+                kernel_conf_variable USB_GADGET_SELECTED y
+                kernel_conf_variable USB_ETH y
+                kernel_conf_variable NFS_FS y
+                kernel_conf_variable ROOT_NFS y
+                kernel_conf_variable CMDLINE \"${CMDLINE_NFSROOT_USB} ${CMDLINE_DEBUG}\"
+        fi
 
-    echo '# CONFIG_SYSFS_DEPRECATED is not set' >> ${S}/.config
-    echo '# CONFIG_SYSFS_DEPRECATED_V2 is not set' >> ${S}/.config
-    echo 'CONFIG_HOTPLUG=y' >> ${S}/.config
-    echo 'CONFIG_UEVENT_HELPER_PATH=""' >> ${S}/.config
-    echo 'CONFIG_UNIX=y' >> ${S}/.config
-    echo 'CONFIG_SYSFS=y' >> ${S}/.config
-    echo 'CONFIG_PROC_FS=y' >> ${S}/.config
-    echo 'CONFIG_TMPFS=y' >> ${S}/.config
-    echo 'CONFIG_INOTIFY_USER=y' >> ${S}/.config
-    echo 'CONFIG_SIGNALFD=y' >> ${S}/.config
-    echo 'CONFIG_TMPFS_POSIX_ACL=y' >> ${S}/.config
-    echo 'CONFIG_BLK_DEV_BSG=y' >> ${S}/.config
-    echo 'CONFIG_DEVTMPFS=y' >> ${S}/.config
-    echo 'CONFIG_DEVTMPFS_MOUNT=y' >> ${S}/.config
-  fi
+        sed -e "${CONF_SED_SCRIPT}" \
+		< '${WORKDIR}/defconfig' >>'${S}/.config'
 
-  # Newer inits like systemd need cgroup support
-  if [ "${KERNEL_ENABLE_CGROUPS}" = "1" ] ; then
-    sed -e /CONFIG_CGROUP_SCHED/d \
-        -e /CONFIG_CGROUPS/d \
-        -i '${S}/.config'
-
-    echo 'CONFIG_CGROUP_SCHED=y' >> ${S}/.config
-    echo 'CONFIG_CGROUPS=y' >> ${S}/.config
-    echo 'CONFIG_CGROUP_NS=y' >> ${S}/.config
-    echo 'CONFIG_CGROUP_FREEZER=y' >> ${S}/.config
-    echo 'CONFIG_CGROUP_DEVICE=y' >> ${S}/.config
-    echo 'CONFIG_CPUSETS=y' >> ${S}/.config
-    echo 'CONFIG_PROC_PID_CPUSET=y' >> ${S}/.config
-    echo 'CONFIG_CGROUP_CPUACCT=y' >> ${S}/.config
-    echo 'CONFIG_RESOURCE_COUNTERS=y' >> ${S}/.config
-  fi
-
-  # Let build system check the new generated config file
-  yes '' | oe_runmake oldconfig
+	yes '' | oe_runmake oldconfig
 }
 
 do_configure_append() {
-  if test -e scripts/Makefile.fwinst ; then
-    sed -i -e "s:-m0644:-m 0644:g" scripts/Makefile.fwinst
-  fi
+        if test -e scripts/Makefile.fwinst ; then
+		sed -i -e "s:-m0644:-m 0644:g" scripts/Makefile.fwinst
+	fi
 }
 
 do_install_append() {
-  oe_runmake headers_install INSTALL_HDR_PATH=${D}${exec_prefix}/src/linux-${KERNEL_VERSION} ARCH=$ARCH
+	oe_runmake headers_install INSTALL_HDR_PATH=${D}${exec_prefix}/src/linux-${KERNEL_VERSION} ARCH=$ARCH
 }
 
 PACKAGES =+ "kernel-headers"
