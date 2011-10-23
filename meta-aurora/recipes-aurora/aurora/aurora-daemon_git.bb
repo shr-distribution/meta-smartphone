@@ -3,7 +3,7 @@ require aurora-base.inc
 DESCRIPTION = "This is the daemon responsible for the aurora user interface"
 PR = "${INC_PR}.3"
 
-DEPENDS = "qt4-x11-free"
+DEPENDS = "qt4-x11-free libfso-qt"
 
 PV = "0.1+gitr${SRCPV}"
 
