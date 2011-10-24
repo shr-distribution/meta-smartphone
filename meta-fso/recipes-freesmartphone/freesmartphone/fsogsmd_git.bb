@@ -26,6 +26,7 @@ CONFFILES_${PN}-config = " \
   ${sysconfdir}/freesmartphone/conf/palm_pre/fsogsmd.conf \
   ${sysconfdir}/freesmartphone/conf/htc_qualcomm_dream/fsogsmd.conf \
   ${sysconfdir}/freesmartphone/conf/htc_qualcomm_msm/fsogsmd.conf \
+  ${sysconfdir}/freesmartphone/conf/GTA04/fsogsmd.conf \
 "
 RDEPENDS_${PN} += "${PN}-config"
 
@@ -99,6 +100,12 @@ FILES_${PN}-module-modem-samsung = "${CORNUCOPIA_MODULE_DIR}/modem_samsung.so"
 FILES_${PN}-module-modem-samsung-dev = "${CORNUCOPIA_MODULE_DIR}/modem_samsung.la"
 FILES_${PN}-module-modem-samsung-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/modem_samsung*"
 RDEPENDS_${PN}-config_crespo += "${PN}-module-modem-samsung"
+
+PACKAGES =+ "${PN}-module-modem-option-gtm601 ${PN-module-modem-option-gtm601-dev ${PN}-module-modem-option-gtm601-dbg"
+FILES_${PN}-module-modem-option-gtm601 = ${CORNUCOPIA_MODULE_DIR}/modem_option_gtm601.so"
+FILES_${PN}-module-modem-option-gtm601-dev = "${CORNUCOPIA_MODULE_DIR}/modem_option_gtm601.la"
+FILES_${PN}-module-modem-option-gtm601-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/modem_option_gtm601*"
+RDEPENDS_${PN}-config_gta04 += "${PN}-module-modem-option-gtm601"
 
 ## shared modules or modules without known OE machine to RDEPEND on them (so kept in main module for now)
 #  dbus_service.so
