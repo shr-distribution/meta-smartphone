@@ -1,0 +1,11 @@
+--- /tmp/Makefile	2008-06-10 21:05:55.613676241 +0200
++++ trunk/Makefile	2008-06-10 21:06:30.701172833 +0200
+@@ -797,7 +797,7 @@
+ 	$(INSTALL) -d $(BINDIR) $(CONFDIR)
+ 
+ install-%: %$(EXESUF) install-dirs
+-	$(INSTALL) -m 755 $(INSTALLSTRIP) $< $(BINDIR)
++	$(INSTALL) -m 755 $< $(BINDIR)
+ 
+ install-mplayer-man: $(foreach lang,$(MAN_LANG_ALL),install-mplayer-man-$(lang))
+ install-mencoder-man: $(foreach lang,$(MAN_LANG_ALL),install-mencoder-man-$(lang))

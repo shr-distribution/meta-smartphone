@@ -1,0 +1,13 @@
+Index: trunk/ffmpeg/libavcodec/arm/asm-offsets.h
+===================================================================
+--- trunk.orig/ffmpeg/libavcodec/arm/asm-offsets.h	2011-10-24 20:47:08.979266020 +0200
++++ trunk/ffmpeg/libavcodec/arm/asm-offsets.h	2011-10-24 20:47:19.339266022 +0200
+@@ -35,7 +35,7 @@
+ #define AC_PRED                  0xae0
+ #define BLOCK_LAST_INDEX         0x21c0
+ #define INTER_SCANTAB_RASTER_END 0x23c0
+-#define H263_AIC                 0x2670
++#define H263_AIC                 0x2678
+ #elif defined(__APPLE__)
+ #define Y_DC_SCALE               0xa70
+ #define C_DC_SCALE               0xa74
