@@ -27,7 +27,7 @@ while read dev mtpt fstype rest; do
 done
 
 do_start() {
-	EXTRA_PARAM="-I usb0,wlan0,dummy0,rmnet0,rmnet1,rmnet2 -r"
+	EXTRA_PARAM="-I usb0,wlan0,dummy0,rmnet0,rmnet1,rmnet2,ifb0,ifb1 -r"
 	if test $nfsroot -eq 1 ; then
 		EXTRA_PARAM="$EXTRA_PARAM -P ethernet"
 	fi
