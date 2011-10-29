@@ -14,48 +14,12 @@ IMAGE_FEATURES += "debug-tweaks package-management ssh-server-openssh"
 
 inherit core-image
 
-#
-# tinylogin, getty
-# shadow doesn't provide adduser which was find with oe.dev, but busybox from oe-core doesn't provide it neither
-#
-IMAGE_LOGIN_MANAGER = "tinylogin"
-
-#
-# udev, devfsd, busybox-mdev (from busybox) or none
-#
-IMAGE_DEV_MANAGER ?= "${@base_contains("MACHINE_FEATURES", "kernel26",  "udev","",d)} "
-IMAGE_DEV_MANAGER_om-gta01 = ""
-IMAGE_DEV_MANAGER_om-gta02 = ""
-IMAGE_DEV_MANAGER_om-gta04 = ""
-IMAGE_DEV_MANAGER_htcdream = ""
-IMAGE_DEV_MANAGER_nokia900 = ""
-IMAGE_DEV_MANAGER_palmpre = ""
-IMAGE_DEV_MANAGER_crespo = ""
-
-#
-# sysvinit, upstart
-#
-IMAGE_INIT_MANAGER ?= "sysvinit sysvinit-pidof"
-
-#
-# initscripts, initscripts-shr
-#
-# IMAGE_INITSCRIPTS ?= "initscripts"
-IMAGE_INITSCRIPTS = "initscripts"
-
 # set sane default for the SPLASH variable
 SPLASH ?= ""
-
-IMAGE_BOOT ?= "${IMAGE_INITSCRIPTS} \
-               ${IMAGE_DEV_MANAGER} \
-               ${IMAGE_INIT_MANAGER} \
-               ${IMAGE_LOGIN_MANAGER}"
 
 # some default locales
 # IMAGE_LINGUAS ?= "de-de fr-fr en-gb"
 IMAGE_LINGUAS ?= "en-us"
-
-IMAGE_INSTALL += "${IMAGE_BOOT}"
 
 RDEPENDS_${PN} += "\
   opkg \
