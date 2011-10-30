@@ -6,9 +6,9 @@ DEPENDS = "e-wm elementary"
 RDEPENDS_${PN} = "e-wm"
 SECTION = "x11/application"
 
-SRCREV = "8859f44ae662f1b15896b8f5bf42eab9839d18e6"
+SRCREV = "f305f276fd2292b65bb04d92eb4b4daab4d029ff"
 PV = "0.0.0+gitr${SRCPV}"
-PR = "r11"
+PR = "r12"
 
 inherit autotools
 
