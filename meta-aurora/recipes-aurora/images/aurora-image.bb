@@ -56,10 +56,8 @@ IMAGE_INSTALL += " \
   \
   opkg \
   task-fso2-compliance \
-  aurora-theme \
   aurora-applications \
   aurora-daemon \
-  aurora-components \
   aurora-systemmanager \
   \
   task-x11-server \
