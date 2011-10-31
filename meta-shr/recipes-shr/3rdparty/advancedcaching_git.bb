@@ -8,7 +8,7 @@ HOMEPAGE = "http://www.danielfett.de/internet-und-opensource,software,agtl"
 RDEPENDS_${PN} = "python-pygtk python-html python-image python-netclient python-misc python-sqlite3 python-mime python-json"
 SRCREV = "45a42994753fb396840890dd756b118790b8989e"
 PV = "0.6.1.5+gitr${SRCPV}"
-PR = "r2"
+PR = "r3"
 
 SRC_URI = "git://github.com/webhamster/advancedcaching.git;protocol=git;branch=master"
 

@@ -10,7 +10,7 @@ SRCNAME = "pyrtc"
 DEPENDS = "python-cython-native"
 SRCREV = "${FSO_PYTHONHELPERS_SRCREV}"
 PV = "1.0.0+gitr${SRCPV}"
-PR = "ml1"
+PR = "ml2"
 
 S = "${WORKDIR}/git/${SRCNAME}"
 

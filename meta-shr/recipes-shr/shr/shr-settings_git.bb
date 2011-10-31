@@ -7,7 +7,7 @@ SECTION = "x11/application"
 SRCREV = "f5d9debad096e35556261401793d39e1b6c39a3f"
 PE = "1"
 PV = "0.1.1+gitr${SRCPV}"
-PR = "r14"
+PR = "r15"
 
 inherit setuptools
 
