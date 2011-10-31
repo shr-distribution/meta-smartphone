@@ -8,7 +8,7 @@ PRIORITY = "optional"
 
 SRCREV = "128"
 PV = "0.0.81+svnr${SRCPV}"
-PR = "r1"
+PR = "r2"
 
 SRC_URI = "svn://atrack.googlecode.com/svn;module=trunk;proto=http"
 S = "${WORKDIR}/trunk"

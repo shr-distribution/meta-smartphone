@@ -6,7 +6,7 @@ DEPENDS = "edje-native python-pyrex-native python-cython-native"
 SRCREV = "f2b39bfe7d6e7e2288337f83f3a02f5541027ea8"
 PV = "0.0.2+gitr${SRCPV}"
 PE = "1"
-PR = "r15"
+PR = "r16"
 
 SRC_URI = "${FREESMARTPHONE_GIT}/zhone.git;protocol=git;branch=master \
            file://80zhone"

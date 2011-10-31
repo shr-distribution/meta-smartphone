@@ -10,7 +10,7 @@ DEPENDS = "python-native edje-native"
 SRCREV = "8"
 # actually it's 1.0.3 :/ but don't want to downgrade now/bump PE
 PV = "1.1.0+svnr${SRCPV}"
-PR = "r3"
+PR = "r4"
 
 S = "${WORKDIR}/trunk"
 

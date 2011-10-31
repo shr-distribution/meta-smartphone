@@ -8,7 +8,7 @@ PRIORITY = "optional"
 
 SRCREV = "6"
 PV = "1.0.2+svnr${SRCPV}"
-PR = "r1"
+PR = "r2"
 
 SRC_URI = "svn://minneo.googlecode.com/svn;module=trunk;proto=http \
            file://setup.py.patch"
