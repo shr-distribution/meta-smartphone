@@ -1,6 +1,13 @@
 require aurora-base.inc
 
 DESCRIPTION = "This is the daemon responsible for the aurora user interface"
+
+LICENSE = "GPLv2 & Other"
+LIC_FILES_CHKSUM = " \
+  file://COPYING.GPL;md5=751419260aa954499f7abaabaa882bbe \
+  file://COPYING;md5=4801096f247ccd8f576944576869e775 \
+"
+
 PR = "${INC_PR}.4"
 
 DEPENDS = "qt4-x11-free libfso-qt"
