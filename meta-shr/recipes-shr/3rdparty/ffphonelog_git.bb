@@ -12,12 +12,11 @@ PR = "r1"
 
 SRC_URI = "\
 	git://git.shr-project.org/repo/ffphonelog.git;protocol=http;branch=master \
-	file://fix-for-elm-api-change.patch \
 "
 
 export XDG_DATA_DIRS = "${STAGING_DATADIR}"
 
-SRCREV = "2a53ac1894065189f43ca1c791008aa89d7ec13b"
+SRCREV = "0df8513b843c4384fe4251ca8f1389695c1b07b7"
 S = "${WORKDIR}/git"
 
 FILES_${PN} += "${datadir}/applications ${datadir}/pixmaps"
