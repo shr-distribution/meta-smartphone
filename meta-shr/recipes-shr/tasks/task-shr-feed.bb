@@ -9,8 +9,6 @@ inherit task
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 MISSING = "\
-		elmdentica \
-		enjoy \
 		bootchart-lite \
 		claws-mail \
 		claws-plugin-mailmbox \
@@ -19,14 +17,7 @@ MISSING = "\
 		dictator \
 		dosbox \
 		enotes \
-		epdfview \
-		estardict \
-		mupdf \
-		evopedia \
-		fbreader \
 		libyaml-perl \
-		mplayer \
-		orrery \
 		pythm \
 		python-wifi \
 		openmoko-agpsui \
@@ -38,8 +29,6 @@ MISSING = "\
 		obexpush \
 		obexftp \
 		mtpaint \
-		intone-video \
-		mysql \
 		fltk-chess \
 		remoko \
 		openbmap-logger \
@@ -49,10 +38,8 @@ MISSING = "\
 		cellhunter \
 		dillo2 \
 		pyefl-sudoku \
-		omnewrotate \
 		xchat \
 		python-pyid3lib \
-		intone \
 		vpnc \
 		emacs-x11 \
 		mg \
@@ -111,7 +98,6 @@ MISSING = "\
 		font-sun-misc \
 		font-winitzki-cyrillic \
 		qwo \
-		omgps \
 		python-xlib \
 		xcompmgr \
 		aceofpenguins-launcher \
@@ -170,13 +156,27 @@ MISSING = "\
 		gpe-gallery \
 		gpe-timesheet \
 		gpe-contacts \
-		jefliks \
-		vagalume \
-		podboy \
 		shr-theme-neo \
+		jefliks \
+		podboy \
+		evopedia \
+		omgps \
+		intone-video \
+		mupdf \
+		orrery \
+		estardict \
+		omnewrotate \
+		vagalume \
+		elmdentica \
 "
 
 RDEPENDS_${PN} += "\
+		intone \
+		epdfview \
+		mysql5 \
+		fbreader \
+		mplayer \
+		enjoy \
 		babiloo-efl \
 		ffalarms \
 		foxtrotgps \
