@@ -1,0 +1,1311 @@
+From d545726d66d77deb6953e6542b465dce83dae856 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Tue, 1 Nov 2011 23:37:22 +0100
+Subject: [PATCH] adapt to newer elementary API
+
+sed 's/elm_box_homogenous_set/elm_box_homogeneous_set/g' -i src/gui.c
+sed 's/elm_button_icon_set/elm_object_content_set/g' -i src/gui.c
+sed 's/elm_label_label_set/elm_object_text_set/g' -i src/gui.c
+sed 's/elm_button_label_set/elm_object_text_set/g' -i src/gui.c
+sed 's/elm_frame_label_set/elm_object_text_set/g' -i src/gui.c
+sed 's/elm_radio_label_set/elm_object_text_set/g' -i src/gui.c
+sed 's/elm_slider_label_set/elm_object_text_set/g' -i src/gui.c
+sed 's/elm_frame_content_set/elm_object_content_set/g' -i src/gui.c
+sed 's/elm_genlist_bounce_set/elm_gen_bounce_set/g' -i src/gui.c
+sed 's/elm_genlist_first_item_get/elm_gen_first_item_get/g' -i src/gui.c
+sed 's/elm_genlist_first_item_get/elm_gen_first_item_get/g' -i src/callbacks.c
+sed 's/elm_genlist_first_item_get/elm_gen_first_item_get/g' -i src/db_sqlite.c
+sed 's/elm_genlist_item_next_get/elm_gen_item_next_get/g' -i src/gui.c
+sed 's/elm_genlist_item_next_get/elm_gen_item_next_get/g' -i src/db_sqlite.c
+sed 's/elm_genlist_item_selected_set/elm_gen_item_selected_set/g' -i src/gui.c
+sed 's/elm_genlist_item_selected_set/elm_gen_item_selected_set/g' -i src/callbacks.
+sed 's/elm_genlist_item_selected_set/elm_gen_item_selected_set/g' -i src/callbacks.c
+sed 's/elm_genlist_item_selected_set/elm_gen_item_selected_set/g' -i src/db_sqlite.c
+sed 's/elm_genlist_clear/elm_gen_clear/g' -i src/db_sqlite.c
+sed 's/elm_genlist_clear/elm_gen_clear/g' -i src/gui.c
+sed 's/elm_genlist_clear/elm_gen_clear/g' -i src/callbacks.c
+sed 's/icon_get/content_get/g' -i src/gui.c
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ src/callbacks.c |   80 ++++++++++----------
+ src/db_sqlite.c |   22 +++---
+ src/gui.c       |  216 +++++++++++++++++++++++++++---------------------------
+ 3 files changed, 159 insertions(+), 159 deletions(-)
+
+diff --git a/src/callbacks.c b/src/callbacks.c
+index 14d9500..923f7a2 100644
+--- a/src/callbacks.c
++++ b/src/callbacks.c
+@@ -121,8 +121,8 @@ void restart_mplayer(void)
+ 	play_state = IDLE;
+ 
+ 	//set labels and slider
+-	elm_label_label_set(play_cur_pos, "0:00");
+-	elm_label_label_set(play_dur, "0:00");
++	elm_object_text_set(play_cur_pos, "0:00");
++	elm_object_text_set(play_dur, "0:00");
+ 	elm_slider_value_set(pos_slider, 0.0);
+ 	seek = 0;
+ 	
+@@ -152,12 +152,12 @@ int timer_func(void *data)
+ 				play_state = IDLE;
+ 				song_index = 0; seek = 0;
+ 				if (view == LISTVIEW) {
+-					elm_genlist_item_selected_set(song_list[song_index], 1);
++					elm_gen_item_selected_set(song_list[song_index], 1);
+ 					elm_genlist_item_show(song_list[song_index]);
+ 				}
+ 				else if (view == ALBUM_ART) show_song_info();
+ 				else if (view == LYRICS) show_song_lyrics();
+-				elm_label_label_set(play_cur_pos, "0:00");
++				elm_object_text_set(play_cur_pos, "0:00");
+ 				snprintf(buf, sizeof(buf), "%s/play.png", intone_dir);
+ 				elm_icon_file_set(ic_play, buf, NULL);
+ 				return 0;
+@@ -204,7 +204,7 @@ int timer_func(void *data)
+ 	elm_slider_value_set(pos_slider, (double)pos_time);
+ 	if (sec < 10) sprintf(tystr, "%d:0%d", min, (int)sec);
+ 	else sprintf(tystr, "%d:%d", min, (int)sec);
+-	elm_label_label_set(play_cur_pos, tystr);
++	elm_object_text_set(play_cur_pos, tystr);
+ 	return 1;
+ }
+ 
+@@ -255,7 +255,7 @@ void song_select_play(void *data, Evas_Object *obj, void *event_info)
+ 	//change icon to pause
+ 	snprintf(buf, sizeof(buf), "%s/pause.png", intone_dir);
+ 	elm_icon_file_set(ic_play, buf, NULL);
+-	elm_label_label_set(play_cur_pos, "0:00");
++	elm_object_text_set(play_cur_pos, "0:00");
+ 	elm_slider_value_set(pos_slider, 0.0);
+ 	old_song = item;
+ }
+@@ -314,7 +314,7 @@ int set_duration(void)
+ 	sprintf(cmd, "%d:%s", min, tystr);
+ 	//printf("%s\n", cmd);
+ 	elm_slider_min_max_set(pos_slider, 0, (double)song_dur);
+-	elm_label_label_set(play_dur, cmd); //TODO : this is not working on desktops
++	elm_object_text_set(play_dur, cmd); //TODO : this is not working on desktops
+ 	return 1;
+ }
+ 
+@@ -350,13 +350,13 @@ void show_song_info(void)
+ 	//get the song and artist names from the db
+ 	set_song_info();
+ 	//set the labels
+-	elm_label_label_set(artist_lb, cur_artist);
++	elm_object_text_set(artist_lb, cur_artist);
+ 	if(strlen(cur_song) > 36) {
+ 		strncpy(buf, cur_song, 34);
+ 		buf[34] = '.'; buf[35] = '.'; buf[36] = '\0';
+-		elm_label_label_set(song_lb, buf);
++		elm_object_text_set(song_lb, buf);
+ 	}
+-	else elm_label_label_set(song_lb, cur_song);
++	else elm_object_text_set(song_lb, cur_song);
+ }
+ 
+ void show_song_lyrics(void)
+@@ -390,13 +390,13 @@ void show_song_lyrics(void)
+ 	//get the song and artist names from the db
+ 	set_song_info();
+ 	//set the labels
+-	elm_label_label_set(artist_lb, cur_artist);
++	elm_object_text_set(artist_lb, cur_artist);
+ 	if(strlen(cur_song) > 36) {
+ 		strncpy(buf, cur_song, 34);
+ 		buf[34] = '.'; buf[35] = '.'; buf[36] = '\0';
+-		elm_label_label_set(song_lb, buf);
++		elm_object_text_set(song_lb, buf);
+ 	}
+-	else elm_label_label_set(song_lb, cur_song);
++	else elm_object_text_set(song_lb, cur_song);
+ }
+ 
+ void prev_button_clicked(void *data, Evas_Object *obj, void *event_info)
+@@ -419,15 +419,15 @@ void prev_button_clicked(void *data, Evas_Object *obj, void *event_info)
+ 		if(view == LISTVIEW) {
+ 			elm_genlist_item_update(old_song);
+ 			if(!randomize) {
+-				elm_genlist_item_selected_set(song_list[song_index+1], 0);
+-				elm_genlist_item_selected_set(song_list[song_index], 1);
++				elm_gen_item_selected_set(song_list[song_index+1], 0);
++				elm_gen_item_selected_set(song_list[song_index], 1);
+ 				elm_genlist_item_update(song_list[song_index]);
+ 				old_song = song_list[song_index];
+ 				elm_genlist_item_show(song_list[song_index]);
+ 			}
+ 			else {//if randomize
+-				elm_genlist_item_selected_set(song_list[seq[song_index+1]], 0);
+-				elm_genlist_item_selected_set(song_list[seq[song_index]], 1);
++				elm_gen_item_selected_set(song_list[seq[song_index+1]], 0);
++				elm_gen_item_selected_set(song_list[seq[song_index]], 1);
+ 				elm_genlist_item_update(song_list[seq[song_index]]);
+ 				old_song = song_list[seq[song_index]];
+ 				elm_genlist_item_show(song_list[seq[song_index]]);				
+@@ -445,7 +445,7 @@ void prev_button_clicked(void *data, Evas_Object *obj, void *event_info)
+ 			next_button_clicked (NULL, NULL, NULL);
+ 			return;
+ 		}
+-		elm_label_label_set(play_cur_pos, "0:00");
++		elm_object_text_set(play_cur_pos, "0:00");
+ 		//tell mplayer to play cur_song
+ 		sprintf(cmd, "loadfile \"%s\"\n", path);
+ 		ret = write(fd, cmd, strlen(cmd));
+@@ -488,17 +488,17 @@ void next_button_clicked(void *data, Evas_Object *obj, void *event_info)
+ 	if(view == LISTVIEW) {
+ 		elm_genlist_item_update(old_song);
+ 		if (!randomize) {
+-			if (song_index > 0) elm_genlist_item_selected_set(song_list[song_index-1], 0);
+-			else elm_genlist_item_selected_set(song_list[no_songs -1], 0);
+-			elm_genlist_item_selected_set(song_list[song_index], 1);
++			if (song_index > 0) elm_gen_item_selected_set(song_list[song_index-1], 0);
++			else elm_gen_item_selected_set(song_list[no_songs -1], 0);
++			elm_gen_item_selected_set(song_list[song_index], 1);
+ 			elm_genlist_item_update(song_list[song_index]);
+ 			old_song = song_list[song_index];
+ 			elm_genlist_item_show(song_list[song_index]);
+ 		}
+ 		else { // if randomize
+-			if(song_index > 0) elm_genlist_item_selected_set(song_list[seq[song_index -1]], 0);
+-			else elm_genlist_item_selected_set(song_list[seq[no_songs -1]], 0);
+-			elm_genlist_item_selected_set(song_list[seq[song_index]], 1);
++			if(song_index > 0) elm_gen_item_selected_set(song_list[seq[song_index -1]], 0);
++			else elm_gen_item_selected_set(song_list[seq[no_songs -1]], 0);
++			elm_gen_item_selected_set(song_list[seq[song_index]], 1);
+ 			elm_genlist_item_update(song_list[seq[song_index]]);
+ 			old_song = song_list[seq[song_index]];
+ 			elm_genlist_item_show(song_list[seq[song_index]]);
+@@ -516,7 +516,7 @@ void next_button_clicked(void *data, Evas_Object *obj, void *event_info)
+ 		//set timer
+ 		pos_time = 0;
+ 		timer1 = ecore_timer_add(1.0, timer_func, NULL);
+-		elm_label_label_set(play_cur_pos, "0:00");
++		elm_object_text_set(play_cur_pos, "0:00");
+ 		play_state = PLAYING;
+ 		//tell mplayer to play cur_song
+ 		sprintf(cmd, "loadfile \"%s\"\n", path);
+@@ -627,7 +627,7 @@ void play_button_clicked(void *data, Evas_Object *obj, void *event_info)
+ 		snprintf(buf, sizeof(buf), "%s/pause.png", intone_dir);
+ 		elm_icon_file_set(ic_play, buf, NULL);
+ 		timer1 = ecore_timer_add(1.0, timer_func, NULL);
+-		elm_label_label_set(play_cur_pos, "0:00");
++		elm_object_text_set(play_cur_pos, "0:00");
+ 	}
+ }
+ 
+@@ -682,7 +682,7 @@ void load_dir(Evas_Object *li, char *direc)
+ 	n = scandir (old_dir, &eps, file_select, alphasort);
+     if (n > 0) {
+ 	    //clear the list
+-		elm_genlist_clear(li);
++		elm_gen_clear(li);
+ 	   	for (i = 0; i < n; ++i) {
+ 			if(strcmp(old_dir, "/") == 0) sprintf(dir_gl_entry[i].path, "/%s", eps[i]->d_name);
+ 			else sprintf(dir_gl_entry[i].path, "%s/%s", old_dir, eps[i]->d_name);
+@@ -694,8 +694,8 @@ void load_dir(Evas_Object *li, char *direc)
+ 	}
+     else return;
+     free(eps);
+-	dir_list = elm_genlist_first_item_get(li);
+-	elm_genlist_item_selected_set(dir_list ,1);
++	dir_list = elm_gen_first_item_get(li);
++	elm_gen_item_selected_set(dir_list ,1);
+ }
+ 
+ int audio_file_select(const struct dirent *entry)
+@@ -1011,7 +1011,7 @@ void remove_dir_button_clicked(void *data, Evas_Object *obj, void *event_info)
+ 			//reset the pos_slider
+ 			elm_slider_value_set(pos_slider, 0.0);
+ 			elm_slider_min_max_set(pos_slider, 0, 0);
+-			elm_label_label_set(play_cur_pos, "0:00");
++			elm_object_text_set(play_cur_pos, "0:00");
+ 			//change play icon
+ 			snprintf(buf, sizeof(buf), "%s/play.png", intone_dir);
+ 			elm_icon_file_set(ic_play, buf, NULL);
+@@ -1030,7 +1030,7 @@ void remove_dir_button_clicked(void *data, Evas_Object *obj, void *event_info)
+ 			//reset the pos_slider
+ 			elm_slider_value_set(pos_slider, 0.0);
+ 			elm_slider_min_max_set(pos_slider, 0, 0);
+-			elm_label_label_set(play_cur_pos, "0:00");
++			elm_object_text_set(play_cur_pos, "0:00");
+ 			//change play icon
+ 			snprintf(buf, sizeof(buf), "%s/play.png", intone_dir);
+ 			elm_icon_file_set(ic_play, buf, NULL);
+@@ -1072,8 +1072,8 @@ void temp_playlist(void *data, Evas_Object *obj, void *event_info)
+ 	//reset the pos_slider
+ 	elm_slider_value_set(pos_slider, 0.0);
+ 	elm_slider_min_max_set(pos_slider, 0, 0);
+-	elm_label_label_set(play_cur_pos, "0:00");
+-	elm_label_label_set(play_dur, "0:00");
++	elm_object_text_set(play_cur_pos, "0:00");
++	elm_object_text_set(play_dur, "0:00");
+ }
+ 
+ int update_scan_popup(void)
+@@ -1081,7 +1081,7 @@ int update_scan_popup(void)
+ 	char message[255];
+ 
+ 	sprintf(message, "Added %d songs and %d Albums", songs_scanned, albums_scanned);
+-	elm_label_label_set(popup_lb, message);
++	elm_object_text_set(popup_lb, message);
+ 	if (scanning == 1) return 1;
+ 	else {
+ 		//set the button visible
+@@ -1197,13 +1197,13 @@ void change_view_album(void)
+ 	
+ 	//add a label for song name
+ 	song_lb = elm_label_add(win);
+-	elm_label_label_set(song_lb, "");
++	elm_object_text_set(song_lb, "");
+ 	elm_box_pack_end(list_box, song_lb);
+ 	evas_object_show(song_lb);
+ 
+ 	//add a label for artist
+ 	artist_lb = elm_label_add(win);
+-	elm_label_label_set(artist_lb, "");
++	elm_object_text_set(artist_lb, "");
+ 	elm_box_pack_end(list_box, artist_lb);
+ 	evas_object_show(artist_lb);
+ 	
+@@ -1248,13 +1248,13 @@ void change_view_lyrics(void)
+ 
+ 	//add a label for song name
+ 	song_lb = elm_label_add(win);
+-	elm_label_label_set(song_lb, "");
++	elm_object_text_set(song_lb, "");
+ 	elm_box_pack_end(list_box, song_lb);
+ 	evas_object_show(song_lb);
+ 
+ 	//add a label for artist
+ 	artist_lb = elm_label_add(win);
+-	elm_label_label_set(artist_lb, "");
++	elm_object_text_set(artist_lb, "");
+ 	elm_box_pack_end(list_box, artist_lb);
+ 	evas_object_show(artist_lb);
+ 
+@@ -1337,7 +1337,7 @@ void sel_playlist_button_clicked(void *data, Evas_Object *obj, void *event_info)
+ 	//reset the pos_slider
+ 	elm_slider_value_set(pos_slider, 0.0);
+ 	elm_slider_min_max_set(pos_slider, 0, 0);
+-	elm_label_label_set(play_cur_pos, "0:00");
++	elm_object_text_set(play_cur_pos, "0:00");
+ 	//change play icon
+ 	snprintf(buf, sizeof(buf), "%s/play.png", intone_dir);
+ 	elm_icon_file_set(ic_play, buf, NULL);
+@@ -1375,7 +1375,7 @@ void save_playlist_button_clicked(void *data, Evas_Object *obj, void *event_info
+ 	//remove the trailing<br>
+ 	char *playlist = strtok(pl, "<");	
+ 	//check there is some data in the playlist before adding
+-	item = elm_genlist_first_item_get(c_play_list);
++	item = elm_gen_first_item_get(c_play_list);
+ 	if(!item) {
+ 		popup_message ("Please add Songs to the Playlist before Saving!", NULL, 1);
+ 		return;
+diff --git a/src/db_sqlite.c b/src/db_sqlite.c
+index 841392b..546aab8 100644
+--- a/src/db_sqlite.c
++++ b/src/db_sqlite.c
+@@ -703,7 +703,7 @@ void populate_play_list(Evas_Object *li)
+ 	sqlite3_stmt *stmt;
+ 	Elm_Genlist_Item *gl_item=NULL;
+ 
+-	elm_genlist_clear(li);
++	elm_gen_clear(li);
+ 	sql = "SELECT name FROM playlists";
+ 	db_ret = sqlite3_prepare(songs, sql, strlen(sql), &stmt, &tail);
+ 	if(db_ret != SQLITE_OK) {
+@@ -720,9 +720,9 @@ void populate_play_list(Evas_Object *li)
+ 	sqlite3_finalize(stmt);
+ 	//select the current playlist / first playlist
+ 	if (gl_item == NULL) {
+-		gl_item = elm_genlist_first_item_get(li);
++		gl_item = elm_gen_first_item_get(li);
+ 	}
+-	elm_genlist_item_selected_set(gl_item ,1);
++	elm_gen_item_selected_set(gl_item ,1);
+ 	elm_genlist_item_show(gl_item);
+ }
+ 
+@@ -737,7 +737,7 @@ void populate_playlist_songs(Evas_Object *li)
+ 	Elm_Genlist_Item *it = (Elm_Genlist_Item *)elm_genlist_selected_item_get(play_list);
+ 	strcpy(playlist_name, (char *)elm_genlist_item_data_get(it));
+ 	//clear the playlist_songs list
+-	elm_genlist_clear(li);
++	elm_gen_clear(li);
+ 	//get data for this playlist and add to playlist_songs
+ 	sql =  sqlite3_mprintf("SELECT song, path  FROM '%q'", playlist_name);
+ 	db_ret = sqlite3_prepare(songs, sql, strlen(sql), &stmt, &tail);
+@@ -763,7 +763,7 @@ void sel_song(void)
+ 		if (!randomize) song_to_play = song_list[song_index];
+ 		else song_to_play = song_list[seq[song_index]];
+ 		if (song_to_play) {
+-			elm_genlist_item_selected_set(song_to_play, 1);
++			elm_gen_item_selected_set(song_to_play, 1);
+ 			old_song = song_to_play;
+ 			elm_genlist_item_show(song_to_play);
+ 		}
+@@ -778,7 +778,7 @@ void populate_main_list(Evas_Object *li)
+ 	sqlite3_stmt *stmt;
+ 		
+ 	//clear the list
+-	elm_genlist_clear(list);
++	elm_gen_clear(list);
+ 	//if playlist name is "" add a statement saying add Music first
+ 	if ((strlen(cur_playlist) < 1) || (strcmp(cur_playlist, "Select a Playlist!") == 0)) {
+ 		strcpy(pl_data[0].path, "Add Songs using the 'Songs' Button!");
+@@ -817,7 +817,7 @@ void populate_main_list(Evas_Object *li)
+ 		elm_genlist_item_append(list, &itc_list, 
+                                       "Add Songs using the 'Songs' Button!", 
+                                       NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+-		elm_genlist_item_selected_set(elm_genlist_first_item_get(list), 1);
++		elm_gen_item_selected_set(elm_gen_first_item_get(list), 1);
+ 		no_songs = 1;
+ 		song_index = 0;
+ 		return;
+@@ -934,7 +934,7 @@ void save_playlist (char *playlist, Evas_Object *li)
+ 		sqlite3_free(sql_st);
+ 	}
+ 	//add data to new table
+-	item = elm_genlist_first_item_get(li);
++	item = elm_gen_first_item_get(li);
+ 	while(item) {
+ 		char *path = (char *)elm_genlist_item_data_get(item);
+ 		name = strrchr(path,  '/');
+@@ -950,9 +950,9 @@ void save_playlist (char *playlist, Evas_Object *li)
+ 		}
+ 		sqlite3_free(sql_st);
+ 		if (path) free(path);
+-		item = elm_genlist_item_next_get(item);
++		item = elm_gen_item_next_get(item);
+ 	}
+-	elm_genlist_clear(li);
++	elm_gen_clear(li);
+ }
+ 
+ void add_songs_from_album(char *album, Evas_Object *list)
+@@ -1116,7 +1116,7 @@ void populate_home_list(Evas_Object *li)
+ 	sqlite3_stmt *stmt;
+ 	const char *tail;
+ 
+-	elm_genlist_clear(li);
++	elm_gen_clear(li);
+ 	sql = "SELECT dir FROM song_dirs";	
+ 	db_ret = sqlite3_prepare(songs, sql, strlen(sql), &stmt, &tail);
+ 	if(db_ret != SQLITE_OK) {
+diff --git a/src/gui.c b/src/gui.c
+index 5097244..df3f94d 100644
+--- a/src/gui.c
++++ b/src/gui.c
+@@ -61,18 +61,18 @@ void popup_message(char *message, char *msg, int butt_state)
+ 	evas_object_show(vbox);
+ 	
+ 	popup_lb = elm_label_add(pop_win);
+-	elm_label_label_set(popup_lb, message);
++	elm_object_text_set(popup_lb, message);
+ 	elm_box_pack_end(vbox, popup_lb);
+ 	evas_object_show(popup_lb);
+ 
+ 	lb = elm_label_add(pop_win);
+-	elm_label_label_set(lb, msg);
++	elm_object_text_set(lb, msg);
+ 	elm_box_pack_end(vbox, lb);
+ 	evas_object_show(lb);
+ 	
+ 	//add close button
+ 	popup_bt = elm_button_add(pop_win);
+-	elm_button_label_set(popup_bt, "Done");
++	elm_object_text_set(popup_bt, "Done");
+ 	evas_object_size_hint_weight_set(popup_bt, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(popup_bt, 0.5, -1.0);
+ 	elm_box_pack_end(vbox, popup_bt);
+@@ -119,13 +119,13 @@ void popup_alert(char *message)
+ 	evas_object_show(inwin);
+ 
+ 	lb = elm_label_add(win);
+-	elm_label_label_set(lb,message);
++	elm_object_text_set(lb,message);
+ 	elm_win_inwin_content_set(inwin, lb);
+ 	evas_object_show(lb);
+ 
+ 	//add yes button
+ 	bt = elm_button_add(win);
+-	elm_button_label_set(bt, "Yes");
++	elm_object_text_set(bt, "Yes");
+ 	evas_object_size_hint_weight_set(bt, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(bt, -1.0, -1.0);
+ 	elm_box_pack_end(inwin, bt);
+@@ -134,7 +134,7 @@ void popup_alert(char *message)
+ 	
+ 	//add close button
+ 	bt1 = elm_button_add(win);
+-	elm_button_label_set(bt1, "Done");
++	elm_object_text_set(bt1, "Done");
+ 	evas_object_size_hint_weight_set(bt1, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(bt1, -1.0, -1.0);
+ 	elm_box_pack_end(inwin, bt1);
+@@ -170,7 +170,7 @@ void cancel_button_clicked(void *data, Evas_Object *obj, void *event_info)
+ {
+ 	Winlist *wl = data;
+ 	//clear the list
+-	if (wl->li) elm_genlist_clear(wl->li);
++	if (wl->li) elm_gen_clear(wl->li);
+ 	//close the window
+ 	evas_object_del(wl->win);
+ }
+@@ -185,7 +185,7 @@ char *album_l_label_get(const void *data, Evas_Object *obj, const char *part)
+ 	return (ty);
+ }
+ 
+-Evas_Object *album_l_icon_get(const void *data, Evas_Object *obj, const char *part)
++Evas_Object *album_l_content_get(const void *data, Evas_Object *obj, const char *part)
+ {
+ 	char buf[PATH_MAX];
+ 	if (!strcmp(part, "elm.swallow.icon"))
+@@ -248,14 +248,14 @@ void create_add_alb_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	// add a label
+ 	lb = elm_label_add(add_alb_win);
+-	elm_label_label_set(lb, "Albums");
+-	elm_frame_content_set(fr, lb);
++	elm_object_text_set(lb, "Albums");
++	elm_object_content_set(fr, lb);
+ 	evas_object_show(lb);    
+ 
+ 	//add list to vbox now
+ 	add_album_list = elm_genlist_add(add_alb_win);
+ 	elm_object_scale_set(add_album_list,1.0);
+-	elm_genlist_bounce_set(add_album_list, 0 ,0);
++	elm_gen_bounce_set(add_album_list, 0 ,0);
+ 	evas_object_size_hint_weight_set(add_album_list, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(add_album_list, -1.0, -1.0);
+ 	elm_genlist_multi_select_set(add_album_list, 1);
+@@ -265,7 +265,7 @@ void create_add_alb_page(void *data, Evas_Object *obj, void *event_info)
+ 	//genlist class defs
+ 	itc_add_album_list.item_style     		= "default";
+ 	itc_add_album_list.func.label_get 	= album_l_label_get;
+-	itc_add_album_list.func.icon_get  	= album_l_icon_get;
++	itc_add_album_list.func.content_get  	= album_l_content_get;
+ 	itc_add_album_list.func.state_get 	= album_l_state_get;
+ 	itc_add_album_list.func.del       		= album_l_del;
+ 	
+@@ -279,7 +279,7 @@ void create_add_alb_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	//add add_album button to hbox1
+ 	add_album_button = elm_button_add(add_alb_win);
+-	elm_button_label_set(add_album_button, "Add Selected");
++	elm_object_text_set(add_album_button, "Add Selected");
+ 	evas_object_size_hint_weight_set(add_album_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(add_album_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox1, add_album_button);
+@@ -288,7 +288,7 @@ void create_add_alb_page(void *data, Evas_Object *obj, void *event_info)
+ 		
+ 	// add cancel button
+ 	cancel_button = elm_button_add(add_alb_win);
+-	elm_button_label_set(cancel_button, "Done");
++	elm_object_text_set(cancel_button, "Done");
+ 	evas_object_size_hint_weight_set(cancel_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(cancel_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox1, cancel_button);
+@@ -330,7 +330,7 @@ char *gl_label_get(const void *data, Evas_Object *obj, const char *part)
+ 	return (ty);
+ }
+ 
+-Evas_Object *gl_icon_get(const void *data, Evas_Object *obj, const char *part)
++Evas_Object *gl_content_get(const void *data, Evas_Object *obj, const char *part)
+ {
+ 	char buf[PATH_MAX];
+ 	if (!strcmp(part, "elm.swallow.icon"))
+@@ -392,7 +392,7 @@ void create_gui(Evas_Object *win)
+ 	ic_view = elm_icon_add(win);
+ 	snprintf(buf, sizeof(buf), "%s/playlist_view.png", intone_dir);
+ 	elm_icon_file_set(ic_view, buf, NULL);
+-	elm_button_icon_set(view_button, ic_view);
++	elm_object_content_set(view_button, ic_view);
+ 	evas_object_size_hint_weight_set(view_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(view_button, -1.0, -1.0);
+ 	elm_box_pack_end(toolbar, view_button);
+@@ -404,7 +404,7 @@ void create_gui(Evas_Object *win)
+ 	ic= elm_icon_add(win);
+ 	snprintf(buf, sizeof(buf), "%s/settings.png", intone_dir);
+ 	elm_icon_file_set(ic, buf, NULL);
+-	elm_button_icon_set(eq_button, ic);
++	elm_object_content_set(eq_button, ic);
+ 	evas_object_size_hint_weight_set(eq_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(eq_button, -1.0, -1.0);
+ 	elm_box_pack_end(toolbar, eq_button);
+@@ -413,7 +413,7 @@ void create_gui(Evas_Object *win)
+ 	
+ 	//add songs button to the toolbar
+ 	playlist_button = elm_button_add(win);
+-	elm_button_label_set(playlist_button, "Songs");
++	elm_object_text_set(playlist_button, "Songs");
+ 	evas_object_size_hint_weight_set(playlist_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(playlist_button, -1.0, -1.0);
+ 	elm_box_pack_end(toolbar, playlist_button);
+@@ -433,7 +433,7 @@ void create_gui(Evas_Object *win)
+ 	if (randomize) snprintf(buf, sizeof(buf), "%s/shuffle.png", intone_dir);
+ 	else snprintf(buf, sizeof(buf), "%s/no-shuffle.png", intone_dir);
+ 	elm_icon_file_set(ic_shuffle, buf, NULL);
+-	elm_button_icon_set(shuffle_button, ic_shuffle);
++	elm_object_content_set(shuffle_button, ic_shuffle);
+ 	evas_object_smart_callback_add(shuffle_button, "clicked", my_hover_bt_1, shuffle_hv);
+ 	evas_object_size_hint_weight_set(shuffle_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(shuffle_button, -1.0, -1.0);
+@@ -443,7 +443,7 @@ void create_gui(Evas_Object *win)
+ 	elm_hover_target_set(shuffle_hv, shuffle_button);
+ 
+ 	bt = elm_button_add(win);
+-	elm_button_label_set(bt, "---");
++	elm_object_text_set(bt, "---");
+ 	evas_object_size_hint_weight_set(bt, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(bt, -1.0, -1.0);
+ 	elm_hover_content_set(shuffle_hv, "middle", bt);
+@@ -461,7 +461,7 @@ void create_gui(Evas_Object *win)
+ 			case 5 : strcpy(hv_label, "Random"); strcpy(ty, "random"); break;
+ 			default : break;
+ 		}
+-		elm_button_label_set(bt, hv_label);
++		elm_object_text_set(bt, hv_label);
+ 		elm_box_pack_end(bx, bt);
+ 		tystr = strdup(ty);
+ 		evas_object_smart_callback_add(bt, "clicked", set_random_mode, (char *)tystr);
+@@ -475,7 +475,7 @@ void create_gui(Evas_Object *win)
+ 	if (randomize) snprintf(buf, sizeof(buf), "%s/shuffle.png", intone_dir);
+ 	else snprintf(buf, sizeof(buf), "%s/no-shuffle.png", intone_dir);
+ 	elm_icon_file_set(ic_shuffle, buf, NULL);
+-	elm_button_icon_set(random_button, ic_shuffle);
++	elm_object_content_set(random_button, ic_shuffle);
+ 	evas_object_size_hint_weight_set(random_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(random_button, -1.0, -1.0);
+ 	elm_box_pack_end(toolbar, random_button);
+@@ -488,7 +488,7 @@ void create_gui(Evas_Object *win)
+ 	if (loop) snprintf(buf, sizeof(buf), "%s/repeat.png", intone_dir);
+ 	else snprintf(buf, sizeof(buf), "%s/no-repeat.png", intone_dir);
+ 	elm_icon_file_set(ic_repeat, buf, NULL);
+-	elm_button_icon_set(loop_button, ic_repeat);
++	elm_object_content_set(loop_button, ic_repeat);
+ 	evas_object_size_hint_weight_set(loop_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(loop_button, -1.0, -1.0);
+ 	elm_box_pack_end(toolbar, loop_button);
+@@ -505,7 +505,7 @@ void create_gui(Evas_Object *win)
+ 	//add list to vbox now
+ 	list = elm_genlist_add(win);
+ 	elm_object_scale_set(list, 1.0);
+-	elm_genlist_bounce_set(list, 0, 0);
++	elm_gen_bounce_set(list, 0, 0);
+ 	evas_object_size_hint_weight_set(list, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(list, -1.0, -1.0);
+ 	elm_list_multi_select_set(list, 0);
+@@ -518,7 +518,7 @@ void create_gui(Evas_Object *win)
+ 	//genlist class defs
+ 	itc_list.item_style     		= "default";
+ 	itc_list.func.label_get 	= gl_label_get;
+-	itc_list.func.icon_get  	= gl_icon_get;
++	itc_list.func.content_get  	= gl_content_get;
+ 	itc_list.func.state_get 	= gl_state_get;
+ 	itc_list.func.del       		= gl_del;
+ 
+@@ -536,7 +536,7 @@ void create_gui(Evas_Object *win)
+ 	snprintf(buf, sizeof(buf), "%s/prev.png", intone_dir);
+ 	elm_icon_file_set(ic, buf, NULL);
+ 	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+-	elm_button_icon_set(prev_button, ic);
++	elm_object_content_set(prev_button, ic);
+ 	evas_object_show(ic);
+ 	evas_object_size_hint_weight_set(prev_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(prev_button, -1.0, -1.0);
+@@ -550,7 +550,7 @@ void create_gui(Evas_Object *win)
+ 	snprintf(buf, sizeof(buf), "%s/play.png", intone_dir);
+ 	elm_icon_file_set(ic_play, buf, NULL);
+ 	evas_object_size_hint_aspect_set(ic_play, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+-	elm_button_icon_set(play_button, ic_play);
++	elm_object_content_set(play_button, ic_play);
+ 	evas_object_show(ic_play);
+ 	evas_object_size_hint_weight_set(play_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(play_button, -1.0, -1.0);
+@@ -564,7 +564,7 @@ void create_gui(Evas_Object *win)
+ 	snprintf(buf, sizeof(buf), "%s/next.png", intone_dir);
+ 	elm_icon_file_set(ic, buf, NULL);
+ 	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+-	elm_button_icon_set(next_button, ic);
++	elm_object_content_set(next_button, ic);
+ 	evas_object_show(ic);
+ 	evas_object_size_hint_weight_set(next_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(next_button, -1.0, -1.0);
+@@ -574,7 +574,7 @@ void create_gui(Evas_Object *win)
+ 
+ 	//add vol slider to hbox
+ 	vol_slider = elm_slider_add(win);
+-	elm_slider_label_set(vol_slider, "Vol");
++	elm_object_text_set(vol_slider, "Vol");
+ 	elm_slider_unit_format_set(vol_slider, "%3.0f");
+ 	elm_slider_indicator_format_set(vol_slider, "%3.0f");
+ 	elm_slider_min_max_set(vol_slider, 70, 100);
+@@ -595,7 +595,7 @@ void create_gui(Evas_Object *win)
+ 
+ 	//add cur pos label
+ 	play_cur_pos = elm_label_add(win);
+-	elm_label_label_set(play_cur_pos, "0:00");
++	elm_object_text_set(play_cur_pos, "0:00");
+ 	elm_box_pack_end(hbox, play_cur_pos);
+ 	evas_object_show(play_cur_pos);
+ 
+@@ -613,7 +613,7 @@ void create_gui(Evas_Object *win)
+ 	
+ 	//add total dur label label
+ 	play_dur = elm_label_add(win);
+-	elm_label_label_set(play_dur, "0:00");
++	elm_object_text_set(play_dur, "0:00");
+ 	elm_box_pack_end(hbox, play_dur);
+ 	evas_object_show(play_dur);
+ 
+@@ -645,7 +645,7 @@ char *album_gl_label_get(const void *data, Evas_Object *obj, const char *part)
+ 	return (ty);
+ }
+ 
+-Evas_Object *album_gl_icon_get(const void *data, Evas_Object *obj, const char *part)
++Evas_Object *album_gl_content_get(const void *data, Evas_Object *obj, const char *part)
+ {
+ 	char buf[PATH_MAX];
+ 	if (!strcmp(part, "elm.swallow.icon"))
+@@ -681,7 +681,7 @@ char *dir_gl_label_get(const void *data, Evas_Object *obj, const char *part)
+ 	return (ty);
+ }
+ 
+-Evas_Object *dir_gl_icon_get(const void *data, Evas_Object *obj, const char *part)
++Evas_Object *dir_gl_content_get(const void *data, Evas_Object *obj, const char *part)
+ {
+ 	_dir *dir_gl = (_dir *)data;
+ 	char buf[PATH_MAX], buf1[PATH_MAX];
+@@ -737,7 +737,7 @@ void create_dir_browser_page(void *data, Evas_Object *obj, void *event_info)
+ 	// add button hbox
+ 	hbox = elm_box_add(dir_browser_page_win);
+ 	elm_box_horizontal_set(hbox, 1);
+-	elm_box_homogenous_set(hbox, 1);
++	elm_box_homogeneous_set(hbox, 1);
+ 	evas_object_size_hint_weight_set(hbox, 1.0, 0.0);
+ 	evas_object_size_hint_align_set(hbox, -1.0, 0.0);
+ 	elm_box_pack_end(vbox, hbox);
+@@ -745,7 +745,7 @@ void create_dir_browser_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	//add up button to hbox
+ 	up_button = elm_button_add(dir_browser_page_win);
+-	elm_button_label_set(up_button, "Up");
++	elm_object_text_set(up_button, "Up");
+ 	evas_object_size_hint_weight_set(up_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(up_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox, up_button);
+@@ -753,7 +753,7 @@ void create_dir_browser_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	//add home button to hbox
+ 	home_button = elm_button_add(dir_browser_page_win);
+-	elm_button_label_set(home_button, "Home");
++	elm_object_text_set(home_button, "Home");
+ 	evas_object_size_hint_weight_set(home_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(home_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox, home_button);
+@@ -761,7 +761,7 @@ void create_dir_browser_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	//add enter dir button to hbox
+ 	enter_dir_button = elm_button_add(dir_browser_page_win);
+-	elm_button_label_set(enter_dir_button, "Enter Dir");
++	elm_object_text_set(enter_dir_button, "Enter Dir");
+ 	evas_object_size_hint_weight_set(enter_dir_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(enter_dir_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox, enter_dir_button);
+@@ -770,7 +770,7 @@ void create_dir_browser_page(void *data, Evas_Object *obj, void *event_info)
+ 	//add list to vbox now
+ 	dir_list = elm_genlist_add(dir_browser_page_win);
+ 	elm_object_scale_set(dir_list, 1.0);
+-	elm_genlist_bounce_set(dir_list, 0 ,0);
++	elm_gen_bounce_set(dir_list, 0 ,0);
+ 	evas_object_size_hint_weight_set(dir_list, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(dir_list, -1.0, -1.0);
+ 	elm_genlist_multi_select_set(dir_list, 0);
+@@ -784,7 +784,7 @@ void create_dir_browser_page(void *data, Evas_Object *obj, void *event_info)
+ 	//genlist class defs
+ 	itc_dir_list.item_style     		= "default";
+ 	itc_dir_list.func.label_get 		= dir_gl_label_get;
+-	itc_dir_list.func.icon_get  		= dir_gl_icon_get;
++	itc_dir_list.func.content_get  		= dir_gl_content_get;
+ 	itc_dir_list.func.state_get 	= dir_gl_state_get;
+ 	itc_dir_list.func.del       		= dir_gl_del;
+ 	
+@@ -798,7 +798,7 @@ void create_dir_browser_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	//add done button to hbox1
+ 	done_button = elm_button_add(dir_browser_page_win);
+-	elm_button_label_set(done_button, "Select Dir");
++	elm_object_text_set(done_button, "Select Dir");
+ 	evas_object_size_hint_weight_set(done_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(done_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox1, done_button);
+@@ -809,7 +809,7 @@ void create_dir_browser_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	//add cancel button to hbox1
+ 	cancel_button = elm_button_add(dir_browser_page_win);
+-	elm_button_label_set(cancel_button, "Cancel");
++	elm_object_text_set(cancel_button, "Cancel");
+ 	evas_object_size_hint_weight_set(cancel_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(cancel_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox1, cancel_button);
+@@ -831,10 +831,10 @@ void select_all_songs(void *data, Evas_Object *obj, void *event_info)
+ 	Evas_Object *li = (Evas_Object *) data;
+ 	Elm_Genlist_Item *item;
+ 
+-	item = elm_genlist_first_item_get(li);
+-	if (item) elm_genlist_item_selected_set(item, 1);
+-	while ((item = elm_genlist_item_next_get(item))) {
+-		elm_genlist_item_selected_set(item, 1);
++	item = elm_gen_first_item_get(li);
++	if (item) elm_gen_item_selected_set(item, 1);
++	while ((item = elm_gen_item_next_get(item))) {
++		elm_gen_item_selected_set(item, 1);
+ 	}
+ }
+ 
+@@ -848,7 +848,7 @@ char *final_filter_gl_label_get(const void *data, Evas_Object *obj, const char *
+ 	return (ty);
+ }
+ 
+-Evas_Object *final_filter_gl_icon_get(const void *data, Evas_Object *obj, const char *part)
++Evas_Object *final_filter_gl_content_get(const void *data, Evas_Object *obj, const char *part)
+ {
+ 	char buf[PATH_MAX];
+ 	if (!strcmp(part, "elm.swallow.icon"))
+@@ -905,7 +905,7 @@ void select_songs_page(void *data, Evas_Object *obj, void *event_info)
+ 	// add list
+ 	filter_final_list = elm_genlist_add(select_songs_page_win);
+ 	elm_object_scale_set(filter_final_list, 1.0);
+-	elm_genlist_bounce_set(filter_final_list, 0 ,0);
++	elm_gen_bounce_set(filter_final_list, 0 ,0);
+ 	evas_object_size_hint_weight_set(filter_final_list, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(filter_final_list, -1.0, -1.0);
+ 	elm_genlist_multi_select_set(filter_final_list, 1);
+@@ -915,7 +915,7 @@ void select_songs_page(void *data, Evas_Object *obj, void *event_info)
+ 	//genlist class defs
+ 	itc_filter_final.item_style     		= "default";
+ 	itc_filter_final.func.label_get 	= final_filter_gl_label_get;
+-	itc_filter_final.func.icon_get  	= final_filter_gl_icon_get;
++	itc_filter_final.func.content_get  	= final_filter_gl_content_get;
+ 	itc_filter_final.func.state_get 	= final_filter_gl_state_get;
+ 	itc_filter_final.func.del       		= final_filter_gl_del;
+ 
+@@ -929,7 +929,7 @@ void select_songs_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	//add create_playlist button to hbox
+ 	home_dir_button = elm_button_add(select_songs_page_win);
+-	elm_button_label_set(home_dir_button, "Play Selected");
++	elm_object_text_set(home_dir_button, "Play Selected");
+ 	evas_object_size_hint_weight_set(home_dir_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(home_dir_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox, home_dir_button);
+@@ -938,7 +938,7 @@ void select_songs_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	//add create_playlist button to hbox
+ 	home_dir_button = elm_button_add(select_songs_page_win);
+-	elm_button_label_set(home_dir_button, "Select All");
++	elm_object_text_set(home_dir_button, "Select All");
+ 	evas_object_size_hint_weight_set(home_dir_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(home_dir_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox, home_dir_button);
+@@ -947,7 +947,7 @@ void select_songs_page(void *data, Evas_Object *obj, void *event_info)
+ 	
+ 	//add cancel button to hbox
+ 	cancel_button = elm_button_add(select_songs_page_win);
+-	elm_button_label_set(cancel_button, "Cancel");
++	elm_object_text_set(cancel_button, "Cancel");
+ 	evas_object_size_hint_weight_set(cancel_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(cancel_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox, cancel_button);
+@@ -974,7 +974,7 @@ char *filter_gl_label_get(const void *data, Evas_Object *obj, const char *part)
+ 	return (ty);
+ }
+ 
+-Evas_Object *filter_gl_icon_get(const void *data, Evas_Object *obj, const char *part)
++Evas_Object *filter_gl_content_get(const void *data, Evas_Object *obj, const char *part)
+ {
+ 	char buf[PATH_MAX];
+ 	if (!strcmp(part, "elm.swallow.icon"))
+@@ -1026,7 +1026,7 @@ void sel_songs_by_page(void *data, Evas_Object *obj, void *event_info)
+ 	// add list
+ 	filter_list = elm_genlist_add(sel_songs_win);
+ 	elm_object_scale_set(filter_list, 1.0);
+-	elm_genlist_bounce_set(filter_list, 0 ,0);
++	elm_gen_bounce_set(filter_list, 0 ,0);
+ 	evas_object_size_hint_weight_set(filter_list, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(filter_list, -1.0, -1.0);
+ 	elm_genlist_multi_select_set(filter_list, 0); //till the popup_alert starts working
+@@ -1036,7 +1036,7 @@ void sel_songs_by_page(void *data, Evas_Object *obj, void *event_info)
+ 	//genlist class defs
+ 	itc_filter_list.item_style     	= "default";
+ 	itc_filter_list.func.label_get 	= filter_gl_label_get;
+-	itc_filter_list.func.icon_get  	= filter_gl_icon_get;
++	itc_filter_list.func.content_get  	= filter_gl_content_get;
+ 	itc_filter_list.func.state_get 	= filter_gl_state_get;
+ 	itc_filter_list.func.del       		= filter_gl_del;
+ 
+@@ -1050,7 +1050,7 @@ void sel_songs_by_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	//add create_playlist button to hbox
+ 	home_dir_button = elm_button_add(sel_songs_win);
+-	elm_button_label_set(home_dir_button, "Select");
++	elm_object_text_set(home_dir_button, "Select");
+ 	evas_object_size_hint_weight_set(home_dir_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(home_dir_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox, home_dir_button);
+@@ -1061,7 +1061,7 @@ void sel_songs_by_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	//add cancel button to hbox
+ 	cancel_button = elm_button_add(sel_songs_win);
+-	elm_button_label_set(cancel_button, "Cancel");
++	elm_object_text_set(cancel_button, "Cancel");
+ 	evas_object_size_hint_weight_set(cancel_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(cancel_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox, cancel_button);
+@@ -1082,7 +1082,7 @@ void play_all_songs(void *data, Evas_Object *obj, void *event_info)
+ {
+ 	Winlist *wl = data;
+ 	//clear the list
+-	if (wl->li) elm_genlist_clear(wl->li);
++	if (wl->li) elm_gen_clear(wl->li);
+ 	//close the window
+ 	evas_object_del(wl->win);
+ 	
+@@ -1102,7 +1102,7 @@ char *home_list_label_get(const void *data, Evas_Object *obj, const char *part)
+ 	return (ty);
+ }
+ 
+-Evas_Object *home_list_icon_get(const void *data, Evas_Object *obj, const char *part)
++Evas_Object *home_list_content_get(const void *data, Evas_Object *obj, const char *part)
+ {
+ 	return NULL;
+ }
+@@ -1144,14 +1144,14 @@ void manage_songs_page(void *data, Evas_Object *obj, void *event_info)
+ 	
+ 	// add a label
+ 	lb = elm_label_add(manage_songs_page_win);
+-	elm_label_label_set(lb, "Song Directories");
++	elm_object_text_set(lb, "Song Directories");
+ 	elm_box_pack_end(vbox, lb);
+ 	evas_object_show(lb);    
+ 
+ 	// add a list
+ 	home_list = elm_genlist_add(manage_songs_page_win);
+ 	elm_object_scale_set(home_list, 1.0);
+-	elm_genlist_bounce_set(home_list, 0 ,0);
++	elm_gen_bounce_set(home_list, 0 ,0);
+ 	evas_object_size_hint_weight_set(home_list, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(home_list, -1.0, -1.0);
+ 	elm_genlist_multi_select_set(home_list, 0); //till the popup_alert starts working
+@@ -1161,7 +1161,7 @@ void manage_songs_page(void *data, Evas_Object *obj, void *event_info)
+ 	//genlist class defs
+ 	itc_home_list.item_style     		= "default";
+ 	itc_home_list.func.label_get 	= home_list_label_get;
+-	itc_home_list.func.icon_get  	= home_list_icon_get;
++	itc_home_list.func.content_get  	= home_list_content_get;
+ 	itc_home_list.func.state_get 	= home_list_state_get;
+ 	itc_home_list.func.del       		= home_list_del;
+ 
+@@ -1178,15 +1178,15 @@ void manage_songs_page(void *data, Evas_Object *obj, void *event_info)
+ 	// add hbox
+ 	hbox = elm_box_add(manage_songs_page_win);
+ 	elm_box_horizontal_set(hbox, 1);
+-	elm_box_homogenous_set(hbox, 1);
++	elm_box_homogeneous_set(hbox, 1);
+ 	evas_object_size_hint_weight_set(hbox, 1.0, 1.0);
+ 	//evas_object_size_hint_align_set(hbox, -1.0, 0.0);
+-	elm_frame_content_set(fr, hbox);
++	elm_object_content_set(fr, hbox);
+ 	evas_object_show(hbox);
+ 
+ 	//add add dir button to hbox
+ 	home_dir_button = elm_button_add(manage_songs_page_win);
+-	elm_button_label_set(home_dir_button, "Add Dir");
++	elm_object_text_set(home_dir_button, "Add Dir");
+ 	evas_object_size_hint_weight_set(home_dir_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(home_dir_button, -1.0, 0.0);
+ 	elm_box_pack_end(hbox, home_dir_button);
+@@ -1195,7 +1195,7 @@ void manage_songs_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	//add rescan dir button to hbox
+ 	rescan_button = elm_button_add(manage_songs_page_win);
+-	elm_button_label_set(rescan_button, "ReScan Dir");
++	elm_object_text_set(rescan_button, "ReScan Dir");
+ 	evas_object_size_hint_weight_set(rescan_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(rescan_button, -1.0, 0.0);
+ 	elm_box_pack_end(hbox, rescan_button);
+@@ -1204,7 +1204,7 @@ void manage_songs_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	//add remove dir button to hbox
+ 	rescan_button = elm_button_add(manage_songs_page_win);
+-	elm_button_label_set(rescan_button, "Remove Dir");
++	elm_object_text_set(rescan_button, "Remove Dir");
+ 	evas_object_size_hint_weight_set(rescan_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(rescan_button, -1.0, 0.0);
+ 	elm_box_pack_end(hbox, rescan_button);
+@@ -1213,7 +1213,7 @@ void manage_songs_page(void *data, Evas_Object *obj, void *event_info)
+ 	
+ 	//add all songs button to vbox
+ 	create_playlist_button = elm_button_add(manage_songs_page_win);
+-	elm_button_label_set(create_playlist_button, "Play All Songs");
++	elm_object_text_set(create_playlist_button, "Play All Songs");
+ 	evas_object_size_hint_weight_set(create_playlist_button, 1.0, 0.0);
+ 	evas_object_size_hint_align_set(create_playlist_button, -1.0, 0.0);
+ 	elm_box_pack_end(vbox, create_playlist_button);
+@@ -1222,7 +1222,7 @@ void manage_songs_page(void *data, Evas_Object *obj, void *event_info)
+ 	
+ 	//add select playlist button to vbox
+ 	create_playlist_button = elm_button_add(manage_songs_page_win);
+-	elm_button_label_set(create_playlist_button, "Select Songs / Folder to Play");
++	elm_object_text_set(create_playlist_button, "Select Songs / Folder to Play");
+ 	evas_object_size_hint_weight_set(create_playlist_button, 1.0, 0.0);
+ 	evas_object_size_hint_align_set(create_playlist_button, -1.0, 0.0);
+ 	elm_box_pack_end(vbox, create_playlist_button);
+@@ -1231,7 +1231,7 @@ void manage_songs_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	//add select artist button to hbox
+ 	create_playlist_button = elm_button_add(manage_songs_page_win);
+-	elm_button_label_set(create_playlist_button, "Artists");
++	elm_object_text_set(create_playlist_button, "Artists");
+ 	evas_object_size_hint_weight_set(create_playlist_button, 1.0, 0.0);
+ 	evas_object_size_hint_align_set(create_playlist_button, -1.0, 0.0);
+ 	elm_box_pack_end(vbox, create_playlist_button);
+@@ -1241,7 +1241,7 @@ void manage_songs_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	//add select album button to hbox
+ 	cancel_button = elm_button_add(manage_songs_page_win);
+-	elm_button_label_set(cancel_button, "Done");
++	elm_object_text_set(cancel_button, "Done");
+ 	evas_object_size_hint_weight_set(cancel_button, 1.0, 0.0);
+ 	evas_object_size_hint_align_set(cancel_button, -1.0, 0.0);
+ 	elm_box_pack_end(vbox, cancel_button);
+@@ -1265,7 +1265,7 @@ char *play_gl_label_get(const void *data, Evas_Object *obj, const char *part)
+ 	return (ty);
+ }
+ 
+-Evas_Object *play_gl_icon_get(const void *data, Evas_Object *obj, const char *part)
++Evas_Object *play_gl_content_get(const void *data, Evas_Object *obj, const char *part)
+ {
+ 	char buf[PATH_MAX];
+ 	if (!strcmp(part, "elm.swallow.icon"))
+@@ -1326,7 +1326,7 @@ void create_manage_playlist_page(void)
+ 	//add list
+ 	play_list = elm_genlist_add(manage_playlist_page_win);
+ 	elm_object_scale_set(play_list, 1.0);
+-	elm_genlist_bounce_set(play_list, 0 ,0);
++	elm_gen_bounce_set(play_list, 0 ,0);
+ 	evas_object_size_hint_weight_set(play_list, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(play_list, -1.0, -1.0);
+ 	elm_genlist_multi_select_set(play_list, 0); //till the popup_alert starts working
+@@ -1336,14 +1336,14 @@ void create_manage_playlist_page(void)
+ 	//genlist class defs
+ 	itc_play_list.item_style     		= "default";
+ 	itc_play_list.func.label_get 	= play_gl_label_get;
+-	itc_play_list.func.icon_get  	= play_gl_icon_get;
++	itc_play_list.func.content_get  	= play_gl_content_get;
+ 	itc_play_list.func.state_get 	= play_gl_state_get;
+ 	itc_play_list.func.del       		= play_gl_del;
+ 	
+ 	// add hbox
+ 	hbox = elm_box_add(manage_playlist_page_win);
+ 	elm_box_horizontal_set(hbox, 1);
+-	elm_box_homogenous_set(hbox, 1);
++	elm_box_homogeneous_set(hbox, 1);
+ 	evas_object_size_hint_weight_set(hbox, 1.0, 0.0);
+ 	evas_object_size_hint_align_set(hbox, -1.0, 0.0);
+ 	elm_box_pack_end(vbox, hbox);
+@@ -1351,7 +1351,7 @@ void create_manage_playlist_page(void)
+ 
+ 	//add create_playlist button to hbox
+ 	create_playlist_button = elm_button_add(manage_playlist_page_win);
+-	elm_button_label_set(create_playlist_button, "Add");
++	elm_object_text_set(create_playlist_button, "Add");
+ 	evas_object_size_hint_weight_set(create_playlist_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(create_playlist_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox, create_playlist_button);
+@@ -1360,7 +1360,7 @@ void create_manage_playlist_page(void)
+ 
+ 	//add del_playlist button to hbox
+ 	del_playlist_button = elm_button_add(manage_playlist_page_win);
+-	elm_button_label_set(del_playlist_button, "Del");
++	elm_object_text_set(del_playlist_button, "Del");
+ 	evas_object_size_hint_weight_set(del_playlist_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(del_playlist_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox, del_playlist_button);
+@@ -1369,7 +1369,7 @@ void create_manage_playlist_page(void)
+ 
+ 	//add edit_playlist button to hbox
+ 	edit_playlist_button = elm_button_add(manage_playlist_page_win);
+-	elm_button_label_set(edit_playlist_button, "Edit");
++	elm_object_text_set(edit_playlist_button, "Edit");
+ 	evas_object_size_hint_weight_set(edit_playlist_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(edit_playlist_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox, edit_playlist_button);
+@@ -1378,7 +1378,7 @@ void create_manage_playlist_page(void)
+ 
+ 	//add edit_playlist button to hbox
+ 	sel_playlist_button = elm_button_add(manage_playlist_page_win);
+-	elm_button_label_set(sel_playlist_button, "Select");
++	elm_object_text_set(sel_playlist_button, "Select");
+ 	evas_object_size_hint_weight_set(sel_playlist_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(sel_playlist_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox, sel_playlist_button);
+@@ -1387,7 +1387,7 @@ void create_manage_playlist_page(void)
+ 
+ 	//add cancel button to hbox
+ 	cancel_button = elm_button_add(manage_playlist_page_win);
+-	elm_button_label_set(cancel_button, "Done");
++	elm_object_text_set(cancel_button, "Done");
+ 	evas_object_size_hint_weight_set(cancel_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(cancel_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox, cancel_button);
+@@ -1417,7 +1417,7 @@ char *c_play_gl_label_get(const void *data, Evas_Object *obj, const char *part)
+ 	return (ty);
+ }
+ 
+-Evas_Object *c_play_gl_icon_get(const void *data, Evas_Object *obj, const char *part)
++Evas_Object *c_play_gl_content_get(const void *data, Evas_Object *obj, const char *part)
+ {
+ 	char buf[PATH_MAX];
+ 	if (!strcmp(part, "elm.swallow.icon"))
+@@ -1482,8 +1482,8 @@ void create_playlist_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	// add a label
+ 	lb = elm_label_add(playlist_page_win);
+-	elm_label_label_set(lb, "Playlist:");
+-	elm_frame_content_set(fr, lb);
++	elm_object_text_set(lb, "Playlist:");
++	elm_object_content_set(fr, lb);
+ 	evas_object_show(lb);    
+ 
+ 	//add an entry
+@@ -1498,7 +1498,7 @@ void create_playlist_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	//add save playlist button to hboxsave_playlist_button_clicked
+ 	save_playlist_button = elm_button_add(playlist_page_win);
+-	elm_button_label_set(save_playlist_button, "Save");
++	elm_object_text_set(save_playlist_button, "Save");
+ 	evas_object_size_hint_weight_set(save_playlist_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(save_playlist_button, 0.5, -1.0);
+ 	elm_box_pack_end(hbox, save_playlist_button);
+@@ -1515,14 +1515,14 @@ void create_playlist_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	// add a label
+ 	lb1 = elm_label_add(playlist_page_win);
+-	elm_label_label_set(lb1, "Songs");
+-	elm_frame_content_set(fr1, lb1);
++	elm_object_text_set(lb1, "Songs");
++	elm_object_content_set(fr1, lb1);
+ 	evas_object_show(lb1);    
+ 
+ 	//add list to vbox now
+ 	c_play_list = elm_genlist_add(playlist_page_win);
+ 	elm_object_scale_set(c_play_list, 1.0);
+-	elm_genlist_bounce_set(c_play_list, 0 ,0);
++	elm_gen_bounce_set(c_play_list, 0 ,0);
+ 	evas_object_size_hint_weight_set(c_play_list, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(c_play_list, -1.0, -1.0);
+ 	elm_genlist_multi_select_set(c_play_list, 1);
+@@ -1532,14 +1532,14 @@ void create_playlist_page(void *data, Evas_Object *obj, void *event_info)
+ 	//genlist class defs
+ 	itc_c_play_list.item_style     		= "default";
+ 	itc_c_play_list.func.label_get 	= c_play_gl_label_get;
+-	itc_c_play_list.func.icon_get  	= c_play_gl_icon_get;
++	itc_c_play_list.func.content_get  	= c_play_gl_content_get;
+ 	itc_c_play_list.func.state_get 	= c_play_gl_state_get;
+ 	itc_c_play_list.func.del       		= c_play_gl_del;
+ 	
+ 	// add button hbox
+ 	hbox1 = elm_box_add(playlist_page_win);
+ 	elm_box_horizontal_set(hbox1, 1);
+-	elm_box_homogenous_set(hbox1, 1);
++	elm_box_homogeneous_set(hbox1, 1);
+ 	evas_object_size_hint_weight_set(hbox1, 1.0, 0.0);
+ 	evas_object_size_hint_align_set(hbox1, -1.0, 0.0);
+ 	elm_box_pack_end(vbox, hbox1);
+@@ -1547,7 +1547,7 @@ void create_playlist_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	//add add dir button to hbox
+ 	add_alb_button = elm_button_add(playlist_page_win);
+-	elm_button_label_set(add_alb_button, "Add Album");
++	elm_object_text_set(add_alb_button, "Add Album");
+ 	evas_object_size_hint_weight_set(add_alb_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(add_alb_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox1, add_alb_button);
+@@ -1556,7 +1556,7 @@ void create_playlist_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	//add remove song button to hbox
+ 	remove_songs_button = elm_button_add(playlist_page_win);
+-	elm_button_label_set(remove_songs_button, "Del Songs");
++	elm_object_text_set(remove_songs_button, "Del Songs");
+ 	evas_object_size_hint_weight_set(remove_songs_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(remove_songs_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox1, remove_songs_button);
+@@ -1565,7 +1565,7 @@ void create_playlist_page(void *data, Evas_Object *obj, void *event_info)
+ 
+ 	//add cancel button to hbox1
+ 	cancel_button = elm_button_add(playlist_page_win);
+-	elm_button_label_set(cancel_button, "Cancel");
++	elm_object_text_set(cancel_button, "Cancel");
+ 	evas_object_size_hint_weight_set(cancel_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(cancel_button, -1.0, -1.0);
+ 	elm_box_pack_end(hbox1, cancel_button);
+@@ -1624,7 +1624,7 @@ void create_set_page(void *data, Evas_Object *obj, void *event_info)
+ 	//add bass slider
+ 	bass_slider = elm_slider_add(set_page_win);
+ 	elm_object_scale_set(bass_slider, 1.0);
+-	elm_slider_label_set(bass_slider, "Bass");
++	elm_object_text_set(bass_slider, "Bass");
+ 	elm_slider_horizontal_set(bass_slider, 0);
+  	elm_slider_inverted_set(bass_slider, 1);
+ 	elm_slider_span_size_set(bass_slider, 180);
+@@ -1641,7 +1641,7 @@ void create_set_page(void *data, Evas_Object *obj, void *event_info)
+ 	//add treble slider
+ 	treble_slider = elm_slider_add(set_page_win);
+ 	elm_object_scale_set(treble_slider, 1.0);
+-	elm_slider_label_set(treble_slider, "Treble");
++	elm_object_text_set(treble_slider, "Treble");
+ 	elm_slider_horizontal_set(treble_slider, 0);
+ 	elm_slider_inverted_set(treble_slider, 1);
+ 	elm_slider_span_size_set(treble_slider, 180);
+@@ -1658,7 +1658,7 @@ void create_set_page(void *data, Evas_Object *obj, void *event_info)
+ 	//add a slider for mplayer priority	
+ 	priority_slider = elm_slider_add(set_page_win);
+ 	elm_object_scale_set(priority_slider, 1.0);
+-	elm_slider_label_set(priority_slider, "Prioirty");
++	elm_object_text_set(priority_slider, "Prioirty");
+ 	elm_slider_horizontal_set(priority_slider, 0);
+ 	elm_slider_span_size_set(priority_slider, 180);
+ 	elm_slider_unit_format_set(priority_slider, "%2.0f");
+@@ -1682,7 +1682,7 @@ void create_set_page(void *data, Evas_Object *obj, void *event_info)
+ 	fr = elm_frame_add(set_page_win);
+ 	elm_object_scale_set(fr, 1.0);
+ 	elm_object_style_set(fr, "default");
+-	elm_frame_label_set(fr, "Playlist Data");
++	elm_object_text_set(fr, "Playlist Data");
+ 	evas_object_size_hint_weight_set(fr, 1.0, 0.0);
+ 	evas_object_size_hint_align_set(fr, -1.0, -1.0);
+ 	elm_box_pack_end(vbox1, fr);
+@@ -1692,7 +1692,7 @@ void create_set_page(void *data, Evas_Object *obj, void *event_info)
+ 	box = elm_box_add(set_page_win);
+ 	evas_object_size_hint_weight_set(box, 1.0, 0.0);
+ 	evas_object_size_hint_align_set(box, -1.0, 0.0);
+-	elm_frame_content_set(fr, box);
++	elm_object_content_set(fr, box);
+ 	evas_object_show(box);
+ 
+ 	//add radio buttons
+@@ -1700,7 +1700,7 @@ void create_set_page(void *data, Evas_Object *obj, void *event_info)
+ 	elm_radio_state_value_set(rd, pl_info);
+ 	evas_object_size_hint_weight_set(rd, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(rd, -1.0, 0.5);
+-	elm_radio_label_set(rd, "Show Song Tag");
++	elm_object_text_set(rd, "Show Song Tag");
+ 	elm_box_pack_end(box, rd);
+ 	evas_object_show(rd);
+ 	rdg = rd;
+@@ -1712,7 +1712,7 @@ void create_set_page(void *data, Evas_Object *obj, void *event_info)
+ 	evas_object_size_hint_weight_set(rd, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(rd, -1.0, 0.5);
+ 	elm_radio_group_add(rd, rdg);
+-	elm_radio_label_set(rd, "Show File Name");
++	elm_object_text_set(rd, "Show File Name");
+ 	elm_box_pack_end(box, rd);
+ 	evas_object_show(rd);
+ 	evas_object_smart_callback_add(rd, "changed", playlist_song_tg, NULL);
+@@ -1721,7 +1721,7 @@ void create_set_page(void *data, Evas_Object *obj, void *event_info)
+ 	fr = elm_frame_add(set_page_win);
+ 	elm_object_scale_set(fr, 1.0);
+ 	elm_object_style_set(fr, "default");
+-	elm_frame_label_set(fr, "UI Size (Restart)");
++	elm_object_text_set(fr, "UI Size (Restart)");
+ 	evas_object_size_hint_weight_set(fr, 1.0, 0.0);
+ 	evas_object_size_hint_align_set(fr, -1.0, -1.0);
+ 	elm_box_pack_end(vbox1, fr);
+@@ -1731,7 +1731,7 @@ void create_set_page(void *data, Evas_Object *obj, void *event_info)
+ 	box = elm_box_add(set_page_win);
+ 	evas_object_size_hint_weight_set(box, 1.0, 0.0);
+ 	evas_object_size_hint_align_set(box, -1.0, 0.0);
+-	elm_frame_content_set(fr, box);
++	elm_object_content_set(fr, box);
+ 	evas_object_show(box);
+ 	
+ 	//add radio buttons
+@@ -1739,7 +1739,7 @@ void create_set_page(void *data, Evas_Object *obj, void *event_info)
+ 	elm_radio_state_value_set(rd, finger);
+ 	evas_object_size_hint_weight_set(rd, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(rd, -1.0, 0.5);
+-	elm_radio_label_set(rd, "Large");
++	elm_object_text_set(rd, "Large");
+ 	elm_box_pack_end(box, rd);
+ 	evas_object_show(rd);
+ 	rdg = rd;
+@@ -1751,7 +1751,7 @@ void create_set_page(void *data, Evas_Object *obj, void *event_info)
+ 	evas_object_size_hint_weight_set(rd, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(rd, -1.0, 0.5);
+ 	elm_radio_group_add(rd, rdg);
+-	elm_radio_label_set(rd, "Small");
++	elm_object_text_set(rd, "Small");
+ 	elm_box_pack_end(box, rd);
+ 	evas_object_show(rd);
+ 	evas_object_smart_callback_add(rd, "changed", finger_tg, NULL);
+@@ -1760,7 +1760,7 @@ void create_set_page(void *data, Evas_Object *obj, void *event_info)
+ 	fr = elm_frame_add(set_page_win);
+ 	elm_object_scale_set(fr, 1.0);
+ 	elm_object_style_set(fr, "default");
+-	elm_frame_label_set(fr, "mplayer Output");
++	elm_object_text_set(fr, "mplayer Output");
+ 	evas_object_size_hint_weight_set(fr, 1.0, 0.0);
+ 	evas_object_size_hint_align_set(fr, -1.0, -1.0);
+ 	elm_box_pack_end(vbox1, fr);
+@@ -1770,7 +1770,7 @@ void create_set_page(void *data, Evas_Object *obj, void *event_info)
+ 	box = elm_box_add(set_page_win);
+ 	evas_object_size_hint_weight_set(box, 1.0, 0.0);
+ 	evas_object_size_hint_align_set(box, -1.0, 0.0);
+-	elm_frame_content_set(fr, box);
++	elm_object_content_set(fr, box);
+ 	evas_object_show(box);
+ 	
+ 	//add radio buttons
+@@ -1779,7 +1779,7 @@ void create_set_page(void *data, Evas_Object *obj, void *event_info)
+ 	else elm_radio_state_value_set(rd_bt, 0);
+ 	evas_object_size_hint_weight_set(rd_bt, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(rd_bt, -1.0, 0.5);
+-	elm_radio_label_set(rd_bt, "Phone Speaker");
++	elm_object_text_set(rd_bt, "Phone Speaker");
+ 	elm_box_pack_end(box, rd_bt);
+ 	evas_object_show(rd_bt);
+ 	rdg_bt = rd_bt;
+@@ -1791,7 +1791,7 @@ void create_set_page(void *data, Evas_Object *obj, void *event_info)
+ 	evas_object_size_hint_weight_set(rd_bt, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(rd_bt, -1.0, 0.5);
+ 	elm_radio_group_add(rd_bt, rdg_bt);
+-	elm_radio_label_set(rd_bt, "BT Headphones");
++	elm_object_text_set(rd_bt, "BT Headphones");
+ 	elm_box_pack_end(box, rd_bt);
+ 	evas_object_show(rd_bt);
+ 	evas_object_smart_callback_add(rd_bt, "changed", bt_tg, NULL);
+@@ -1800,7 +1800,7 @@ void create_set_page(void *data, Evas_Object *obj, void *event_info)
+ 	/*fr = elm_frame_add(set_page_win);
+ 	elm_object_scale_set(fr, 1.0);
+ 	elm_object_style_set(fr, "default");
+-	elm_frame_label_set(fr, "mplayer Priority");
++	elm_object_text_set(fr, "mplayer Priority");
+ 	evas_object_size_hint_weight_set(fr, 0.0, 0.0);
+ 	evas_object_size_hint_align_set(fr, 0.0, -1.0);
+ 	elm_box_pack_end(vbox1, fr);
+@@ -1808,7 +1808,7 @@ void create_set_page(void *data, Evas_Object *obj, void *event_info)
+ 	
+ 	//add cancel button to vbox
+ 	cancel_button = elm_button_add(set_page_win);
+-	elm_button_label_set(cancel_button, "Done");
++	elm_object_text_set(cancel_button, "Done");
+ 	evas_object_size_hint_weight_set(cancel_button, 1.0, 1.0);
+ 	evas_object_size_hint_align_set(cancel_button, -1.0, -1.0);
+ 	elm_box_pack_end(vbox, cancel_button);
+-- 
+1.7.7.1
+

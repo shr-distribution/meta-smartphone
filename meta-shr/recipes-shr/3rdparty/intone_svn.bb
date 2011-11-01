@@ -9,10 +9,11 @@ RDEPENDS_${PN} = "mplayer lame libxv libsdl-x11"
 
 SRCREV = "76"
 PV = "0.66+svnr${SRCPV}"
-PR = "r12"
+PR = "r13"
 
 SRC_URI = "svn://intone.googlecode.com/svn;module=trunk;proto=http \
 file://vorbis-include-id3tag.patch;maxrev=18 \
+file://0001-adapt-to-newer-elementary-API.patch \
 file://depends.eina.patch"
 
 S = "${WORKDIR}/trunk"
