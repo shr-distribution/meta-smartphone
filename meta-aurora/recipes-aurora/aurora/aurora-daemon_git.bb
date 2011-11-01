@@ -8,9 +8,9 @@ LIC_FILES_CHKSUM = " \
   file://COPYING;md5=4801096f247ccd8f576944576869e775 \
 "
 
-PR = "${INC_PR}.4"
+PR = "${INC_PR}.5"
 
-DEPENDS = "qt4-x11-free libfso-qt"
+DEPENDS = "qt4-x11-free libfso-qt qt-components"
 
 PV = "0.1+gitr${SRCPV}"
 
