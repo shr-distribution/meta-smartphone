@@ -56,7 +56,6 @@ IMAGE_INSTALL += " \
   \
   opkg \
   task-fso2-compliance \
-  aurora-applications \
   aurora-daemon \
   aurora-systemmanager \
   \
