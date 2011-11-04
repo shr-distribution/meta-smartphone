@@ -1,14 +1,14 @@
 The osmocombb OpenEmbedded layer
 This layer depends on:
 
-URI: git://git.openembedded.org/openembedded-core
+URI: git://git.openembedded.org/openembedded-core-contrib
 layers: meta
-branch: master
+branch: shr
 revision: HEAD
 
-URI: git://git.openembedded.org/meta-openembedded
+URI: git://git.openembedded.org/meta-openembedded-contrib
 layers: meta-oe
-branch: master
+branch: shr
 revision: HEAD
 
 If you want to contribute changes, please follow

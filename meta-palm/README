@@ -1,9 +1,9 @@
 The OpenEmbedded BSP layer for palm devices
 This layer depends on:
 
-URI: git://git.openembedded.org/openembedded-core
+URI: git://git.openembedded.org/openembedded-core-contrib
 layers: meta
-branch: master
+branch: shr
 
 If you want to contribute changes, please follow
 http://www.shr-project.org/trac/wiki/Howto%20get%20my%20application%20in%20the%20SHR%20feed
