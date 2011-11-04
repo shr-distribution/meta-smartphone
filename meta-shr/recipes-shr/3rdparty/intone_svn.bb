@@ -4,7 +4,7 @@ AUTHOR = "cchandel"
 LICENSE = "GPLv3+"
 LIC_FILES_CHKSUM = "files://COPYING;md5=8f0e2cd40e05189ec81232da84bd6e1a"
 SECTION = "e/apps"
-DEPENDS = "elementary eina sqlite3 edbus libvorbis id3lib"
+DEPENDS = "elementary eina sqlite3 dbus edbus libvorbis id3lib"
 RDEPENDS_${PN} = "mplayer lame libxv libsdl-x11"
 
 SRCREV = "76"
