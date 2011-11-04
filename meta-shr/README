@@ -1,14 +1,14 @@
 The SHR OpenEmbedded layer
 This layer depends on:
 
-URI: git://git.openembedded.org/openembedded-core
+URI: git://git.openembedded.org/openembedded-core-contrib
 layers: meta
-branch: master
+branch: shr
 revision: HEAD
 
-URI: git://git.openembedded.org/meta-openembedded
+URI: git://git.openembedded.org/meta-openembedded-contrib
 layers: meta-oe, meta-efl, meta-gnome, meta-gpe
-branch: master
+branch: shr
 revision: HEAD
 
 URI: http://git.shr-project.org/repo/meta-smartphone.git
