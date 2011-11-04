@@ -1,25 +1,32 @@
-DESCRIPTION = "Qt Quick Components project - ready make QML components"
+DESCRIPTION = "Qt Quick Components project"
 AUTHOR = "Nokia Corporation and/or its subsidiary(-ies)"
 HOMEPAGE = "http://qt.nokia.com/"
 SECTION = "qt4"
 
-LICENSE = "BSD & FDL"
+LICENSE = "BSD & GFDL-1.3"
 LIC_FILES_CHKSUM = " \
   file://header.BSD;md5=6127ef7232170f61b7c5f4da50768c27 \
   file://LICENSE.FDL;md5=6d9f2a9af4c8b8c3c769f6cc1b6aaf7e \
 "
 
 PV = "1.2+gitr${SRCPV}"
-PR = "r0"
+PR = "r1"
 
 SRC_URI = "git://git.freesmartphone.org/qt-components.git;protocol=git;branch=aurora-support"
 S = "${WORKDIR}/git"
-SRCREV = "cde21582b0619b9bf8d9183503e4e17424f603d1"
+SRCREV = "3bc7ce9503cc2e97ab3c08a889ea984dce4b6ad3"
 
 inherit qt4x11
 
 do_configure() {
   ./configure -prefix /usr -symbian -nomake tests -no-mobility
+  # remove host lib search path from makefiles
+  for mf in `find ${S} -name Makefile`; do
+    sed -i -e 's:-L${libdir}::g' \
+           -e 's:-I${includedir}/QtMobility::g' \
+           -e 's:-I${includedir}::g' $mf
+
+  done
 }
 
 do_install() {
