@@ -2,10 +2,10 @@ DESCRIPTION = "Qt-based DBus bindings for freesmartphone.org"
 LICENSE = "LGPLv2.1"
 LIC_FILES_CHKSUM = "file://COPYING;md5=fad9b3332be894bab9bc501572864b29"
 SECTION = "devel"
-DEPENDS = "fso-specs qfsodbusxml2cpp-native qfsodbusxml2cpp qt4-x11-free"
+DEPENDS = "fso-specs qfsodbusxml2cpp-native qt4-x11-free"
 SRCREV = "1e164553baf077bf0250067dc53b66218cb01427"
 PV = "2011.09.22.1+gitr${SRCPV}"
-INC_PR = "r0"
+INC_PR = "r1"
 
 inherit autotools pkgconfig
 
