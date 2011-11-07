@@ -5,7 +5,7 @@ DESCRIPTION = "This is the daemon responsible for the aurora user interface"
 LICENSE = "GPLv2 & Other"
 LIC_FILES_CHKSUM = " \
   file://COPYING.GPL;md5=751419260aa954499f7abaabaa882bbe \
-  file://COPYING;md5=4801096f247ccd8f576944576869e775 \
+  file://COPYING;md5=6ae364bb1619a9262f6854c6d96f4d07 \
 "
 
 PR = "${INC_PR}.6"
