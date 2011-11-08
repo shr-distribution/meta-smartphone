@@ -14,12 +14,12 @@ PR = "r1"
 
 SRC_URI = "git://git.freesmartphone.org/qt-components.git;protocol=git;branch=aurora-support"
 S = "${WORKDIR}/git"
-SRCREV = "3bc7ce9503cc2e97ab3c08a889ea984dce4b6ad3"
+SRCREV = "e03fdfc8cf92afbed83a6cc0c6e9ef56d1617b1f"
 
 inherit qt4x11
 
 do_configure() {
-  ./configure -prefix /usr -symbian -nomake tests -no-mobility
+  ./configure -prefix /usr -symbian -nomake tests -no-mobility -qmake-exec ${STAGING_BINDIR_NATIVE}/qmake2
   # remove host lib search path from makefiles
   for mf in `find ${S} -name Makefile`; do
     sed -i -e 's:-L${libdir}::g' \
