@@ -21,6 +21,7 @@ S = "${WORKDIR}/git/aurora-daemon"
 
 inherit autotools update-alternatives
 
+export XDG_DATA_DIRS = "${STAGING_DATADIR}"
 EXTRA_OECONF_append = " --with-qt-basedir=qt4"
 
 FILES_${PN} += " ${datadir}/aurora ${libdir}/qt4/imports/Aurora ${datadir}/aurora"
