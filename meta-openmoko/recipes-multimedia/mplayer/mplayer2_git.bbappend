@@ -1,5 +1,10 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
-SRC_URI_append_om-gta02 = "file://glamo.patch"
+SRC_URI_append_om-gta02 = " \
+  file://glamo.patch \
+  file://tremor.build.fix.patch \
+"
 
-EXTRA_OECONF_append_om-gta02 = " --enable-glamo"
-PRINC = "1"
+DEPENDS += "tremor"
+
+EXTRA_OECONF_append_om-gta02 = " --enable-glamo --disable-libvorbis --enable-tremor"
+PRINC = "2"
