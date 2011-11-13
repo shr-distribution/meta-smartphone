@@ -1,15 +1,25 @@
-Index: git/Makefile
-===================================================================
---- git.orig/Makefile
-+++ git/Makefile
+From 6fa361044f8cbc5f646ce20d1a3719f93a29fef1 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Wed, 16 Nov 2011 20:08:00 +0100
+Subject: [PATCH] Makefile: sanitize, use values provided by recipe
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ Makefile |    8 +-------
+ 1 files changed, 1 insertions(+), 7 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index c254b83..e3515bf 100644
+--- a/Makefile
++++ b/Makefile
 @@ -16,12 +16,6 @@
  
  include config.mk
  
 -BUILD_DATE := $(shell date --iso-8601=seconds)
 -BUILD_HOST := $(shell hostname)
--BUILD_BRANCH := $(shell git branch | grep ^\* | cut -d' ' -f2)
--BUILD_HEAD := $(shell git show --pretty=oneline | head -n1 | cut -d' ' -f1 | cut -b1-16)
+-BUILD_BRANCH ?= $(shell git branch | grep ^\* | cut -d' ' -f2)
+-BUILD_HEAD ?= $(shell git show --pretty=oneline | head -n1 | cut -d' ' -f1 | cut -b1-16)
 -BUILD_VERSION := ${BUILD_BRANCH}_${BUILD_HEAD}
 -
  LDS	= src/cpu/$(CPU)/qi.lds
@@ -24,4 +34,6 @@ Index: git/Makefile
  
  ${UDFU_IMAGE}:${OBJS} ${MKUDFU}
  	mkdir -p image
- 
+-- 
+1.7.8.rc1
+

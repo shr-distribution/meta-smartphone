@@ -4,15 +4,23 @@ LIC_FILES_CHKSUM = "file://Makefile;endline=15;md5=a6394710a271493a533a3724a1bce
 SECTION = "bootloader"
 PROVIDES = "virtual/bootloader"
 PV = "1.0.2"
+PR = "r7"
+PR_append = "+gitr${SRCPV}"
 
 EXTRA_OEMAKE = ""
 PARALLEL_MAKE = ""
 
+SRCREV = "aa934abb5e8771100240e344411ddebacca33ece"
+SRC_URI = "\
+  git://git.openmoko.org/git/qi.git;protocol=git;branch=master \
+  file://sanitize-makefile.patch \
+  file://0001-use-rootwait-instead-of-rootdelay.patch \
+  file://0001-Glamo-242-timings.patch \
+"
+S = "${WORKDIR}/git"
+
 do_configure() {
-	echo >config.mk
-	# uncomment to debug
-	sed -i s,@,, Makefile
-	cat >config.mk <<EOF
+cat >config.mk <<EOF
 
 BUILD_HOST=\$(shell hostname)
 BUILD_VERSION=${PV}-${PR}
@@ -21,8 +29,8 @@ BUILD_DATE=\$(shell date --iso-8601=seconds)
 # NOTE: The following depends on the fact that only one version of the cross-compiler
 # has been built. If it bails out with something like: "| arm-linux-ld: 4.3.3: No such file or directory"
 # then you need to remove all previously built toolchain directories out of the cross library path.
-GCCV="`${CC} -dumpversion`"
-COMPILER_LIB_PATH_PRE=${TOOLCHAIN_PATH}/lib/gcc/${TARGET_SYS}/$(GCCV)
+GCCV=`${CC} -dumpversion`
+COMPILER_LIB_PATH_PRE=${TOOLCHAIN_PATH}/lib/gcc/${TARGET_SYS}/$GCCV
 COMPILER_LIB_PATH=\$(COMPILER_LIB_PATH_PRE)/\$(shell ls \$(COMPILER_LIB_PATH_PRE))
 
 AS=${AS}

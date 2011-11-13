@@ -1,14 +1,10 @@
 require qi.inc
-PR = "r6"
-PR_append = "+gitr${SRCPV}"
 
-SRCREV = "c38b062a609f1442e6a9e13005cfbdfd59a5ac0d"
-SRC_URI = "\
-  git://git.openmoko.org/git/qi.git;protocol=git;branch=master \
-  file://sanitize-makefile.patch \
-  file://0001-use-rootwait-instead-of-rootdelay.patch \
-  file://0001-Glamo-242-timings.patch \
-  file://unused-resp-variable.patch \
+do_configure_prepend() {
+  sed -i 's#\(IMAGE = .(IMAGE_DIR)/\)qi-\(.(CPU)-.(BUILD_VERSION)\)#\1qi-jffs2-\2#g' ${S}/Makefile
+  sed -i 's#\(UDFU_IMAGE = .(IMAGE_DIR)/\)qi-\(.(CPU)-.(BUILD_VERSION).udfu\)#\1qi-jffs2-\2#g' ${S}/Makefile
+}
+
+SRC_URI_append = "\
+  file://0001-Revert-gta02-gta01-change-kernel-parameters-to-boot-.patch \
 "
-S = "${WORKDIR}/git"
-
