@@ -9,10 +9,12 @@ S = "${WORKDIR}/git"
 
 SRCREV = "644af30baa8bd6311f1fd67a86792b6c6195b1b3"
 PV = "0.1.0+gitr${SRCPV}"
+PR = "r1"
 
 inherit autotools
 
 PACKAGES =+ "${PN}-tools"
 FILES_${PN}-tools = "${bindir}/modemctrl"
+FILES_${PN}-dev += "${datadir}/vala/vapi/samsung-ipc-1.0.vapi"
 
 LEAD_SONAME = "libsamsung-ipc.so"
