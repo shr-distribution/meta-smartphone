@@ -1,3 +1,3 @@
 require linux_${PV}.bb
 require linux-openmoko.inc
-OM-PR = "13"
+OM-PR = "14"
