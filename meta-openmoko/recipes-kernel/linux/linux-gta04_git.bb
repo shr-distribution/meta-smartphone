@@ -1,17 +1,13 @@
 require linux.inc
 
-KERNEL_RELEASE = "2.6.32"
+KERNEL_RELEASE = "3.1"
 PV = "${KERNEL_RELEASE}+gitr${SRCPV}"
-PR = "r3"
+PR = "r0"
 
-# hw-validation branch
-SRCREV = "ed84b246532e43f52a39b1441f82a7c186c45119"
-# master branch
-#SRCREV = "4e8b9ef808fcb48dd0121b844f263a0f351917b4"
+SRCREV = "8d109e588b840c288ea1ad4d8f166080510be55a"
 
 SRC_URI = "\
-  git://git.goldelico.com/gta04-kernel.git;protocol=git;branch=hw-validation \
-  file://sysfs_v7-build.patch \
+  git://git.goldelico.com/gta04-kernel.git;protocol=git;branch=master \
   file://defconfig \
 "
 S = "${WORKDIR}/git"
@@ -24,7 +20,7 @@ do_configure_prepend() {
 #$ make kernelrelease => 2.6.37+
   rm -rf ${S}/.git
 }
-CMDLINE_om-gta04 = "root=/dev/mmcblk0p2 rootwait rw console=ttyS2,115200n8 console=tty0 omapfb.vram=0:2M,1:2M,2:2M mtdoops.mtddev=2"
+CMDLINE_om-gta04 = "earlyprintk=ttyO2,115200n8 console=ttyO2,115200n8 mpurate=800 vram=12M omapfb.mode=dvi:1024x768MR-16@60 omapdss.def_disp=lcd root=/dev/mmcblk0p2 ro"
 
 # Mark archs/machines that this kernel supports
 COMPATIBLE_MACHINE = "om-gta04"
