@@ -1,3 +1,3 @@
 SRC_URI_crespo = "git://github.com/morphis/xf86-input-mtev.git;protocol=git;branch=samsung-crespo-support"
-SRCREV_crespo = "a30b520acb810a57b7c1d2524dda22fd9f671884"
+SRCREV_crespo = "152e80dc028e5059d65d777c66130aadc682eb21"
 PACKAGE_ARCH_crespo = "${MACHINE_ARCH}"
