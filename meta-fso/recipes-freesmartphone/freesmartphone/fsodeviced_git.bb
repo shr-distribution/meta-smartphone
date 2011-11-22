@@ -16,14 +16,24 @@ EXTRA_OECONF = "\
 
 inherit update-rc.d
 
-INITSCRIPT_NAME = "fsodeviced"
+INITSCRIPT_NAME = "${PN}"
 INITSCRIPT_PARAMS = "defaults 27"
 
-SRC_URI += "file://fsodeviced"
+inherit systemd
+SYSTEMD_PACKAGES = "${PN}-systemd"
+SYSTEMD_SERVICE = "${PN}.service"
+
+PACKAGES =+ "${PN}-systemd"
+FILES_${PN}-systemd += "${base_libdir}/systemd"
+RDEPENDS_${PN}-systemd += "${PN}"
+
+SRC_URI += "file://${PN}"
 
 do_install_append() {
 	install -d ${D}${sysconfdir}/init.d/
-	install -m 0755 ${WORKDIR}/fsodeviced ${D}${sysconfdir}/init.d/
+	install -m 0755 ${WORKDIR}/${PN} ${D}${sysconfdir}/init.d/
+	install -d ${D}${base_libdir}/systemd/system/
+	install -m 0644 ${WORKDIR}/git/${PN}/data/${PN}.service ${D}${base_libdir}/systemd/system/${PN}.service
 }
 
 pkg_preinst_${PN}-config () {
@@ -37,11 +47,11 @@ PACKAGES =+ "${PN}-config"
 FILES_${PN}-config = "${sysconfdir}/freesmartphone/"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 CONFFILES_${PN}-config = " \
-  ${sysconfdir}/freesmartphone/conf/openmoko_gta/fsodeviced.conf \
-  ${sysconfdir}/freesmartphone/conf/palm_pre/fsodeviced.conf \
-  ${sysconfdir}/freesmartphone/conf/htc_qualcomm_dream/fsodeviced.conf \
-  ${sysconfdir}/freesmartphone/conf/htc_qualcomm_msm/fsodeviced.conf \
-  ${sysconfdir}/freesmartphone/conf/motorola_ezx/fsodeviced.conf \
+  ${sysconfdir}/freesmartphone/conf/openmoko_gta/${PN}.conf \
+  ${sysconfdir}/freesmartphone/conf/palm_pre/${PN}.conf \
+  ${sysconfdir}/freesmartphone/conf/htc_qualcomm_dream/${PN}.conf \
+  ${sysconfdir}/freesmartphone/conf/htc_qualcomm_msm/${PN}.conf \
+  ${sysconfdir}/freesmartphone/conf/motorola_ezx/${PN}.conf \
 "
 RRECOMMENDS_${PN} += "${PN}-config"
 
