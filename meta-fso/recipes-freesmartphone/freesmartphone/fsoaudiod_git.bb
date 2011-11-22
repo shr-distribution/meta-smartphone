@@ -14,7 +14,7 @@ DEPENDS += "alsa-lib libcmtspeechdata"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
 PV = "0.1.0+gitr${SRCPV}"
 PE = "2"
-PR = "${INC_PR}.4"
+PR = "${INC_PR}.5"
 
 EXTRA_OECONF = "\
   --enable-cmtspeechdata \
@@ -22,20 +22,30 @@ EXTRA_OECONF = "\
 
 inherit update-rc.d
 
-INITSCRIPT_NAME = "fsoaudiod"
+INITSCRIPT_NAME = "${PN}"
 INITSCRIPT_PARAMS = "defaults 30"
 
-SRC_URI += "file://fsoaudiod"
+inherit systemd
+SYSTEMD_PACKAGES = "${PN}-systemd"
+SYSTEMD_SERVICE = "${PN}.service"
+
+PACKAGES =+ "${PN}-systemd"
+FILES_${PN}-systemd += "${base_libdir}/systemd"
+RDEPENDS_${PN}-systemd += "${PN}"
+
+SRC_URI += "file://${PN}"
 
 CONFFILES_${PN} = " \
-  ${sysconfdir}/freesmartphone/conf/palm_pre/fsoaudiod.conf \
+  ${sysconfdir}/freesmartphone/conf/palm_pre/${PN}.conf \
   ${sysconfdir}/asound.conf \
 "
 RCONFLICTS_${PN} = "alsa-state"
 
 do_install_append() {
   install -d ${D}${sysconfdir}/init.d/
-  install -m 0755 ${WORKDIR}/fsoaudiod ${D}${sysconfdir}/init.d/
+  install -m 0755 ${WORKDIR}/${PN} ${D}${sysconfdir}/init.d/
+  install -d ${D}${base_libdir}/systemd/system/
+  install -m 0644 ${WORKDIR}/git/${PN}/data/${PN}.service ${D}${base_libdir}/systemd/system/${PN}.service
 }
 
 PACKAGES =+ "${PN}-alsa-plugins ${PN}-alsa-plugins-dbg ${PN}-alsa-plugins-dev"
