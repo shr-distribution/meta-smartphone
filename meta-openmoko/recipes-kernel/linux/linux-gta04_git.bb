@@ -1,13 +1,13 @@
 require linux.inc
 
-KERNEL_RELEASE = "3.1"
+KERNEL_RELEASE = "3.2"
 PV = "${KERNEL_RELEASE}+gitr${SRCPV}"
-PR = "r0"
+PR = "r1"
 
-SRCREV = "8d109e588b840c288ea1ad4d8f166080510be55a"
+SRCREV = "7c3549ed478ad6014c381062e9dc26967ae3c006"
 
 SRC_URI = "\
-  git://git.goldelico.com/gta04-kernel.git;protocol=git;branch=master \
+  git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=gta04/neil \
   file://defconfig \
 "
 S = "${WORKDIR}/git"
