@@ -1,4 +1,7 @@
 require recipes-devtools/vala/vala.inc
+
+DEPENDS += "gtk+"
+
 SRC_URI = "http://downloads.freesmartphone.org/vala-${PV}.tar.bz2"
 
 FILES_${PN} += "${datadir}/vala-0.14/vapi"
