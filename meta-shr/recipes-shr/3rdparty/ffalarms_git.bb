@@ -15,7 +15,7 @@ ASNEEDED = ""
 
 SRC_URI = "git://git.shr-project.org/repo/ffalarms.git;protocol=http;branch=master"
 
-SRCREV = "afe78a44dd164c6083d79981211e80e96bfe1914"
+SRCREV = "8f0c1a6356fe7227eb1b70e93b0ff7be4f01fd3f"
 S = "${WORKDIR}/git"
 
 inherit vala
