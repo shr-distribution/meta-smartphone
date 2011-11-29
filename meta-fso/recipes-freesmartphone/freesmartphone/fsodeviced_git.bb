@@ -6,7 +6,7 @@ RPROVIDES_${PN} = "openmoko-alsa-scenarios virtual/alsa-scenarios"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
 PV = "0.9.4+gitr${SRCPV}"
 PE = "2"
-PR = "${INC_PR}.23"
+PR = "${INC_PR}.24"
 
 EXTRA_OECONF = "\
   --enable-kernel26-rfkill \
@@ -56,12 +56,6 @@ FILES_${PN}-module-palmpre-quirks = "${CORNUCOPIA_MODULE_DIR}/palmpre_quirks.so"
 FILES_${PN}-module-palmpre-quirks-dev = "${CORNUCOPIA_MODULE_DIR}/palmpre_quirks.la"
 FILES_${PN}-module-palmpre-quirks-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/palmpre_quirks*"
 RDEPENDS_${PN}-config_palmpre += "${PN}-module-palmpre-quirks"
-
-PACKAGES =+ "${PN}-module-proximity-palmpre ${PN}-module-proximity-palmpre-dev ${PN}-module-proximity-palmpre-dbg"
-FILES_${PN}-module-proximity-palmpre = "${CORNUCOPIA_MODULE_DIR}/proximity_palmpre.so"
-FILES_${PN}-module-proximity-palmpre-dev = "${CORNUCOPIA_MODULE_DIR}/proximity_palmpre.la"
-FILES_${PN}-module-proximity-palmpre-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/proximity_palmpre*"
-RDEPENDS_${PN}-config_palmpre += "${PN}-module-proximity-palmpre"
 
 PACKAGES =+ "${PN}-module-backlight-omappanel ${PN}-module-backlight-omappanel-dev ${PN}-module-backlight-omappanel-dbg"
 FILES_${PN}-module-backlight-omappanel = "${CORNUCOPIA_MODULE_DIR}/backlight_omappanel.so"
