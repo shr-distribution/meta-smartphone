@@ -41,3 +41,6 @@ EGLIBCVERSION ?= "2.14"
 # We need git version of tslib as the old 1.0 release does not the support the features we
 # need for some mobile handset devices
 PREFERRED_VERSION_tslib = "1.0+git%"
+
+# libnl-3 is again incompatible with libnl-2, lets keep 2 for a bit longer
+PREFERRED_VERSION_libnl = "2%"
