@@ -1,0 +1,81 @@
+From 7f8e60de7a9ca3fa2e4528a95f0240c8ed2d277f Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Thu, 1 Dec 2011 20:18:35 +0100
+Subject: [PATCH] s/homogenous_set/homogeneous_set/g to adapt to newer
+ libeflvala api
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ src/view_main.vala |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/src/view_main.vala b/src/view_main.vala
+index eaff984..29d2394 100644
+--- a/src/view_main.vala
++++ b/src/view_main.vala
+@@ -91,7 +91,7 @@ namespace iliwi.View {
+     frontpage = new Box(win);
+     frontpage.size_hint_weight_set(1, 1);
+     frontpage.size_hint_align_set(-1, -1);
+-    frontpage.homogenous_set(false);
++    frontpage.homogeneous_set(false);
+     frontpage.show();
+     
+     wifilist = new Genlist(win);
+@@ -103,7 +103,7 @@ namespace iliwi.View {
+     
+     Box box = new Box(win);
+     box.horizontal_set(true);
+-    box.homogenous_set(false);
++    box.homogeneous_set(false);
+     box.size_hint_weight_set(1,-1);
+     box.size_hint_align_set(-1, -1);
+     box.show();
+@@ -182,7 +182,7 @@ namespace iliwi.View {
+     network = _network; 
+ 
+     Box outer_box = new Box(win);
+-    outer_box.homogenous_set(false);
++    outer_box.homogeneous_set(false);
+     outer_box.size_hint_weight_set(1, 1);
+     outer_box.size_hint_align_set(-1, -1);
+     outer_box.show();
+@@ -196,7 +196,7 @@ namespace iliwi.View {
+     sc.show();
+ 
+     Box network_page = new Box(win);
+-    network_page.homogenous_set(false);
++    network_page.homogeneous_set(false);
+     network_page.size_hint_weight_set(1, 1);
+     network_page.size_hint_align_set(-1, -1);
+     sc.content_set(network_page);
+@@ -269,7 +269,7 @@ namespace iliwi.View {
+       certificate_container.show();
+  
+       Box cert_box = new Box(win);
+-      cert_box.homogenous_set(false);
++      cert_box.homogeneous_set(false);
+       cert_box.size_hint_weight_set(1,-1);
+       cert_box.size_hint_align_set(-1, -1);
+       cert_box.show();
+@@ -284,7 +284,7 @@ namespace iliwi.View {
+ 
+       Box cert_button_box = new Box(win);
+       cert_button_box.horizontal_set(true);
+-      cert_button_box.homogenous_set(false);
++      cert_button_box.homogeneous_set(false);
+       cert_button_box.size_hint_weight_set(1, -1);
+       cert_button_box.size_hint_align_set(-1, -1);
+       cert_button_box.show();
+@@ -388,7 +388,7 @@ namespace iliwi.View {
+     Box cert_chooser_page = new Box(win);
+     cert_chooser_page.size_hint_weight_set(1, 1);
+     cert_chooser_page.size_hint_align_set(-1, -1);
+-    cert_chooser_page.homogenous_set(false);
++    cert_chooser_page.homogeneous_set(false);
+     cert_chooser_page.show();
+     
+     Genlist certlist = new Genlist(win);
+-- 
+1.7.8.rc4
+
