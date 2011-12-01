@@ -12,7 +12,10 @@ PR = "r13"
 
 inherit autotools
 
-SRC_URI = "git://git.shr-project.org/repo/shr-e-gadgets.git;protocol=http;branch=master"
+SRC_URI = "\
+	git://git.shr-project.org/repo/shr-e-gadgets.git;protocol=http;branch=master \
+	file://label-in-text-get-api-change.patch \
+"
 S = "${WORKDIR}/git"
 
 EXTRA_OECONF = "--with-edje-cc=${STAGING_BINDIR_NATIVE}/edje_cc"

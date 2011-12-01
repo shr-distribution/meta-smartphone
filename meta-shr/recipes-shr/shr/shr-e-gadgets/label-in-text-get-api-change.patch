@@ -1,0 +1,13 @@
+diff --git a/src/softkey_quickpanel/main.c b/src/softkey_quickpanel/main.c
+index 1403e02..d2d3fb9 100644
+--- a/src/softkey_quickpanel/main.c
++++ b/src/softkey_quickpanel/main.c
+@@ -66,7 +66,7 @@ elm_main(int argc, char **argv)
+ 
+ 	//itc.item_style     = "swkey";
+ 	itc.item_style     = "default";
+-	itc.func.label_get = swkey_task_label_get;
++	itc.func.text_get = swkey_task_label_get;
+ 	itc.func.content_get  = swkey_task_swallow_get;
+ 	itc.func.state_get = swkey_task_state_get;
+ 	itc.func.del       = swkey_task_del_get;
