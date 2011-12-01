@@ -16,7 +16,7 @@ SRC_URI = "\
 
 export XDG_DATA_DIRS = "${STAGING_DATADIR}"
 
-SRCREV = "0df8513b843c4384fe4251ca8f1389695c1b07b7"
+SRCREV = "13a8fe60d8198049eaa0613d980733fc1fae8221"
 S = "${WORKDIR}/git"
 
 FILES_${PN} += "${datadir}/applications ${datadir}/pixmaps"
