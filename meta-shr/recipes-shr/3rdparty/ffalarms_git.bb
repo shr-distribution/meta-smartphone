@@ -13,7 +13,9 @@ PV = "0.4+gitr${SRCPV}"
 #disable as-needed for now, fails on many undefined symbols otherwise
 ASNEEDED = ""
 
-SRC_URI = "git://git.shr-project.org/repo/ffalarms.git;protocol=http;branch=master"
+SRC_URI = "git://git.shr-project.org/repo/ffalarms.git;protocol=http;branch=master \
+  file://0001-fix-name-of-changed-genlist-gengrid-callbacks.patch \
+"
 
 SRCREV = "594f7a7a17110b2327ebb8646f9df1363b1c8ccf"
 S = "${WORKDIR}/git"
