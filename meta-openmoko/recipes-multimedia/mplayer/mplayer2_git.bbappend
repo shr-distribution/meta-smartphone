@@ -7,4 +7,4 @@ SRC_URI_append_om-gta02 = " \
 DEPENDS += "tremor"
 
 EXTRA_OECONF_append_om-gta02 = " --enable-glamo --disable-libvorbis --enable-tremor"
-PRINC = "2"
+PRINC := "${@int(PRINC) + 2}"

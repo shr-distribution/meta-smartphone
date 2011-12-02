@@ -1,5 +1,5 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}"
-PRINC = "4"
+PRINC := "${@int(PRINC) + 4}"
 
 SRC_URI_append_palmpre = " \
     file://include-cy8mrln-header.patch \
