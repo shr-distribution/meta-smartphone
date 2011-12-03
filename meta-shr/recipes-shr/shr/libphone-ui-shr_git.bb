@@ -1,7 +1,7 @@
 DESCRIPTION = "SHR default module for the Phone UI daemon"
 SECTION = "e/apps"
 DEPENDS += " libphone-ui evas ecore edje edje-native elementary"
-SRCREV = "bd8b54ba137b26ee92d983bf2917e6a78f5354f5"
+SRCREV = "52ae61ca1cd16325a54d8ab09d69cf079ff92729"
 PE = "1"
 PV = "0.0.1+gitr${SRCPV}"
 PR = "r9"
@@ -9,9 +9,6 @@ LICENSE = "LGPLv2.1"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=4fbd65380cdd255951079008b364516c"
 
 SRC_URI = "git://git.shr-project.org/repo/libphone-ui-shr.git;protocol=http;branch=master \
-  file://0001-s-Elm_Toolbar_Item-Elm_Object_Item-g.patch \
-  file://0002-genlist-callbacks-change-s-label_get-text_get-g.patch \
-  file://0001-Revert-replace-genlist-with-gen-for-new-API-change-i.patch \
 "
 
 S = "${WORKDIR}/git"
