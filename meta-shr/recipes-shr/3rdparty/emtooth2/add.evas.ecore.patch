@@ -1,7 +1,7 @@
 Index: configure.in
 ===================================================================
---- configure.in	(revision 162)
-+++ configure.in	(working copy)
+--- a/configure.in	(revision 162)
++++ b/configure.in	(working copy)
 @@ -22,6 +22,8 @@
  							dbus-glib-1
  							elementary
