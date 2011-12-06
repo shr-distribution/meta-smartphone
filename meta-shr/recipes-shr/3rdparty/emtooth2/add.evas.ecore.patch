@@ -1,0 +1,13 @@
+Index: configure.in
+===================================================================
+--- configure.in	(revision 162)
++++ configure.in	(working copy)
+@@ -22,6 +22,8 @@
+ 							dbus-glib-1
+ 							elementary
+ 							eina
++							evas
++							ecore
+ 							dbus-1)
+ 
+ AC_SUBST(EMTOOTH2_LIBS)
