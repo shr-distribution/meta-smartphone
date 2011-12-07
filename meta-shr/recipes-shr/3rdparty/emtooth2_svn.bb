@@ -7,7 +7,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 DEPENDS = "glib-2.0 libeflvala"
 RDEPENDS_${PN} = "bluez4 obexd"
 
-SRCREV = "163"
+SRCREV = "164"
 PV = "0.1+svnr${SRCPV}"
 
 SRC_URI = "svn://emtooth.googlecode.com/svn/trunk;module=app2;proto=http \
