@@ -22,7 +22,6 @@ SPLASH ?= ""
 IMAGE_LINGUAS ?= "en-us"
 
 RDEPENDS_${PN} += "\
-  opkg \
   task-shr-minimal-base \
   task-shr-minimal-cli \
   task-shr-minimal-fso \
@@ -33,7 +32,6 @@ RDEPENDS_${PN} += "\
 "
 
 IMAGE_INSTALL += "\
-  opkg \
   task-shr-minimal-base \
   task-shr-minimal-cli \
   task-shr-minimal-fso \
