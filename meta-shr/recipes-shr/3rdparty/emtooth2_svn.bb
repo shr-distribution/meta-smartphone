@@ -11,7 +11,6 @@ SRCREV = "164"
 PV = "0.1+svnr${SRCPV}"
 
 SRC_URI = "svn://emtooth.googlecode.com/svn/trunk;module=app2;proto=http \
-  file://add.evas.ecore.patch \
 "
 
 EXTRA_OECONF += "--enable-fso"
