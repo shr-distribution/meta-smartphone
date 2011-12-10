@@ -1,4 +1,4 @@
-require recipes-bsp/uboot/u-boot.inc
+require recipes-bsp/u-boot/u-boot.inc
 
 SRCREV = "b1af6f532e0d348b153d5c148369229d24af361a"
 

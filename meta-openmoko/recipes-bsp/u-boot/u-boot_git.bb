@@ -1,4 +1,4 @@
-require recipes-bsp/uboot/u-boot.inc
+require recipes-bsp/u-boot/u-boot.inc
 
 SRC_URI = "git://git.goldelico.com/gta04-uboot.git"
 SRCREV = "e17fde7c50b8c54967450c7aea465e7e6bcb29dd"
