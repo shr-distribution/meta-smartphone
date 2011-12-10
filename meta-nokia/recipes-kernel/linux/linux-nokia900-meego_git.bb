@@ -4,7 +4,7 @@ KERNEL_RELEASE = "2.6.37"
 PV = "${KERNEL_RELEASE}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 
-SRCREV = "7b81b4d55839514f2d801cd06855c8d422cfc3ac"
+SRCREV = "78ffc81db8911acdabd026ad3fdefa20b4e34e52"
 
 SRC_URI = "\
   git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=nokia900/kernel-adaptation-n900-2.6.37-57.1 \
