@@ -22,3 +22,7 @@ RDEPENDS_${PN} += "python-compression python-elementary python-gst python-html p
 do_compile_prepend() {
 	${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/data ${S}/data/podboy.edc
 }
+
+do_install_append() {
+  rmdir ${D}${datadir}/share || true
+}
