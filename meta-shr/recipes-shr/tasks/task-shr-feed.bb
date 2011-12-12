@@ -1,5 +1,5 @@
 DESCRIPTION = "SHR Feed"
-PR = "r97"
+PR = "r98"
 PV = "1.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -10,9 +10,6 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 MISSING = "\
 		bootchart-lite \
-		claws-mail \
-		claws-plugin-mailmbox \
-		claws-plugin-rssyl \
 		di \
 		dictator \
 		dosbox \
@@ -44,7 +41,6 @@ MISSING = "\
 		emacs-x11 \
 		mg \
 		mcabber \
-		links-x11 \
 		callrec \
 		kbdd \
 		iotop \
@@ -140,7 +136,6 @@ MISSING = "\
 		mokohome \
 		mokopanel \
 		mokophone \
-		gnuplot \
 		galculator \
 		xterm \
 		inkspill \
@@ -158,12 +153,9 @@ MISSING = "\
 		gpe-contacts \
 		shr-theme-neo \
 		jefliks \
-		podboy \
 		evopedia \
-		omgps \
 		intone-video \
 		mupdf \
-		orrery \
 		estardict \
 		omnewrotate \
 		vagalume \
@@ -171,6 +163,20 @@ MISSING = "\
 "
 
 RDEPENDS_${PN} += "\
+		claws-mail \
+		claws-plugin-gtkhtml2-viewer \
+		claws-plugin-mailmbox \
+		claws-plugin-rssyl \
+		sylpheed \
+		podboy \
+		orrery \
+		gpm \
+		links \
+		links-x11 \
+		gnuplot \
+		omgps \
+		php \
+		mcnavi \
 		intone \
 		epdfview \
 		mysql5 \
