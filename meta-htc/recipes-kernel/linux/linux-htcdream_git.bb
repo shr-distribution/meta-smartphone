@@ -4,12 +4,12 @@ DEPENDS += "android-image-utils-native"
 LIC_FILES_CHKSUM = "file://COPYING;md5=d7810fab7487fb0aad327b76f1be7cd7"
 
 PV = "2.6.32+${PR}+gitr${SRCREV}"
-PR = "r0"
+PR = "r1"
 
 COMPATIBLE_MACHINE = "htcdream"
 CMDLINE = "console=tty1 root=/dev/mmcblk0p1 rootdelay=8 fbcon=rotate:1 panic=30 mem=110M"
 
-SRCREV = "cf1af2ebaa38e265bf0b76038a7a169ef3f3585c"
+SRCREV = "bf7221ba95f418269dd573c9ff3e7f00452221a1"
 
 SRC_URI = "\
   git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=htcdream/master \
