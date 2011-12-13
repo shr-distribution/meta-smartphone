@@ -4,7 +4,7 @@ SECTION = "fso/base"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 PV = "1.9.0"
-PR = "r11"
+PR = "r12"
 
 inherit task
 
@@ -25,7 +25,6 @@ RDEPENDS_${PN} = "\
   \
   fso-apm \
   connman \
-  connman-scripts \
   connman-plugin-bluetooth \
   connman-plugin-ethernet \
   connman-plugin-fake \
