@@ -1,0 +1,11 @@
+[Unit]
+Description=Phonefsod is the GSM resource handling daemon of SHR
+After=dbus.socket fsodeviced.service
+
+[Service]
+Type=dbus
+BusName=org.shr.phonefso
+ExecStart=/usr/bin/phonefsod
+
+[Install]
+WantedBy=basic.target
