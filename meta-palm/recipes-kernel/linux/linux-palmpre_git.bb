@@ -3,7 +3,7 @@ require linux.inc
 SECTION = "kernel"
 DESCRIPTION = "Modified kernel for the Palm Pre based on the original source from Palm Inc."
 KERNEL_IMAGETYPE = "uImage"
-SRCREV = "4ed85bdd7b091e40800a95e99afa22f32250c107"
+SRCREV = "0b1014d99fc4992ece1605285e728c44d801a7a7"
 KV = "2.6.24"
 PR="r0"
 PV = "${KV}+gitr${SRCPV}"
