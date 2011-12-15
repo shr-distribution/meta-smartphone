@@ -7,7 +7,7 @@ DEPENDS = "openssl"
 SRC_URI = "git://github.com/morphis/libsamsung-ipc.git;protocol=git;branch=master"
 S = "${WORKDIR}/git"
 
-SRCREV = "a874a1e9f5fc38df67d019380a90ddf207c5c3e7"
+SRCREV = "cb37d8dc7b975995a3d56e7d157b391699650f7b"
 PV = "0.1.0+gitr${SRCPV}"
 PR = "r1"
 
