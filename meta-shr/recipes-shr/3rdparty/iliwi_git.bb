@@ -7,7 +7,7 @@ DEPENDS = "dbus-glib elementary libgee libeflvala"
 # killall and udhcpc from busybox are enough
 RDEPENDS_${PN} = "wireless-tools wpa-supplicant"
 
-SRCREV = "526cb698fa037b15f42919da316e4f4a9525ebd6"
+SRCREV = "70959ac833c11ace1fd26004a37bc3fa456fe4d3"
 PV = "0.0.1.1+gitr${SRCPV}"
 PR = "r14"
 
