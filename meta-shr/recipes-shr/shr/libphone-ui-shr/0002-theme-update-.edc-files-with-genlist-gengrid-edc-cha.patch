@@ -1,0 +1,64 @@
+From 09bf3a30db85fe0a7a5f135bd0bbc199fdcc5150 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Thu, 15 Dec 2011 10:15:38 +0100
+Subject: [PATCH 2/2] theme: update .edc files with genlist/gengrid edc
+ changes (s/data.item: icons/data.item: contents/g)
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ data/contacts.edc |    4 ++--
+ data/messages.edc |    2 +-
+ data/phonelog.edc |    2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/data/contacts.edc b/data/contacts.edc
+index 19d1df6..f87a670 100644
+--- a/data/contacts.edc
++++ b/data/contacts.edc
+@@ -4,7 +4,7 @@ group { name: "elm/genlist/item/contact/default";
+ 	data.item: "stacking" "above";
+ 	data.item: "selectraise" "on";
+ 	data.item: "texts" "elm.text elm.text.sub";
+-	data.item: "icons" "elm.swallow.icon elm.swallow.end";
++	data.item: "contents" "elm.swallow.icon elm.swallow.end";
+ 	//data.item: "treesize" "20";
+ 	// data.item: "states" "";
+ 
+@@ -340,7 +340,7 @@ group { name: "elm/genlist/item/contactfield/default";
+ 	data.item: "stacking" "above";
+ 	data.item: "selectraise" "on";
+ 	data.item: "texts" "";
+-	data.item: "icons" "elm.swallow.field_button elm.swallow.value_entry elm.swallow.button_delfield elm.swallow.button_actions";
++	data.item: "contents" "elm.swallow.field_button elm.swallow.value_entry elm.swallow.button_delfield elm.swallow.button_actions";
+ 
+ 	parts {
+ 		part {
+diff --git a/data/messages.edc b/data/messages.edc
+index 9e3a3ae..0360a10 100644
+--- a/data/messages.edc
++++ b/data/messages.edc
+@@ -4,7 +4,7 @@ group { name: "elm/genlist/item/message/default";
+ 	data.item: "stacking" "above";
+ 	data.item: "selectraise" "on";
+ 	data.item: "texts" "elm.date elm.name elm.content";
+-	data.item: "icons" "elm.photo";
++	data.item: "contents" "elm.photo";
+ 	data.item: "states" "direction_out new_outgoing new_incoming new_outgoing_unconfirmed";
+ 
+ 	parts {
+diff --git a/data/phonelog.edc b/data/phonelog.edc
+index b28051d..9d910d4 100644
+--- a/data/phonelog.edc
++++ b/data/phonelog.edc
+@@ -29,7 +29,7 @@ group { name: "elm/genlist/item/phonelog/default";
+ 	data.item: "stacking" "above";
+ 	data.item: "selectraise" "on";
+ 	data.item: "texts" "elm.text elm.text.2 elm.text.sub elm.text.sub.2";
+-	data.item: "icons" "elm.swallow.icon elm.swallow.end";
++	data.item: "contents" "elm.swallow.icon elm.swallow.end";
+ 
+ 	parts {
+ 		part {
+-- 
+1.7.8
+

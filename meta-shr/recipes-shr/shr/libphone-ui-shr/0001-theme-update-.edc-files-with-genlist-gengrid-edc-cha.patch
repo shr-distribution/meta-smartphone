@@ -1,0 +1,78 @@
+From 86005ba623e2f42d0e2f0dd213577c9e871ed939 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Thu, 15 Dec 2011 10:08:36 +0100
+Subject: [PATCH 1/2] theme: update .edc files with genlist/gengrid edc
+ changes (s/data.item: labels/data.item: texts/g)
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ data/contacts.edc    |    4 ++--
+ data/messages.edc    |    2 +-
+ data/phonelog.edc    |    2 +-
+ data/sim-manager.edc |    2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/data/contacts.edc b/data/contacts.edc
+index 66edc26..19d1df6 100644
+--- a/data/contacts.edc
++++ b/data/contacts.edc
+@@ -3,7 +3,7 @@ group { name: "elm/genlist/item/contact/default";
+ 	alias: "elm/genlist/item_odd/contact/default";
+ 	data.item: "stacking" "above";
+ 	data.item: "selectraise" "on";
+-	data.item: "labels" "elm.text elm.text.sub";
++	data.item: "texts" "elm.text elm.text.sub";
+ 	data.item: "icons" "elm.swallow.icon elm.swallow.end";
+ 	//data.item: "treesize" "20";
+ 	// data.item: "states" "";
+@@ -339,7 +339,7 @@ group { name: "elm/genlist/item/contactfield/default";
+ 	alias: "elm/genlist/item_odd/contactfield/default";
+ 	data.item: "stacking" "above";
+ 	data.item: "selectraise" "on";
+-	data.item: "labels" "";
++	data.item: "texts" "";
+ 	data.item: "icons" "elm.swallow.field_button elm.swallow.value_entry elm.swallow.button_delfield elm.swallow.button_actions";
+ 
+ 	parts {
+diff --git a/data/messages.edc b/data/messages.edc
+index 3902131..9e3a3ae 100644
+--- a/data/messages.edc
++++ b/data/messages.edc
+@@ -3,7 +3,7 @@ group { name: "elm/genlist/item/message/default";
+ 	alias: "elm/genlist/item_odd/message/default";
+ 	data.item: "stacking" "above";
+ 	data.item: "selectraise" "on";
+-	data.item: "labels" "elm.date elm.name elm.content";
++	data.item: "texts" "elm.date elm.name elm.content";
+ 	data.item: "icons" "elm.photo";
+ 	data.item: "states" "direction_out new_outgoing new_incoming new_outgoing_unconfirmed";
+ 
+diff --git a/data/phonelog.edc b/data/phonelog.edc
+index e7ef3a3..b28051d 100644
+--- a/data/phonelog.edc
++++ b/data/phonelog.edc
+@@ -28,7 +28,7 @@ group { name: "elm/genlist/item/phonelog/default";
+ 	alias: "elm/genlist/item_odd/phonelog/default";
+ 	data.item: "stacking" "above";
+ 	data.item: "selectraise" "on";
+-	data.item: "labels" "elm.text elm.text.2 elm.text.sub elm.text.sub.2";
++	data.item: "texts" "elm.text elm.text.2 elm.text.sub elm.text.sub.2";
+ 	data.item: "icons" "elm.swallow.icon elm.swallow.end";
+ 
+ 	parts {
+diff --git a/data/sim-manager.edc b/data/sim-manager.edc
+index ff86f0a..b410441 100644
+--- a/data/sim-manager.edc
++++ b/data/sim-manager.edc
+@@ -134,7 +134,7 @@ group { name: "elm/genlist/item/sim-contact/default";
+ 	alias: "elm/genlist/item_odd/sim-contact/default";
+ 	data.item: "stacking" "above";
+ 	data.item: "selectraise" "on";
+-	data.item: "labels" "elm.text elm.text.sub";
++	data.item: "texts" "elm.text elm.text.sub";
+ 	//data.item: "treesize" "20";
+ 	// data.item: "states" "";
+ 
+-- 
+1.7.8
+
