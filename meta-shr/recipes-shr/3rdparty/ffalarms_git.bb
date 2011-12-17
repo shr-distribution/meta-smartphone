@@ -17,7 +17,7 @@ SRC_URI = "git://git.shr-project.org/repo/ffalarms.git;protocol=http;branch=mast
   file://0001-fix-name-of-changed-genlist-gengrid-callbacks.patch \
 "
 
-SRCREV = "594f7a7a17110b2327ebb8646f9df1363b1c8ccf"
+SRCREV = "7f27c2f42a72d1076f5ce224659f2e2ea09bc5af"
 S = "${WORKDIR}/git"
 
 inherit vala
