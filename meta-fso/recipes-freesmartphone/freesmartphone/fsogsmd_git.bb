@@ -3,7 +3,7 @@ inherit fso-plugin
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
-PR = "${INC_PR}.7"
+PR = "${INC_PR}.8"
 PV = "0.5.0+gitr${SRCPV}"
 PE = "1"
 
@@ -29,13 +29,13 @@ CONFFILES_${PN}-config = " \
   ${sysconfdir}/freesmartphone/conf/htc_qualcomm_msm/fsogsmd.conf \
   ${sysconfdir}/freesmartphone/conf/GTA04/fsogsmd.conf \
 "
-RDEPENDS_${PN} += "${PN}-config"
+RRECOMMENDS_${PN} += "${PN}-config"
 
 PACKAGES =+ "${PN}-connman ${PN}-connman-dev ${PN}-connman-dbg"
 FILES_${PN}-connman = "${libdir}/connman/plugins/fsogsm.so"
 FILES_${PN}-connman-dev = "${libdir}/connman/plugins/fsogsm.la"
 FILES_${PN}-connman-dbg = "${libdir}/connman/plugins/.debug/fsogsm*"
-RDEPENDS_${PN} += "${PN}-connman"
+RRECOMMENDS_${PN} += "${PN}-connman"
 
 # On the palmpre we need the msmcomm daemon to talk to the modem
 RDEPENDS_${PN}-config_palmpre += "msmcommd"
