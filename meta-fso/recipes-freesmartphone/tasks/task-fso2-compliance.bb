@@ -4,7 +4,7 @@ SECTION = "fso/base"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 PV = "1.9.0"
-PR = "r13"
+PR = "r14"
 
 inherit task
 
@@ -16,16 +16,12 @@ RDEPENDS_${PN} = "\
   \
   fsodatad \
   fsodeviced \
-  fsodeviced-systemd \
   fsogsmd \
   fsotdld \
-  fsotdld-systemd \
   fsonetworkd \
   fsousaged \
   fsoaudiod \
-  fsoaudiod-systemd \
   fsosystemd \
-  fsosystemd-systemd \
   \
   fso-apm \
   connman \
