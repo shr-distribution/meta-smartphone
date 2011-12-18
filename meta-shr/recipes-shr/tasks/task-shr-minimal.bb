@@ -1,5 +1,5 @@
 DESCRIPTION = "SHR Lite Image Feed"
-PR = "r47"
+PR = "r48"
 PV = "2.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -81,7 +81,6 @@ RDEPENDS_${PN}-base = "\
   logrotate\
   util-linux-fdisk \
   shr-splash \
-  task-shr-systemd \
 "
 
 RDEPENDS_${PN}-cli = "\
