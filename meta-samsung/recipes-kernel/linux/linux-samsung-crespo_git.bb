@@ -14,8 +14,10 @@ S = "${WORKDIR}/git/"
 SRCREV = "5b7c6b7b01f8e86035675f3f419ead25d7ff4897"
 
 KV = "2.6.35"
-PR = "r8"
+PR = "r9"
 PV = "${KV}+gitr${SRCPV}"
 
 # Workaround default -Werror setting and some warnings in kernel compilation
 TARGET_CC_KERNEL_ARCH += " -Wno-error=unused-but-set-variable -Wno-error=array-bounds"
+# disable cgroups (needed by systemd) for now as kernel fails to compile with it enabled
+KERNEL_ENABLE_CGROUPS = "0"
