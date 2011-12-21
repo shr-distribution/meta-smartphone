@@ -4,7 +4,7 @@ KERNEL_RELEASE = "3.2"
 PV = "${KERNEL_RELEASE}+gitr${SRCPV}"
 PR = "r1"
 
-SRCREV = "e8613a6577fb9c3933fb91fc55c03971c07e4ce4"
+SRCREV = "38c76959e3209026c390a7a52e778e3e661a7214"
 
 SRC_URI = "\
   git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=gta04/neil \
