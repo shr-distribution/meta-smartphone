@@ -1,4 +1,4 @@
-WORKDIR = "${TMPDIR}/work/${MULTIMACH_TARGET_SYS}/${PN}/${EXTENDPE}${PV}-${PR}"
+WORKDIR = "${TMPDIR}/work/${MULTIMACH_TARGET_SYS}/${PN}/${PF}"
 
 do_rm_old_works() {
 	subdir="${TMPDIR}/work/${MULTIMACH_TARGET_SYS}/${PN}"
