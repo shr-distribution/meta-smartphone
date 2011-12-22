@@ -6,7 +6,7 @@ DEPENDS = "e-wm elementary"
 RDEPENDS_${PN} = "e-wm"
 SECTION = "x11/application"
 
-SRCREV = "fa5f68c50ba198f065c70005f5682b68f30d09eb"
+SRCREV = "9c9cbfd64f449b41b7c25bce064afa8eefbd459f"
 PV = "0.0.0+gitr${SRCPV}"
 PR = "r13"
 
@@ -14,7 +14,6 @@ inherit autotools
 
 SRC_URI = "\
 	git://git.shr-project.org/repo/shr-e-gadgets.git;protocol=http;branch=master \
-	file://label-in-text-get-api-change.patch \
 "
 S = "${WORKDIR}/git"
 
