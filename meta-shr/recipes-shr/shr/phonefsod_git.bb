@@ -4,7 +4,7 @@ LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 SECTION = "x11/applications"
 DEPENDS += " libfso-glib libshr-glib sqlite3 shr-specs libfsoframework"
-SRCREV = "85c0b695a155bf4fe4ed2d7c74ce95851b16b94e"
+SRCREV = "58cd417800f810c439be54b72dfb585b172921ac"
 PV = "0.0.0+gitr${SRCPV}"
 PR = "r6"
 
