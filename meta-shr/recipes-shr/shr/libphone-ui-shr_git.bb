@@ -1,7 +1,7 @@
 DESCRIPTION = "SHR default module for the Phone UI daemon"
 SECTION = "e/apps"
 DEPENDS += " libphone-ui evas ecore edje edje-native elementary"
-SRCREV = "52ae61ca1cd16325a54d8ab09d69cf079ff92729"
+SRCREV = "09bf3a30db85fe0a7a5f135bd0bbc199fdcc5150"
 PE = "1"
 PV = "0.0.1+gitr${SRCPV}"
 PR = "r10"
@@ -9,8 +9,6 @@ LICENSE = "LGPLv2.1"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=4fbd65380cdd255951079008b364516c"
 
 SRC_URI = "git://git.shr-project.org/repo/libphone-ui-shr.git;protocol=http;branch=master \
-  file://0001-theme-update-.edc-files-with-genlist-gengrid-edc-cha.patch \
-  file://0002-theme-update-.edc-files-with-genlist-gengrid-edc-cha.patch \
 "
 
 S = "${WORKDIR}/git"
