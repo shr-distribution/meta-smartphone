@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=d4e4f10748f3146a089aaa23c9ade59b"
 DEPENDS = "edje-native"
 RDEPENDS_${PN} = "libphone-ui-shr"
 RSUGGESTS_${PN} = "elementary-theme-sowka"
-SRCREV = "d488ccabe2a21c08f9cde79e674c75faa26dcab3"
+SRCREV = "f8a79804e8e58631809765eb364a767e15dad5ec"
 PV = "0.1+gitr${SRCPV}"
 PR = "r1"
 inherit allarch
