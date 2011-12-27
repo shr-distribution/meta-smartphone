@@ -3,7 +3,7 @@ SECTION = "e/utils"
 DEPENDS = "edje-native"
 LICENSE = "MIT BSD"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=f523ab5986cc79b52a90d2ac3d5454a2"
-SRCREV = "d488ccabe2a21c08f9cde79e674c75faa26dcab3"
+SRCREV = "bbe2445c29cd65d0a8dddde7606434db489ee41b"
 PV = "0.2+gitr${SRCPV}"
 PR = "r1"
 inherit allarch
