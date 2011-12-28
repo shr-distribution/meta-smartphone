@@ -3,7 +3,7 @@
 #------------------------------------------------------
 
 PV = "1.0"
-PR = "r4"
+PR = "r5"
 
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -64,6 +64,10 @@ IMAGE_INSTALL += " \
   alsa-utils-aplay \
   alsa-utils-amixer \
 "
+
+# We're including fsoaudiod here as it is removed from task-fso2-compliance until SHR
+# 2012.01 is released.
+IMAGE_INSTALL += " fsoaudiod"
 
 shr_rootfs_gta02_postprocess() {
     curdir=$PWD
