@@ -3,13 +3,13 @@ require linux.inc
 KERNEL_RELEASE = "3.2.0-rc6"
 OLD_KERNEL_RELEASE = "3.1.99"
 PV = "${OLD_KERNEL_RELEASE}+${KERNEL_RELEASE}+gitr${SRCPV}"
-PR = "r0"
+PR = "r1"
 PE = "1"
 
-SRCREV = "38c76959e3209026c390a7a52e778e3e661a7214"
+SRCREV = "d14022482bc7635d89efeb02637e439591119c1d"
 
 SRC_URI = "\
-  git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=gta04/neil \
+  git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=gta04/merge \
   file://defconfig \
 "
 S = "${WORKDIR}/git"
