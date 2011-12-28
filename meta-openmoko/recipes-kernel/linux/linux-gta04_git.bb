@@ -3,7 +3,7 @@ require linux.inc
 KERNEL_RELEASE = "3.2.0-rc6"
 OLD_KERNEL_RELEASE = "3.1.99"
 PV = "${OLD_KERNEL_RELEASE}+${KERNEL_RELEASE}+gitr${SRCPV}"
-PR = "r1"
+PR = "r2"
 PE = "1"
 
 SRCREV = "d14022482bc7635d89efeb02637e439591119c1d"
