@@ -7,7 +7,7 @@ RRECOMMENDS_${PN} = "e-wm-theme-illume-gry"
 LICENSE = "MIT BSD"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=f523ab5986cc79b52a90d2ac3d5454a2"
 
-SRCREV = "de6a366bf753d691f80a45e2f103c8a7b3d94b8c"
+SRCREV = "2bd77b3184ac7756269fb34c0b0d73350b8a6a42"
 PV = "0.9+gitr${SRCPV}"
 PR = "r4"
 inherit allarch
