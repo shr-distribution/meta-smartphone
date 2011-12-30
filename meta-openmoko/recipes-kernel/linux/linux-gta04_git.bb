@@ -3,10 +3,10 @@ require linux.inc
 KERNEL_RELEASE = "3.2.0-rc6"
 OLD_KERNEL_RELEASE = "3.1.99"
 PV = "${OLD_KERNEL_RELEASE}+${KERNEL_RELEASE}+gitr${SRCPV}"
-PR = "r2"
-PE = "1"
+PR = "r0"
+PE = "2"
 
-SRCREV = "d14022482bc7635d89efeb02637e439591119c1d"
+SRCREV = "1a127a048ee9848cc97a19a745433b7fa18126e4"
 
 SRC_URI = "\
   git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=gta04/merge \
