@@ -2,7 +2,6 @@
 # kernel image parameters. It resides on a seperate flash partition
 #
 COMPATIBLE_HOST = "arm.*-linux"
-COMPATIBLE_MACHINE = "om-gta01|om-gta02"
 
 #FILESPATHPKG .= ":linux-${PV}"
 FILESPATH =. "${FILE_DIRNAME}/linux-${PV}/${MACHINE}:${FILE_DIRNAME}/linux-${PV}:${FILE_DIRNAME}/linux"

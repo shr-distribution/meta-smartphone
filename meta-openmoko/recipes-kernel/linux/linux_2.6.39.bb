@@ -5,16 +5,13 @@ PR = "r6"
 # Mark archs/machines that this kernel supports
 DEFAULT_PREFERENCE = "-1"
 DEFAULT_PREFERENCE_om-gta02 = "1"
-DEFAULT_PREFERENCE_om-gta01 = "1"
+
+COMPATIBLE_MACHINE = "om-gta02"
 
 SRC_URI = "${KERNELORG_MIRROR}/linux/kernel/v2.6/linux-${PV}.tar.bz2;name=kernel \
            ${KERNELORG_MIRROR}/linux/kernel/v2.6/patch-${PV}.4.bz2;apply=yes;name=stablepatch \
            file://defconfig "
 
-SRC_URI_append_om-gta01 = " \
-           file://openmoko.patch \
-           file://shr.patch \
-           "
 SRC_URI_append_om-gta02 = " \
            file://openmoko.patch \
            file://shr.patch \
