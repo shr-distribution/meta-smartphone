@@ -1,5 +1,5 @@
 DESCRIPTION = "SHR Feed"
-PR = "r98"
+PR = "r99"
 PV = "1.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -156,13 +156,13 @@ MISSING = "\
 		evopedia \
 		intone-video \
 		mupdf \
-		estardict \
 		omnewrotate \
 		vagalume \
 		elmdentica \
 "
 
 RDEPENDS_${PN} += "\
+		estardict \
 		claws-mail \
 		claws-plugin-gtkhtml2-viewer \
 		claws-plugin-mailmbox \
