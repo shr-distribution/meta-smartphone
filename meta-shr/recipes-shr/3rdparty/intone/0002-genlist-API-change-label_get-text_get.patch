@@ -1,7 +1,7 @@
-From eca7a27917ee4a60bcfcecb6c0a56c073b9d7a74 Mon Sep 17 00:00:00 2001
+From 6ff33eaae17f7aa4b8b5076bf1d45bcb0da73bc9 Mon Sep 17 00:00:00 2001
 From: Martin Jansa <Martin.Jansa@gmail.com>
 Date: Tue, 6 Dec 2011 18:41:48 +0100
-Subject: [PATCH] genlist API change label_get/text_get
+Subject: [PATCH 2/3] genlist API change label_get/text_get
 
 Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
 ---
@@ -166,5 +166,5 @@ index db46741..e643ccd 100644
  	itc_c_play_list.func.state_get 	= c_play_gl_state_get;
  	itc_c_play_list.func.del       		= c_play_gl_del;
 -- 
-1.7.8
+1.7.8.2
 

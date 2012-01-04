@@ -1,7 +1,7 @@
-From d545726d66d77deb6953e6542b465dce83dae856 Mon Sep 17 00:00:00 2001
+From 4f8a0e105d5117534d5105efe8e67b3198b478a3 Mon Sep 17 00:00:00 2001
 From: Martin Jansa <Martin.Jansa@gmail.com>
 Date: Tue, 1 Nov 2011 23:37:22 +0100
-Subject: [PATCH] adapt to newer elementary API
+Subject: [PATCH 1/3] adapt to newer elementary API
 
 sed 's/elm_box_homogenous_set/elm_box_homogeneous_set/g' -i src/gui.c
 sed 's/elm_button_icon_set/elm_object_content_set/g' -i src/gui.c
@@ -26,15 +26,17 @@ sed 's/elm_genlist_clear/elm_gen_clear/g' -i src/gui.c
 sed 's/elm_genlist_clear/elm_gen_clear/g' -i src/callbacks.c
 sed 's/icon_get/content_get/g' -i src/gui.c
 
+and later partially revert some of them, because, elm developers changed mind
+and genlist api is back and gen api is going to be removed
+
 Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
 ---
- src/callbacks.c |   80 ++++++++++----------
- src/db_sqlite.c |   22 +++---
- src/gui.c       |  216 +++++++++++++++++++++++++++---------------------------
- 3 files changed, 159 insertions(+), 159 deletions(-)
+ src/callbacks.c |   50 +++++++-------
+ src/gui.c       |  188 +++++++++++++++++++++++++++---------------------------
+ 2 files changed, 119 insertions(+), 119 deletions(-)
 
 diff --git a/src/callbacks.c b/src/callbacks.c
-index 14d9500..923f7a2 100644
+index ad815d8..8979a88 100644
 --- a/src/callbacks.c
 +++ b/src/callbacks.c
 @@ -121,8 +121,8 @@ void restart_mplayer(void)
@@ -48,13 +50,7 @@ index 14d9500..923f7a2 100644
  	elm_slider_value_set(pos_slider, 0.0);
  	seek = 0;
  	
-@@ -152,12 +152,12 @@ int timer_func(void *data)
- 				play_state = IDLE;
- 				song_index = 0; seek = 0;
- 				if (view == LISTVIEW) {
--					elm_genlist_item_selected_set(song_list[song_index], 1);
-+					elm_gen_item_selected_set(song_list[song_index], 1);
- 					elm_genlist_item_show(song_list[song_index]);
+@@ -157,7 +157,7 @@ int timer_func(void *data)
  				}
  				else if (view == ALBUM_ART) show_song_info();
  				else if (view == LYRICS) show_song_lyrics();
@@ -124,26 +120,6 @@ index 14d9500..923f7a2 100644
  }
  
  void prev_button_clicked(void *data, Evas_Object *obj, void *event_info)
-@@ -419,15 +419,15 @@ void prev_button_clicked(void *data, Evas_Object *obj, void *event_info)
- 		if(view == LISTVIEW) {
- 			elm_genlist_item_update(old_song);
- 			if(!randomize) {
--				elm_genlist_item_selected_set(song_list[song_index+1], 0);
--				elm_genlist_item_selected_set(song_list[song_index], 1);
-+				elm_gen_item_selected_set(song_list[song_index+1], 0);
-+				elm_gen_item_selected_set(song_list[song_index], 1);
- 				elm_genlist_item_update(song_list[song_index]);
- 				old_song = song_list[song_index];
- 				elm_genlist_item_show(song_list[song_index]);
- 			}
- 			else {//if randomize
--				elm_genlist_item_selected_set(song_list[seq[song_index+1]], 0);
--				elm_genlist_item_selected_set(song_list[seq[song_index]], 1);
-+				elm_gen_item_selected_set(song_list[seq[song_index+1]], 0);
-+				elm_gen_item_selected_set(song_list[seq[song_index]], 1);
- 				elm_genlist_item_update(song_list[seq[song_index]]);
- 				old_song = song_list[seq[song_index]];
- 				elm_genlist_item_show(song_list[seq[song_index]]);				
 @@ -445,7 +445,7 @@ void prev_button_clicked(void *data, Evas_Object *obj, void *event_info)
  			next_button_clicked (NULL, NULL, NULL);
  			return;
@@ -153,30 +129,6 @@ index 14d9500..923f7a2 100644
  		//tell mplayer to play cur_song
  		sprintf(cmd, "loadfile \"%s\"\n", path);
  		ret = write(fd, cmd, strlen(cmd));
-@@ -488,17 +488,17 @@ void next_button_clicked(void *data, Evas_Object *obj, void *event_info)
- 	if(view == LISTVIEW) {
- 		elm_genlist_item_update(old_song);
- 		if (!randomize) {
--			if (song_index > 0) elm_genlist_item_selected_set(song_list[song_index-1], 0);
--			else elm_genlist_item_selected_set(song_list[no_songs -1], 0);
--			elm_genlist_item_selected_set(song_list[song_index], 1);
-+			if (song_index > 0) elm_gen_item_selected_set(song_list[song_index-1], 0);
-+			else elm_gen_item_selected_set(song_list[no_songs -1], 0);
-+			elm_gen_item_selected_set(song_list[song_index], 1);
- 			elm_genlist_item_update(song_list[song_index]);
- 			old_song = song_list[song_index];
- 			elm_genlist_item_show(song_list[song_index]);
- 		}
- 		else { // if randomize
--			if(song_index > 0) elm_genlist_item_selected_set(song_list[seq[song_index -1]], 0);
--			else elm_genlist_item_selected_set(song_list[seq[no_songs -1]], 0);
--			elm_genlist_item_selected_set(song_list[seq[song_index]], 1);
-+			if(song_index > 0) elm_gen_item_selected_set(song_list[seq[song_index -1]], 0);
-+			else elm_gen_item_selected_set(song_list[seq[no_songs -1]], 0);
-+			elm_gen_item_selected_set(song_list[seq[song_index]], 1);
- 			elm_genlist_item_update(song_list[seq[song_index]]);
- 			old_song = song_list[seq[song_index]];
- 			elm_genlist_item_show(song_list[seq[song_index]]);
 @@ -516,7 +516,7 @@ void next_button_clicked(void *data, Evas_Object *obj, void *event_info)
  		//set timer
  		pos_time = 0;
@@ -195,26 +147,6 @@ index 14d9500..923f7a2 100644
  	}
  }
  
-@@ -682,7 +682,7 @@ void load_dir(Evas_Object *li, char *direc)
- 	n = scandir (old_dir, &eps, file_select, alphasort);
-     if (n > 0) {
- 	    //clear the list
--		elm_genlist_clear(li);
-+		elm_gen_clear(li);
- 	   	for (i = 0; i < n; ++i) {
- 			if(strcmp(old_dir, "/") == 0) sprintf(dir_gl_entry[i].path, "/%s", eps[i]->d_name);
- 			else sprintf(dir_gl_entry[i].path, "%s/%s", old_dir, eps[i]->d_name);
-@@ -694,8 +694,8 @@ void load_dir(Evas_Object *li, char *direc)
- 	}
-     else return;
-     free(eps);
--	dir_list = elm_genlist_first_item_get(li);
--	elm_genlist_item_selected_set(dir_list ,1);
-+	dir_list = elm_gen_first_item_get(li);
-+	elm_gen_item_selected_set(dir_list ,1);
- }
- 
- int audio_file_select(const struct dirent *entry)
 @@ -1011,7 +1011,7 @@ void remove_dir_button_clicked(void *data, Evas_Object *obj, void *event_info)
  			//reset the pos_slider
  			elm_slider_value_set(pos_slider, 0.0);
@@ -294,108 +226,8 @@ index 14d9500..923f7a2 100644
  	//change play icon
  	snprintf(buf, sizeof(buf), "%s/play.png", intone_dir);
  	elm_icon_file_set(ic_play, buf, NULL);
-@@ -1375,7 +1375,7 @@ void save_playlist_button_clicked(void *data, Evas_Object *obj, void *event_info
- 	//remove the trailing<br>
- 	char *playlist = strtok(pl, "<");	
- 	//check there is some data in the playlist before adding
--	item = elm_genlist_first_item_get(c_play_list);
-+	item = elm_gen_first_item_get(c_play_list);
- 	if(!item) {
- 		popup_message ("Please add Songs to the Playlist before Saving!", NULL, 1);
- 		return;
-diff --git a/src/db_sqlite.c b/src/db_sqlite.c
-index 841392b..546aab8 100644
---- a/src/db_sqlite.c
-+++ b/src/db_sqlite.c
-@@ -703,7 +703,7 @@ void populate_play_list(Evas_Object *li)
- 	sqlite3_stmt *stmt;
- 	Elm_Genlist_Item *gl_item=NULL;
- 
--	elm_genlist_clear(li);
-+	elm_gen_clear(li);
- 	sql = "SELECT name FROM playlists";
- 	db_ret = sqlite3_prepare(songs, sql, strlen(sql), &stmt, &tail);
- 	if(db_ret != SQLITE_OK) {
-@@ -720,9 +720,9 @@ void populate_play_list(Evas_Object *li)
- 	sqlite3_finalize(stmt);
- 	//select the current playlist / first playlist
- 	if (gl_item == NULL) {
--		gl_item = elm_genlist_first_item_get(li);
-+		gl_item = elm_gen_first_item_get(li);
- 	}
--	elm_genlist_item_selected_set(gl_item ,1);
-+	elm_gen_item_selected_set(gl_item ,1);
- 	elm_genlist_item_show(gl_item);
- }
- 
-@@ -737,7 +737,7 @@ void populate_playlist_songs(Evas_Object *li)
- 	Elm_Genlist_Item *it = (Elm_Genlist_Item *)elm_genlist_selected_item_get(play_list);
- 	strcpy(playlist_name, (char *)elm_genlist_item_data_get(it));
- 	//clear the playlist_songs list
--	elm_genlist_clear(li);
-+	elm_gen_clear(li);
- 	//get data for this playlist and add to playlist_songs
- 	sql =  sqlite3_mprintf("SELECT song, path  FROM '%q'", playlist_name);
- 	db_ret = sqlite3_prepare(songs, sql, strlen(sql), &stmt, &tail);
-@@ -763,7 +763,7 @@ void sel_song(void)
- 		if (!randomize) song_to_play = song_list[song_index];
- 		else song_to_play = song_list[seq[song_index]];
- 		if (song_to_play) {
--			elm_genlist_item_selected_set(song_to_play, 1);
-+			elm_gen_item_selected_set(song_to_play, 1);
- 			old_song = song_to_play;
- 			elm_genlist_item_show(song_to_play);
- 		}
-@@ -778,7 +778,7 @@ void populate_main_list(Evas_Object *li)
- 	sqlite3_stmt *stmt;
- 		
- 	//clear the list
--	elm_genlist_clear(list);
-+	elm_gen_clear(list);
- 	//if playlist name is "" add a statement saying add Music first
- 	if ((strlen(cur_playlist) < 1) || (strcmp(cur_playlist, "Select a Playlist!") == 0)) {
- 		strcpy(pl_data[0].path, "Add Songs using the 'Songs' Button!");
-@@ -817,7 +817,7 @@ void populate_main_list(Evas_Object *li)
- 		elm_genlist_item_append(list, &itc_list, 
-                                       "Add Songs using the 'Songs' Button!", 
-                                       NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
--		elm_genlist_item_selected_set(elm_genlist_first_item_get(list), 1);
-+		elm_gen_item_selected_set(elm_gen_first_item_get(list), 1);
- 		no_songs = 1;
- 		song_index = 0;
- 		return;
-@@ -934,7 +934,7 @@ void save_playlist (char *playlist, Evas_Object *li)
- 		sqlite3_free(sql_st);
- 	}
- 	//add data to new table
--	item = elm_genlist_first_item_get(li);
-+	item = elm_gen_first_item_get(li);
- 	while(item) {
- 		char *path = (char *)elm_genlist_item_data_get(item);
- 		name = strrchr(path,  '/');
-@@ -950,9 +950,9 @@ void save_playlist (char *playlist, Evas_Object *li)
- 		}
- 		sqlite3_free(sql_st);
- 		if (path) free(path);
--		item = elm_genlist_item_next_get(item);
-+		item = elm_gen_item_next_get(item);
- 	}
--	elm_genlist_clear(li);
-+	elm_gen_clear(li);
- }
- 
- void add_songs_from_album(char *album, Evas_Object *list)
-@@ -1116,7 +1116,7 @@ void populate_home_list(Evas_Object *li)
- 	sqlite3_stmt *stmt;
- 	const char *tail;
- 
--	elm_genlist_clear(li);
-+	elm_gen_clear(li);
- 	sql = "SELECT dir FROM song_dirs";	
- 	db_ret = sqlite3_prepare(songs, sql, strlen(sql), &stmt, &tail);
- 	if(db_ret != SQLITE_OK) {
 diff --git a/src/gui.c b/src/gui.c
-index 5097244..df3f94d 100644
+index 5097244..db46741 100644
 --- a/src/gui.c
 +++ b/src/gui.c
 @@ -61,18 +61,18 @@ void popup_message(char *message, char *msg, int butt_state)
@@ -445,15 +277,6 @@ index 5097244..df3f94d 100644
  	evas_object_size_hint_weight_set(bt1, 1.0, 1.0);
  	evas_object_size_hint_align_set(bt1, -1.0, -1.0);
  	elm_box_pack_end(inwin, bt1);
-@@ -170,7 +170,7 @@ void cancel_button_clicked(void *data, Evas_Object *obj, void *event_info)
- {
- 	Winlist *wl = data;
- 	//clear the list
--	if (wl->li) elm_genlist_clear(wl->li);
-+	if (wl->li) elm_gen_clear(wl->li);
- 	//close the window
- 	evas_object_del(wl->win);
- }
 @@ -185,7 +185,7 @@ char *album_l_label_get(const void *data, Evas_Object *obj, const char *part)
  	return (ty);
  }
@@ -463,7 +286,7 @@ index 5097244..df3f94d 100644
  {
  	char buf[PATH_MAX];
  	if (!strcmp(part, "elm.swallow.icon"))
-@@ -248,14 +248,14 @@ void create_add_alb_page(void *data, Evas_Object *obj, void *event_info)
+@@ -248,8 +248,8 @@ void create_add_alb_page(void *data, Evas_Object *obj, void *event_info)
  
  	// add a label
  	lb = elm_label_add(add_alb_win);
@@ -474,13 +297,6 @@ index 5097244..df3f94d 100644
  	evas_object_show(lb);    
  
  	//add list to vbox now
- 	add_album_list = elm_genlist_add(add_alb_win);
- 	elm_object_scale_set(add_album_list,1.0);
--	elm_genlist_bounce_set(add_album_list, 0 ,0);
-+	elm_gen_bounce_set(add_album_list, 0 ,0);
- 	evas_object_size_hint_weight_set(add_album_list, 1.0, 1.0);
- 	evas_object_size_hint_align_set(add_album_list, -1.0, -1.0);
- 	elm_genlist_multi_select_set(add_album_list, 1);
 @@ -265,7 +265,7 @@ void create_add_alb_page(void *data, Evas_Object *obj, void *event_info)
  	//genlist class defs
  	itc_add_album_list.item_style     		= "default";
@@ -589,15 +405,6 @@ index 5097244..df3f94d 100644
  	evas_object_size_hint_weight_set(loop_button, 1.0, 1.0);
  	evas_object_size_hint_align_set(loop_button, -1.0, -1.0);
  	elm_box_pack_end(toolbar, loop_button);
-@@ -505,7 +505,7 @@ void create_gui(Evas_Object *win)
- 	//add list to vbox now
- 	list = elm_genlist_add(win);
- 	elm_object_scale_set(list, 1.0);
--	elm_genlist_bounce_set(list, 0, 0);
-+	elm_gen_bounce_set(list, 0, 0);
- 	evas_object_size_hint_weight_set(list, 1.0, 1.0);
- 	evas_object_size_hint_align_set(list, -1.0, -1.0);
- 	elm_list_multi_select_set(list, 0);
 @@ -518,7 +518,7 @@ void create_gui(Evas_Object *win)
  	//genlist class defs
  	itc_list.item_style     		= "default";
@@ -715,15 +522,6 @@ index 5097244..df3f94d 100644
  	evas_object_size_hint_weight_set(enter_dir_button, 1.0, 1.0);
  	evas_object_size_hint_align_set(enter_dir_button, -1.0, -1.0);
  	elm_box_pack_end(hbox, enter_dir_button);
-@@ -770,7 +770,7 @@ void create_dir_browser_page(void *data, Evas_Object *obj, void *event_info)
- 	//add list to vbox now
- 	dir_list = elm_genlist_add(dir_browser_page_win);
- 	elm_object_scale_set(dir_list, 1.0);
--	elm_genlist_bounce_set(dir_list, 0 ,0);
-+	elm_gen_bounce_set(dir_list, 0 ,0);
- 	evas_object_size_hint_weight_set(dir_list, 1.0, 1.0);
- 	evas_object_size_hint_align_set(dir_list, -1.0, -1.0);
- 	elm_genlist_multi_select_set(dir_list, 0);
 @@ -784,7 +784,7 @@ void create_dir_browser_page(void *data, Evas_Object *obj, void *event_info)
  	//genlist class defs
  	itc_dir_list.item_style     		= "default";
@@ -751,21 +549,6 @@ index 5097244..df3f94d 100644
  	evas_object_size_hint_weight_set(cancel_button, 1.0, 1.0);
  	evas_object_size_hint_align_set(cancel_button, -1.0, -1.0);
  	elm_box_pack_end(hbox1, cancel_button);
-@@ -831,10 +831,10 @@ void select_all_songs(void *data, Evas_Object *obj, void *event_info)
- 	Evas_Object *li = (Evas_Object *) data;
- 	Elm_Genlist_Item *item;
- 
--	item = elm_genlist_first_item_get(li);
--	if (item) elm_genlist_item_selected_set(item, 1);
--	while ((item = elm_genlist_item_next_get(item))) {
--		elm_genlist_item_selected_set(item, 1);
-+	item = elm_gen_first_item_get(li);
-+	if (item) elm_gen_item_selected_set(item, 1);
-+	while ((item = elm_gen_item_next_get(item))) {
-+		elm_gen_item_selected_set(item, 1);
- 	}
- }
- 
 @@ -848,7 +848,7 @@ char *final_filter_gl_label_get(const void *data, Evas_Object *obj, const char *
  	return (ty);
  }
@@ -775,15 +558,6 @@ index 5097244..df3f94d 100644
  {
  	char buf[PATH_MAX];
  	if (!strcmp(part, "elm.swallow.icon"))
-@@ -905,7 +905,7 @@ void select_songs_page(void *data, Evas_Object *obj, void *event_info)
- 	// add list
- 	filter_final_list = elm_genlist_add(select_songs_page_win);
- 	elm_object_scale_set(filter_final_list, 1.0);
--	elm_genlist_bounce_set(filter_final_list, 0 ,0);
-+	elm_gen_bounce_set(filter_final_list, 0 ,0);
- 	evas_object_size_hint_weight_set(filter_final_list, 1.0, 1.0);
- 	evas_object_size_hint_align_set(filter_final_list, -1.0, -1.0);
- 	elm_genlist_multi_select_set(filter_final_list, 1);
 @@ -915,7 +915,7 @@ void select_songs_page(void *data, Evas_Object *obj, void *event_info)
  	//genlist class defs
  	itc_filter_final.item_style     		= "default";
@@ -829,15 +603,6 @@ index 5097244..df3f94d 100644
  {
  	char buf[PATH_MAX];
  	if (!strcmp(part, "elm.swallow.icon"))
-@@ -1026,7 +1026,7 @@ void sel_songs_by_page(void *data, Evas_Object *obj, void *event_info)
- 	// add list
- 	filter_list = elm_genlist_add(sel_songs_win);
- 	elm_object_scale_set(filter_list, 1.0);
--	elm_genlist_bounce_set(filter_list, 0 ,0);
-+	elm_gen_bounce_set(filter_list, 0 ,0);
- 	evas_object_size_hint_weight_set(filter_list, 1.0, 1.0);
- 	evas_object_size_hint_align_set(filter_list, -1.0, -1.0);
- 	elm_genlist_multi_select_set(filter_list, 0); //till the popup_alert starts working
 @@ -1036,7 +1036,7 @@ void sel_songs_by_page(void *data, Evas_Object *obj, void *event_info)
  	//genlist class defs
  	itc_filter_list.item_style     	= "default";
@@ -865,15 +630,6 @@ index 5097244..df3f94d 100644
  	evas_object_size_hint_weight_set(cancel_button, 1.0, 1.0);
  	evas_object_size_hint_align_set(cancel_button, -1.0, -1.0);
  	elm_box_pack_end(hbox, cancel_button);
-@@ -1082,7 +1082,7 @@ void play_all_songs(void *data, Evas_Object *obj, void *event_info)
- {
- 	Winlist *wl = data;
- 	//clear the list
--	if (wl->li) elm_genlist_clear(wl->li);
-+	if (wl->li) elm_gen_clear(wl->li);
- 	//close the window
- 	evas_object_del(wl->win);
- 	
 @@ -1102,7 +1102,7 @@ char *home_list_label_get(const void *data, Evas_Object *obj, const char *part)
  	return (ty);
  }
@@ -883,7 +639,7 @@ index 5097244..df3f94d 100644
  {
  	return NULL;
  }
-@@ -1144,14 +1144,14 @@ void manage_songs_page(void *data, Evas_Object *obj, void *event_info)
+@@ -1144,7 +1144,7 @@ void manage_songs_page(void *data, Evas_Object *obj, void *event_info)
  	
  	// add a label
  	lb = elm_label_add(manage_songs_page_win);
@@ -892,14 +648,6 @@ index 5097244..df3f94d 100644
  	elm_box_pack_end(vbox, lb);
  	evas_object_show(lb);    
  
- 	// add a list
- 	home_list = elm_genlist_add(manage_songs_page_win);
- 	elm_object_scale_set(home_list, 1.0);
--	elm_genlist_bounce_set(home_list, 0 ,0);
-+	elm_gen_bounce_set(home_list, 0 ,0);
- 	evas_object_size_hint_weight_set(home_list, 1.0, 1.0);
- 	evas_object_size_hint_align_set(home_list, -1.0, -1.0);
- 	elm_genlist_multi_select_set(home_list, 0); //till the popup_alert starts working
 @@ -1161,7 +1161,7 @@ void manage_songs_page(void *data, Evas_Object *obj, void *event_info)
  	//genlist class defs
  	itc_home_list.item_style     		= "default";
@@ -991,15 +739,6 @@ index 5097244..df3f94d 100644
  {
  	char buf[PATH_MAX];
  	if (!strcmp(part, "elm.swallow.icon"))
-@@ -1326,7 +1326,7 @@ void create_manage_playlist_page(void)
- 	//add list
- 	play_list = elm_genlist_add(manage_playlist_page_win);
- 	elm_object_scale_set(play_list, 1.0);
--	elm_genlist_bounce_set(play_list, 0 ,0);
-+	elm_gen_bounce_set(play_list, 0 ,0);
- 	evas_object_size_hint_weight_set(play_list, 1.0, 1.0);
- 	evas_object_size_hint_align_set(play_list, -1.0, -1.0);
- 	elm_genlist_multi_select_set(play_list, 0); //till the popup_alert starts working
 @@ -1336,14 +1336,14 @@ void create_manage_playlist_page(void)
  	//genlist class defs
  	itc_play_list.item_style     		= "default";
@@ -1091,7 +830,7 @@ index 5097244..df3f94d 100644
  	evas_object_size_hint_weight_set(save_playlist_button, 1.0, 1.0);
  	evas_object_size_hint_align_set(save_playlist_button, 0.5, -1.0);
  	elm_box_pack_end(hbox, save_playlist_button);
-@@ -1515,14 +1515,14 @@ void create_playlist_page(void *data, Evas_Object *obj, void *event_info)
+@@ -1515,8 +1515,8 @@ void create_playlist_page(void *data, Evas_Object *obj, void *event_info)
  
  	// add a label
  	lb1 = elm_label_add(playlist_page_win);
@@ -1102,13 +841,6 @@ index 5097244..df3f94d 100644
  	evas_object_show(lb1);    
  
  	//add list to vbox now
- 	c_play_list = elm_genlist_add(playlist_page_win);
- 	elm_object_scale_set(c_play_list, 1.0);
--	elm_genlist_bounce_set(c_play_list, 0 ,0);
-+	elm_gen_bounce_set(c_play_list, 0 ,0);
- 	evas_object_size_hint_weight_set(c_play_list, 1.0, 1.0);
- 	evas_object_size_hint_align_set(c_play_list, -1.0, -1.0);
- 	elm_genlist_multi_select_set(c_play_list, 1);
 @@ -1532,14 +1532,14 @@ void create_playlist_page(void *data, Evas_Object *obj, void *event_info)
  	//genlist class defs
  	itc_c_play_list.item_style     		= "default";
@@ -1307,5 +1039,5 @@ index 5097244..df3f94d 100644
  	evas_object_size_hint_align_set(cancel_button, -1.0, -1.0);
  	elm_box_pack_end(vbox, cancel_button);
 -- 
-1.7.7.1
+1.7.8.2
 

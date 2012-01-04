@@ -1,7 +1,7 @@
-From 18aca0119c0b422450d64eec7d4d434c5c8785a3 Mon Sep 17 00:00:00 2001
+From 140633784ec69be867fa38693fc896a8e6993f5d Mon Sep 17 00:00:00 2001
 From: Martin Jansa <Martin.Jansa@gmail.com>
 Date: Sat, 17 Dec 2011 03:09:35 +0100
-Subject: [PATCH] fix changed callback name
+Subject: [PATCH 3/3] fix changed callback name
 
 Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
 ---
@@ -86,7 +86,7 @@ index e643ccd..3d46367 100644
  	if (strcmp(pl_name, "") == 0) {
  		elm_entry_entry_set(entry, "myplaylist");
 diff --git a/src/main.c b/src/main.c
-index a38e97e..cdb47a3 100644
+index fbcddd5..c34dfa3 100644
 --- a/src/main.c
 +++ b/src/main.c
 @@ -125,7 +125,7 @@ elm_main(int argc, char **argv)
@@ -99,5 +99,5 @@ index a38e97e..cdb47a3 100644
  	create_gui(win);
  	evas_object_show(win);
 -- 
-1.7.8
+1.7.8.2
 
