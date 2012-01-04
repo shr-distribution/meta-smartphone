@@ -3,7 +3,7 @@ inherit fso-plugin
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
-PR = "${INC_PR}.8"
+PR = "${INC_PR}.9"
 PV = "0.5.0+gitr${SRCPV}"
 PE = "1"
 
@@ -102,7 +102,7 @@ FILES_${PN}-module-modem-samsung-dev = "${CORNUCOPIA_MODULE_DIR}/modem_samsung.l
 FILES_${PN}-module-modem-samsung-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/modem_samsung*"
 RDEPENDS_${PN}-config_crespo += "${PN}-module-modem-samsung"
 
-PACKAGES =+ "${PN}-module-modem-option-gtm601 ${PN-module-modem-option-gtm601-dev ${PN}-module-modem-option-gtm601-dbg"
+PACKAGES =+ "${PN}-module-modem-option-gtm601 ${PN}-module-modem-option-gtm601-dev ${PN}-module-modem-option-gtm601-dbg"
 FILES_${PN}-module-modem-option-gtm601 = ${CORNUCOPIA_MODULE_DIR}/modem_option_gtm601.so"
 FILES_${PN}-module-modem-option-gtm601-dev = "${CORNUCOPIA_MODULE_DIR}/modem_option_gtm601.la"
 FILES_${PN}-module-modem-option-gtm601-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/modem_option_gtm601*"
