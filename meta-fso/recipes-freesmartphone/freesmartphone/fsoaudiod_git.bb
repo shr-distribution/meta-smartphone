@@ -11,7 +11,7 @@ DEPENDS += "alsa-lib libcmtspeechdata"
 # and fsoaudiod are dependencies of the FSO framework.
 # PROVIDES_${PN} = "openmoko-alsa-scenarios virtual/alsa-scenarios"
 
-SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
+SRCREV = "3c5befce20e02cb3813b6e787370509e08532b2b"
 PV = "0.1.0+gitr${SRCPV}"
 PE = "2"
 PR = "${INC_PR}.5"
