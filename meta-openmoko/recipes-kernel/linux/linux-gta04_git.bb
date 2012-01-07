@@ -1,15 +1,15 @@
 require linux.inc
 
-KERNEL_RELEASE = "3.2.0-rc7"
+KERNEL_RELEASE = "3.2.0-gta04"
 OLD_KERNEL_RELEASE = "3.1.99"
 PV = "${OLD_KERNEL_RELEASE}+${KERNEL_RELEASE}+gitr${SRCPV}"
 PR = "r0"
-PE = "2"
+PE = "3"
 
-SRCREV = "1a127a048ee9848cc97a19a745433b7fa18126e4"
+SRCREV = "bb54650b1eeddf779832596d4c289a403b7a040b"
 
 SRC_URI = "\
-  git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=gta04/merge \
+  git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=3.2-gta04 \
   file://defconfig \
 "
 S = "${WORKDIR}/git"
