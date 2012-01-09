@@ -297,7 +297,6 @@ RDEPENDS_${PN} += "\
 		dnsmasq \
 		iliwi \
 		emtooth2 \
-		mcnavi \
 		neolight \
 		spojegui \
 		dbus-daemon-proxy \
