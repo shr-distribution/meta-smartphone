@@ -1,5 +1,5 @@
 DESCRIPTION = "SHR Feed"
-PR = "r99"
+PR = "r100"
 PV = "1.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -161,6 +161,9 @@ MISSING = "\
 		elmdentica \
 "
 
+#BROKEN:
+# mcnavi - see http://permalink.gmane.org/gmane.comp.handhelds.openmoko.community/60722
+
 RDEPENDS_${PN} += "\
 		estardict \
 		claws-mail \
@@ -176,7 +179,6 @@ RDEPENDS_${PN} += "\
 		gnuplot \
 		omgps \
 		php \
-		mcnavi \
 		intone \
 		epdfview \
 		mysql5 \
@@ -295,7 +297,6 @@ RDEPENDS_${PN} += "\
 		dnsmasq \
 		iliwi \
 		emtooth2 \
-		mcnavi \
 		neolight \
 		spojegui \
 		dbus-daemon-proxy \
