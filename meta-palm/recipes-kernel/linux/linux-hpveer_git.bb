@@ -4,6 +4,8 @@ SECTION = "kernel"
 DESCRIPTION = "Modified kernel for the HP Veer based on the original source from HP"
 KERNEL_IMAGETYPE = "uImage"
 
+COMPATIBLE_MACHINE = "hpveer"
+
 SRC_URI = " \
   git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=hp-veer/master \
   file://defconfig \
