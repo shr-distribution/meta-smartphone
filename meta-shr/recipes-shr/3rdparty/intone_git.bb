@@ -7,13 +7,10 @@ SECTION = "e/apps"
 DEPENDS = "elementary eina sqlite3 dbus edbus libvorbis id3lib"
 RDEPENDS_${PN} = "mplayer lame"
 
-SRCREV = "cee8e6e65ca8ffa6cd284eb27f6dfae5906c232d"
+SRCREV = "4677db1f1bc15745baa500b0e52a50fb8c1cb18f"
 PV = "0.70+gitr${SRCPV}"
 
 SRC_URI = "git://code.google.com/p/intone;protocol=http \
-file://0001-adapt-to-newer-elementary-API.patch \
-file://0002-genlist-API-change-label_get-text_get.patch \
-file://0003-fix-changed-callback-name.patch \
 "
 
 S = "${WORKDIR}/git"

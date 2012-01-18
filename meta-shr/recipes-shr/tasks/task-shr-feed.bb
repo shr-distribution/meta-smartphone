@@ -1,5 +1,5 @@
 DESCRIPTION = "SHR Feed"
-PR = "r101"
+PR = "r102"
 PV = "1.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -162,6 +162,7 @@ MISSING = "\
 "
 
 RDEPENDS_${PN} += "\
+		rfkill \
 		mcnavi \
 		estardict \
 		claws-mail \
@@ -311,6 +312,12 @@ RDEPENDS_${PN} += "\
 		automake \
 		linux-firmware \
 "
+
+# armv4 is not goog enough for firefox ASM optimalizations
+EXTRA_MOZILLA_armv4 = ""
+EXTRA_MOZILLA = "firefox"
+
+RDEPENDS_${PN} += "${EXTRA_MOZILLA}"
 
 # this is only usefull on gta02 and on other devices it's trying to pull mesa-dri (not respecting DEFAULT_PROVIDER for virtual/libgl)
 #RDEPENDS_${PN}_append_om-gta02 = "glamo-dri-tests \
