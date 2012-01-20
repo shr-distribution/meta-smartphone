@@ -7,7 +7,7 @@ SECTION = "e/apps"
 DEPENDS = "elementary eina sqlite3 dbus edbus libvorbis id3lib"
 RDEPENDS_${PN} = "mplayer lame"
 
-SRCREV = "4677db1f1bc15745baa500b0e52a50fb8c1cb18f"
+SRCREV = "88a240602f77d2d79ca7ecaafd5b38d901221d4b"
 PV = "0.70+gitr${SRCPV}"
 
 SRC_URI = "git://code.google.com/p/intone;protocol=http \
