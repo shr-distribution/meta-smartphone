@@ -5,10 +5,10 @@ DESCRIPTION = "This is the daemon responsible for the aurora user interface"
 LICENSE = "GPLv2 & Other"
 LIC_FILES_CHKSUM = " \
   file://COPYING.GPL;md5=751419260aa954499f7abaabaa882bbe \
-  file://COPYING;md5=6ae364bb1619a9262f6854c6d96f4d07 \
+  file://COPYING;md5=2c195aa863d9e4c30a30752d48fe8f51 \
 "
 
-PR = "${INC_PR}.10"
+PR = "${INC_PR}.11"
 
 DEPENDS = "qt4-x11-free libfsobasics libfsoframework dconf-qt"
 RDEPENDS = "qt4-plugin-imageformat-svg"
