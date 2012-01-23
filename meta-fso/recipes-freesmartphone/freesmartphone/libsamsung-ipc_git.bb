@@ -3,7 +3,7 @@ SECTION = "libs/network"
 AUTHOR = " Joerie de Gram, PaulK, Simon Busch"
 LICENSE = "LGPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=fbc093901857fcd118f065f900982c24"
-DEPENDS = "openssl"
+DEPENDS = "openssl mtd-utils"
 SRC_URI = "git://github.com/morphis/libsamsung-ipc.git;protocol=git;branch=master"
 S = "${WORKDIR}/git"
 
