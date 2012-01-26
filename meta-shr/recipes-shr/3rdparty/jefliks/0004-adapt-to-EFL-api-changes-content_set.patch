@@ -1,0 +1,58 @@
+From 83183bdef9e0c8c1ff093c670bd5eed13dcc9bf0 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Thu, 26 Jan 2012 17:44:03 +0100
+Subject: [PATCH 4/5] adapt to EFL api changes: content_set
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ ui_chat.c   |    6 +++---
+ ui_config.c |    2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/ui_chat.c b/ui_chat.c
+index 144d7d2..fe28812 100644
+--- a/ui_chat.c
++++ b/ui_chat.c
+@@ -176,7 +176,7 @@ static Chat_Inst *inst_get(Widget_Data *wd, const char *jid){
+     //evas_object_size_hint_align_set(que, EVAS_HINT_FILL, EVAS_HINT_FILL);
+     evas_object_size_hint_align_set(que, EVAS_HINT_FILL, 1.0);
+     evas_object_event_callback_add(que, EVAS_CALLBACK_RESIZE, _que_resize, chat);
+-    elm_scroller_content_set(scroll, que);
++    elm_object_content_set(scroll, que);
+     evas_object_show(que);
+     
+     /* Input Entry */
+@@ -213,7 +213,7 @@ static void inst_add(Chat_Inst *chat, const char* text, char dir /* 0 - in, 1 -
+   elm_object_text_set(repl, dir?"you":chat->jid);
+   if(!dir){
+     photo = elm_jabber_photo_add(repl, chat->jid);
+-    if(photo) elm_bubble_icon_set(repl, photo);
++    if(photo) elm_object_content_set(repl, photo);
+   }
+   
+   switch(1){
+@@ -234,7 +234,7 @@ static void inst_add(Chat_Inst *chat, const char* text, char dir /* 0 - in, 1 -
+   
+   body=elm_anchorblock_add(repl);
+   elm_object_scale_set(body, 1.0);
+-  elm_anchorblock_text_set(body, text);
++  elm_object_text_set(body, text);
+   /*elm_anchorblock_hover_style_set(body, "popout");*/
+   /*elm_anchorblock_hover_parent_set(body, wd->parent);*/
+   elm_bubble_content_set(repl, body);
+diff --git a/ui_config.c b/ui_config.c
+index f4288c2..2cd1eac 100644
+--- a/ui_config.c
++++ b/ui_config.c
+@@ -156,7 +156,7 @@ Evas_Object *elm_jabber_config_add(Evas_Object *parent){
+   evas_object_size_hint_weight_set(box, 1.0, 0.0);
+   evas_object_size_hint_align_set(box, -1.0, -1.0);
+   */
+-  elm_scroller_content_set(scroll, box);
++  elm_object_content_set(scroll, box);
+   evas_object_show(box);
+   
+ #if 1
+-- 
+1.7.8.4
+

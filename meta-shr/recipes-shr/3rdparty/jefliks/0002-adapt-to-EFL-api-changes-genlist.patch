@@ -1,0 +1,214 @@
+From 527c1886a4376583bc9e5444cc06689b0d107ffa Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Thu, 26 Jan 2012 17:21:12 +0100
+Subject: [PATCH 2/5] adapt to EFL api changes: genlist
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ ui_chat.c   |    2 +-
+ ui_main.c   |    2 +-
+ ui_roster.c |   52 ++++++++++++++++++++++++++--------------------------
+ 3 files changed, 28 insertions(+), 28 deletions(-)
+
+diff --git a/ui_chat.c b/ui_chat.c
+index c369ebc..30c783e 100644
+--- a/ui_chat.c
++++ b/ui_chat.c
+@@ -40,7 +40,7 @@ typedef struct _Chat_Inst Chat_Inst;
+ struct _Chat_Inst{ /* Chat Instance */
+   Widget_Data *wd;
+   Evas_Object *box /* chat object */, *que /* messages queue */, *scroll /* messages queue */, *input /* input area */, *photo;
+-  Elm_Hoversel_Item *itm;
++  Elm_Object_Item *itm;
+   char *jid; // jid/res
+   char autoscroll:1;
+   char needscroll:1;
+diff --git a/ui_main.c b/ui_main.c
+index 702dac1..7fae366 100644
+--- a/ui_main.c
++++ b/ui_main.c
+@@ -179,7 +179,7 @@ static const char *icon_by_status(Jabber_Show status){
+ static void
+ _status_hook(void *data, Evas_Object *obj, void *event_info){
+   Widget_Data *wd=data;
+-  Elm_Hoversel_Item* item=event_info;
++  Elm_Object_Item* item=event_info;
+   
+   wd->selected_status=status_by_title(elm_hoversel_item_label_get(item));
+   
+diff --git a/ui_roster.c b/ui_roster.c
+index c7a4733..9b5454c 100644
+--- a/ui_roster.c
++++ b/ui_roster.c
+@@ -86,13 +86,13 @@ struct _Roster_Item{
+   // Common fields
+   Roster_Item_Type type; // type of entry
+   Widget_Data *wd; // Widget Data
+-  Elm_Genlist_Item *it; // Item (if visible)
++  Elm_Object_Item *it; // Item (if visible)
+ };
+ 
+ struct _Roster_Item_Grp{
+   Roster_Item_Type type;
+   Widget_Data *wd;
+-  Elm_Genlist_Item *it;
++  Elm_Object_Item *it;
+   // Specific fields
+   char exp;
+   char *grp;
+@@ -102,7 +102,7 @@ struct _Roster_Item_Grp{
+ struct _Roster_Item_Jid{
+   Roster_Item_Type type;
+   Widget_Data *wd;
+-  Elm_Genlist_Item *it;
++  Elm_Object_Item *it;
+   // Specific fields
+   char exp;
+   char *jid;
+@@ -114,7 +114,7 @@ struct _Roster_Item_Jid{
+ struct _Roster_Item_Res{
+   Roster_Item_Type type;
+   Widget_Data *wd;
+-  Elm_Genlist_Item *it;
++  Elm_Object_Item *it;
+   // Specific fields
+   char *res;
+   int pri;
+@@ -128,7 +128,7 @@ struct _Roster_Item_Res{
+ static void _item_grp_del(Roster_Item_Grp *item, Evas_Object *obj) {
+ }
+ 
+-static char *_item_grp_label_get(const Roster_Item_Grp *item, Evas_Object *obj, const char *part) {
++static char *_item_grp_text_get(Roster_Item_Grp *item, Evas_Object *obj, const char *part) {
+   char buf[256];
+   
+   snprintf(buf, sizeof(buf), "%s", item->grp);
+@@ -136,7 +136,7 @@ static char *_item_grp_label_get(const Roster_Item_Grp *item, Evas_Object *obj,
+   return strdup(buf);
+ }
+ 
+-static Evas_Object *_item_grp_icon_get(const Roster_Item_Grp *item, Evas_Object *obj, const char *part) {
++static Evas_Object *_item_grp_content_get(Roster_Item_Grp *item, Evas_Object *obj, const char *part) {
+   return NULL;
+ }
+ 
+@@ -151,10 +151,10 @@ static void _item_grp_sel(const Roster_Item_Grp *item, Evas_Object *obj, void *e
+ static const Elm_Genlist_Item_Class _item_grp_class={
+   .item_style  = "default",
+   .func = {
+-    .label_get = (GenlistItemLabelGetFunc)_item_grp_label_get,
+-    .icon_get  = (GenlistItemIconGetFunc)_item_grp_icon_get,
+-    .state_get = (GenlistItemStateGetFunc)_item_grp_state_get,
+-    .del       = (GenlistItemDelFunc)_item_grp_del
++    .text_get = _item_grp_text_get,
++    .content_get  = _item_grp_content_get,
++    .state_get = _item_grp_state_get,
++    .del       = _item_grp_del
+   }
+ };
+ 
+@@ -165,7 +165,7 @@ static const Elm_Genlist_Item_Class _item_grp_class={
+ static void _item_jid_del(Roster_Item_Jid *item, Evas_Object *obj) {
+ }
+ 
+-static char *_item_jid_label_get(const Roster_Item_Jid *item, Evas_Object *obj, const char *part) {
++static char *_item_jid_text_get(const Roster_Item_Jid *item, Evas_Object *obj, const char *part) {
+   if(!strcmp(part, "elm.text")){
+     char name[strlen(item->jid)+1];
+     strcpy(name, item->jid);
+@@ -201,7 +201,7 @@ Evas_Object *elm_jabber_photo_add(Evas_Object *parent, const char *jid){
+   return icon;
+ }
+ 
+-static Evas_Object *_item_jid_icon_get(const Roster_Item_Jid *item, Evas_Object *obj, const char *part) {
++static Evas_Object *_item_jid_content_get(const Roster_Item_Jid *item, Evas_Object *obj, const char *part) {
+   if(!strcmp(part, "elm.swallow.icon")){
+     Jabber_Show show=JABBER_UNAVAILABLE;
+     if(item->res && item->res->data){
+@@ -243,10 +243,10 @@ static void _item_jid_sel(const Roster_Item_Jid *item, Evas_Object *obj, void *e
+ static const Elm_Genlist_Item_Class _item_jid_class={
+   .item_style  = "double_label",
+   .func = {
+-    .label_get = (GenlistItemLabelGetFunc)_item_jid_label_get,
+-    .icon_get  = (GenlistItemIconGetFunc)_item_jid_icon_get,
+-    .state_get = (GenlistItemStateGetFunc)_item_jid_state_get,
+-    .del       = (GenlistItemDelFunc)_item_jid_del
++    .text_get = _item_jid_text_get,
++    .content_get  = _item_jid_content_get,
++    .state_get = _item_jid_state_get,
++    .del       = _item_jid_del
+   }
+ };
+ 
+@@ -257,7 +257,7 @@ static const Elm_Genlist_Item_Class _item_jid_class={
+ static void _item_res_del(Roster_Item_Res *item, Evas_Object *obj) {
+ }
+ 
+-static char *_item_res_label_get(const Roster_Item_Res *item, Evas_Object *obj, const char *part) {
++static char *_item_res_text_get(const Roster_Item_Res *item, Evas_Object *obj, const char *part) {
+   char buf[256];
+   
+   if(!strcmp(part, "elm.text")){
+@@ -270,7 +270,7 @@ static char *_item_res_label_get(const Roster_Item_Res *item, Evas_Object *obj,
+   return strdup(buf);
+ }
+ 
+-static Evas_Object *_item_res_icon_get(const Roster_Item_Res *item, Evas_Object *obj, const char *part) {
++static Evas_Object *_item_res_content_get(const Roster_Item_Res *item, Evas_Object *obj, const char *part) {
+   if(!strcmp(part, "elm.swallow.icon")){
+     const char *name=icon_by_show(item->show);
+     if(name){
+@@ -297,10 +297,10 @@ static void _item_res_sel(const Roster_Item_Res *item, Evas_Object *obj, void *e
+ static const Elm_Genlist_Item_Class _item_res_class={
+   .item_style  = "double_label",
+   .func = {
+-    .label_get = (GenlistItemLabelGetFunc)_item_res_label_get,
+-    .icon_get  = (GenlistItemIconGetFunc)_item_res_icon_get,
+-    .state_get = (GenlistItemStateGetFunc)_item_res_state_get,
+-    .del       = (GenlistItemDelFunc)_item_res_del
++    .text_get = _item_res_text_get,
++    .content_get  = _item_res_content_get,
++    .state_get = _item_res_state_get,
++    .del       = _item_res_del
+   }
+ };
+ 
+@@ -538,7 +538,7 @@ _del_hook(void *data, Evas *e, Evas_Object *obj, void *event_info){
+ 
+ static void
+ _exp_end(void *data, Evas_Object *obj, void *event_info) {
+-  Elm_Genlist_Item *it = event_info;
++  Elm_Object_Item *it = event_info;
+   Roster_Item *item = (Roster_Item *)elm_genlist_item_data_get(it);
+   switch(item->type){
+   case ROSTER_ITEM_GRP: item_grp_exp((Roster_Item_Grp *)item); break;
+@@ -548,7 +548,7 @@ _exp_end(void *data, Evas_Object *obj, void *event_info) {
+ }
+ static void
+ _con_end(void *data, Evas_Object *obj, void *event_info) {
+-  Elm_Genlist_Item *it = event_info;
++  Elm_Object_Item *it = event_info;
+   Roster_Item *item = (Roster_Item *)elm_genlist_item_data_get(it);
+   switch(item->type){
+   case ROSTER_ITEM_GRP: item_grp_con((Roster_Item_Grp *)item); break;
+@@ -560,7 +560,7 @@ _con_end(void *data, Evas_Object *obj, void *event_info) {
+ 
+ static void
+ _exp_req(void *data, Evas_Object *obj, void *event_info) {
+-  Elm_Genlist_Item *it = event_info;
++  Elm_Object_Item *it = event_info;
+   Roster_Item *item = (Roster_Item *)elm_genlist_item_data_get(it);
+   Eina_Bool st=1;
+   switch(item->type){
+@@ -572,7 +572,7 @@ _exp_req(void *data, Evas_Object *obj, void *event_info) {
+ }
+ static void
+ _con_req(void *data, Evas_Object *obj, void *event_info) {
+-  Elm_Genlist_Item *it = event_info;
++  Elm_Object_Item *it = event_info;
+   Roster_Item *item = (Roster_Item *)elm_genlist_item_data_get(it);
+   Eina_Bool st=0;
+   switch(item->type){
+-- 
+1.7.8.4
+
