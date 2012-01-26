@@ -1,5 +1,5 @@
 DESCRIPTION = "SHR Feed"
-PR = "r102"
+PR = "r103"
 PV = "1.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -311,6 +311,14 @@ RDEPENDS_${PN} += "\
 		bison \
 		automake \
 		linux-firmware \
+		jefliks \
+		evopedia \
+		gwaterpas \
+		joe \
+		aceofpenguins \
+		openmoocow \
+		mokomaze \
+		mokoeightball \
 "
 
 # armv4 is not goog enough for firefox ASM optimalizations
