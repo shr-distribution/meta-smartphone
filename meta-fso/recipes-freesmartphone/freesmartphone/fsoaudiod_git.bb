@@ -1,10 +1,10 @@
 require cornucopia.inc
 inherit fso-plugin
 
-LICENSE = "LGPLv2.1"
-LIC_FILES_CHKSUM = "file://COPYING;md5=78aab3f7875ffe21aebed9932fa3f993"
+LICENSE = "GPLv2+"
+LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 
-DEPENDS += "alsa-lib libcmtspeechdata"
+DEPENDS += "alsa-lib libcmtspeechdata libsamplerate0"
 
 # We need to uncomment the line below after the migration of all scenario files from
 # fsodeviced to fsoaudiod is done. Otherwise we will get build errors as both fsodeviced
@@ -18,6 +18,7 @@ PR = "${INC_PR}.5"
 
 EXTRA_OECONF = "\
   --enable-cmtspeechdata \
+  --enable-samplerate \
 "
 
 inherit update-rc.d
