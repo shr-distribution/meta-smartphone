@@ -7,14 +7,14 @@ DEPENDS = "openssl mtd-utils"
 SRC_URI = "git://github.com/morphis/libsamsung-ipc.git;protocol=git;branch=master"
 S = "${WORKDIR}/git"
 
-SRCREV = "b469707433b2e306fe80b7da844fa87d284fa571"
+SRCREV = "a29b8e0b7622099fbe78ee9a2e34e8200760f793"
 PV = "0.1.0+gitr${SRCPV}"
-PR = "r1"
+PR = "r2"
 
 inherit autotools
 
 PACKAGES =+ "${PN}-tools"
-FILES_${PN}-tools = "${bindir}/modemctrl"
+FILES_${PN}-tools = "${bindir}/modemctrl ${bindir}/samsung_ipc_forward"
 FILES_${PN}-dev += "${datadir}/vala/vapi/samsung-ipc-1.0.vapi"
 
 LEAD_SONAME = "libsamsung-ipc.so"
