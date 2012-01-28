@@ -87,7 +87,8 @@ fi
 [ -d /etc/modprobe.d ] || mkdir /etc/modprobe.d
 echo "options g_ether $daddr $haddr" >/etc/modprobe.d/g_ether.conf
 
-# And now, since this is first boot, we need to probe the module
+# And now, since this is first boot, we need to probe the modules
+modprobe s3c2410_udc 2>/dev/null || true
 modprobe g_ether 2>/dev/null || true
 
 fi
