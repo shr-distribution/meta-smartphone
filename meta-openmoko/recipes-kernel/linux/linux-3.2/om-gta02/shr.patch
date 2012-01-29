@@ -3,6 +3,8 @@ rebased on top latest stable patch (linux-stable tag v3.2.1 now)
 
 https://gitorious.org/shr/linux/commits/shr-3.2-nodrm
 
+7715207: ASOC: fix neo1973 wm8753 initialization
+3b33ff1: shr-create-patch: update for 3.2 release
 e4c0ccb: Revert "ARM: SAMSUNG: use regulator VDD for ADC"
 be99fcf: shr-create-patch.sh: utility used to generate shr.patch for meta-smartphone
 4de1315: glamo-mci: disable glamo_mci_pre_request & glamo_mci_post_request
@@ -24903,7 +24905,7 @@ index 0000000..46b613c
 +#endif /* _IEEE80211_NODE_H_ */
 diff --git a/drivers/ar6000/include/ini_dset.h b/drivers/ar6000/include/ini_dset.h
 new file mode 100644
-index 0000000..410f2b52
+index 0000000..410f2b5
 --- /dev/null
 +++ b/drivers/ar6000/include/ini_dset.h
 @@ -0,0 +1,40 @@
@@ -28539,7 +28541,7 @@ index 0000000..8d37d62
 +
 diff --git a/drivers/ar6000/wlan/wlan_node.c b/drivers/ar6000/wlan/wlan_node.c
 new file mode 100644
-index 0000000..b124845
+index 0000000..b1248459
 --- /dev/null
 +++ b/drivers/ar6000/wlan/wlan_node.c
 @@ -0,0 +1,371 @@
@@ -46850,7 +46852,7 @@ index 3a629d0..5d25bb0 100644
  {
  	u64 Kpart;
 diff --git a/sound/soc/samsung/neo1973_wm8753.c b/sound/soc/samsung/neo1973_wm8753.c
-index 7207189..c227af0 100644
+index 7207189..2e3dcb0 100644
 --- a/sound/soc/samsung/neo1973_wm8753.c
 +++ b/sound/soc/samsung/neo1973_wm8753.c
 @@ -19,6 +19,7 @@
@@ -46926,6 +46928,24 @@ index 7207189..c227af0 100644
  	return 0;
  }
  
+@@ -421,7 +466,7 @@ static struct snd_soc_dai_link neo1973_dai[] = {
+ 	.platform_name = "samsung-audio",
+ 	.cpu_dai_name = "s3c24xx-iis",
+ 	.codec_dai_name = "wm8753-hifi",
+-	.codec_name = "wm8753-codec.0-001a",
++	.codec_name = "wm8753.0-001a",
+ 	.init = neo1973_wm8753_init,
+ 	.ops = &neo1973_hifi_ops,
+ },
+@@ -430,7 +475,7 @@ static struct snd_soc_dai_link neo1973_dai[] = {
+ 	.stream_name = "Voice",
+ 	.cpu_dai_name = "dfbmcs320-pcm",
+ 	.codec_dai_name = "wm8753-voice",
+-	.codec_name = "wm8753-codec.0-001a",
++	.codec_name = "wm8753.0-001a",
+ 	.ops = &neo1973_voice_ops,
+ },
+ };
 @@ -519,6 +564,7 @@ module_init(neo1973_init);
  
  static void __exit neo1973_exit(void)

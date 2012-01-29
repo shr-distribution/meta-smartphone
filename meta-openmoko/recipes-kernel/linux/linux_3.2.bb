@@ -3,6 +3,8 @@ require linux.inc
 # Mark archs/machines that this kernel supports
 DEFAULT_PREFERENCE = "-2"
 
+PR = "r1"
+
 COMPATIBLE_MACHINE = "(om-gta02)"
 
 SRC_URI += "${KERNELORG_MIRROR}/linux/kernel/v3.x/linux-${PV}.tar.bz2;name=kernel \
