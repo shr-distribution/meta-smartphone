@@ -9,7 +9,7 @@ IMAGE_FEATURES = ""
 IMAGE_ROOTFS_SIZE = "8192"
 export IMAGE_BASENAME = "chroot-image"
 IMAGE_LINGUAS = ""
-IMAGE_FSTYPES = "ext2"
+IMAGE_FSTYPES = "cpio.gz"
 
 LICENSE = "MIT"
 
