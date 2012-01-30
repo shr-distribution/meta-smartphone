@@ -1,7 +1,7 @@
-From fbd57f31147e53368a5e6ac8b4c92fde8e7a60ce Mon Sep 17 00:00:00 2001
+From 8e7213094d71806f5c44f2d4dc9ecd95291783c1 Mon Sep 17 00:00:00 2001
 From: Martin Jansa <Martin.Jansa@gmail.com>
 Date: Thu, 26 Jan 2012 17:43:51 +0100
-Subject: [PATCH 5/5] Makefile: fix eina name and add gnutls to dynlibs,
+Subject: [PATCH 05/11] Makefile: fix eina name and add gnutls to dynlibs,
  otherwise fails with DSO
 
 Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>

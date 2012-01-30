@@ -1,7 +1,7 @@
-From 527c1886a4376583bc9e5444cc06689b0d107ffa Mon Sep 17 00:00:00 2001
+From 0ebccf14b8b06be8596e369c4c198d86c2ec0a3a Mon Sep 17 00:00:00 2001
 From: Martin Jansa <Martin.Jansa@gmail.com>
 Date: Thu, 26 Jan 2012 17:21:12 +0100
-Subject: [PATCH 2/5] adapt to EFL api changes: genlist
+Subject: [PATCH 02/11] adapt to EFL api changes: genlist
 
 Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
 ---
@@ -11,7 +11,7 @@ Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
  3 files changed, 28 insertions(+), 28 deletions(-)
 
 diff --git a/ui_chat.c b/ui_chat.c
-index c369ebc..30c783e 100644
+index 0db1004..c0a7dd9 100644
 --- a/ui_chat.c
 +++ b/ui_chat.c
 @@ -40,7 +40,7 @@ typedef struct _Chat_Inst Chat_Inst;
@@ -24,7 +24,7 @@ index c369ebc..30c783e 100644
    char autoscroll:1;
    char needscroll:1;
 diff --git a/ui_main.c b/ui_main.c
-index 702dac1..7fae366 100644
+index cea49b0..fb9ee12 100644
 --- a/ui_main.c
 +++ b/ui_main.c
 @@ -179,7 +179,7 @@ static const char *icon_by_status(Jabber_Show status){
@@ -34,7 +34,7 @@ index 702dac1..7fae366 100644
 -  Elm_Hoversel_Item* item=event_info;
 +  Elm_Object_Item* item=event_info;
    
-   wd->selected_status=status_by_title(elm_hoversel_item_label_get(item));
+   wd->selected_status=status_by_title(elm_object_item_text_get(item));
    
 diff --git a/ui_roster.c b/ui_roster.c
 index c7a4733..9b5454c 100644

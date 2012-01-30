@@ -7,6 +7,7 @@ DEPENDS = "edje-native elementary iksemel gnutls eet evas ecore eina"
 HOMEPAGE = "http://jefliks.sourceforge.net/"
 AUTHOR = "Phoenix Kayo <kayo.k11.4@gmail.com>"
 PV = "0.0.2b+gitr${SRCPV}"
+PR = "r1"
 
 inherit autotools pkgconfig
 
@@ -18,5 +19,12 @@ SRC_URI = "git://jefliks.git.sourceforge.net/gitroot/jefliks/jefliks;protocol=gi
   file://0003-adapt-to-EFL-api-changes-homogenous-homogeneous.patch \
   file://0004-adapt-to-EFL-api-changes-content_set.patch \
   file://0005-Makefile-fix-eina-name-and-add-gnutls-to-dynlibs-oth.patch \
+  file://0006-adapt-to-EFL-api-changes-s-elm_hoversel_item_del-elm.patch \
+  file://0007-ui_roster-drop-unused-_item_grp_sel.patch \
+  file://0008-ui_roster-drop-unused-item_res_upd.patch \
+  file://0009-ui_roster-fix-warning-about-base64_decode-param.patch \
+  file://0010-ui_roster-change-genlist_item_class-prototypes-to-ma.patch \
 "
+#  this one is for EFL r67596 and newer
+#  file://0011-adapt-to-EFL-api-changes-s-elm_genlist_item_data_get.patch 
 S = "${WORKDIR}/git"

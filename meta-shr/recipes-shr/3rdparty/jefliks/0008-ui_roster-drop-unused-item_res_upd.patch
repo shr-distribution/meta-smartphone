@@ -1,0 +1,29 @@
+From e5ca4316fcf2a52f4c2f34ded0c1d73cc093c563 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Mon, 30 Jan 2012 17:50:18 +0100
+Subject: [PATCH 08/11] ui_roster: drop unused item_res_upd
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ ui_roster.c |    5 -----
+ 1 files changed, 0 insertions(+), 5 deletions(-)
+
+diff --git a/ui_roster.c b/ui_roster.c
+index aae0436..2e705d0 100644
+--- a/ui_roster.c
++++ b/ui_roster.c
+@@ -372,11 +372,6 @@ static void item_res_srt(Roster_Item_Jid *jid_item){
+   jid_item->res=eina_list_sort(jid_item->res, eina_list_count(jid_item->res), (Eina_Compare_Cb)item_res_cmp);
+ }
+ 
+-static void item_res_upd(Roster_Item_Res *res_item){
+-  if(!res_item->it) return;
+-  elm_genlist_item_update(res_item->it);
+-}
+-
+ static void item_jid_upd(Roster_Item_Jid *jid_item){
+   if(!jid_item->it) return;
+   DEBUG("Updating Item_Jid: `%s'", jid_item->jid);
+-- 
+1.7.8.4
+
