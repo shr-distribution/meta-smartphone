@@ -1,5 +1,5 @@
 DESCRIPTION = "SHR Fat Image Feed"
-PR = "r12"
+PR = "r13"
 PV = "2.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -17,7 +17,7 @@ RDEPENDS_${PN}-gtk = "\
   pidgin \
   libpurple-protocol-msn \
   libpurple-protocol-icq \
-  tangogps \
+  foxtrotgps \
   vagalume \
 "
 
