@@ -1,0 +1,34 @@
+From 8e7213094d71806f5c44f2d4dc9ecd95291783c1 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Thu, 26 Jan 2012 17:43:51 +0100
+Subject: [PATCH 05/11] Makefile: fix eina name and add gnutls to dynlibs,
+ otherwise fails with DSO
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ Makefile |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 51341a9..326f41c 100644
+--- a/Makefile
++++ b/Makefile
+@@ -12,13 +12,13 @@ source = $(homepage)
+ architecture = armv4t
+ 
+ sources = main.c jabber.c ui_config.c ui_about.c ui_roster.c ui_chat.c ui_main.c base64.c
+-dynlibs = evas ecore edje ecore-evas eina-0 elementary
++dynlibs = evas ecore edje ecore-evas eina elementary gnutls
+ stclibs = iksemel
+ libs = $(dynlibs) $(stclibs)
+ pos = ru.po
+ 
+ depend-libs = $(shell $(patsubst %-strip,%-strings,$(STRIP)) $(name) | grep -v '^/' | grep '\.so')
+-depends = evas ecore edje ecore_evas eina libelementary-ver-pre-svn-05-0 libc6 libeet1 libgnutls26
++depends = evas ecore edje ecore_evas eina elementary libc6 libeet1 libgnutls26
+ 
+ prefix=$(DESTDIR)
+ objects = $(sources:.c=.o)
+-- 
+1.7.8.4
+

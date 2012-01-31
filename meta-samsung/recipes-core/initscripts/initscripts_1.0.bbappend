@@ -1,4 +1,5 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+PRINC := "${@int(PRINC) + 1}"
 
 # NOTE:
 # 1. We need an additional initscript to mount devtmpfs as we're coming from an initramfs

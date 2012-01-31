@@ -1,0 +1,29 @@
+From bff9539531eac5fb55a06cef7d2a88a68d833613 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Mon, 30 Jan 2012 17:51:32 +0100
+Subject: [PATCH 09/11] ui_roster: fix warning about base64_decode param
+
+* ui_roster.c:719:3: warning: pointer targets in passing argument 2 of 'base64_decode' differ in signedness [-Wpointer-sign]
+  base64.h:5:8: note: expected 'unsigned char *' but argument is of type 'char *'
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ ui_roster.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/ui_roster.c b/ui_roster.c
+index 2e705d0..78bf509 100644
+--- a/ui_roster.c
++++ b/ui_roster.c
+@@ -706,7 +706,7 @@ static void update_status_photo(Widget_Data *wd, const char *from, const char *b
+     return;
+   }
+   
+-  char data[strlen(buf)];
++  unsigned char data[strlen(buf)];
+   size_t len=base64_decode(buf, data, strlen(buf));
+   if(write(fd, data, len)==len) DEBUG("photo: photo for %s cached!", from);
+   close(fd);
+-- 
+1.7.8.4
+

@@ -1,0 +1,90 @@
+From e306d2da99ee32615f9cb20201808c912bc6c055 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Thu, 26 Jan 2012 17:33:51 +0100
+Subject: [PATCH 03/11] adapt to EFL api changes: homogenous -> homogeneous
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ ui_chat.c   |    2 +-
+ ui_config.c |   10 +++++-----
+ ui_main.c   |    2 +-
+ 3 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/ui_chat.c b/ui_chat.c
+index c0a7dd9..d41b458 100644
+--- a/ui_chat.c
++++ b/ui_chat.c
+@@ -402,7 +402,7 @@ Evas_Object *elm_jabber_chat_add(Evas_Object * parent){
+   /* Buttons */
+   buttons = elm_box_add(parent);
+   elm_box_horizontal_set(buttons, 1);
+-  elm_box_homogenous_set(buttons, 1);
++  elm_box_homogeneous_set(buttons, 1);
+   evas_object_size_hint_weight_set(buttons, 1.0, 0.0);
+   evas_object_size_hint_align_set(buttons, -1.0, 1.0);
+ #ifdef BUTTONS_RESCALE
+diff --git a/ui_config.c b/ui_config.c
+index f4245e4..f4288c2 100644
+--- a/ui_config.c
++++ b/ui_config.c
+@@ -179,7 +179,7 @@ Evas_Object *elm_jabber_config_add(Evas_Object *parent){
+     Evas_Object *hbox, *label;						\
+     hbox = elm_box_add(box);						\
+     elm_box_horizontal_set(hbox, 1);					\
+-    elm_box_homogenous_set(hbox, 1);					\
++    elm_box_homogeneous_set(hbox, 1);					\
+     evas_object_size_hint_weight_set(hbox, 1.0, 0.0);			\
+     evas_object_size_hint_align_set(hbox, -1.0, 0.0);			\
+     elm_box_pack_end(box, hbox);					\
+@@ -214,7 +214,7 @@ Evas_Object *elm_jabber_config_add(Evas_Object *parent){
+     Evas_Object *ibox;					\
+     ibox=elm_box_add(box);				\
+     elm_box_horizontal_set(ibox, 1);			\
+-    /*elm_box_homogenous_set(ibox, 1);*/		\
++    /*elm_box_homogeneous_set(ibox, 1);*/		\
+     evas_object_size_hint_weight_set(ibox, 1.0, 1.0);	\
+     elm_box_pack_start(ibox, widget1);			\
+     elm_box_pack_end(ibox, widget2);			\
+@@ -239,7 +239,7 @@ Evas_Object *elm_jabber_config_add(Evas_Object *parent){
+   
+   /* Table for Checkboxes */
+   tab = elm_table_add(box);
+-  elm_table_homogenous_set(tab, 1);
++  elm_table_homogeneous_set(tab, 1);
+   evas_object_size_hint_weight_set(tab, 1.0, 1.0);
+   evas_object_size_hint_align_set(tab, -1.0, -1.0);
+   elm_box_pack_end(box, tab);
+@@ -278,7 +278,7 @@ Evas_Object *elm_jabber_config_add(Evas_Object *parent){
+     /* options */
+     /* Table for Checkboxes */
+     Evas_Object *tab = elm_table_add(box);
+-    elm_table_homogenous_set(tab, 1);
++    elm_table_homogeneous_set(tab, 1);
+     evas_object_size_hint_weight_set(tab, 1.0, 1.0);
+     evas_object_size_hint_align_set(tab, -1.0, -1.0);
+     elm_box_pack_end(box, tab);
+@@ -307,7 +307,7 @@ Evas_Object *elm_jabber_config_add(Evas_Object *parent){
+   /* buttons */
+   buttons = elm_box_add(frame);
+   elm_box_horizontal_set(buttons, 1);
+-  elm_box_homogenous_set(buttons, 1);
++  elm_box_homogeneous_set(buttons, 1);
+   evas_object_size_hint_weight_set(buttons, 1.0, 0.0);
+   evas_object_size_hint_align_set(buttons, -1.0, 1.0);
+   elm_box_pack_end(frame, buttons);
+diff --git a/ui_main.c b/ui_main.c
+index fb9ee12..0b84c84 100644
+--- a/ui_main.c
++++ b/ui_main.c
+@@ -367,7 +367,7 @@ Evas_Object *elm_jabber_main(Evas_Object *parent){
+   /* Buttons */
+   buttons = elm_box_add(parent);
+   elm_box_horizontal_set(buttons, 1);
+-  elm_box_homogenous_set(buttons, 1);
++  elm_box_homogeneous_set(buttons, 1);
+   evas_object_size_hint_weight_set(buttons, 1.0, 0.0);
+   evas_object_size_hint_align_set(buttons, -1.0, 1.0);
+ #ifdef BUTTONS_RESCALE
+-- 
+1.7.8.4
+

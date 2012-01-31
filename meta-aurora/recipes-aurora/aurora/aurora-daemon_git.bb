@@ -8,7 +8,7 @@ LIC_FILES_CHKSUM = " \
   file://COPYING;md5=2c195aa863d9e4c30a30752d48fe8f51 \
 "
 
-PR = "${INC_PR}.11"
+PR = "${INC_PR}.12"
 
 DEPENDS = "qt4-x11-free libfsobasics libfsoframework dconf-qt"
 RDEPENDS = "qt4-plugin-imageformat-svg"
@@ -24,7 +24,8 @@ inherit autotools update-alternatives
 export XDG_DATA_DIRS = "${STAGING_DATADIR}"
 EXTRA_OECONF_append = " --with-qt-basedir=qt4"
 
-FILES_${PN} += " ${datadir}/aurora ${libdir}/qt4/imports/Aurora ${datadir}/aurora"
+FILES_${PN} += " ${datadir}/aurora ${libdir}/qt4/imports/Aurora ${datadir}/aurora \
+  ${datadir}/glib-2.0/schemas/org.aurora.gschema.xml"
 FILES_${PN}-dbg += "${libdir}/qt4/imports/Aurora/*/.debug"
 
 ALTERNATIVE_PATH = "${bindir}/aurora-daemon"

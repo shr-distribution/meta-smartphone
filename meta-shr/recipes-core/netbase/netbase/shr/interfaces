@@ -12,3 +12,11 @@ iface usb0 inet static
 	netmask 255.255.255.0
 	network 192.168.7.0
 	gateway 192.168.7.1
+
+# USB gadget driver (f_rndis)
+auto rndis0
+iface rndis0 inet static
+    address 192.168.7.2
+    netmask 255.255.255.0
+    network 192.168.7.0
+    gateway 192.168.7.1
