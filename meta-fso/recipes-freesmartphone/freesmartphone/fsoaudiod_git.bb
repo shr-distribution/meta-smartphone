@@ -14,7 +14,7 @@ DEPENDS += "alsa-lib libcmtspeechdata libsamplerate0"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
 PV = "0.1.0+gitr${SRCPV}"
 PE = "2"
-PR = "${INC_PR}.5"
+PR = "${INC_PR}.6"
 
 EXTRA_OECONF = "\
   --enable-cmtspeechdata \
@@ -33,12 +33,17 @@ SYSTEMD_SERVICE = "${PN}.service"
 PACKAGES =+ "${PN}-systemd"
 FILES_${PN}-systemd += "${base_libdir}/systemd"
 RDEPENDS_${PN}-systemd += "${PN}"
+RDEPENDS_${PN} += "${PN}-config"
 
 SRC_URI += "file://${PN}"
 
-CONFFILES_${PN} = " \
-  ${sysconfdir}/freesmartphone/conf/palm_pre/${PN}.conf \
+FILES_${PN}-config = " \
   ${sysconfdir}/asound.conf \
+  ${sysconfdir}/freesmartphone/conf/palm_pre/${PN}.conf \
+"
+CONFFILES_${PN}-config = " \
+  ${sysconfdir}/asound.conf \
+  ${sysconfdir}/freesmartphone/conf/palm_pre/${PN}.conf \
 "
 RCONFLICTS_${PN} = "alsa-state"
 
@@ -49,7 +54,7 @@ do_install_append() {
   install -m 0644 ${WORKDIR}/git/${PN}/data/${PN}.service ${D}${base_libdir}/systemd/system/${PN}.service
 }
 
-PACKAGES =+ "${PN}-alsa-plugins ${PN}-alsa-plugins-dbg ${PN}-alsa-plugins-dev"
+PACKAGES =+ "${PN}-alsa-plugins ${PN}-alsa-plugins-dbg ${PN}-alsa-plugins-dev ${PN}-config"
 FILES_${PN}-alsa-plugins = "${libdir}/alsa-lib/fsoaudio_session.so"
 FILES_${PN}-alsa-plugins-dev = "${libdir}/alsa-lib/fsoaudio_session.la"
 FILES_${PN}-alsa-plugins-dbg = "${libdir}/alsa-lib/.debug/fsoaudio_session.so"
