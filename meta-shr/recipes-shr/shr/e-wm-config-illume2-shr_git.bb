@@ -4,7 +4,7 @@ DEPENDS = "eet"
 LICENSE = "MIT BSD"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=f523ab5986cc79b52a90d2ac3d5454a2"
 RDEPENDS_${PN} = "shr-e-gadgets"
-SRCREV = "d488ccabe2a21c08f9cde79e674c75faa26dcab3"
+SRCREV = "3487a5290b0e2e268a5cc2d4db8fb369e1e3106b"
 PV = "1.2+gitr${SRCPV}"
 PR = "r11"
 
