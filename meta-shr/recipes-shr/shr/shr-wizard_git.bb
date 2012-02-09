@@ -5,14 +5,12 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
 DEPENDS = "e-wm"
 RDEPENDS_${PN} = "python-elementary shr-settings python-phoneutils e-wm python-dbus python-edbus"
 SECTION = "x11/application"
-SRCREV = "94deff37e2f17dce0e7b4f51e16ee8e5981de58a"
+SRCREV = "179d99975c4e62cc4f7d9256efece25e2ea35fb2"
 PV = "0.0.0+gitr${SRCPV}"
-PR = "r13"
 
 inherit autotools
 
 SRC_URI = "git://git.shr-project.org/repo/shr-wizard.git;protocol=http;branch=master"
-SRC_URI += "file://0001-wizard-disable-appshadow-move-to-volatile.patch"
 S = "${WORKDIR}/git"
 
 FILES_${PN} += "${libdir}/enlightenment/modules/wizard/*/page_900.so"
