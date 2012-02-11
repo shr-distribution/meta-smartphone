@@ -3,6 +3,7 @@ rebased on top of openmoko kernel repository (om-2.6.39-stable)
 
 https://gitorious.org/shr/linux/commits/shr-2.6.39-nodrm
 
+31bdfe1: ASOC: samsung: neo1973_wm8753.c: fix openmoko bug #2478
 b851f9f: glamo-mci: disable glamo_mci_pre_request & glamo_mci_post_request
 6e1d25a: shr-create-patch.sh: utility used to generate shr.patch for meta-smartphone
 352f236: wm8753: Workaround toolchain bug: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=48783
@@ -2401,7 +2402,7 @@ index 8275a2f..8e3e56e 100644
  #endif /* __GLAMO_CORE_H */
 diff --git a/shr-create-patch.sh b/shr-create-patch.sh
 new file mode 100755
-index 0000000..b251946
+index 0000000..a09d4c2
 --- /dev/null
 +++ b/shr-create-patch.sh
 @@ -0,0 +1,12 @@
@@ -2413,9 +2414,9 @@ index 0000000..b251946
 +
 +https://gitorious.org/shr/linux/commits/shr-2.6.39-nodrm
 +
-+$(git log --pretty=format:"%h: %s" gitorious/om-2.6.39-stable..)
++$(git log --pretty=format:"%h: %s" d09e21824bacd5f9ac0285c14c6ddc2d79b96608..)
 +
-+$(git diff om-2.6.39-stable)
++$(git diff d09e21824bacd5f9ac0285c14c6ddc2d79b96608)
 +EOF
 diff --git a/sound/soc/codecs/wm8753.c b/sound/soc/codecs/wm8753.c
 index ffa2ffe..69c499a 100644
@@ -2441,7 +2442,7 @@ index ffa2ffe..69c499a 100644
  {
  	u64 Kpart;
 diff --git a/sound/soc/samsung/neo1973_wm8753.c b/sound/soc/samsung/neo1973_wm8753.c
-index 4f845fe..a3a1cc8 100644
+index 4f845fe..a7095d9 100644
 --- a/sound/soc/samsung/neo1973_wm8753.c
 +++ b/sound/soc/samsung/neo1973_wm8753.c
 @@ -19,6 +19,7 @@
@@ -2507,7 +2508,20 @@ index 4f845fe..a3a1cc8 100644
  	return 0;
  }
  
-@@ -527,6 +569,7 @@ module_init(neo1973_init);
+@@ -358,12 +400,6 @@ static int neo1973_wm8753_init(struct snd_soc_pcm_runtime *rtd)
+ 	snd_soc_dapm_disable_pin(dapm, "Headset Mic");
+ 	snd_soc_dapm_disable_pin(dapm, "Handset Mic");
+ 
+-	/* allow audio paths from the GSM modem to run during suspend */
+-	snd_soc_dapm_ignore_suspend(dapm, "GSM Line Out");
+-	snd_soc_dapm_ignore_suspend(dapm, "GSM Line In");
+-	snd_soc_dapm_ignore_suspend(dapm, "Headset Mic");
+-	snd_soc_dapm_ignore_suspend(dapm, "Handset Mic");
+-
+ 	if (machine_is_neo1973_gta02()) {
+ 		ret = neo1973_gta02_wm8753_init(codec);
+ 		if (ret)
+@@ -527,6 +563,7 @@ module_init(neo1973_init);
  
  static void __exit neo1973_exit(void)
  {
