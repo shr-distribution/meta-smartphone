@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=8f0e2cd40e05189ec81232da84bd6e1a"
 SECTION = "e/apps"
 DEPENDS = "elementary"
 
-PR = "r2"
+PR = "r3"
 
 SRC_URI = "http://www.vaudano.eu/projects/${PN}/latest/${P}.tar.gz \
   file://adapt.to.elm_item.changes.patch \

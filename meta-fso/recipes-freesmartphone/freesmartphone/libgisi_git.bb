@@ -9,6 +9,7 @@ S = "${WORKDIR}/git"
 
 SRCREV = "2917e6c468c136cfa9feed121a98bbde59cedc59"
 PV = "0.1.0+gitr${SRCPV}"
+PR = "r1"
 
 inherit vala autotools
 

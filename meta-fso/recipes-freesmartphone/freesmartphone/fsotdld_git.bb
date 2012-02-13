@@ -1,7 +1,7 @@
 require cornucopia.inc
 inherit fso-plugin
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
-PR = "${INC_PR}.6"
+PR = "${INC_PR}.7"
 PV = "0.3.1+gitr${SRCPV}"
 PE = "1"
 

@@ -14,7 +14,7 @@ DEPENDS += "alsa-lib libcmtspeechdata libsamplerate0"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
 PV = "0.1.0+gitr${SRCPV}"
 PE = "2"
-PR = "${INC_PR}.6"
+PR = "${INC_PR}.7"
 
 EXTRA_OECONF = "\
   --enable-cmtspeechdata \

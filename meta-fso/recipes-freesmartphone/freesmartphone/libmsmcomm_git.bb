@@ -1,6 +1,6 @@
 require msmcomm.inc
 
-PR = "${INC_PR}.1"
+PR = "${INC_PR}.2"
 PV = "0.6.0+gitr${SRCPV}"
 
 S = "${WORKDIR}/git/libmsmcomm"
