@@ -11,7 +11,8 @@ PV = "invalid, please override"
 FSO_CORNUCOPIA_SRCREV ?= "29d4d9b77ac7797e06a6d899d6dabda3c7258c39"
 INC_PR = "r6"
 
-SRC_URI = "${FREESMARTPHONE_GIT}/cornucopia;protocol=git;branch=master"
+FSO_CORNUCOPIA_BRANCH ?= "master"
+SRC_URI = "${FREESMARTPHONE_GIT}/cornucopia;protocol=git;branch=${FSO_CORNUCOPIA_BRANCH}"
 S = "${WORKDIR}/git/${PN}"
 
 inherit autotools pkgconfig vala

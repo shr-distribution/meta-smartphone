@@ -4,7 +4,7 @@ LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://COPYING;md5=c19179f3430fd533888100ab6616e114"
 SRCREV = "b649ca092266b1975a5f693a70191980a2f26276"
 PV = "1.0+gitr${SRCREV}"
-PR = "r2"
+PR = "r3"
 SRC_URI = "\
   ${FREESMARTPHONE_GIT}/utilities.git;protocol=git;branch=master \
 "

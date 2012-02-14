@@ -4,7 +4,7 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384
 
 inherit task
 
-PR = "r4"
+PR = "r5"
 
 RDEPENDS_${PN} = "\
   keymaps-systemd \
@@ -12,10 +12,14 @@ RDEPENDS_${PN} = "\
   xinput-calibrator-systemd \
   openssh-sshd-systemd \
   phonefsod-systemd \
+  frameworkd-systemd \
   fsodeviced-systemd \
   fsotdld-systemd \
   fsoaudiod-systemd \
   fsosystemd-systemd \
   gpsd-systemd \
+"
+RSUGGESTS_${PN} = "\
+  fso-gpsd-systemd \
 "
 #  shr-splash-systemd // will be replaced maybe

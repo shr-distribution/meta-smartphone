@@ -1,0 +1,14 @@
+--- estardict-0.5.orig/src/gui/estardict-gui-definitionPage.c	2011-12-25 00:39:15.000000000 +0100
++++ estardict-0.5/src/gui/estardict-gui-definitionPage.c	2012-01-17 08:15:14.607256492 +0100
+@@ -45,9 +45,9 @@
+ void suggestedWordSelected(void *data, Evas_Object *obj, void *event_info) {
+     g_debug("-> %s %s()", __FILE__, __FUNCTION__);
+ 
+-    Elm_List_Item *it = event_info;
++    Elm_Object_Item *it = event_info;
+     if (it) {
+-        const char *word = elm_list_item_label_get(it);
++        const char *word = elm_object_item_text_get(it);
+         g_message("Suggested word selected %s", word);
+ 
+         // Set entry word, no user interaction so it works

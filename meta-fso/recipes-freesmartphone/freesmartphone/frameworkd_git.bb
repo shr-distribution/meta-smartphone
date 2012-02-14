@@ -5,19 +5,23 @@ SECTION = "console/network"
 DEPENDS = "python-cython-native python-pyrex-native"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
-SRCREV = "0e7dea864c4bc2fff7d28fbe5a7361a92a487102"
+SRCREV = "8713309e9e7fe3314e2eaf571c84f6b51aefaf2b"
 PV = "0.9.5.9+gitr${SRCPV}"
-PR = "r17"
+PR = "r18"
 PE = "1"
 
-inherit distutils update-rc.d python-dir
+inherit distutils update-rc.d python-dir systemd
 
 INITSCRIPT_NAME = "frameworkd"
 INITSCRIPT_PARAMS = "defaults 29"
 
+SYSTEMD_PACKAGES = "${PN}-systemd"
+SYSTEMD_SERVICE = "${PN}.service"
+
 SRC_URI = "${FREESMARTPHONE_GIT}/framework.git;protocol=git;branch=master \
            file://oeventsd-use-opimd-signals.patch \
            file://0001-oeventsd-workaround-buggy-kernel-to-get-full-vibrati.patch \
+           file://${PN}.service \
 "
 
 S = "${WORKDIR}/git"
@@ -29,6 +33,8 @@ do_configure_append() {
 do_install_append() {
   install -d ${D}${sysconfdir}/freesmartphone/opim/
   frameworkd_install_machine_specific_configs
+  install -d ${D}${base_libdir}/systemd/system/
+  install -m 0644 ${WORKDIR}/${PN}.service ${D}${base_libdir}/systemd/system/${PN}.service
 }
 
 # machines with enabled ogsmd
@@ -130,6 +136,10 @@ CONFFILES_${PN}-config = "\
   ${sysconfdir}/freesmartphone/opreferences/conf/rules/ring.yaml \
   ${sysconfdir}/freesmartphone/oevents/rules.yaml \
   "
+
+PACKAGES =+ "${PN}-systemd"
+FILES_${PN}-systemd += "${base_libdir}/systemd"
+RDEPENDS_${PN}-systemd += "${PN}"
 
 FILES_${PN} += "${sysconfdir}/dbus-1 ${sysconfdir}/freesmartphone ${sysconfdir}/init.d ${datadir}"
 FILES_${PN}-dbg += "${PYTHON_SITEPACKAGES_DIR}/framework/subsystems/*/.debug"

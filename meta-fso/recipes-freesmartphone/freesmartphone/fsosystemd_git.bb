@@ -2,7 +2,7 @@ require cornucopia.inc
 inherit fso-plugin
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
 PV = "0.0.1+gitr${SRCPV}"
-PR = "${INC_PR}.1"
+PR = "${INC_PR}.2"
 
 inherit update-rc.d
 

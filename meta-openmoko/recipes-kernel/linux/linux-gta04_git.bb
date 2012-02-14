@@ -1,12 +1,11 @@
 require linux.inc
 
-KERNEL_RELEASE = "3.2.0-gta04"
-OLD_KERNEL_RELEASE = "3.1.99"
-PV = "${OLD_KERNEL_RELEASE}+${KERNEL_RELEASE}+gitr${SRCPV}"
-PR = "r0"
+KERNEL_RELEASE = "3.2.0"
+PV = "${KERNEL_RELEASE}+gitr${SRCPV}"
+PR = "r1"
 PE = "3"
 
-SRCREV = "8482ef4fc94b7c896386b5d241000fc308fdd8d0"
+SRCREV = "60c3a2b52fcb480bf55531bc358a1f3afe97d670"
 
 SRC_URI = "\
   git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=3.2-gta04 \
