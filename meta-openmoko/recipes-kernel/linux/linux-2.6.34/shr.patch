@@ -1,0 +1,3124 @@
+All patches from shr kernel repository
+
+http://gitorious.org/~jama/htc-msm-2-6-32/openmoko-kernel/commits/shr-2.6.34-nodrm
+
+b96c7ac glamo-display: fix WSOD for 242 timming
+6df2955 Use 100 as HZ value on S3C24XX
+65cbad2 Force GPS power up on resume if it were powered up on suspend
+ae17594 wm8753: use snd_soc_jack on neo1973
+7701ff7 Fix printk level of s3c touchscreen release message
+d5af368 s3c2410_ts: jitter less touchscreen for glamo, version 4
+b2da9d4 Openmoko resume reason sysfs node ported from 2.6.29
+a423cbb tslib relies on ts pressures events so this hack is needed to get tslib stuff working
+95cb2de GTA02 bt - remember state of bluetooth in variable
+0472afa Enable powering off after 8s POWER press
+ae813ec Rename /dev/s3c2410_serialXXX to /dev/ttySACXXX
+3d1b96b mach-gta02: fix PR2349, do not manage down
+96ba47b save_regs.patch
+63a020b ar6000_delay.patch
+56dd2ae usbhost.patch
+f66711b accels.patch
+97c4db8 touchscreen: ignore unexpected interrupts
+7d0d327 wm8753: fix build with gcc-4.4.2, which works ok with 4.1.2
+
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 811dedc..1a7b708 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1191,7 +1191,7 @@ source kernel/Kconfig.preempt
+ config HZ
+ 	int
+ 	default 128 if ARCH_L7200
+-	default 200 if ARCH_EBSA110 || ARCH_S3C2410 || ARCH_S5P6440 || ARCH_S5P6442 || ARCH_S5PV210
++	default 200 if ARCH_EBSA110 || ARCH_S5P6440 || ARCH_S5P6442 || ARCH_S5PV210
+ 	default OMAP_32K_TIMER_HZ if ARCH_OMAP && OMAP_32K_TIMER
+ 	default AT91_TIMER_HZ if ARCH_AT91
+ 	default 100
+diff --git a/arch/arm/mach-s3c2410/include/mach/spi-gpio.h b/arch/arm/mach-s3c2410/include/mach/spi-gpio.h
+index dcef228..8eedc9c 100644
+--- a/arch/arm/mach-s3c2410/include/mach/spi-gpio.h
++++ b/arch/arm/mach-s3c2410/include/mach/spi-gpio.h
+@@ -21,7 +21,8 @@ struct s3c2410_spigpio_info {
+ 	int			 num_chipselect;
+ 	int			 bus_num;
+ 
+-	void (*chip_select)(struct s3c2410_spigpio_info *spi, int cs);
++	int			 non_blocking_transfer;
++	void (*chip_select)(struct s3c2410_spigpio_info *spi, int csid, int cs);
+ };
+ 
+ 
+diff --git a/arch/arm/mach-s3c2410/include/mach/ts.h b/arch/arm/mach-s3c2410/include/mach/ts.h
+index dc36170..3112a2c 100644
+--- a/arch/arm/mach-s3c2410/include/mach/ts.h
++++ b/arch/arm/mach-s3c2410/include/mach/ts.h
+@@ -14,6 +14,10 @@ struct s3c2410_ts_mach_info {
+        int             delay;
+        int             presc;
+        int             oversampling_shift;
++#ifdef CONFIG_MACH_NEO1973_GTA02
++       void          (*before_adc_hook)(void);
++       void          (*after_adc_hook)(void);
++#endif
+ };
+ 
+ extern void s3c24xx_ts_set_platdata(struct s3c2410_ts_mach_info *);
+diff --git a/arch/arm/mach-s3c2440/Makefile b/arch/arm/mach-s3c2440/Makefile
+index 6ce800d..450cff9 100644
+--- a/arch/arm/mach-s3c2440/Makefile
++++ b/arch/arm/mach-s3c2440/Makefile
+@@ -37,6 +37,7 @@ obj-$(CONFIG_MACH_NEO1973_GTA02) += mach-gta02.o \
+ 	gta02-pm-bt.o \
+ 	gta02-pm-gps.o \
+ 	gta02-pm-gsm.o \
++	gta02-pm-usbhost.o \
+ 	gta02-pm-wlan.o \
+ 	gta02-fiq.o \
+ 
+diff --git a/arch/arm/mach-s3c2440/gta02-pm-bt.c b/arch/arm/mach-s3c2440/gta02-pm-bt.c
+index 5cf35d8..1101411 100644
+--- a/arch/arm/mach-s3c2440/gta02-pm-bt.c
++++ b/arch/arm/mach-s3c2440/gta02-pm-bt.c
+@@ -56,7 +56,8 @@ static ssize_t bt_read(struct device *dev, struct device_attribute *attr,
+ 	}
+ }
+ 
+-static void __gta02_pm_bt_toggle_radio(struct device *dev, unsigned int on)
++static void __gta02_pm_bt_toggle_radio(struct device *dev, unsigned int on,
++									   bool remember_state)
+ {
+ 	struct gta02_pm_bt_data *bt_data = dev_get_drvdata(dev);
+ 
+@@ -75,6 +76,9 @@ static void __gta02_pm_bt_toggle_radio(struct device *dev, unsigned int on)
+ 	}
+ 
+ 	s3c2410_gpio_setpin(GTA02_GPIO_BT_EN, on);
++
++	if (remember_state)
++		bt_data->pre_resume_state = on;
+ }
+ 
+ 
+@@ -82,7 +86,7 @@ static int bt_rfkill_set_block(void *data, bool blocked)
+ {
+ 	struct device *dev = data;
+ 
+-	__gta02_pm_bt_toggle_radio(dev, !blocked);
++	__gta02_pm_bt_toggle_radio(dev, !blocked, true);
+ 
+ 	return 0;
+ }
+@@ -101,7 +105,7 @@ static ssize_t bt_write(struct device *dev, struct device_attribute *attr,
+ 	if (!strcmp(attr->attr.name, "power_on")) {
+ 		rfkill_set_sw_state(bt_data->rfkill, on ? 1 : 0);
+ 
+-		__gta02_pm_bt_toggle_radio(dev, on);
++		__gta02_pm_bt_toggle_radio(dev, on, true);
+ 	} else if (!strcmp(attr->attr.name, "reset")) {
+ 		/* reset is low-active, so we need to invert */
+ 		s3c2410_gpio_setpin(GTA02_GPIO_BT_EN, on ? 0 : 1);
+@@ -116,12 +120,12 @@ static DEVICE_ATTR(reset, 0644, bt_read, bt_write);
+ #ifdef CONFIG_PM
+ static int gta02_bt_suspend(struct platform_device *pdev, pm_message_t state)
+ {
+-	struct gta02_pm_bt_data *bt_data = dev_get_drvdata(&pdev->dev);
++/*	struct gta02_pm_bt_data *bt_data = dev_get_drvdata(&pdev->dev); */
+ 
+ 	dev_dbg(&pdev->dev, DRVMSG ": suspending\n");
+ 
+-	bt_data->pre_resume_state = s3c2410_gpio_getpin(GTA02_GPIO_BT_EN);
+-	__gta02_pm_bt_toggle_radio(&pdev->dev, 0);
++	/* bt_data->pre_resume_state = s3c2410_gpio_getpin(GTA02_GPIO_BT_EN); */
++	__gta02_pm_bt_toggle_radio(&pdev->dev, 0, false);
+ 
+ 	return 0;
+ }
+@@ -131,7 +135,7 @@ static int gta02_bt_resume(struct platform_device *pdev)
+ 	struct gta02_pm_bt_data *bt_data = dev_get_drvdata(&pdev->dev);
+ 	dev_dbg(&pdev->dev, DRVMSG ": resuming\n");
+ 
+-	__gta02_pm_bt_toggle_radio(&pdev->dev, bt_data->pre_resume_state);
++	__gta02_pm_bt_toggle_radio(&pdev->dev, bt_data->pre_resume_state, false);
+ 	return 0;
+ }
+ #else
+diff --git a/arch/arm/mach-s3c2440/gta02-pm-gps.c b/arch/arm/mach-s3c2440/gta02-pm-gps.c
+index 9721f9a..7c7de09 100644
+--- a/arch/arm/mach-s3c2440/gta02-pm-gps.c
++++ b/arch/arm/mach-s3c2440/gta02-pm-gps.c
+@@ -41,7 +41,7 @@ int gta02_pm_gps_is_on(void)
+ EXPORT_SYMBOL_GPL(gta02_pm_gps_is_on);
+ 
+ /* This is the POWERON pin */
+-static void gps_pwron_set(int on)
++static void gps_pwron_set(int on, int ignore_state)
+ {
+ 	if (on) {
+ 		/* return UART pins to being UART pins */
+@@ -49,7 +49,7 @@ static void gps_pwron_set(int on)
+ 		/* remove pulldown now it won't be floating any more */
+ 		s3c2410_gpio_pullup(S3C2410_GPH(5), 0);
+ 
+-		if (!gta02_gps.power_was_on)
++		if (!gta02_gps.power_was_on || ignore_state)
+ 			regulator_enable(gta02_gps.regulator);
+ 	} else {
+ 		/*
+@@ -60,7 +60,7 @@ static void gps_pwron_set(int on)
+ 		s3c2410_gpio_setpin(S3C2410_GPH(4), 0);
+ 		/* don't let RX from unpowered GPS float */
+ 		s3c2410_gpio_pullup(S3C2410_GPH(5), 1);
+-		if (gta02_gps.power_was_on)
++		if (gta02_gps.power_was_on || ignore_state)
+ 			regulator_disable(gta02_gps.regulator);
+ 	}
+ }
+@@ -107,7 +107,7 @@ static ssize_t power_gps_write(struct device *dev,
+ 	unsigned long on = simple_strtoul(buf, NULL, 10);
+ 
+ 	if (!strcmp(attr->attr.name, "power_on")) {
+-		gps_pwron_set(on);
++		gps_pwron_set(on, 0);
+ 		gta02_gps.power_was_on = !!on;
+ #ifdef CONFIG_PM
+ 	} else if (!strcmp(attr->attr.name, "keep_on_in_suspend")) {
+@@ -122,7 +122,7 @@ static int gta02_pm_gps_suspend(struct device *dev)
+ {
+ 	if (!gta02_gps.keep_on_in_suspend ||
+ 		!gta02_gps.power_was_on)
+-		gps_pwron_set(0);
++		gps_pwron_set(0, 0);
+ 	else
+ 		dev_warn(dev, "GTA02: keeping gps ON "
+ 			 "during suspend\n");
+@@ -132,7 +132,7 @@ static int gta02_pm_gps_suspend(struct device *dev)
+ static int gta02_pm_gps_resume(struct device *dev)
+ {
+ 	if (!gta02_gps.keep_on_in_suspend && gta02_gps.power_was_on)
+-		gps_pwron_set(1);
++		gps_pwron_set(1, 1);
+ 
+ 	return 0;
+ }
+diff --git a/arch/arm/mach-s3c2440/gta02-pm-usbhost.c b/arch/arm/mach-s3c2440/gta02-pm-usbhost.c
+new file mode 100644
+index 0000000..233340a
+--- /dev/null
++++ b/arch/arm/mach-s3c2440/gta02-pm-usbhost.c
+@@ -0,0 +1,174 @@
++/*
++ * USBHOST Management code for the Openmoko Freerunner GSM Phone
++ *
++ * (C) 2007 by Openmoko Inc.
++ * Author: Harald Welte <laforge@openmoko.org>
++ * All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/platform_device.h>
++#include <linux/console.h>
++#include <linux/errno.h>
++#include <linux/interrupt.h>
++#include <linux/delay.h>
++#include <linux/err.h>
++#include <linux/regulator/consumer.h>
++
++#include <mach/gpio.h>
++#include <asm/mach-types.h>
++
++#include <mach/hardware.h>
++
++#include <mach/gta02.h>
++#include <mach/regs-gpio.h>
++#include <mach/regs-gpioj.h>
++
++static struct regulator *gta02_usbhost_regulator;
++
++static ssize_t usbhost_read(struct device *dev, struct device_attribute *attr,
++			char *buf)
++{
++	if (!strcmp(attr->attr.name, "power_on")) {
++		if (regulator_is_enabled(gta02_usbhost_regulator))
++			goto out_1;
++	}
++
++	return strlcpy(buf, "0\n", 3);
++out_1:
++	return strlcpy(buf, "1\n", 3);
++}
++
++static void usbhost_on_off(struct device *dev, int on)
++{
++
++	on = !!on;
++
++	if (on == regulator_is_enabled(gta02_usbhost_regulator))
++		return;
++
++	if (!on) {
++		regulator_disable(gta02_usbhost_regulator);
++		return;
++	}
++
++	regulator_enable(gta02_usbhost_regulator);
++}
++
++static ssize_t usbhost_write(struct device *dev, struct device_attribute *attr,
++			 const char *buf, size_t count)
++{
++	unsigned long on = simple_strtoul(buf, NULL, 10);
++
++	if (!strcmp(attr->attr.name, "power_on")) {
++		usbhost_on_off(dev, on);
++
++		return count;
++	}
++
++	return count;
++}
++
++static DEVICE_ATTR(power_on, 0644, usbhost_read, usbhost_write);
++
++#ifdef CONFIG_PM
++
++static int gta02_usbhost_suspend(struct device *dev)
++{
++	return 0;
++}
++
++static int gta02_usbhost_suspend_late(struct device *dev)
++{
++	return 0;
++}
++
++static int gta02_usbhost_resume(struct device *dev)
++{
++	return 0;
++}
++
++static struct dev_pm_ops gta02_usbhost_pm_ops = {
++	.suspend	= gta02_usbhost_suspend,
++	.suspend_noirq	= gta02_usbhost_suspend_late,
++	.resume		= gta02_usbhost_resume,
++};
++
++#define GTA02_USBHOST_PM_OPS (&gta02_usbhost_pm_ops)
++
++#else
++#define GTA02_USBHOST_PM_OPS NULL
++#endif /* CONFIG_PM */
++
++static struct attribute *gta02_usbhost_sysfs_entries[] = {
++	&dev_attr_power_on.attr,
++	NULL
++};
++
++static struct attribute_group gta02_usbhost_attr_group = {
++	.name	= NULL,
++	.attrs	= gta02_usbhost_sysfs_entries,
++};
++
++static int __init gta02_usbhost_probe(struct platform_device *pdev)
++{
++	int ret;
++
++	gta02_usbhost_regulator = regulator_get_exclusive(&pdev->dev, "USBHOST");
++
++	if (IS_ERR(gta02_usbhost_regulator)) {
++		ret = PTR_ERR(gta02_usbhost_regulator);
++		dev_err(&pdev->dev, "Failed to get regulator: %d\n", ret);
++		return ret;
++	}
++
++	ret = sysfs_create_group(&pdev->dev.kobj, &gta02_usbhost_attr_group);
++	if (ret) {
++		dev_err(&pdev->dev, "Failed to create sysfs entries: %d\n", ret);
++		return ret;
++	}
++
++	return 0;
++}
++
++static int gta02_usbhost_remove(struct platform_device *pdev)
++{
++	usbhost_on_off(&pdev->dev, 0);
++
++	sysfs_remove_group(&pdev->dev.kobj, &gta02_usbhost_attr_group);
++	regulator_put(gta02_usbhost_regulator);
++
++	return 0;
++}
++
++static struct platform_driver gta02_usbhost_driver = {
++	.probe		= gta02_usbhost_probe,
++	.remove		= gta02_usbhost_remove,
++	.driver		= {
++		.name	= "gta02-pm-usbhost",
++		.pm	= GTA02_USBHOST_PM_OPS,
++	},
++};
++
++static int __devinit gta02_usbhost_init(void)
++{
++	return platform_driver_register(&gta02_usbhost_driver);
++}
++module_init(gta02_usbhost_init);
++
++static void gta02_usbhost_exit(void)
++{
++	platform_driver_unregister(&gta02_usbhost_driver);
++}
++module_exit(gta02_usbhost_exit);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Harald Welte <laforge@openmoko.org>");
++MODULE_DESCRIPTION("Openmoko Freerunner USBHOST Power Management");
+diff --git a/arch/arm/mach-s3c2440/mach-gta02.c b/arch/arm/mach-s3c2440/mach-gta02.c
+index 9a9461d..e9487f8 100644
+--- a/arch/arm/mach-s3c2440/mach-gta02.c
++++ b/arch/arm/mach-s3c2440/mach-gta02.c
+@@ -62,6 +62,7 @@
+ 
+ #include <linux/input.h>
+ #include <linux/gpio_keys.h>
++#include <linux/lis302dl.h>
+ 
+ #include <linux/leds.h>
+ #include <linux/leds_pwm.h>
+@@ -110,6 +111,23 @@
+ #include <linux/jbt6k74.h>
+ #include <linux/glamofb.h>
+ #include <linux/mfd/glamo.h>
++#include <linux/mfd/glamo-core.h>
++
++#define S3C2410_GPIONO(bank,offset) ((bank) + (offset))
++
++#define S3C2410_GPIO_BANKD   (32*3)
++#define S3C2410_GPIO_BANKG   (32*6)
++
++#define S3C2410_GPG5          S3C2410_GPIONO(S3C2410_GPIO_BANKG, 5)
++#define S3C2410_GPG6          S3C2410_GPIONO(S3C2410_GPIO_BANKG, 6)
++#define S3C2410_GPG7          S3C2410_GPIONO(S3C2410_GPIO_BANKG, 7)
++#define S3C2410_GPD12         S3C2410_GPIONO(S3C2410_GPIO_BANKD, 12)
++#define S3C2410_GPD13         S3C2410_GPIONO(S3C2410_GPIO_BANKD, 13)
++
++#define        BITBANG_CS_ACTIVE       1       /* normally nCS, active low */
++#define        BITBANG_CS_INACTIVE     0
++
++#define S3C_SYSTEM_REV_ATAG GTA02v6_SYSTEM_REV
+ 
+ static struct pcf50633 *gta02_pcf;
+ 
+@@ -135,6 +153,10 @@ static long gta02_panic_blink(long count)
+ 	return delay;
+ }
+ 
++struct platform_device gta02_resume_reason_device = {
++	.name 		= "neo1973-resume",
++	.num_resources	= 0,
++};
+ 
+ static struct map_desc gta02_iodesc[] __initdata = {
+ 	{
+@@ -185,6 +207,10 @@ static struct platform_device gta02_pm_gsm_dev = {
+ 	.name = "gta02-pm-gsm",
+ };
+ 
++static struct platform_device gta02_pm_usbhost_dev = {
++	.name = "gta02-pm-usbhost",
++};
++
+ static struct platform_device gta02_pm_wlan_dev = {
+ 	.name = "gta02-pm-wlan",
+ };
+@@ -194,6 +220,11 @@ static struct regulator_consumer_supply gsm_supply_consumer = {
+ 	.supply = "GSM",
+ };
+ 
++static struct regulator_consumer_supply usbhost_supply_consumer = {
++	.dev = &gta02_pm_usbhost_dev.dev,
++	.supply = "USBHOST",
++};
++
+ static struct regulator_init_data gsm_supply_init_data = {
+ 	.constraints = {
+ 		.min_uV = 3700000,
+@@ -205,6 +236,17 @@ static struct regulator_init_data gsm_supply_init_data = {
+ 	.consumer_supplies = &gsm_supply_consumer,
+ };
+ 
++static struct regulator_init_data usbhost_supply_init_data = {
++	.constraints = {
++		.min_uV = 3700000,
++		.max_uV = 3700000,
++		.valid_modes_mask = REGULATOR_MODE_NORMAL,
++		.valid_ops_mask = REGULATOR_CHANGE_STATUS,
++	},
++	.num_consumer_supplies = 1,
++	.consumer_supplies = &usbhost_supply_consumer,
++};
++
+ static struct fixed_voltage_config gsm_supply_config = {
+ 	.supply_name = "GSM",
+ 	.microvolts = 3700000,
+@@ -213,6 +255,14 @@ static struct fixed_voltage_config gsm_supply_config = {
+ 	.init_data = &gsm_supply_init_data,
+ };
+ 
++static struct fixed_voltage_config usbhost_supply_config = {
++	.supply_name = "USBHOST",
++	.microvolts = 3700000,
++	.gpio = GTA02_GPIO_PCF(PCF50633_GPO),
++	.enable_high = 1,
++	.init_data = &usbhost_supply_init_data,
++};
++
+ static struct platform_device gta02_gsm_supply_device = {
+ 	.name = "reg-fixed-voltage",
+ 	.id = 1,
+@@ -221,6 +271,14 @@ static struct platform_device gta02_gsm_supply_device = {
+ 	},
+ };
+ 
++static struct platform_device gta02_usbhost_supply_device = {
++	.name = "reg-fixed-voltage",
++	.id = 2,
++	.dev = {
++		.platform_data = &usbhost_supply_config,
++	},
++};
++
+ /*
+  * we crank down SD Card clock dynamically when GPS is powered
+  */
+@@ -322,6 +380,60 @@ const static struct jbt6k74_platform_data jbt6k74_pdata = {
+ 	.gpio_reset = GTA02_GPIO_GLAMO(4),
+ };
+ 
++/*----------- SPI: Accelerometers attached to SPI of s3c244x ----------------- */
++
++void gta02_lis302dl_suspend_io(struct lis302dl_info *lis, int resume)
++{
++	struct lis302dl_platform_data *pdata = lis->pdata;
++
++	if (!resume) {
++		 /*
++		 * we don't want to power them with a high level
++		 * because GSENSOR_3V3 is not up during suspend
++		 */
++		s3c2410_gpio_setpin(pdata->pin_chip_select, 0);
++		s3c2410_gpio_setpin(pdata->pin_clk, 0);
++		s3c2410_gpio_setpin(pdata->pin_mosi, 0);
++		/* misnomer: it is a pullDOWN in 2442 */
++		s3c2410_gpio_pullup(pdata->pin_miso, 1);
++		return;
++	}
++
++	/* back to normal */
++	s3c2410_gpio_setpin(pdata->pin_chip_select, 1);
++	s3c2410_gpio_setpin(pdata->pin_clk, 1);
++	/* misnomer: it is a pullDOWN in 2442 */
++	s3c2410_gpio_pullup(pdata->pin_miso, 0);
++
++	s3c2410_gpio_cfgpin(pdata->pin_chip_select, S3C2410_GPIO_OUTPUT);
++	s3c2410_gpio_cfgpin(pdata->pin_clk, S3C2410_GPIO_OUTPUT);
++	s3c2410_gpio_cfgpin(pdata->pin_mosi, S3C2410_GPIO_OUTPUT);
++	s3c2410_gpio_cfgpin(pdata->pin_miso, S3C2410_GPIO_INPUT);
++
++}
++
++struct lis302dl_platform_data lis302_pdata_top = {
++		.name		= "lis302-1 (top)",
++		.pin_chip_select= S3C2410_GPD12,
++		.pin_clk	= S3C2410_GPG7,
++		.pin_mosi	= S3C2410_GPG6,
++		.pin_miso	= S3C2410_GPG5,
++		.interrupt	= GTA02_IRQ_GSENSOR_1,
++		.open_drain	= 1, /* altered at runtime by PCB rev */
++		.lis302dl_suspend_io = gta02_lis302dl_suspend_io,
++};
++
++struct lis302dl_platform_data lis302_pdata_bottom = {
++		.name		= "lis302-2 (bottom)",
++		.pin_chip_select= S3C2410_GPD13,
++		.pin_clk	= S3C2410_GPG7,
++		.pin_mosi	= S3C2410_GPG6,
++		.pin_miso	= S3C2410_GPG5,
++		.interrupt	= GTA02_IRQ_GSENSOR_2,
++		.open_drain	= 1, /* altered at runtime by PCB rev */
++		.lis302dl_suspend_io = gta02_lis302dl_suspend_io,
++};
++
+ static struct spi_board_info gta02_spi_board_info[] = {
+ 	{
+ 		.modalias	= "jbt6k74",
+@@ -332,6 +444,81 @@ static struct spi_board_info gta02_spi_board_info[] = {
+ 		.bus_num	= 2,
+ 		.chip_select = 0
+ 	},
++	{
++		.modalias	= "lis302dl",
++		/* platform_data */
++		.platform_data	= &lis302_pdata_top,
++		/* controller_data */
++		/* irq */
++		.max_speed_hz	= 100 * 1000,
++		.bus_num	= 3,
++		.chip_select	= 0,
++	},
++	{
++		.modalias	= "lis302dl",
++		/* platform_data */
++		.platform_data	= &lis302_pdata_bottom,
++		/* controller_data */
++		/* irq */
++		.max_speed_hz	= 100 * 1000,
++		.bus_num	= 3,
++		.chip_select	= 1,
++	},
++};
++
++static void gta02_lis302_chip_select(struct s3c2410_spigpio_info *info, int csid, int cs)
++{
++
++	/*
++	 * Huh... "quirk"... CS on this device is not really "CS" like you can
++	 * expect.
++	 *
++	 * When it is 0 it selects SPI interface mode.
++	 * When it is 1 it selects I2C interface mode.
++	 *
++	 * Because we have 2 devices on one interface we have to make sure
++	 * that the "disabled" device (actually in I2C mode) don't think we're
++	 * talking to it.
++	 *
++	 * When we talk to the "enabled" device, the "disabled" device sees
++	 * the clocks as I2C clocks, creating havoc.
++	 *
++	 * I2C sees MOSI going LOW while CLK HIGH as a START action, thus we
++	 * must ensure this is never issued.
++	 */
++
++	int cs_gpio, other_cs_gpio;
++
++	cs_gpio = csid ? S3C2410_GPD13 : S3C2410_GPD12;
++	other_cs_gpio = (1 - csid) ? S3C2410_GPD13 : S3C2410_GPD12;
++
++
++	if (cs == BITBANG_CS_ACTIVE) {
++		s3c2410_gpio_setpin(other_cs_gpio, 1);
++		s3c2410_gpio_setpin(cs_gpio, 1);
++		s3c2410_gpio_setpin(info->pin_clk, 1);
++		s3c2410_gpio_setpin(cs_gpio, 0);
++	} else {
++		s3c2410_gpio_setpin(cs_gpio, 1);
++		s3c2410_gpio_setpin(other_cs_gpio, 1);
++	}
++}
++
++static struct s3c2410_spigpio_info gta02_spigpio_cfg = {
++	.pin_clk	= S3C2410_GPG7,
++	.pin_mosi	= S3C2410_GPG6,
++	.pin_miso	= S3C2410_GPG5,
++	.bus_num	= 3,
++	.num_chipselect	= 2,
++	.chip_select	= gta02_lis302_chip_select,
++	.non_blocking_transfer = 1,
++};
++
++static struct platform_device gta02_spi_gpio_dev = {
++	.name		= "spi_s3c24xx_gpio",
++	.dev = {
++		.platform_data = &gta02_spigpio_cfg,
++	},
+ };
+  
+ static struct resource gta02_glamo_resources[] = {
+@@ -506,6 +693,11 @@ static struct pcf50633_bl_platform_data gta02_backlight_data = {
+ 	.ramp_time = 3,
+ };
+ 
++static void gta02_poweroff(void)
++{
++	pcf50633_reg_set_bit_mask(gta02_pcf, PCF50633_REG_OOCSHDWN, 1, 1);
++}
++
+ struct pcf50633_platform_data gta02_pcf_pdata = {
+ 	.resumers = {
+ 		[0] =	PCF50633_INT1_USBINS |
+@@ -545,7 +737,7 @@ struct pcf50633_platform_data gta02_pcf_pdata = {
+ 				.min_uV = 1300000,
+ 				.max_uV = 1600000,
+ 				.valid_modes_mask = REGULATOR_MODE_NORMAL,
+-				.always_on = 1,
++				.always_on = 0,
+ 				.apply_uV = 1,
+ 			},
+ 		},
+@@ -649,6 +841,7 @@ struct pcf50633_platform_data gta02_pcf_pdata = {
+ 	},
+ 	.probe_done = gta02_pmu_attach_child_devices,
+ 	.mbc_event_callback = gta02_pmu_event_callback,
++	.force_shutdown = gta02_poweroff,
+ };
+ 
+ 
+@@ -751,11 +944,31 @@ static struct s3c2410_hcd_info gta02_usb_info __initdata = {
+ 	},
+ };
+ 
++static int glamo_slowed = 0;
++
++static void gta02_ts_hook_before_adc () 
++{
++	if (!glamo_slowed) {
++		glamo_slowed = 1;
++		glamo_pixclock_slow(dev_get_drvdata (&gta02_glamo_dev.dev));
++	}
++};
++
++static void gta02_ts_hook_after_adc () 
++{
++	if (glamo_slowed) {
++		glamo_slowed = 0;
++		glamo_pixclock_fast(dev_get_drvdata (&gta02_glamo_dev.dev));
++	}
++};
++
+ /* Touchscreen */
+ static struct s3c2410_ts_mach_info gta02_ts_info = {
+-       .delay = 10000,
++       .delay = 1000,
+        .presc = 0xff, /* slow as we can go */
+-	   .oversampling_shift = 2,
++       .oversampling_shift = 0,
++       .before_adc_hook = gta02_ts_hook_before_adc,
++       .after_adc_hook = gta02_ts_hook_after_adc,
+ };
+ 
+ /* Buttons */
+@@ -1091,6 +1304,7 @@ static struct platform_device *gta02_devices[] __initdata = {
+ 	&gta02_pm_bt_dev,
+ 	&gta02_pm_wlan_dev,
+ 	&gta02_glamo_dev,
++	&gta02_spi_gpio_dev,
+ 	&s3c_device_adc,
+ 	&s3c_device_ts,
+ };
+@@ -1100,6 +1314,7 @@ static struct platform_device *gta02_devices[] __initdata = {
+ static struct platform_device *gta02_devices_pmu_children[] = {
+     &gta02_hdq_device,
+ 	&gta02_platform_bat,
++	&gta02_resume_reason_device,
+ };
+ 
+ /*
+@@ -1126,11 +1341,6 @@ static void gta02_pmu_attach_child_devices(struct pcf50633 *pcf)
+ 			     ARRAY_SIZE(gta02_devices_pmu_children));
+ }
+ 
+-static void gta02_poweroff(void)
+-{
+-	pcf50633_reg_set_bit_mask(gta02_pcf, PCF50633_REG_OOCSHDWN, 1, 1);
+-}
+-
+ struct gta02_device_children {
+ 	const char *dev_name;
+ 	size_t num_children;
+@@ -1140,12 +1350,17 @@ struct gta02_device_children {
+ 
+ static struct platform_device* gta02_pcf50633_gpio_children[] = {
+ 	&gta02_gsm_supply_device,
++	&gta02_usbhost_supply_device,
+ };
+ 
+ static struct platform_device* gta02_gsm_supply_children[] = {
+ 	&gta02_pm_gsm_dev,
+ };
+ 
++static struct platform_device* gta02_usbhost_supply_children[] = {
++	&gta02_pm_usbhost_dev,
++};
++
+ static struct platform_device* gta02_hdq_children[] = {
+ 	&bq27000_battery_device,
+ };
+@@ -1154,7 +1369,7 @@ static struct platform_device* gta02_hdq_children[] = {
+ static struct gta02_device_children gta02_device_children[] = {
+ 	{
+ 		.dev_name = "pcf50633-gpio.0",
+-		.num_children = 1,
++		.num_children = 2,
+ 		.children = gta02_pcf50633_gpio_children,
+ 	},
+ 	{
+@@ -1163,6 +1378,11 @@ static struct gta02_device_children gta02_device_children[] = {
+ 		.children = gta02_gsm_supply_children,
+ 	},
+ 	{
++		.dev_name = "reg-fixed-voltage.2",
++		.num_children = 1,
++		.children = gta02_usbhost_supply_children,
++	},
++	{
+ 		.dev_name = "spi2.0",
+ 		.probed_callback = gta02_jbt6k74_probe_completed,
+ 	},
+@@ -1302,6 +1522,16 @@ static void __init gta02_machine_init(void)
+ 	/* Set the panic callback to make AUX LED blink at ~5Hz. */
+ 	panic_blink = gta02_panic_blink;
+ 
++	switch (S3C_SYSTEM_REV_ATAG) {
++		case GTA02v6_SYSTEM_REV:
++		/* we need push-pull interrupt from motion sensors */
++		lis302_pdata_top.open_drain = 0;
++		lis302_pdata_bottom.open_drain = 0;
++		break;
++	default:
++		break;
++	}
++
+ 	bus_register_notifier(&platform_bus_type, &gta02_device_register_notifier);
+ 	bus_register_notifier(&spi_bus_type, &gta02_device_register_notifier);
+ 
+diff --git a/arch/arm/plat-samsung/time.c b/arch/arm/plat-samsung/time.c
+index 2231d80..d342876 100644
+--- a/arch/arm/plat-samsung/time.c
++++ b/arch/arm/plat-samsung/time.c
+@@ -195,12 +195,12 @@ static void s3c2410_timer_setup (void)
+ 
+ 		/* configure clock tick */
+ 
+-		timer_usec_ticks = timer_mask_usec_ticks(6, pclk);
++		timer_usec_ticks = timer_mask_usec_ticks(12, pclk);
+ 
+ 		tscaler = clk_get_parent(tdiv);
+ 
+-		clk_set_rate(tscaler, pclk / 3);
+-		clk_set_rate(tdiv, pclk / 6);
++		clk_set_rate(tscaler, pclk / 6);
++		clk_set_rate(tdiv, pclk / 12);
+ 		clk_set_parent(tin, tdiv);
+ 
+ 		tcnt = clk_get_rate(tin) / HZ;
+diff --git a/drivers/ar6000/hif/hif2.c b/drivers/ar6000/hif/hif2.c
+index 386d96e..90178d0 100644
+--- a/drivers/ar6000/hif/hif2.c
++++ b/drivers/ar6000/hif/hif2.c
+@@ -517,6 +517,8 @@ static int ar6000_do_activate(struct hif_device *hif)
+ 		goto out_func_ready;
+ 	}
+ 
++	mdelay (10);
++
+ 	ret = htcCallbacks.deviceInsertedHandler(hif);
+ 	if (ret == A_OK)
+ 		return 0;
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index c75d165..29248b0 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -347,4 +347,13 @@ config INPUT_PCAP
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called pcap_keys.
+ 
++config INPUT_LIS302DL
++	tristate "STmicro LIS302DL 3-axis accelerometer"
++	depends on SPI_MASTER
++	help
++	  SPI driver for the STmicro LIS302DL 3-axis accelerometer.
++
++	  The userspece interface is a 3-axis (X/Y/Z) relative movement
++	  Linux input device, reporting REL_[XYZ] events.
++
+ endif
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index a70c9cf..2632143 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -33,4 +33,5 @@ obj-$(CONFIG_INPUT_WINBOND_CIR)		+= winbond-cir.o
+ obj-$(CONFIG_INPUT_WISTRON_BTNS)	+= wistron_btns.o
+ obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
+ obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
++obj-$(CONFIG_INPUT_LIS302DL)		+= lis302dl.o
+ 
+diff --git a/drivers/input/misc/lis302dl.c b/drivers/input/misc/lis302dl.c
+new file mode 100644
+index 0000000..d345bfb
+--- /dev/null
++++ b/drivers/input/misc/lis302dl.c
+@@ -0,0 +1,952 @@
++/* Linux kernel driver for the ST LIS302D 3-axis accelerometer
++ *
++ * Copyright (C) 2007-2008 by Openmoko, Inc.
++ * Author: Harald Welte <laforge@openmoko.org>
++ *         converted to private bitbang by:
++ *         Andy Green <andy@openmoko.com>
++ *         ability to set acceleration threshold added by:
++ *         Simon Kagstrom <simon.kagstrom@gmail.com>
++ * All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of
++ * the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
++ * MA 02111-1307 USA
++ *
++ * TODO
++ * 	* statistics for overflow events
++ * 	* configuration interface (sysfs) for
++ * 		* enable/disable x/y/z axis data ready
++ * 		* enable/disable resume from freee fall / click
++ * 		* free fall / click parameters
++ * 		* high pass filter parameters
++ */
++#include <linux/kernel.h>
++#include <linux/types.h>
++#include <linux/module.h>
++#include <linux/device.h>
++#include <linux/platform_device.h>
++#include <linux/delay.h>
++#include <linux/irq.h>
++#include <linux/interrupt.h>
++#include <linux/sysfs.h>
++#include <linux/spi/spi.h>
++
++#include <linux/lis302dl.h>
++
++/* Utility functions */
++static u8 __reg_read(struct lis302dl_info *lis, u8 reg)
++{
++	struct spi_message msg;
++	struct spi_transfer t;
++	u8 data[2] = {0xc0 | reg};
++	int rc;
++
++	spi_message_init(&msg);
++	memset(&t, 0, sizeof t);
++	t.len = 2;
++	spi_message_add_tail(&t, &msg);
++	t.tx_buf = &data[0];
++	t.rx_buf = &data[0];
++
++	/* Should complete without blocking */
++	rc = spi_non_blocking_transfer(lis->spi, &msg);
++	if (rc < 0) {
++		dev_err(lis->dev, "Error reading register\n");
++		return rc;
++	}
++
++	return data[1];
++}
++
++static void __reg_write(struct lis302dl_info *lis, u8 reg, u8 val)
++{	
++	struct spi_message msg;
++	struct spi_transfer t;
++	u8 data[2] = {reg, val};
++
++	spi_message_init(&msg);
++	memset(&t, 0, sizeof t);
++	t.len = 2;
++	spi_message_add_tail(&t, &msg);
++	t.tx_buf = &data[0];
++	t.rx_buf = &data[0];
++
++	/* Completes without blocking */
++	if (spi_non_blocking_transfer(lis->spi, &msg) < 0)
++		dev_err(lis->dev, "Error writing register\n");
++}
++
++static void __reg_set_bit_mask(struct lis302dl_info *lis, u8 reg, u8 mask,
++		u8 val)
++{
++	u_int8_t tmp;
++
++	val &= mask;
++
++	tmp = __reg_read(lis, reg);
++	tmp &= ~mask;
++	tmp |= val;
++	__reg_write(lis, reg, tmp);
++}
++
++static int __ms_to_duration(struct lis302dl_info *lis, int ms)
++{
++	/* If we have 400 ms sampling rate, the stepping is 2.5 ms,
++	 * on 100 ms the stepping is 10ms */
++	if (lis->flags & LIS302DL_F_DR)
++		return min((ms * 10) / 25, 637);
++
++	return min(ms / 10, 2550);
++}
++
++static int __duration_to_ms(struct lis302dl_info *lis, int duration)
++{
++	if (lis->flags & LIS302DL_F_DR)
++		return (duration * 25) / 10;
++
++	return duration * 10;
++}
++
++static u8 __mg_to_threshold(struct lis302dl_info *lis, int mg)
++{
++	/* If FS is set each bit is 71mg, otherwise 18mg. The THS register
++	 * has 7 bits for the threshold value */
++	if (lis->flags & LIS302DL_F_FS)
++		return min(mg / 71, 127);
++
++	return min(mg / 18, 127);
++}
++
++static int __threshold_to_mg(struct lis302dl_info *lis, u8 threshold)
++{
++	if (lis->flags & LIS302DL_F_FS)
++		return threshold * 71;
++
++	return threshold * 18;
++}
++
++/* interrupt handling related */
++
++enum lis302dl_intmode {
++	LIS302DL_INTMODE_GND		= 0x00,
++	LIS302DL_INTMODE_FF_WU_1	= 0x01,
++	LIS302DL_INTMODE_FF_WU_2	= 0x02,
++	LIS302DL_INTMODE_FF_WU_12	= 0x03,
++	LIS302DL_INTMODE_DATA_READY	= 0x04,
++	LIS302DL_INTMODE_CLICK		= 0x07,
++};
++
++static void __lis302dl_int_mode(struct device *dev, int int_pin,
++			      enum lis302dl_intmode mode)
++{
++	struct lis302dl_info *lis = dev_get_drvdata(dev);
++
++	switch (int_pin) {
++	case 1:
++		__reg_set_bit_mask(lis, LIS302DL_REG_CTRL3, 0x07, mode);
++		break;
++	case 2:
++		__reg_set_bit_mask(lis, LIS302DL_REG_CTRL3, 0x38, mode << 3);
++		break;
++	default:
++		BUG();
++	}
++}
++
++static void __enable_wakeup(struct lis302dl_info *lis)
++{
++	__reg_write(lis, LIS302DL_REG_CTRL1, 0);
++
++	/* First zero to get to a known state */
++	__reg_write(lis, LIS302DL_REG_FF_WU_CFG_1, LIS302DL_FFWUCFG_XHIE |
++			LIS302DL_FFWUCFG_YHIE | LIS302DL_FFWUCFG_ZHIE |
++			LIS302DL_FFWUCFG_LIR);
++	__reg_write(lis, LIS302DL_REG_FF_WU_THS_1,
++			__mg_to_threshold(lis, lis->wakeup.threshold));
++	__reg_write(lis, LIS302DL_REG_FF_WU_DURATION_1,
++			__ms_to_duration(lis, lis->wakeup.duration));
++
++	/* Route the interrupt for wakeup */
++	__lis302dl_int_mode(lis->dev, 1,
++			LIS302DL_INTMODE_FF_WU_1);
++
++	__reg_read(lis, LIS302DL_REG_HP_FILTER_RESET);
++	__reg_read(lis, LIS302DL_REG_OUT_X);
++	__reg_read(lis, LIS302DL_REG_OUT_Y);
++	__reg_read(lis, LIS302DL_REG_OUT_Z);
++	__reg_read(lis, LIS302DL_REG_STATUS);
++	__reg_read(lis, LIS302DL_REG_FF_WU_SRC_1);
++	__reg_read(lis, LIS302DL_REG_FF_WU_SRC_2);
++	__reg_write(lis, LIS302DL_REG_CTRL1, LIS302DL_CTRL1_PD | 7);
++}
++
++static void __enable_data_collection(struct lis302dl_info *lis)
++{
++	u_int8_t ctrl1 = LIS302DL_CTRL1_PD | LIS302DL_CTRL1_Xen |
++			 LIS302DL_CTRL1_Yen | LIS302DL_CTRL1_Zen;
++
++	/* make sure we're powered up and generate data ready */
++	__reg_set_bit_mask(lis, LIS302DL_REG_CTRL1, ctrl1, ctrl1);
++
++	/* If the threshold is zero, let the device generated an interrupt
++	 * on each datum */
++	if (lis->threshold == 0) {
++		__reg_write(lis, LIS302DL_REG_CTRL2, 0);
++		__lis302dl_int_mode(lis->dev, 1, LIS302DL_INTMODE_DATA_READY);
++		__lis302dl_int_mode(lis->dev, 2, LIS302DL_INTMODE_DATA_READY);
++	} else {
++		__reg_write(lis, LIS302DL_REG_CTRL2,
++				LIS302DL_CTRL2_HPFF1);
++		__reg_write(lis, LIS302DL_REG_FF_WU_THS_1,
++				__mg_to_threshold(lis, lis->threshold));
++		__reg_write(lis, LIS302DL_REG_FF_WU_DURATION_1,
++				__ms_to_duration(lis, lis->duration));
++
++		/* Clear the HP filter "starting point" */
++		__reg_read(lis, LIS302DL_REG_HP_FILTER_RESET);
++		__reg_write(lis, LIS302DL_REG_FF_WU_CFG_1,
++				LIS302DL_FFWUCFG_XHIE | LIS302DL_FFWUCFG_YHIE |
++				LIS302DL_FFWUCFG_ZHIE | LIS302DL_FFWUCFG_LIR);
++		__lis302dl_int_mode(lis->dev, 1, LIS302DL_INTMODE_FF_WU_12);
++		__lis302dl_int_mode(lis->dev, 2, LIS302DL_INTMODE_FF_WU_12);
++	}
++}
++
++#if 0
++static void _report_btn_single(struct input_dev *inp, int btn)
++{
++	input_report_key(inp, btn, 1);
++	input_sync(inp);
++	input_report_key(inp, btn, 0);
++}
++
++static void _report_btn_double(struct input_dev *inp, int btn)
++{
++	input_report_key(inp, btn, 1);
++	input_sync(inp);
++	input_report_key(inp, btn, 0);
++	input_sync(inp);
++	input_report_key(inp, btn, 1);
++	input_sync(inp);
++	input_report_key(inp, btn, 0);
++}
++#endif
++
++
++static void lis302dl_bitbang_read_sample(struct lis302dl_info *lis)
++{
++	u8 data[(LIS302DL_REG_OUT_Z - LIS302DL_REG_STATUS) + 2] = {0xC0 | LIS302DL_REG_STATUS};
++	u8 *read = data + 1;
++	unsigned long flags;
++	int mg_per_sample = __threshold_to_mg(lis, 1);
++	struct spi_message msg;
++	struct spi_transfer t;
++
++	spi_message_init(&msg);
++	memset(&t, 0, sizeof t);
++	t.len = sizeof(data);
++	spi_message_add_tail(&t, &msg);
++	t.tx_buf = &data[0];
++	t.rx_buf = &data[0];
++
++	/* grab the set of register containing status and XYZ data */
++
++	local_irq_save(flags);
++
++	/* Should complete without blocking */
++	if (spi_non_blocking_transfer(lis->spi, &msg) < 0) 
++		dev_err(lis->dev, "Error reading registers\n");
++
++	local_irq_restore(flags);
++
++	/*
++	 * at the minute the test below fails 50% of the time due to
++	 * a problem with level interrupts causing ISRs to get called twice.
++	 * This is a workaround for that, but actually this test is still
++	 * valid and the information can be used for overrrun stats.
++	 */
++
++	/* has any kind of overrun been observed by the lis302dl? */
++	if (read[0] & (LIS302DL_STATUS_XOR |
++		       LIS302DL_STATUS_YOR |
++		       LIS302DL_STATUS_ZOR))
++		lis->overruns++;
++
++	/* we have a valid sample set? */
++	if (read[0] & LIS302DL_STATUS_XYZDA) {
++		input_report_abs(lis->input_dev, ABS_X, mg_per_sample *
++			    (s8)read[LIS302DL_REG_OUT_X - LIS302DL_REG_STATUS]);
++		input_report_abs(lis->input_dev, ABS_Y, mg_per_sample *
++			    (s8)read[LIS302DL_REG_OUT_Y - LIS302DL_REG_STATUS]);
++		input_report_abs(lis->input_dev, ABS_Z, mg_per_sample *
++			    (s8)read[LIS302DL_REG_OUT_Z - LIS302DL_REG_STATUS]);
++
++		input_sync(lis->input_dev);
++	}
++
++	if (lis->threshold)
++		/* acknowledge the wakeup source */
++		__reg_read(lis,	LIS302DL_REG_FF_WU_SRC_1);
++}
++
++static irqreturn_t lis302dl_interrupt(int irq, void *_lis)
++{
++	struct lis302dl_info *lis = _lis;
++
++	lis302dl_bitbang_read_sample(lis);
++	return IRQ_HANDLED;
++}
++
++/* sysfs */
++
++static ssize_t show_overruns(struct device *dev, struct device_attribute *attr,
++			 char *buf)
++{
++	struct lis302dl_info *lis = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%u\n", lis->overruns);
++}
++
++static DEVICE_ATTR(overruns, S_IRUGO, show_overruns, NULL);
++
++static ssize_t show_rate(struct device *dev, struct device_attribute *attr,
++			 char *buf)
++{
++	struct lis302dl_info *lis = dev_get_drvdata(dev);
++	u8 ctrl1;
++	unsigned long flags;
++
++	local_irq_save(flags);
++	ctrl1 = __reg_read(lis, LIS302DL_REG_CTRL1);
++	local_irq_restore(flags);
++
++	return sprintf(buf, "%d\n", ctrl1 & LIS302DL_CTRL1_DR ? 400 : 100);
++}
++
++static ssize_t set_rate(struct device *dev, struct device_attribute *attr,
++			const char *buf, size_t count)
++{
++	struct lis302dl_info *lis = dev_get_drvdata(dev);
++	unsigned long flags;
++
++	local_irq_save(flags);
++
++	if (!strcmp(buf, "400\n")) {
++		__reg_set_bit_mask(lis, LIS302DL_REG_CTRL1, LIS302DL_CTRL1_DR,
++				 LIS302DL_CTRL1_DR);
++		lis->flags |= LIS302DL_F_DR;
++	} else {
++		__reg_set_bit_mask(lis, LIS302DL_REG_CTRL1, LIS302DL_CTRL1_DR,
++				0);
++		lis->flags &= ~LIS302DL_F_DR;
++	}
++	local_irq_restore(flags);
++
++	return count;
++}
++
++static DEVICE_ATTR(sample_rate, S_IRUGO | S_IWUSR, show_rate, set_rate);
++
++static ssize_t show_scale(struct device *dev, struct device_attribute *attr,
++			  char *buf)
++{
++	struct lis302dl_info *lis = dev_get_drvdata(dev);
++	u_int8_t ctrl1;
++	unsigned long flags;
++
++	local_irq_save(flags);
++	ctrl1 = __reg_read(lis, LIS302DL_REG_CTRL1);
++	local_irq_restore(flags);
++
++	return sprintf(buf, "%s\n", ctrl1 & LIS302DL_CTRL1_FS ? "9.2" : "2.3");
++}
++
++static ssize_t set_scale(struct device *dev, struct device_attribute *attr,
++			 const char *buf, size_t count)
++{
++	struct lis302dl_info *lis = dev_get_drvdata(dev);
++	unsigned long flags;
++
++	local_irq_save(flags);
++
++	if (!strcmp(buf, "9.2\n")) {
++		__reg_set_bit_mask(lis, LIS302DL_REG_CTRL1, LIS302DL_CTRL1_FS,
++				 LIS302DL_CTRL1_FS);
++		lis->flags |= LIS302DL_F_FS;
++	} else {
++		__reg_set_bit_mask(lis, LIS302DL_REG_CTRL1, LIS302DL_CTRL1_FS,
++				0);
++		lis->flags &= ~LIS302DL_F_FS;
++	}
++
++	if (lis->flags & LIS302DL_F_INPUT_OPEN)
++		__enable_data_collection(lis);
++
++	local_irq_restore(flags);
++
++	return count;
++}
++
++static DEVICE_ATTR(full_scale, S_IRUGO | S_IWUSR, show_scale, set_scale);
++
++static ssize_t show_threshold(struct device *dev, struct device_attribute *attr,
++		 char *buf)
++{
++	struct lis302dl_info *lis = dev_get_drvdata(dev);
++
++	/* Display the device view of the threshold setting */
++	return sprintf(buf, "%d\n", __threshold_to_mg(lis,
++			__mg_to_threshold(lis, lis->threshold)));
++}
++
++static ssize_t set_threshold(struct device *dev, struct device_attribute *attr,
++		 const char *buf, size_t count)
++{
++	struct lis302dl_info *lis = dev_get_drvdata(dev);
++	unsigned int val;
++
++	if (sscanf(buf, "%u\n", &val) != 1)
++		return -EINVAL;
++	/* 8g is the maximum if FS is 1 */
++	if (val > 8000)
++		return -ERANGE;
++
++	/* Set the threshold and write it out if the device is used */
++	lis->threshold = val;
++
++	if (lis->flags & LIS302DL_F_INPUT_OPEN) {
++		unsigned long flags;
++
++		local_irq_save(flags);
++		__enable_data_collection(lis);
++		local_irq_restore(flags);
++	}
++
++	return count;
++}
++
++static DEVICE_ATTR(threshold, S_IRUGO | S_IWUSR, show_threshold, set_threshold);
++
++static ssize_t show_duration(struct device *dev, struct device_attribute *attr,
++		 char *buf)
++{
++	struct lis302dl_info *lis = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%d\n", __duration_to_ms(lis,
++			__ms_to_duration(lis, lis->duration)));
++}
++
++static ssize_t set_duration(struct device *dev, struct device_attribute *attr,
++		 const char *buf, size_t count)
++{
++	struct lis302dl_info *lis = dev_get_drvdata(dev);
++	unsigned int val;
++
++	if (sscanf(buf, "%u\n", &val) != 1)
++		return -EINVAL;
++	if (val > 2550)
++		return -ERANGE;
++
++	lis->duration = val;
++	if (lis->flags & LIS302DL_F_INPUT_OPEN)
++		__reg_write(lis, LIS302DL_REG_FF_WU_DURATION_1,
++				__ms_to_duration(lis, lis->duration));
++
++	return count;
++}
++
++static DEVICE_ATTR(duration, S_IRUGO | S_IWUSR, show_duration, set_duration);
++
++static ssize_t lis302dl_dump(struct device *dev, struct device_attribute *attr,
++								      char *buf)
++{
++	struct lis302dl_info *lis = dev_get_drvdata(dev);
++	int n = 0;
++	u8 reg[0x40];
++	char *end = buf;
++	unsigned long flags;
++
++	local_irq_save(flags);
++
++	for (n = 0; n < sizeof(reg); n++)
++		reg[n] = __reg_read(lis, n);
++
++	local_irq_restore(flags);
++
++	for (n = 0; n < sizeof(reg); n += 16) {
++		hex_dump_to_buffer(reg + n, 16, 16, 1, end, 128, 0);
++		end += strlen(end);
++		*end++ = '\n';
++		*end++ = '\0';
++	}
++
++	return end - buf;
++}
++static DEVICE_ATTR(dump, S_IRUGO, lis302dl_dump, NULL);
++
++/* Configure freefall/wakeup interrupts */
++static ssize_t set_wakeup_threshold(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct lis302dl_info *lis = dev_get_drvdata(dev);
++	unsigned int threshold;
++
++	if (sscanf(buf, "%u\n", &threshold) != 1)
++		return -EINVAL;
++
++	if (threshold > 8000)
++		return -ERANGE;
++
++	/* Zero turns the feature off */
++	if (threshold == 0) {
++		if (lis->flags & LIS302DL_F_IRQ_WAKE) {
++			disable_irq_wake(lis->pdata->interrupt);
++			lis->flags &= ~LIS302DL_F_IRQ_WAKE;
++		}
++
++		return count;
++	}
++
++	lis->wakeup.threshold = threshold;
++
++	if (!(lis->flags & LIS302DL_F_IRQ_WAKE)) {
++		enable_irq_wake(lis->pdata->interrupt);
++		lis->flags |= LIS302DL_F_IRQ_WAKE;
++	}
++
++	return count;
++}
++
++static ssize_t show_wakeup_threshold(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	struct lis302dl_info *lis = dev_get_drvdata(dev);
++
++	/* All events off? */
++	if (lis->wakeup.threshold == 0)
++		return sprintf(buf, "off\n");
++
++	return sprintf(buf, "%u\n", lis->wakeup.threshold);
++}
++
++static DEVICE_ATTR(wakeup_threshold, S_IRUGO | S_IWUSR, show_wakeup_threshold,
++		set_wakeup_threshold);
++
++static ssize_t set_wakeup_duration(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t count)
++{
++	struct lis302dl_info *lis = dev_get_drvdata(dev);
++	unsigned int duration;
++
++	if (sscanf(buf, "%u\n", &duration) != 1)
++		return -EINVAL;
++
++	if (duration > 2550)
++		return -ERANGE;
++
++	lis->wakeup.duration = duration;
++
++	return count;
++}
++
++static ssize_t show_wakeup_duration(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	struct lis302dl_info *lis = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%u\n", lis->wakeup.duration);
++}
++
++static DEVICE_ATTR(wakeup_duration, S_IRUGO | S_IWUSR, show_wakeup_duration,
++		set_wakeup_duration);
++
++static struct attribute *lis302dl_sysfs_entries[] = {
++	&dev_attr_sample_rate.attr,
++	&dev_attr_full_scale.attr,
++	&dev_attr_threshold.attr,
++	&dev_attr_duration.attr,
++	&dev_attr_dump.attr,
++	&dev_attr_wakeup_threshold.attr,
++	&dev_attr_wakeup_duration.attr,
++	&dev_attr_overruns.attr,
++	NULL
++};
++
++static struct attribute_group lis302dl_attr_group = {
++	.name	= NULL,
++	.attrs	= lis302dl_sysfs_entries,
++};
++
++/* input device handling and driver core interaction */
++
++static int lis302dl_input_open(struct input_dev *inp)
++{
++	struct lis302dl_info *lis = input_get_drvdata(inp);
++	unsigned long flags;
++
++	local_irq_save(flags);
++
++	__enable_data_collection(lis);
++	lis->flags |= LIS302DL_F_INPUT_OPEN;
++
++	local_irq_restore(flags);
++
++	return 0;
++}
++
++static void lis302dl_input_close(struct input_dev *inp)
++{
++	struct lis302dl_info *lis = input_get_drvdata(inp);
++	u_int8_t ctrl1 = LIS302DL_CTRL1_Xen | LIS302DL_CTRL1_Yen |
++			 LIS302DL_CTRL1_Zen;
++	unsigned long flags;
++
++	local_irq_save(flags);
++
++	/* since the input core already serializes access and makes sure we
++	 * only see close() for the close of the last user, we can safely
++	 * disable the data ready events */
++	__reg_set_bit_mask(lis, LIS302DL_REG_CTRL1, ctrl1, 0x00);
++	lis->flags &= ~LIS302DL_F_INPUT_OPEN;
++
++	/* however, don't power down the whole device if still needed */
++	if (!(lis->flags & LIS302DL_F_WUP_FF ||
++	      lis->flags & LIS302DL_F_WUP_CLICK)) {
++		__reg_set_bit_mask(lis, LIS302DL_REG_CTRL1, LIS302DL_CTRL1_PD,
++				 0x00);
++	}
++	local_irq_restore(flags);
++}
++
++/* get the device to reload its coefficients from EEPROM and wait for it
++ * to complete
++ */
++
++static int __lis302dl_reset_device(struct lis302dl_info *lis)
++{
++	int timeout = 10;
++
++	__reg_write(lis, LIS302DL_REG_CTRL2,
++			LIS302DL_CTRL2_BOOT | LIS302DL_CTRL2_FDS);
++
++	while ((__reg_read(lis, LIS302DL_REG_CTRL2)
++			& LIS302DL_CTRL2_BOOT) && (timeout--))
++		mdelay(1);
++
++	return !!(timeout < 0);
++}
++
++static int __devinit lis302dl_probe(struct spi_device *spi)
++{
++	int rc;
++	struct lis302dl_info *lis;
++	u_int8_t wai;
++	unsigned long flags;
++	struct lis302dl_platform_data *pdata = spi->dev.platform_data;
++
++	spi->mode = SPI_MODE_3;
++	rc = spi_setup(spi);
++	if (rc < 0) {
++		dev_err(&spi->dev, "spi_setup failed\n");
++		return rc;
++	}
++
++	lis = kzalloc(sizeof(*lis), GFP_KERNEL);
++	if (!lis)
++		return -ENOMEM;
++
++	lis->dev = &spi->dev;
++	lis->spi = spi;
++
++	dev_set_drvdata(lis->dev, lis);
++
++	lis->pdata = pdata;
++
++	rc = sysfs_create_group(&lis->dev->kobj, &lis302dl_attr_group);
++	if (rc) {
++		dev_err(lis->dev, "error creating sysfs group\n");
++		goto bail_free_lis;
++	}
++
++	/* initialize input layer details */
++	lis->input_dev = input_allocate_device();
++	if (!lis->input_dev) {
++		dev_err(lis->dev, "Unable to allocate input device\n");
++		goto bail_sysfs;
++	}
++
++	input_set_drvdata(lis->input_dev, lis);
++	lis->input_dev->name = pdata->name;
++	 /* SPI Bus not defined as a valid bus for input subsystem*/
++	lis->input_dev->id.bustype = BUS_I2C; /* lie about it */
++	lis->input_dev->open = lis302dl_input_open;
++	lis->input_dev->close = lis302dl_input_close;
++
++	rc = input_register_device(lis->input_dev);
++	if (rc) {
++		dev_err(lis->dev, "error %d registering input device\n", rc);
++		goto bail_inp_dev;
++	}
++
++	local_irq_save(flags);
++	/* Configure our IO */
++	(lis->pdata->lis302dl_suspend_io)(lis, 1);
++
++	wai = __reg_read(lis, LIS302DL_REG_WHO_AM_I);
++	if (wai != LIS302DL_WHO_AM_I_MAGIC) {
++		dev_err(lis->dev, "unknown who_am_i signature 0x%02x\n", wai);
++		dev_set_drvdata(lis->dev, NULL);
++		rc = -ENODEV;
++		local_irq_restore(flags);
++		goto bail_inp_reg;
++	}
++
++	set_bit(EV_ABS, lis->input_dev->evbit);
++	input_set_abs_params(lis->input_dev, ABS_X, 0, 0, 0, 0);
++	input_set_abs_params(lis->input_dev, ABS_Y, 0, 0, 0, 0);
++	input_set_abs_params(lis->input_dev, ABS_Z, 0, 0, 0, 0);
++	
++
++	lis->threshold = 0;
++	lis->duration = 0;
++	memset(&lis->wakeup, 0, sizeof(lis->wakeup));
++
++	if (__lis302dl_reset_device(lis))
++		dev_err(lis->dev, "device BOOT reload failed\n");
++
++	/* force us powered */
++	__reg_write(lis, LIS302DL_REG_CTRL1, LIS302DL_CTRL1_PD |
++			LIS302DL_CTRL1_Xen |
++			LIS302DL_CTRL1_Yen |
++			LIS302DL_CTRL1_Zen);
++	mdelay(1);
++
++	__reg_write(lis, LIS302DL_REG_CTRL2, 0);
++	__reg_write(lis, LIS302DL_REG_CTRL3,
++			LIS302DL_CTRL3_PP_OD | LIS302DL_CTRL3_IHL);
++	__reg_write(lis, LIS302DL_REG_FF_WU_THS_1, 0x0);
++	__reg_write(lis, LIS302DL_REG_FF_WU_DURATION_1, 0x00);
++	__reg_write(lis, LIS302DL_REG_FF_WU_CFG_1, 0x0);
++
++	/* start off in powered down mode; we power up when someone opens us */
++	__reg_write(lis, LIS302DL_REG_CTRL1, LIS302DL_CTRL1_Xen |
++			LIS302DL_CTRL1_Yen | LIS302DL_CTRL1_Zen);
++
++	if (pdata->open_drain)
++		/* switch interrupt to open collector, active-low */
++		__reg_write(lis, LIS302DL_REG_CTRL3,
++				LIS302DL_CTRL3_PP_OD | LIS302DL_CTRL3_IHL);
++	else
++		/* push-pull, active-low */
++		__reg_write(lis, LIS302DL_REG_CTRL3, LIS302DL_CTRL3_IHL);
++
++	__lis302dl_int_mode(lis->dev, 1, LIS302DL_INTMODE_GND);
++	__lis302dl_int_mode(lis->dev, 2, LIS302DL_INTMODE_GND);
++
++	__reg_read(lis, LIS302DL_REG_STATUS);
++	__reg_read(lis, LIS302DL_REG_FF_WU_SRC_1);
++	__reg_read(lis, LIS302DL_REG_FF_WU_SRC_2);
++	__reg_read(lis, LIS302DL_REG_CLICK_SRC);
++	local_irq_restore(flags);
++
++	dev_info(lis->dev, "Found %s\n", pdata->name);
++
++	lis->pdata = pdata;
++
++	set_irq_handler(lis->pdata->interrupt, handle_level_irq);
++
++	rc = request_irq(lis->pdata->interrupt, lis302dl_interrupt,
++			 IRQF_TRIGGER_LOW, "lis302dl", lis);
++	
++	if (rc < 0) {
++		dev_err(lis->dev, "error requesting IRQ %d\n",
++			lis->pdata->interrupt);
++		goto bail_inp_reg;
++	}
++	return 0;
++
++bail_inp_reg:
++	input_unregister_device(lis->input_dev);
++bail_inp_dev:
++	input_free_device(lis->input_dev);
++bail_sysfs:
++	sysfs_remove_group(&lis->dev->kobj, &lis302dl_attr_group);
++bail_free_lis:
++	kfree(lis);
++	return rc;
++}
++
++static int __devexit lis302dl_remove(struct spi_device *spi)
++{
++	struct lis302dl_info *lis = dev_get_drvdata(&spi->dev);
++	unsigned long flags;
++
++	/* Disable interrupts */
++	if (lis->flags & LIS302DL_F_IRQ_WAKE)
++		disable_irq_wake(lis->pdata->interrupt);
++	free_irq(lis->pdata->interrupt, lis);
++
++	/* Reset and power down the device */
++	local_irq_save(flags);
++	__reg_write(lis, LIS302DL_REG_CTRL3, 0x00);
++	__reg_write(lis, LIS302DL_REG_CTRL2, 0x00);
++	__reg_write(lis, LIS302DL_REG_CTRL1, 0x00);
++	local_irq_restore(flags);
++
++	/* Cleanup resources */
++	sysfs_remove_group(&spi->dev.kobj, &lis302dl_attr_group);
++	input_unregister_device(lis->input_dev);
++	if (lis->input_dev)
++		input_free_device(lis->input_dev);
++	dev_set_drvdata(lis->dev, NULL);
++	kfree(lis);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM
++
++static u8 regs_to_save[] = {
++	LIS302DL_REG_CTRL2,
++	LIS302DL_REG_CTRL3,
++	LIS302DL_REG_FF_WU_CFG_1,
++	LIS302DL_REG_FF_WU_THS_1,
++	LIS302DL_REG_FF_WU_DURATION_1,
++	LIS302DL_REG_FF_WU_CFG_2,
++	LIS302DL_REG_FF_WU_THS_2,
++	LIS302DL_REG_FF_WU_DURATION_2,
++	LIS302DL_REG_CLICK_CFG,
++	LIS302DL_REG_CLICK_THSY_X,
++	LIS302DL_REG_CLICK_THSZ,
++	LIS302DL_REG_CLICK_TIME_LIMIT,
++	LIS302DL_REG_CLICK_LATENCY,
++	LIS302DL_REG_CLICK_WINDOW,
++	LIS302DL_REG_CTRL1,
++};
++
++static int lis302dl_suspend(struct spi_device *spi, pm_message_t state)
++{
++	struct lis302dl_info *lis = dev_get_drvdata(&spi->dev);
++	unsigned long flags;
++	u_int8_t tmp;
++	int n;
++
++	/* determine if we want to wake up from the accel. */
++	if (lis->flags & LIS302DL_F_WUP_CLICK)
++		return 0;
++
++	disable_irq(lis->pdata->interrupt);
++	local_irq_save(flags);
++
++	/*
++	 * When we share SPI over multiple sensors, there is a race here
++	 * that one or more sensors will lose.  In that case, the shared
++	 * SPI bus GPIO will be in sleep mode and partially pulled down.  So
++	 * we explicitly put our IO into "wake" mode here before the final
++	 * traffic to the sensor.
++	 */
++	(lis->pdata->lis302dl_suspend_io)(lis, 1);
++
++	/* save registers */
++	for (n = 0; n < ARRAY_SIZE(regs_to_save); n++)
++		lis->regs[regs_to_save[n]] =
++			__reg_read(lis, regs_to_save[n]);
++
++	/* power down or enable wakeup */
++
++	if (lis->wakeup.threshold == 0) {
++		tmp = __reg_read(lis, LIS302DL_REG_CTRL1);
++		tmp &= ~LIS302DL_CTRL1_PD;
++		__reg_write(lis, LIS302DL_REG_CTRL1, tmp);
++	} else
++		__enable_wakeup(lis);
++
++	/* place our IO to the device in sleep-compatible states */
++	(lis->pdata->lis302dl_suspend_io)(lis, 0);
++
++	local_irq_restore(flags);
++
++	return 0;
++}
++
++static int lis302dl_resume(struct spi_device *spi)
++{
++	struct lis302dl_info *lis = dev_get_drvdata(&spi->dev);
++	unsigned long flags;
++	int n;
++
++	if (lis->flags & LIS302DL_F_WUP_CLICK)
++		return 0;
++
++	local_irq_save(flags);
++
++	/* get our IO to the device back in operational states */
++	(lis->pdata->lis302dl_suspend_io)(lis, 1);
++
++	/* resume from powerdown first! */
++	__reg_write(lis, LIS302DL_REG_CTRL1,
++			LIS302DL_CTRL1_PD |
++			LIS302DL_CTRL1_Xen |
++			LIS302DL_CTRL1_Yen |
++			LIS302DL_CTRL1_Zen);
++	mdelay(1);
++
++	if (__lis302dl_reset_device(lis))
++		dev_err(&spi->dev, "device BOOT reload failed\n");
++
++	/* restore registers after resume */
++	for (n = 0; n < ARRAY_SIZE(regs_to_save); n++)
++		__reg_write(lis, regs_to_save[n], lis->regs[regs_to_save[n]]);
++
++	/* if someone had us open, reset the non-wake threshold stuff */
++	if (lis->flags & LIS302DL_F_INPUT_OPEN)
++		__enable_data_collection(lis);
++
++	local_irq_restore(flags);
++	enable_irq(lis->pdata->interrupt);
++
++	return 0;
++}
++#else
++#define lis302dl_suspend	NULL
++#define lis302dl_resume		NULL
++#endif
++
++static struct spi_driver lis302dl_spi_driver = {
++	.driver = {
++		.name = "lis302dl",
++		.owner = THIS_MODULE,
++	},
++
++	.probe 	= lis302dl_probe,	
++	.remove	= __devexit_p(lis302dl_remove),
++	.suspend = lis302dl_suspend,
++	.resume	 = lis302dl_resume,
++};
++
++static int __devinit lis302dl_init(void)
++{
++	return spi_register_driver(&lis302dl_spi_driver);
++}
++
++static void __exit lis302dl_exit(void)
++{
++	spi_unregister_driver(&lis302dl_spi_driver);
++}
++
++MODULE_AUTHOR("Harald Welte <laforge@openmoko.org>");
++MODULE_LICENSE("GPL");
++
++module_init(lis302dl_init);
++module_exit(lis302dl_exit);
+diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
+index 98a7d12..e3b9372 100644
+--- a/drivers/input/touchscreen/s3c2410_ts.c
++++ b/drivers/input/touchscreen/s3c2410_ts.c
+@@ -20,7 +20,7 @@
+  * Copyright 2009 Simtec Electronics <linux@simtec.co.uk>
+  *
+  * Additional work by Herbert Pötzl <herbert@13thfloor.at> and
+- * Harald Welte <laforge@openmoko.org>
++ * Harald Welte <laforge@openmoko.org> and Gennady Kupava <gb@bsdmn.com>
+  */
+ 
+ #include <linux/errno.h>
+@@ -83,10 +83,19 @@ struct s3c2410ts {
+ 	int irq_tc;
+ 	int count;
+ 	int shift;
++	int expectedintr; /* kind of interrupt we are waiting for */
++#ifdef CONFIG_MACH_NEO1973_GTA02
++	void          (*before_adc_hook)(void);
++	void          (*after_adc_hook)(void);
++#endif
+ };
+ 
+ static struct s3c2410ts ts;
+ 
++#define WAITFORINT_UP (0)
++#define WAITFORINT_DOWN (1)
++#define WAITFORINT_NOTHING (2)
++
+ /**
+  * s3c2410_ts_connect - configure gpio for s3c2410 systems
+  *
+@@ -139,6 +148,7 @@ static void touch_timer_fire(unsigned long data)
+ 			input_report_abs(ts.input, ABS_Y, ts.yp);
+ 
+ 			input_report_key(ts.input, BTN_TOUCH, 1);
++            input_report_abs(ts.input, ABS_PRESSURE, 1);
+ 			input_sync(ts.input);
+ 
+ 			ts.xp = 0;
+@@ -146,6 +156,9 @@ static void touch_timer_fire(unsigned long data)
+ 			ts.count = 0;
+ 		}
+ 
++#ifdef CONFIG_MACH_NEO1973_GTA02
++		ts.before_adc_hook();
++#endif
+ 		s3c_adc_start(ts.client, 0, 1 << ts.shift);
+ 	} else {
+ 		ts.xp = 0;
+@@ -153,8 +166,10 @@ static void touch_timer_fire(unsigned long data)
+ 		ts.count = 0;
+ 
+ 		input_report_key(ts.input, BTN_TOUCH, 0);
++		input_report_abs(ts.input, ABS_PRESSURE, 0);
+ 		input_sync(ts.input);
+-
++		
++		ts.expectedintr = WAITFORINT_DOWN;
+ 		writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
+ 	}
+ }
+@@ -179,14 +194,23 @@ static irqreturn_t stylus_irq(int irq, void *dev_id)
+ 
+ 	down = get_down(data0, data1);
+ 
+-	/* TODO we should never get an interrupt with down set while
+-	 * the timer is running, but maybe we ought to verify that the
+-	 * timer isn't running anyways. */
++	/* sitautions below can actually happen on openmoko hardware while 
++	   various debugging facilities are turned off */
++	if (ts.expectedintr == WAITFORINT_NOTHING)
++	  return IRQ_HANDLED;
++	if (!down && ts.expectedintr == WAITFORINT_DOWN) {
++	  writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
++	  return IRQ_HANDLED;
++	} else if (down && ts.expectedintr == WAITFORINT_UP) {
++	  writel(WAIT4INT | INT_UP, ts.io + S3C2410_ADCTSC);
++	  return IRQ_HANDLED;
++	}
++	ts.expectedintr = WAITFORINT_NOTHING;
+ 
+-	if (down)
+-		s3c_adc_start(ts.client, 0, 1 << ts.shift);
+-	else
+-		dev_info(ts.dev, "%s: count=%d\n", __func__, ts.count);
++	if (down) {
++		mod_timer(&touch_timer, jiffies + 2);
++	} else
++		dev_dbg(ts.dev, "%s: count=%d\n", __func__, ts.count);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -211,6 +235,11 @@ static void s3c24xx_ts_conversion(struct s3c_adc_client *client,
+ 
+ 	ts.count++;
+ 
++#ifdef CONFIG_MACH_NEO1973_GTA02
++	if (!*left) 
++		ts.after_adc_hook();
++#endif
++
+ 	/* From tests, it seems that it is unlikely to get a pen-up
+ 	 * event during the conversion process which means we can
+ 	 * ignore any pen-up events with less than the requisite
+@@ -234,7 +263,8 @@ static void s3c24xx_ts_select(struct s3c_adc_client *client, unsigned select)
+ 		writel(S3C2410_ADCTSC_PULL_UP_DISABLE | AUTOPST,
+ 		       ts.io + S3C2410_ADCTSC);
+ 	} else {
+-		mod_timer(&touch_timer, jiffies+1);
++		mod_timer(&touch_timer, jiffies + 3);
++		ts.expectedintr = WAITFORINT_UP;
+ 		writel(WAIT4INT | INT_UP, ts.io + S3C2410_ADCTSC);
+ 	}
+ }
+@@ -312,6 +342,7 @@ static int __devinit s3c2410ts_probe(struct platform_device *pdev)
+ 	if ((info->delay & 0xffff) > 0)
+ 		writel(info->delay & 0xffff, ts.io + S3C2410_ADCDLY);
+ 
++	ts.expectedintr = WAITFORINT_DOWN;
+ 	writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
+ 
+ 	input_dev = input_allocate_device();
+@@ -326,6 +357,7 @@ static int __devinit s3c2410ts_probe(struct platform_device *pdev)
+ 	ts.input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+ 	input_set_abs_params(ts.input, ABS_X, 0, 0x3FF, 0, 0);
+ 	input_set_abs_params(ts.input, ABS_Y, 0, 0x3FF, 0, 0);
++    input_set_abs_params(ts.input, ABS_PRESSURE, 0, 1, 0, 0);
+ 
+ 	ts.input->name = "S3C24XX TouchScreen";
+ 	ts.input->id.bustype = BUS_HOST;
+@@ -335,6 +367,11 @@ static int __devinit s3c2410ts_probe(struct platform_device *pdev)
+ 
+ 	ts.shift = info->oversampling_shift;
+ 
++#ifdef CONFIG_MACH_NEO1973_GTA02
++	ts.before_adc_hook = info->before_adc_hook;
++	ts.after_adc_hook = info->after_adc_hook;
++#endif
++
+ 	ret = request_irq(ts.irq_tc, stylus_irq, IRQF_DISABLED,
+ 			  "s3c2410_ts_pen", ts.input);
+ 	if (ret) {
+@@ -389,8 +426,18 @@ static int __devexit s3c2410ts_remove(struct platform_device *pdev)
+ #ifdef CONFIG_PM
+ static int s3c2410ts_suspend(struct device *dev)
+ {
++  	ts.expectedintr = WAITFORINT_NOTHING;
+ 	writel(TSC_SLEEP, ts.io + S3C2410_ADCTSC);
+ 	disable_irq(ts.irq_tc);
++
++	del_timer_sync(&touch_timer); 
++	/* TODO - need to fix races better, as timer can fire 
++	   between TSC_SLEEP and del_timer_sync() and shedule next adc */
++
++#ifdef CONFIG_MACH_NEO1973_GTA02
++	ts.after_adc_hook();
++#endif
++
+ 	clk_disable(ts.clock);
+ 
+ 	return 0;
+@@ -408,6 +455,7 @@ static int s3c2410ts_resume(struct device *dev)
+ 	if ((info->delay & 0xffff) > 0)
+ 		writel(info->delay & 0xffff, ts.io + S3C2410_ADCDLY);
+ 
++	ts.expectedintr = WAITFORINT_DOWN;
+ 	writel(WAIT4INT | INT_DOWN, ts.io + S3C2410_ADCTSC);
+ 
+ 	return 0;
+diff --git a/drivers/mfd/glamo-core.c b/drivers/mfd/glamo-core.c
+index 8880263..a0556b8 100644
+--- a/drivers/mfd/glamo-core.c
++++ b/drivers/mfd/glamo-core.c
+@@ -160,6 +160,19 @@ static void reg_set_bit_mask(struct glamo_core *glamo,
+ 	spin_unlock(&glamo->lock);
+ }
+ 
++
++
++static void reg_checkandset_bit_mask(struct glamo_core *glamo,
++				uint16_t reg, uint16_t mask,
++				uint16_t val, uint16_t check)
++{
++	spin_lock(&glamo->lock);
++	if (__reg_read(glamo, reg) & mask == check)
++	    __reg_set_bit_mask(glamo, reg, mask, val);
++	spin_unlock(&glamo->lock);
++}
++
++
+ static inline void __reg_set_bit(struct glamo_core *glamo,
+ 				 uint16_t reg, uint16_t bit)
+ {
+@@ -169,6 +182,49 @@ static inline void __reg_set_bit(struct glamo_core *glamo,
+ 	__reg_write(glamo, reg, tmp);
+ }
+ 
++void glamo_pixclock_slow (struct glamo_core *glamo) 
++{
++	
++	int x, lastx = 0;
++	int timeout = 1000000;
++	int threshold = 5;
++	int fa;
++
++ 	int evcnt = 0;
++
++	for (fa = 0; fa < timeout; fa++) {
++		x = glamo_reg_read(glamo, 0x1100 + GLAMO_REG_LCD_STATUS1) & 0x3ff;
++
++
++		if (x == lastx) {
++			evcnt++;
++			if (evcnt == threshold)
++				break;
++		} else {
++			evcnt = 0;
++			lastx = x;
++		}		
++	}
++	if (fa == timeout) {
++		printk (KERN_WARNING "Glamo: Error waiting for stable x position.\n");
++	}
++
++	/* then, make glamo slower */
++	/* it's not a problems if in rare case we do not slow down glamo properly
++	   as all we'll get in that case is singe jittered value */
++	
++	glamo->slowed_divider = glamo_reg_read (glamo, 0x36) & 0xFF;
++	reg_set_bit_mask (glamo, 0x36, 0xFF, 0xFF);
++
++}
++
++void glamo_pixclock_fast (struct glamo_core *glamo) 
++{
++	reg_checkandset_bit_mask (glamo, 0x36, 0xFF, glamo->slowed_divider, 0xFF);
++}
++EXPORT_SYMBOL_GPL(glamo_pixclock_fast);
++EXPORT_SYMBOL_GPL(glamo_pixclock_slow);
++
+ static inline void __reg_clear_bit(struct glamo_core *glamo,
+ 					uint16_t reg, uint16_t bit)
+ {
+@@ -930,6 +986,7 @@ static int __devinit glamo_probe(struct platform_device *pdev)
+ 	glamo->irq = platform_get_irq(pdev, 0);
+ 	glamo->irq_base = irq_base = platform_get_irq(pdev, 1);
+ 	glamo->pdata = pdev->dev.platform_data;
++	glamo->slowed_divider = 0xFF;
+ 
+ 	if (glamo->irq < 0) {
+ 		ret = glamo->irq;
+@@ -965,7 +1022,7 @@ static int __devinit glamo_probe(struct platform_device *pdev)
+ 		goto err_free;
+ 	}
+ 
+-	glamo->base = ioremap(glamo->mem->start, resource_size(glamo->mem));
++	glamo->base = ioremap(glamo->mem->start, resource_size(glamo->mem)+0x1100);
+ 	if (!glamo->base) {
+ 		dev_err(&pdev->dev, "Failed to ioremap() memory region\n");
+ 		goto err_release_mem_region;
+diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
+index 0d0d625..1baeedd 100644
+--- a/drivers/misc/Kconfig
++++ b/drivers/misc/Kconfig
+@@ -327,6 +327,13 @@ config VMWARE_BALLOON
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called vmware_balloon.
+ 
++config OPENMOKO_RESUME_REASON
++	tristate "Openmoko resume reason driver"
++	depends on SYSFS
++	help
++	  This driver adds a sysfs entry for accessing the resume reason
++          of the openmoko board.
++
+ source "drivers/misc/c2port/Kconfig"
+ source "drivers/misc/eeprom/Kconfig"
+ source "drivers/misc/cb710/Kconfig"
+diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
+index 7b6f7ee..57b6984 100644
+--- a/drivers/misc/Makefile
++++ b/drivers/misc/Makefile
+@@ -30,3 +30,4 @@ obj-$(CONFIG_IWMC3200TOP)      += iwmc3200top/
+ obj-y				+= eeprom/
+ obj-y				+= cb710/
+ obj-$(CONFIG_VMWARE_BALLOON)	+= vmware_balloon.o
++obj-$(CONFIG_OPENMOKO_RESUME_REASON)	+= neo1973_pm_resume_reason.o
+diff --git a/drivers/misc/neo1973_pm_resume_reason.c b/drivers/misc/neo1973_pm_resume_reason.c
+new file mode 100644
+index 0000000..5bcc818
+--- /dev/null
++++ b/drivers/misc/neo1973_pm_resume_reason.c
+@@ -0,0 +1,142 @@
++/*
++ * Resume reason sysfs for the FIC Neo1973 GSM Phone
++ *
++ * (C) 2008 by Openmoko Inc.
++ * Author: Andy Green <andy@openmoko.com>
++ * All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License resume_reason 2 as
++ * published by the Free Software Foundation
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/platform_device.h>
++#include <linux/io.h>
++
++#include <mach/hardware.h>
++#include <asm/mach-types.h>
++
++#ifdef CONFIG_MACH_NEO1973_GTA02
++#include <mach/gta02.h>
++#include <linux/mfd/pcf50633/core.h>
++#endif
++
++static unsigned int *gstatus4_mapped;
++static char *resume_reasons[][17] = { { /* GTA01 */
++	"EINT00_NULL",
++	"EINT01_GSM",
++	"EINT02_NULL",
++	"EINT03_NULL",
++	"EINT04_JACK",
++	"EINT05_SDCARD",
++	"EINT06_AUXKEY",
++	"EINT07_HOLDKEY",
++	"EINT08_NULL",
++	"EINT09_NULL",
++	"EINT10_NULL",
++	"EINT11_NULL",
++	"EINT12_NULL",
++	"EINT13_NULL",
++	"EINT14_NULL",
++	"EINT15_NULL",
++	NULL
++}, { /* GTA02 */
++	"EINT00_ACCEL1",
++	"EINT01_GSM",
++	"EINT02_BLUETOOTH",
++	"EINT03_DEBUGBRD",
++	"EINT04_JACK",
++	"EINT05_WLAN",
++	"EINT06_AUXKEY",
++	"EINT07_HOLDKEY",
++	"EINT08_ACCEL2",
++	"EINT09_PMU",
++	"EINT10_NULL",
++	"EINT11_NULL",
++	"EINT12_GLAMO",
++	"EINT13_NULL",
++	"EINT14_NULL",
++	"EINT15_NULL",
++	NULL
++} };
++
++static ssize_t resume_reason_read(struct device *dev,
++				  struct device_attribute *attr,
++				  char *buf)
++{
++	int bit = 0;
++	char *end = buf;
++	int gta = !!machine_is_neo1973_gta02();
++
++	for (bit = 0; resume_reasons[gta][bit]; bit++) {
++		if ((*gstatus4_mapped) & (1 << bit))
++			end += sprintf(end, "* %s\n", resume_reasons[gta][bit]);
++		else
++			end += sprintf(end, "  %s\n", resume_reasons[gta][bit]);
++	}
++
++	return end - buf;
++}
++
++
++static DEVICE_ATTR(resume_reason, 0644, resume_reason_read, NULL);
++
++static struct attribute *neo1973_resume_reason_sysfs_entries[] = {
++	&dev_attr_resume_reason.attr,
++	NULL
++};
++
++static struct attribute_group neo1973_resume_reason_attr_group = {
++	.name	= NULL,
++	.attrs	= neo1973_resume_reason_sysfs_entries,
++};
++
++static int __init neo1973_resume_reason_probe(struct platform_device *pdev)
++{
++	dev_info(&pdev->dev, "starting\n");
++
++	gstatus4_mapped = ioremap(0x560000BC /* GSTATUS4 */, 0x4);
++	if (!gstatus4_mapped) {
++		dev_err(&pdev->dev, "failed to ioremap() memory region\n");
++		return -EINVAL;
++	}
++
++	return sysfs_create_group(&pdev->dev.kobj,
++					    &neo1973_resume_reason_attr_group);
++}
++
++static int neo1973_resume_reason_remove(struct platform_device *pdev)
++{
++	sysfs_remove_group(&pdev->dev.kobj, &neo1973_resume_reason_attr_group);
++	iounmap(gstatus4_mapped);
++	return 0;
++}
++
++static struct platform_driver neo1973_resume_reason_driver = {
++	.probe		= neo1973_resume_reason_probe,
++	.remove		= neo1973_resume_reason_remove,
++	.driver		= {
++		.name		= "neo1973-resume",
++	},
++};
++
++static int __devinit neo1973_resume_reason_init(void)
++{
++	return platform_driver_register(&neo1973_resume_reason_driver);
++}
++
++static void neo1973_resume_reason_exit(void)
++{
++	platform_driver_unregister(&neo1973_resume_reason_driver);
++}
++
++module_init(neo1973_resume_reason_init);
++module_exit(neo1973_resume_reason_exit);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Andy Green <andy@openmoko.com>");
++MODULE_DESCRIPTION("Neo1973 resume_reason");
+diff --git a/drivers/mmc/core/core.c b/drivers/mmc/core/core.c
+index 3168ebd..8504458 100644
+--- a/drivers/mmc/core/core.c
++++ b/drivers/mmc/core/core.c
+@@ -75,10 +75,11 @@ static int mmc_schedule_delayed_work(struct delayed_work *work,
+ /*
+  * Internal function. Flush all scheduled work from the MMC work queue.
+  */
+-static void mmc_flush_scheduled_work(void)
++void mmc_flush_scheduled_work(void)
+ {
+ 	flush_workqueue(workqueue);
+ }
++EXPORT_SYMBOL_GPL(mmc_flush_scheduled_work);
+ 
+ /**
+  *	mmc_request_done - finish processing an MMC request
+diff --git a/drivers/mmc/host/s3cmci.c b/drivers/mmc/host/s3cmci.c
+index 2fdf768..5f3effc 100644
+--- a/drivers/mmc/host/s3cmci.c
++++ b/drivers/mmc/host/s3cmci.c
+@@ -1878,19 +1878,61 @@ MODULE_DEVICE_TABLE(platform, s3cmci_driver_ids);
+ 
+ #ifdef CONFIG_PM
+ 
++static int save_regs(struct mmc_host *mmc)
++{
++	struct s3cmci_host *host = mmc_priv(mmc);
++	unsigned long flags;
++	unsigned from;
++	u32 *to = host->saved;
++
++	mmc_flush_scheduled_work();
++
++	local_irq_save(flags);
++	for (from = S3C2410_SDICON; from != S3C2410_SDIIMSK+4; from += 4)
++		if (from != host->sdidata)
++			*to++ = readl(host->base + from);
++	BUG_ON(to-host->saved != ARRAY_SIZE(host->saved));
++	local_irq_restore(flags);
++
++	return 0;
++}
++
++static int restore_regs(struct mmc_host *mmc)
++{
++	struct s3cmci_host *host = mmc_priv(mmc);
++	unsigned long flags;
++	unsigned to;
++	u32 *from = host->saved;
++
++	/*
++	 * Before we begin with the necromancy, make sure we don't
++	 * inadvertently start something we'll regret microseconds later.
++	 */
++	from[S3C2410_SDICMDCON - S3C2410_SDICON] = 0;
++
++	local_irq_save(flags);
++	for (to = S3C2410_SDICON; to != S3C2410_SDIIMSK+4; to += 4)
++		if (to != host->sdidata)
++			writel(*from++, host->base + to);
++	BUG_ON(from-host->saved != ARRAY_SIZE(host->saved));
++	local_irq_restore(flags);
++
++	return 0;
++}
++
+ static int s3cmci_suspend(struct device *dev)
+ {
+ 	struct mmc_host *mmc = platform_get_drvdata(to_platform_device(dev));
+ 	struct pm_message event = { PM_EVENT_SUSPEND };
+ 
+-	return mmc_suspend_host(mmc, event);
++	return save_regs(mmc);
+ }
+ 
+ static int s3cmci_resume(struct device *dev)
+ {
+ 	struct mmc_host *mmc = platform_get_drvdata(to_platform_device(dev));
+ 
+-	return mmc_resume_host(mmc);
++	return restore_regs(mmc);
+ }
+ 
+ static const struct dev_pm_ops s3cmci_pm = {
+diff --git a/drivers/mmc/host/s3cmci.h b/drivers/mmc/host/s3cmci.h
+index c76b53d..551e715 100644
+--- a/drivers/mmc/host/s3cmci.h
++++ b/drivers/mmc/host/s3cmci.h
+@@ -8,6 +8,8 @@
+  * published by the Free Software Foundation.
+  */
+ 
++#include <mach/regs-sdi.h>
++
+ enum s3cmci_waitfor {
+ 	COMPLETION_NONE,
+ 	COMPLETION_FINALIZE,
+@@ -27,6 +29,12 @@ struct s3cmci_host {
+ 	int			irq;
+ 	int			irq_cd;
+ 	int			dma;
++       /*
++        * Here's where we save the registers during suspend. Note that we skip
++        * SDIDATA, which is at different positions on 2410 and 2440, so
++        * there's no "+1" in the array size.
++        */
++	u32                     saved[(S3C2410_SDIIMSK-S3C2410_SDICON)/4];
+ 
+ 	unsigned long		clk_rate;
+ 	unsigned long		clk_div;
+diff --git a/drivers/serial/samsung.c b/drivers/serial/samsung.c
+index f7b80ae..cda5e88 100644
+--- a/drivers/serial/samsung.c
++++ b/drivers/serial/samsung.c
+@@ -878,7 +878,7 @@ static struct uart_ops s3c24xx_serial_ops = {
+ 
+ static struct uart_driver s3c24xx_uart_drv = {
+ 	.owner		= THIS_MODULE,
+-	.dev_name	= "s3c2410_serial",
++	.dev_name	= S3C24XX_SERIAL_NAME,
+ 	.nr		= CONFIG_SERIAL_SAMSUNG_UARTS,
+ 	.cons		= S3C24XX_SERIAL_CONSOLE,
+ 	.driver_name	= S3C24XX_SERIAL_NAME,
+diff --git a/drivers/spi/spi_bitbang.c b/drivers/spi/spi_bitbang.c
+index 5265330..24c61a6 100644
+--- a/drivers/spi/spi_bitbang.c
++++ b/drivers/spi/spi_bitbang.c
+@@ -254,134 +254,139 @@ static int spi_bitbang_bufs(struct spi_device *spi, struct spi_transfer *t)
+  * Drivers can provide word-at-a-time i/o primitives, or provide
+  * transfer-at-a-time ones to leverage dma or fifo hardware.
+  */
+-static void bitbang_work(struct work_struct *work)
++/* Synchronous non blocking transfer */
++int
++spi_bitbang_transfer_sync(struct spi_device *spi, struct spi_message *m)
+ {
+-	struct spi_bitbang	*bitbang =
+-		container_of(work, struct spi_bitbang, work);
+-	unsigned long		flags;
+-	int			do_setup = -1;
+-	int			(*setup_transfer)(struct spi_device *,
+-					struct spi_transfer *);
++	struct spi_bitbang *bitbang = spi_master_get_devdata(spi->master);
++	struct spi_transfer *t;
++	unsigned long flags;
++	int cs_change = 1;
++	int status;
++	int nsecs;
++	int (*setup_transfer)(struct spi_device *, struct spi_transfer *);
++
++	/* FIXME this is made-up ... the correct value is known to
++	 * word-at-a-time bitbang code, and presumably chipselect()
++	 * should enforce these requirements too?
++	 */
++	nsecs = 100;
++	cs_change = 1;
++	status = 0;
++	setup_transfer = NULL;
++
++	local_irq_save(flags);
++	list_for_each_entry (t, &m->transfers, transfer_list) {
++		/* override or restore speed and wordsize */
++		if (t->speed_hz || t->bits_per_word) {
++			setup_transfer = bitbang->setup_transfer;
++			if (!setup_transfer) {
++				status = -ENOPROTOOPT;
++				break;
++			}
++		}
++		if (setup_transfer) {
++			status = setup_transfer(spi, t);
++			if (status < 0)
++				break;
++		}
+ 
+-	setup_transfer = bitbang->setup_transfer;
++		/* set up default clock polarity, and activate chip;
++		 * this implicitly updates clock and spi modes as
++		 * previously recorded for this device via setup().
++		 * (and also deselects any other chip that might be
++		 * selected ...)
++		 */
+ 
+-	spin_lock_irqsave(&bitbang->lock, flags);
+-	bitbang->busy = 1;
+-	while (!list_empty(&bitbang->queue)) {
+-		struct spi_message	*m;
+-		struct spi_device	*spi;
+-		unsigned		nsecs;
+-		struct spi_transfer	*t = NULL;
+-		unsigned		tmp;
+-		unsigned		cs_change;
+-		int			status;
++		if (cs_change) {
++			bitbang->chipselect(spi, BITBANG_CS_ACTIVE);
++			ndelay(nsecs);
++		}
+ 
+-		m = container_of(bitbang->queue.next, struct spi_message,
+-				queue);
+-		list_del_init(&m->queue);
+-		spin_unlock_irqrestore(&bitbang->lock, flags);
++		cs_change = t->cs_change;
++		if (!t->tx_buf && !t->rx_buf && t->len) {
++			status = -EINVAL;
++			break;
++		}
+ 
+-		/* FIXME this is made-up ... the correct value is known to
+-		 * word-at-a-time bitbang code, and presumably chipselect()
+-		 * should enforce these requirements too?
++		/* transfer data.  the lower level code handles any
++		 * new dma mappings it needs. our caller always gave
++		 * us dma-safe buffers.
+ 		 */
+-		nsecs = 100;
++		if (t->len) {
++			/* REVISIT dma API still needs a designated
++			 * DMA_ADDR_INVALID; ~0 might be better.
++			 */
++			if (!m->is_dma_mapped)
++				t->rx_dma = t->tx_dma = 0;
++			status = bitbang->txrx_bufs(spi, t);
++		}
+ 
+-		spi = m->spi;
+-		tmp = 0;
+-		cs_change = 1;
++		if (status > 0)
++			m->actual_length += status;
++		if (status != t->len) {
++			/* always report some kind of error */
++			if (status >= 0)
++				status = -EREMOTEIO;
++			break;
++		}
+ 		status = 0;
++			/* protocol tweaks before next transfer */
++		if (t->delay_usecs)
++			udelay(t->delay_usecs);
++			if (!cs_change)
++			continue;
++		if (t->transfer_list.next == &m->transfers)
++			break;
++			/* sometimes a short mid-message deselect of the chip
++		 * may be needed to terminate a mode or command
++		 */
++		ndelay(nsecs);
++		bitbang->chipselect(spi, BITBANG_CS_INACTIVE);
++		ndelay(nsecs);
++	}
+ 
+-		list_for_each_entry (t, &m->transfers, transfer_list) {
+-
+-			/* override speed or wordsize? */
+-			if (t->speed_hz || t->bits_per_word)
+-				do_setup = 1;
+-
+-			/* init (-1) or override (1) transfer params */
+-			if (do_setup != 0) {
+-				if (!setup_transfer) {
+-					status = -ENOPROTOOPT;
+-					break;
+-				}
+-				status = setup_transfer(spi, t);
+-				if (status < 0)
+-					break;
+-			}
++	m->status = status;
++	if (m->complete)
++		m->complete(m->context);
+ 
+-			/* set up default clock polarity, and activate chip;
+-			 * this implicitly updates clock and spi modes as
+-			 * previously recorded for this device via setup().
+-			 * (and also deselects any other chip that might be
+-			 * selected ...)
+-			 */
+-			if (cs_change) {
+-				bitbang->chipselect(spi, BITBANG_CS_ACTIVE);
+-				ndelay(nsecs);
+-			}
+-			cs_change = t->cs_change;
+-			if (!t->tx_buf && !t->rx_buf && t->len) {
+-				status = -EINVAL;
+-				break;
+-			}
++	/* restore speed and wordsize */
++	if (setup_transfer)
++		setup_transfer(spi, NULL);
+ 
+-			/* transfer data.  the lower level code handles any
+-			 * new dma mappings it needs. our caller always gave
+-			 * us dma-safe buffers.
+-			 */
+-			if (t->len) {
+-				/* REVISIT dma API still needs a designated
+-				 * DMA_ADDR_INVALID; ~0 might be better.
+-				 */
+-				if (!m->is_dma_mapped)
+-					t->rx_dma = t->tx_dma = 0;
+-				status = bitbang->txrx_bufs(spi, t);
+-			}
+-			if (status > 0)
+-				m->actual_length += status;
+-			if (status != t->len) {
+-				/* always report some kind of error */
+-				if (status >= 0)
+-					status = -EREMOTEIO;
+-				break;
+-			}
+-			status = 0;
+-
+-			/* protocol tweaks before next transfer */
+-			if (t->delay_usecs)
+-				udelay(t->delay_usecs);
++	/* normally deactivate chipselect ... unless no error and
++	 * cs_change has hinted that the next message will probably
++	 * be for this chip too.
++	 */
++	if (!(status == 0 && cs_change)) {
++		ndelay(nsecs);
++		bitbang->chipselect(spi, BITBANG_CS_INACTIVE);
++		ndelay(nsecs);
++	}
+ 
+-			if (!cs_change)
+-				continue;
+-			if (t->transfer_list.next == &m->transfers)
+-				break;
++	local_irq_restore(flags);
+ 
+-			/* sometimes a short mid-message deselect of the chip
+-			 * may be needed to terminate a mode or command
+-			 */
+-			ndelay(nsecs);
+-			bitbang->chipselect(spi, BITBANG_CS_INACTIVE);
+-			ndelay(nsecs);
+-		}
++	return status;
++}
++EXPORT_SYMBOL_GPL(spi_bitbang_transfer_sync);
+ 
+-		m->status = status;
+-		m->complete(m->context);
++static void bitbang_work(struct work_struct *work)
++{
++	struct spi_bitbang	*bitbang =
++		container_of(work, struct spi_bitbang, work);
++	unsigned long		flags;
+ 
+-		/* restore speed and wordsize if it was overridden */
+-		if (do_setup == 1)
+-			setup_transfer(spi, NULL);
+-		do_setup = 0;
++	spin_lock_irqsave(&bitbang->lock, flags);
++	bitbang->busy = 1;
++	while (!list_empty(&bitbang->queue)) {
++		struct spi_message	*m;
+ 
+-		/* normally deactivate chipselect ... unless no error and
+-		 * cs_change has hinted that the next message will probably
+-		 * be for this chip too.
+-		 */
+-		if (!(status == 0 && cs_change)) {
+-			ndelay(nsecs);
+-			bitbang->chipselect(spi, BITBANG_CS_INACTIVE);
+-			ndelay(nsecs);
+-		}
++		m = container_of(bitbang->queue.next, struct spi_message,
++				queue);
++		list_del_init(&m->queue);
+ 
++		spin_unlock_irqrestore(&bitbang->lock, flags);
++		spi_bitbang_transfer_sync(m->spi, m);
+ 		spin_lock_irqsave(&bitbang->lock, flags);
+ 	}
+ 	bitbang->busy = 0;
+@@ -456,6 +461,10 @@ int spi_bitbang_start(struct spi_bitbang *bitbang)
+ 
+ 	if (!bitbang->master->transfer)
+ 		bitbang->master->transfer = spi_bitbang_transfer;
++
++	if (!bitbang->master->transfer_sync && bitbang->non_blocking_transfer)
++		bitbang->master->transfer_sync = spi_bitbang_transfer_sync;
++
+ 	if (!bitbang->txrx_bufs) {
+ 		bitbang->use_dma = 0;
+ 		bitbang->txrx_bufs = spi_bitbang_bufs;
+diff --git a/drivers/spi/spi_s3c24xx_gpio.c b/drivers/spi/spi_s3c24xx_gpio.c
+index bbf9371..5685b78 100644
+--- a/drivers/spi/spi_s3c24xx_gpio.c
++++ b/drivers/spi/spi_s3c24xx_gpio.c
+@@ -92,7 +92,7 @@ static void s3c2410_spigpio_chipselect(struct spi_device *dev, int value)
+ 	struct s3c2410_spigpio *sg = spidev_to_sg(dev);
+ 
+ 	if (sg->info && sg->info->chip_select)
+-		(sg->info->chip_select)(sg->info, value);
++		(sg->info->chip_select)(sg->info, dev->chip_select, value);
+ }
+ 
+ static int s3c2410_spigpio_probe(struct platform_device *dev)
+@@ -113,14 +113,17 @@ static int s3c2410_spigpio_probe(struct platform_device *dev)
+ 
+ 	platform_set_drvdata(dev, sp);
+ 
+-	/* copy in the plkatform data */
++	/* copy in the platform data */
+ 	info = sp->info = dev->dev.platform_data;
+ 
++	master->num_chipselect = info->num_chipselect;
++
+ 	/* setup spi bitbang adaptor */
+ 	sp->bitbang.master = spi_master_get(master);
+ 	sp->bitbang.master->bus_num = info->bus_num;
+ 	sp->bitbang.master->num_chipselect = info->num_chipselect;
+ 	sp->bitbang.chipselect = s3c2410_spigpio_chipselect;
++	sp->bitbang.non_blocking_transfer = info->non_blocking_transfer;
+ 
+ 	sp->bitbang.txrx_word[SPI_MODE_0] = s3c2410_spigpio_txrx_mode0;
+ 	sp->bitbang.txrx_word[SPI_MODE_1] = s3c2410_spigpio_txrx_mode1;
+diff --git a/drivers/usb/host/ohci-s3c2410.c b/drivers/usb/host/ohci-s3c2410.c
+index a68af2d..02bd7b0 100644
+--- a/drivers/usb/host/ohci-s3c2410.c
++++ b/drivers/usb/host/ohci-s3c2410.c
+@@ -22,6 +22,10 @@
+ #include <linux/platform_device.h>
+ #include <linux/clk.h>
+ #include <plat/usb-control.h>
++#include <mach/hardware.h>
++#include <mach/gpio-fns.h>
++#include <mach/regs-gpio.h>
++#include <mach/gta02.h>
+ 
+ #define valid_port(idx) ((idx) == 1 || (idx) == 2)
+ 
+@@ -306,6 +310,42 @@ static void s3c2410_hcd_oc(struct s3c2410_hcd_info *info, int port_oc)
+ 	local_irq_restore(flags);
+ }
+ 
++/* switching of USB pads */
++static ssize_t show_usb_mode(struct device *dev, struct device_attribute *attr,
++			     char *buf)
++{
++	if (__raw_readl(S3C24XX_MISCCR) & S3C2410_MISCCR_USBHOST)
++		return sprintf(buf, "host\n");
++
++	return sprintf(buf, "device\n");
++}
++
++static ssize_t set_usb_mode(struct device *dev, struct device_attribute *attr,
++			    const char *buf, size_t count)
++{
++	if (!strncmp(buf, "host", 4)) {
++		printk("s3c2410: changing usb to host\n");
++		s3c2410_modify_misccr(S3C2410_MISCCR_USBHOST,
++				      S3C2410_MISCCR_USBHOST);
++		/* FIXME:
++		 * - call machine-specific disable-pullup function i
++		 * - enable +Vbus (if hardware supports it)
++		 */
++		s3c2410_gpio_setpin(GTA02_GPIO_USB_PULLUP, 0);
++	} else if (!strncmp(buf, "device", 6)) {
++		printk("s3c2410: changing usb to device\n");
++		s3c2410_modify_misccr(S3C2410_MISCCR_USBHOST, 0);
++		s3c2410_gpio_setpin(GTA02_GPIO_USB_PULLUP, 1);
++	} else {
++		printk("s3c2410: unknown mode\n");
++		return -EINVAL;
++	}
++
++	return count;
++}
++
++static DEVICE_ATTR(usb_mode, S_IRUGO | S_IWUSR, show_usb_mode, set_usb_mode);
++
+ /* may be called without controller electrically present */
+ /* may be called with controller, bus, and devices active */
+ 
+@@ -323,6 +363,7 @@ static void s3c2410_hcd_oc(struct s3c2410_hcd_info *info, int port_oc)
+ static void
+ usb_hcd_s3c2410_remove (struct usb_hcd *hcd, struct platform_device *dev)
+ {
++	device_remove_file(&dev->dev, &dev_attr_usb_mode);
+ 	usb_remove_hcd(hcd);
+ 	s3c2410_stop_hc(dev);
+ 	iounmap(hcd->regs);
+@@ -390,8 +431,15 @@ static int usb_hcd_s3c2410_probe (const struct hc_driver *driver,
+ 	if (retval != 0)
+ 		goto err_ioremap;
+ 
++	retval = device_create_file(&dev->dev, &dev_attr_usb_mode);
++	if (retval != 0)
++		goto err_hcd;
++
+ 	return 0;
+ 
++ err_hcd:
++	usb_remove_hcd(hcd);
++
+  err_ioremap:
+ 	s3c2410_stop_hc(dev);
+ 	iounmap(hcd->regs);
+diff --git a/drivers/video/glamo-fb.c b/drivers/video/glamo-fb.c
+index 3f8ec8d..a428047 100644
+--- a/drivers/video/glamo-fb.c
++++ b/drivers/video/glamo-fb.c
+@@ -312,7 +312,7 @@ static int glamofb_cmd_mode(struct glamofb_handle *gfb, int on)
+ 			glamofb_reg_write(gfb, GLAMO_REG_LCD_COMMAND1,
+ 				  GLAMO_LCD_CMD_TYPE_DISP |
+ 				  GLAMO_LCD_CMD_DATA_DISP_SYNC);
+-
++		mdelay(1);
+ 		glamofb_reg_write(gfb, GLAMO_REG_LCD_COMMAND1,
+ 			  GLAMO_LCD_CMD_TYPE_DISP |
+ 			  GLAMO_LCD_CMD_DATA_DISP_FIRE);
+diff --git a/include/linux/lis302dl.h b/include/linux/lis302dl.h
+new file mode 100644
+index 0000000..0c1fc30
+--- /dev/null
++++ b/include/linux/lis302dl.h
+@@ -0,0 +1,152 @@
++#ifndef _LINUX_LIS302DL_H
++#define _LINUX_LIS302DL_H
++
++#include <linux/types.h>
++#include <linux/spi/spi.h>
++#include <linux/input.h>
++#include <linux/workqueue.h>
++
++struct lis302dl_info;
++
++struct lis302dl_platform_data {
++	char *name;
++	unsigned long pin_chip_select;
++	unsigned long pin_clk;
++	unsigned long pin_mosi;
++	unsigned long pin_miso;
++	int open_drain;
++	int interrupt;
++	void (*lis302dl_suspend_io)(struct lis302dl_info *, int resuming);
++};
++
++struct lis302dl_info {
++	struct lis302dl_platform_data *pdata;
++	struct device *dev;
++	struct input_dev *input_dev;
++	unsigned int flags;
++	unsigned int threshold;
++	unsigned int duration;
++	u32 overruns;
++	struct {
++		unsigned int threshold; /* mg */
++		unsigned int duration;  /* ms */
++	} wakeup;
++
++	struct spi_device *spi;
++	u_int8_t regs[0x40];
++};
++
++enum lis302dl_reg {
++	LIS302DL_REG_WHO_AM_I		= 0x0f,
++	LIS302DL_REG_CTRL1		= 0x20,
++	LIS302DL_REG_CTRL2		= 0x21,
++	LIS302DL_REG_CTRL3		= 0x22,
++	LIS302DL_REG_HP_FILTER_RESET	= 0x23,
++	LIS302DL_REG_STATUS		= 0x27,
++	LIS302DL_REG_OUT_X		= 0x29,
++	LIS302DL_REG_OUT_Y		= 0x2b,
++	LIS302DL_REG_OUT_Z		= 0x2d,
++	LIS302DL_REG_FF_WU_CFG_1	= 0x30,
++	LIS302DL_REG_FF_WU_SRC_1	= 0x31,
++	LIS302DL_REG_FF_WU_THS_1	= 0x32,
++	LIS302DL_REG_FF_WU_DURATION_1	= 0x33,
++	LIS302DL_REG_FF_WU_CFG_2	= 0x34,
++	LIS302DL_REG_FF_WU_SRC_2	= 0x35,
++	LIS302DL_REG_FF_WU_THS_2	= 0x36,
++	LIS302DL_REG_FF_WU_DURATION_2	= 0x37,
++	LIS302DL_REG_CLICK_CFG		= 0x38,
++	LIS302DL_REG_CLICK_SRC		= 0x39,
++	LIS302DL_REG_CLICK_THSY_X	= 0x3b,
++	LIS302DL_REG_CLICK_THSZ		= 0x3c,
++	LIS302DL_REG_CLICK_TIME_LIMIT	= 0x3d,
++	LIS302DL_REG_CLICK_LATENCY	= 0x3e,
++	LIS302DL_REG_CLICK_WINDOW	= 0x3f,
++};
++
++enum lis302dl_reg_ctrl1 {
++	LIS302DL_CTRL1_Xen		= 0x01,
++	LIS302DL_CTRL1_Yen		= 0x02,
++	LIS302DL_CTRL1_Zen		= 0x04,
++	LIS302DL_CTRL1_STM		= 0x08,
++	LIS302DL_CTRL1_STP		= 0x10,
++	LIS302DL_CTRL1_FS		= 0x20,
++	LIS302DL_CTRL1_PD		= 0x40,
++	LIS302DL_CTRL1_DR		= 0x80,
++};
++
++enum lis302dl_reg_ctrl2 {
++	LIS302DL_CTRL2_HPC1		= 0x01,
++	LIS302DL_CTRL2_HPC2		= 0x02,
++	LIS302DL_CTRL2_HPFF1		= 0x04,
++	LIS302DL_CTRL2_HPFF2		= 0x08,
++	LIS302DL_CTRL2_FDS		= 0x10,
++	LIS302DL_CTRL2_BOOT		= 0x40,
++	LIS302DL_CTRL2_SIM		= 0x80,
++};
++enum lis302dl_reg_ctrl3 {
++	LIS302DL_CTRL3_PP_OD		= 0x40,
++	LIS302DL_CTRL3_IHL		= 0x80,
++};
++
++enum lis302dl_reg_status {
++	LIS302DL_STATUS_XDA		= 0x01,
++	LIS302DL_STATUS_YDA		= 0x02,
++	LIS302DL_STATUS_ZDA		= 0x04,
++	LIS302DL_STATUS_XYZDA		= 0x08,
++	LIS302DL_STATUS_XOR		= 0x10,
++	LIS302DL_STATUS_YOR		= 0x20,
++	LIS302DL_STATUS_ZOR		= 0x40,
++	LIS302DL_STATUS_XYZOR		= 0x80,
++};
++
++/* Wakeup/freefall interrupt defs */
++enum lis302dl_reg_ffwucfg {
++	LIS302DL_FFWUCFG_XLIE		= 0x01,
++	LIS302DL_FFWUCFG_XHIE		= 0x02,
++	LIS302DL_FFWUCFG_YLIE		= 0x04,
++	LIS302DL_FFWUCFG_YHIE		= 0x08,
++	LIS302DL_FFWUCFG_ZLIE		= 0x10,
++	LIS302DL_FFWUCFG_ZHIE		= 0x20,
++	LIS302DL_FFWUCFG_LIR		= 0x40,
++	LIS302DL_FFWUCFG_AOI		= 0x80,
++};
++
++enum lis302dl_reg_ffwuths {
++	LIS302DL_FFWUTHS_DCRM		= 0x80,
++};
++
++enum lis302dl_reg_ffwusrc {
++	LIS302DL_FFWUSRC_XL		= 0x01,
++	LIS302DL_FFWUSRC_XH		= 0x02,
++	LIS302DL_FFWUSRC_YL		= 0x04,
++	LIS302DL_FFWUSRC_YH		= 0x08,
++	LIS302DL_FFWUSRC_ZL		= 0x10,
++	LIS302DL_FFWUSRC_ZH		= 0x20,
++	LIS302DL_FFWUSRC_IA		= 0x40,
++};
++
++enum lis302dl_reg_cloik_src {
++	LIS302DL_CLICKSRC_SINGLE_X	= 0x01,
++	LIS302DL_CLICKSRC_DOUBLE_X	= 0x02,
++	LIS302DL_CLICKSRC_SINGLE_Y	= 0x04,
++	LIS302DL_CLICKSRC_DOUBLE_Y	= 0x08,
++	LIS302DL_CLICKSRC_SINGLE_Z	= 0x10,
++	LIS302DL_CLICKSRC_DOUBLE_Z	= 0x20,
++	LIS302DL_CLICKSRC_IA		= 0x40,
++};
++
++#define LIS302DL_WHO_AM_I_MAGIC		0x3b
++
++#define LIS302DL_F_WUP_FF_1		0x0001	/* wake up from free fall */
++#define LIS302DL_F_WUP_FF_2		0x0002
++#define LIS302DL_F_WUP_FF		0x0003
++#define LIS302DL_F_WUP_CLICK	0x0004
++#define LIS302DL_F_POWER		0x0010
++#define LIS302DL_F_FS			0x0020 	/* ADC full scale */
++#define LIS302DL_F_INPUT_OPEN 	0x0040  /* Set if input device is opened */
++#define LIS302DL_F_IRQ_WAKE 	0x0080  /* IRQ is setup in wake mode */
++#define LIS302DL_F_DR			0x0100 	/* Data rate, 400Hz/100Hz */
++
++
++#endif /* _LINUX_LIS302DL_H */
++
+diff --git a/include/linux/mfd/glamo-core.h b/include/linux/mfd/glamo-core.h
+index 8275a2f..8e3e56e 100644
+--- a/include/linux/mfd/glamo-core.h
++++ b/include/linux/mfd/glamo-core.h
+@@ -37,6 +37,7 @@ struct glamo_core {
+ 	enum glamo_engine_state engine_state[__NUM_GLAMO_ENGINES];
+ 	spinlock_t lock;
+ 	uint16_t saved_irq_mask;
++	int slowed_divider;
+ #ifdef CONFIG_DEBUG_FS
+ 	struct dentry *debugfs_dir;
+ #endif
+@@ -55,4 +56,6 @@ int glamo_engine_disable(struct glamo_core *glamo, enum glamo_engine engine);
+ void glamo_engine_reset(struct glamo_core *glamo, enum glamo_engine engine);
+ int glamo_engine_reclock(struct glamo_core *glamo,
+ 			 enum glamo_engine engine, int ps);
++void glamo_pixclock_slow (struct glamo_core *glamo);
++void glamo_pixclock_fast (struct glamo_core *glamo);
+ #endif /* __GLAMO_CORE_H */
+diff --git a/include/linux/mmc/core.h b/include/linux/mmc/core.h
+index e4898e9..b49d674 100644
+--- a/include/linux/mmc/core.h
++++ b/include/linux/mmc/core.h
+@@ -129,6 +129,8 @@ struct mmc_request {
+ struct mmc_host;
+ struct mmc_card;
+ 
++extern void mmc_flush_scheduled_work(void);
++
+ extern void mmc_wait_for_req(struct mmc_host *, struct mmc_request *);
+ extern int mmc_wait_for_cmd(struct mmc_host *, struct mmc_command *, int);
+ extern int mmc_wait_for_app_cmd(struct mmc_host *, struct mmc_card *,
+diff --git a/include/linux/spi/spi.h b/include/linux/spi/spi.h
+index af56071..83ad05d 100644
+--- a/include/linux/spi/spi.h
++++ b/include/linux/spi/spi.h
+@@ -292,6 +292,13 @@ struct spi_master {
+ 	int			(*transfer)(struct spi_device *spi,
+ 						struct spi_message *mesg);
+ 
++	/*
++	 * Synchronous non blocking transfer function. Should guarantee
++	 * data availability when it returns
++	 */
++	int			(*transfer_sync)(struct spi_device *spi,
++						struct spi_message *mesg);
++
+ 	/* called on release() to free memory provided by spi_master */
+ 	void			(*cleanup)(struct spi_device *spi);
+ };
+@@ -543,6 +550,29 @@ static inline void spi_message_free(struct spi_message *m)
+ extern int spi_setup(struct spi_device *spi);
+ extern int spi_async(struct spi_device *spi, struct spi_message *message);
+ 
++/**
++ * spi_non_blocking_transfer - Synchronous, non blocking transfer
++ * @spi: device with which data will be exchanged
++ * @message: describes the data transfers with optional completion handlers
++ * Context: any (irqs may be blocked, etc)
++ *
++ * Data is guaranteed to be written or read when this function returns.
++ *
++ * Note : This may not be supported by all spi masters.
++ */
++
++static inline int
++spi_non_blocking_transfer(struct spi_device *spi, struct spi_message *message)
++{
++	if (unlikely(!spi->master->transfer_sync)) {
++		dev_err(&spi->master->dev,
++				"non-blocking transfers not supported\n");
++		return -EIO;
++	}
++
++	return spi->master->transfer_sync(spi, message);
++}
++
+ /*---------------------------------------------------------------------------*/
+ 
+ /* All these synchronous SPI transfer routines are utilities layered
+diff --git a/include/linux/spi/spi_bitbang.h b/include/linux/spi/spi_bitbang.h
+index 3274c50..6dc9b8b 100644
+--- a/include/linux/spi/spi_bitbang.h
++++ b/include/linux/spi/spi_bitbang.h
+@@ -31,6 +31,9 @@ struct spi_bitbang {
+ 	u8			use_dma;
+ 	u8			flags;		/* extra spi->mode support */
+ 
++	/* Support for synchronous non blocking transfers */
++	int 			non_blocking_transfer;
++
+ 	struct spi_master	*master;
+ 
+ 	/* setup_transfer() changes clock and/or wordsize to match settings
+@@ -62,6 +65,8 @@ extern void spi_bitbang_cleanup(struct spi_device *spi);
+ extern int spi_bitbang_transfer(struct spi_device *spi, struct spi_message *m);
+ extern int spi_bitbang_setup_transfer(struct spi_device *spi,
+ 				      struct spi_transfer *t);
++extern int spi_bitbang_transfer_sync(struct spi_device *spi,
++				      struct spi_message *m);
+ 
+ /* start or stop queue processing */
+ extern int spi_bitbang_start(struct spi_bitbang *spi);
+diff --git a/sound/soc/codecs/wm8753.c b/sound/soc/codecs/wm8753.c
+index 613199a..e270b9f 100644
+--- a/sound/soc/codecs/wm8753.c
++++ b/sound/soc/codecs/wm8753.c
+@@ -710,7 +710,9 @@ static void pll_factors(struct _pll_div *pll_div, unsigned int target,
+ 	Nmod = target % source;
+ 	Kpart = FIXED_PLL_SIZE * (long long)Nmod;
+ 
+-	do_div(Kpart, source);
++	// with this, gcc-4.4.2 emits the reference to uldivmod, but then optimizes it out
++	//do_div(Kpart, source);
++	__do_div_asm(Kpart, source);
+ 
+ 	K = Kpart & 0xFFFFFFFF;
+ 
+diff --git a/sound/soc/s3c24xx/neo1973_wm8753.c b/sound/soc/s3c24xx/neo1973_wm8753.c
+index 47cc244..217c22e 100644
+--- a/sound/soc/s3c24xx/neo1973_wm8753.c
++++ b/sound/soc/s3c24xx/neo1973_wm8753.c
+@@ -23,6 +23,7 @@
+ #include <sound/pcm.h>
+ #include <sound/soc.h>
+ #include <sound/soc-dapm.h>
++#include <sound/jack.h>
+ #include <sound/tlv.h>
+ 
+ #include <asm/mach-types.h>
+@@ -255,6 +256,9 @@ static const struct snd_kcontrol_new wm8753_neo1973_controls[] = {
+ 
+ /* GTA01 specific controlls */
+ 
++static struct snd_soc_card neo1973;
++static struct snd_soc_jack hs_jack;
++
+ #ifdef CONFIG_MACH_NEO1973_GTA01
+ 
+ static const struct snd_soc_dapm_widget wm8753_dapm_widgets_gta01[] = {
+@@ -321,6 +325,29 @@ static const struct snd_kcontrol_new wm8753_neo1973_gta02_controls[] = {};
+ static const struct snd_soc_dapm_widget wm8753_dapm_widgets_gta02[] = {};
+ #endif
+ 
++static struct snd_soc_jack_pin hs_jack_pins[] = {
++	{
++		.pin = "Headset Mic",
++		.mask = SND_JACK_MICROPHONE,
++	},
++	{
++		.pin = "Stereo Out",
++		.mask = SND_JACK_HEADPHONE,
++		.invert = 1,
++	},
++};
++
++static struct snd_soc_jack_gpio hs_jack_gpios[] = {
++	{
++		.gpio = GTA02_GPIO_JACK_INSERT,
++		.name = "headset-gpio",
++		.report = SND_JACK_HEADSET,
++		.debounce_time = 100,
++	},
++};
++
++
++
+ static int neo1973_wm8753_init(struct snd_soc_codec *codec)
+ {
+ 	int err;
+@@ -389,6 +416,24 @@ static int neo1973_wm8753_init(struct snd_soc_codec *codec)
+ 
+ 	snd_soc_dapm_sync(codec);
+ 
++	err = snd_soc_jack_new(&neo1973, "Headset Jack", SND_JACK_HEADSET, &hs_jack);
++	if (err) {
++		dev_err(codec->card->dev, "failed to alloc headset jack\n");
++		return err;
++	}
++
++	err = snd_soc_jack_add_pins(&hs_jack, ARRAY_SIZE(hs_jack_pins), hs_jack_pins);
++	if (err) {
++		dev_err(codec->card->dev, "failed to add headset jack pins\n");
++		return err;
++	}
++
++	err = snd_soc_jack_add_gpios(&hs_jack, ARRAY_SIZE(hs_jack_gpios), hs_jack_gpios);
++	if (err) {
++		dev_err(codec->card->dev, "failed to add headset jack gpios\n");
++		return err;
++	}
++
+ 	return 0;
+ }
+ 
+@@ -543,6 +588,7 @@ static inline void neo1973_gta02_exit(void) {}
+ static void __exit neo1973_exit(void)
+ {
+ 	snd_soc_unregister_dai(&bt_dai);
++	snd_soc_jack_free_gpios(&hs_jack, ARRAY_SIZE(hs_jack_gpios), hs_jack_gpios);
+ 	platform_device_unregister(neo1973_snd_device);
+ 
+ 	if (machine_is_neo1973_gta02())
