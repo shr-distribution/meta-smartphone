@@ -1,6 +1,8 @@
 require recipes-bsp/u-boot/u-boot.inc
 
-SRC_URI = "git://git.goldelico.com/gta04-uboot.git"
+SRC_URI = "git://git.goldelico.com/gta04-uboot.git \
+  file://0001-config-Always-use-GNU-ld.patch \
+"
 SRCREV = "e17fde7c50b8c54967450c7aea465e7e6bcb29dd"
 
 LICENSE = "GPLv2+"
@@ -10,7 +12,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=1707d6db1d42237583f50183a5651ecb \
 S = "${WORKDIR}/git"
 
 PV = "2011.03+gitr${SRCPV}"
-
+PR = "r1"
 
 UBOOT_MACHINE_om-gta04 = "omap3_gta04_config"
 
