@@ -27,6 +27,6 @@ do_install_append() {
 	install -d ${D}${sysconfdir}/init.d/
 	install -m 0755 ${WORKDIR}/${PN} ${D}${sysconfdir}/init.d/
 	install -d ${D}${base_libdir}/systemd/system/
-	install -m 0644 ${WORKDIR}/git/${PN}/data/${PN}.service ${D}${base_libdir}/systemd/system/${PN}.service
+	install -m 0644 ${S}/data/${PN}.service ${D}${base_libdir}/systemd/system/${PN}.service
 }
 
