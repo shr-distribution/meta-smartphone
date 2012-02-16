@@ -14,7 +14,7 @@ DEPENDS += "alsa-lib libcmtspeechdata libsamplerate0"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
 PV = "0.1.0+gitr${SRCPV}"
 PE = "2"
-PR = "${INC_PR}.7"
+PR = "${INC_PR}.8"
 
 EXTRA_OECONF = "\
   --enable-cmtspeechdata \
@@ -30,9 +30,6 @@ inherit systemd
 SYSTEMD_PACKAGES = "${PN}-systemd"
 SYSTEMD_SERVICE = "${PN}.service"
 
-PACKAGES =+ "${PN}-systemd"
-FILES_${PN}-systemd += "${base_libdir}/systemd"
-RDEPENDS_${PN}-systemd += "${PN}"
 RDEPENDS_${PN} += "${PN}-config"
 
 SRC_URI += "file://${PN}"

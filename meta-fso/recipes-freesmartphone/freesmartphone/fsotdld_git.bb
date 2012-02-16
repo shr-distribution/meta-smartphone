@@ -1,7 +1,7 @@
 require cornucopia.inc
 inherit fso-plugin
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
-PR = "${INC_PR}.7"
+PR = "${INC_PR}.8"
 PV = "0.3.1+gitr${SRCPV}"
 PE = "1"
 
@@ -16,10 +16,6 @@ INITSCRIPT_PARAMS = "defaults 27"
 inherit systemd
 SYSTEMD_PACKAGES = "${PN}-systemd"
 SYSTEMD_SERVICE = "${PN}.service"
-
-PACKAGES =+ "${PN}-systemd"
-FILES_${PN}-systemd += "${base_libdir}/systemd"
-RDEPENDS_${PN}-systemd += "${PN}"
 
 SRC_URI += "file://${PN}"
 
