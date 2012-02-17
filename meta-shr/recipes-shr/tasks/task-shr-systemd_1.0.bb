@@ -4,11 +4,10 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384
 
 inherit task
 
-PR = "r5"
+PR = "r6"
 
 RDEPENDS_${PN} = "\
   keymaps-systemd \
-  rsyslog-systemd \
   xinput-calibrator-systemd \
   openssh-sshd-systemd \
   phonefsod-systemd \
