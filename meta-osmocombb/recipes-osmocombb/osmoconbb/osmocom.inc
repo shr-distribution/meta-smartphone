@@ -1,3 +1,3 @@
-INC_PR = "r0"
+INC_PR = "r1"
 SRC_URI = "git://git.osmocom.org/osmocom-bb;protocol=git;branch=master"
-OSMOCOM_SRCREV ?= "2a64b42111e50d71198bfec1ab28d01e6d1cfd2b"
+OSMOCOM_SRCREV ?= "b4a8badc45a05283944859e2822a202197eed1c4"
