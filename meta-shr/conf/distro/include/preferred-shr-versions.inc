@@ -18,6 +18,7 @@ PREFERRED_VERSION_udev = "180"
 
 # we need new headers for libc, now OLDEST_KERNEL_linux-gnueabi = "2.6.24"
 # and 2.6.31 for fsodeviced
+OLDEST_KERNEL = "2.6.24"
 LINUX_LIBC_HEADERS_VERSION ?= "2.6.32"
 
 # git version fails to build

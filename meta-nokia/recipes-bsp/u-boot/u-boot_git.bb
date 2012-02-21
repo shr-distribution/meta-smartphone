@@ -8,11 +8,12 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=1707d6db1d42237583f50183a5651ecb \
 
 S = "${WORKDIR}/git"
 
-PR = "r2"
+PR = "r3"
 PV = "2011.06+gitr${SRCPV}"
 
 SRC_URI = " \
   git://www.denx.de/git/u-boot.git;protocol=git \
+  file://0001-config-Always-use-GNU-ld.patch \
   file://0001-Copy-u-boot.bin-to-CONFIG_SYS_TEXT_BASE-if-chainload.patch \
   file://0002-Store-existing-atags-at-startup-if-chainloading.patch \
   file://0003-Make-bootm-optionally-use-pre-existing-atags-for-Lin.patch \
