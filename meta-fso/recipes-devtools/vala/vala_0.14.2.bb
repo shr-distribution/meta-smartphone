@@ -1,8 +1,12 @@
 require recipes-devtools/vala/vala.inc
 
+PR = "r1"
+
 DEPENDS += "gtk+"
 
-SRC_URI = "http://ftp.gnome.org/pub/GNOME/sources/vala/0.14/vala-${PV}.tar.xz"
+SRC_URI = "http://ftp.gnome.org/pub/GNOME/sources/vala/0.14/vala-${PV}.tar.xz \
+           file://0001-git-version-gen-don-t-append-dirty-if-we-re-not-in-g.patch \
+"
 
 FILES_${PN} += "${datadir}/vala-0.14/vapi"
 
