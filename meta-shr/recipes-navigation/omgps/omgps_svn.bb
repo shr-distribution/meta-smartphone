@@ -9,7 +9,8 @@ PV = "0.1+svnr${SRCPV}"
 S = "${WORKDIR}/${PN}"
 
 do_configure_prepend() {
-   sed -i 's/PY_VERSION = 2.6/PY_VERSION = 2.7/g' ${S}/Makefile.am
+   sed -i "s#PY_VERSION = 2.6#PY_VERSION = ${PYTHON_BASEVERSION}#g" ${S}/Makefile.am
+   sed -i "s#PY_INC_DIR = \$(OPIEDIR)#PY_INC_DIR = ${STAGING_DIR_HOST}#g" ${S}/Makefile.am
 }
 
 SRC_URI = "svn://omgps.googlecode.com/svn/trunk;module=omgps;proto=http \
