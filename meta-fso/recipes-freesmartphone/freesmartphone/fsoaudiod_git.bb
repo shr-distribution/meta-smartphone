@@ -14,7 +14,7 @@ DEPENDS += "alsa-lib libcmtspeechdata libsamplerate0"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
 PV = "0.1.0+gitr${SRCPV}"
 PE = "2"
-PR = "${INC_PR}.7"
+PR = "${INC_PR}.8"
 
 EXTRA_OECONF = "\
   --enable-cmtspeechdata \
@@ -30,9 +30,6 @@ inherit systemd
 SYSTEMD_PACKAGES = "${PN}-systemd"
 SYSTEMD_SERVICE = "${PN}.service"
 
-PACKAGES =+ "${PN}-systemd"
-FILES_${PN}-systemd += "${base_libdir}/systemd"
-RDEPENDS_${PN}-systemd += "${PN}"
 RDEPENDS_${PN} += "${PN}-config"
 
 SRC_URI += "file://${PN}"
@@ -50,8 +47,8 @@ RCONFLICTS_${PN} = "alsa-state"
 do_install_append() {
   install -d ${D}${sysconfdir}/init.d/
   install -m 0755 ${WORKDIR}/${PN} ${D}${sysconfdir}/init.d/
-  install -d ${D}${base_libdir}/systemd/system/
-  install -m 0644 ${S}/data/${PN}.service ${D}${base_libdir}/systemd/system/${PN}.service
+  install -d ${D}${systemd_unitdir}/system/
+  install -m 0644 ${S}/data/${PN}.service ${D}${systemd_unitdir}/system/${PN}.service
 }
 
 PACKAGES =+ "${PN}-alsa-plugins ${PN}-alsa-plugins-dbg ${PN}-alsa-plugins-dev ${PN}-config"

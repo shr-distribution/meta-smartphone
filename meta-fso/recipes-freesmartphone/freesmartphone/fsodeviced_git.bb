@@ -6,7 +6,7 @@ RPROVIDES_${PN} = "openmoko-alsa-scenarios virtual/alsa-scenarios"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
 PV = "0.9.4+gitr${SRCPV}"
 PE = "2"
-PR = "${INC_PR}.26"
+PR = "${INC_PR}.27"
 
 EXTRA_OECONF = "\
   --enable-kernel26-rfkill \
@@ -23,17 +23,13 @@ inherit systemd
 SYSTEMD_PACKAGES = "${PN}-systemd"
 SYSTEMD_SERVICE = "${PN}.service"
 
-PACKAGES =+ "${PN}-systemd"
-FILES_${PN}-systemd += "${base_libdir}/systemd"
-RDEPENDS_${PN}-systemd += "${PN}"
-
 SRC_URI += "file://${PN}"
 
 do_install_append() {
 	install -d ${D}${sysconfdir}/init.d/
 	install -m 0755 ${WORKDIR}/${PN} ${D}${sysconfdir}/init.d/
-	install -d ${D}${base_libdir}/systemd/system/
-	install -m 0644 ${S}/data/${PN}.service ${D}${base_libdir}/systemd/system/${PN}.service
+	install -d ${D}${systemd_unitdir}/system/
+	install -m 0644 ${S}/data/${PN}.service ${D}${systemd_unitdir}/system/${PN}.service
 }
 
 pkg_preinst_${PN}-config () {
