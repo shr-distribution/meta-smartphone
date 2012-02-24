@@ -4,16 +4,11 @@ SECTION = "fso/base"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 PV = "1.9.0"
-PR = "r17"
+PR = "r18"
 
-inherit task
+inherit task allarch
 
 RDEPENDS_${PN} = "\
-  libfsobasics \
-  libfsotransport \
-  libfsoframework \
-  libfsoresource \
-  \
   fsoaudiod-config \
   fsodatad \
   fsodeviced \
