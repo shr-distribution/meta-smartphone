@@ -19,6 +19,7 @@ READER_STATUS	  ?= "release"
 # because of defaults overriden in machine config
 PACKAGE_ARCH_om-gta01 = "${MACHINE_ARCH}"
 PACKAGE_ARCH_om-gta02 = "${MACHINE_ARCH}"
+PACKAGE_ARCH_om-gta04 = "${MACHINE_ARCH}"
 
 FILES_${PN} += "${datadir}/FBReader ${datadir}/zlibrary ${libdir}/zlibrary"
 FILES_${PN}-dbg += "${libdir}/zlibrary/ui/.debug/"
