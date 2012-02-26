@@ -13,7 +13,7 @@ INC_PR = "r7"
 ALTERNATIVE_NAME = "shr-splash-theme"
 ALTERNATIVE_LINK = "${datadir}/shr-splash/theme"
 ALTERNATIVE_PATH = "${datadir}/shr-splash/themes/${PN}"
-ALTERNATIVE_PRIORITY ?= 1
+ALTERNATIVE_PRIORITY ?= "1"
 
 SS ?= "${S}"
 

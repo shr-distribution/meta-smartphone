@@ -7,8 +7,8 @@ SECTION = "x11/game"
 SRCREV = "45"
 DEPENDS = "edje-native"
 PV = "0.2+svnr${SRCPV}"
-FILES_${PN} += ${datadir}/moko_eightball/Accelerometer/__init__.py
-FILES_${PN} += ${datadir}/moko_eightball/themes/eightball.edj
+FILES_${PN} += "${datadir}/moko_eightball/Accelerometer/__init__.py"
+FILES_${PN} += "${datadir}/moko_eightball/themes/eightball.edj"
 
 SRC_URI = "svn://svn.pureenergy.cc/moko_eightball;module=python;proto=svn \
 	   file://fixpath.patch"

@@ -88,7 +88,7 @@ FILES_${PN}-module-modem-samsung-dev = "${CORNUCOPIA_MODULE_DIR}/modem_samsung.l
 FILES_${PN}-module-modem-samsung-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/modem_samsung*"
 
 PACKAGES =+ "${PN}-module-modem-option-gtm601 ${PN}-module-modem-option-gtm601-dev ${PN}-module-modem-option-gtm601-dbg"
-FILES_${PN}-module-modem-option-gtm601 = ${CORNUCOPIA_MODULE_DIR}/modem_option_gtm601.so"
+FILES_${PN}-module-modem-option-gtm601 = "${CORNUCOPIA_MODULE_DIR}/modem_option_gtm601.so"
 FILES_${PN}-module-modem-option-gtm601-dev = "${CORNUCOPIA_MODULE_DIR}/modem_option_gtm601.la"
 FILES_${PN}-module-modem-option-gtm601-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/modem_option_gtm601*"
 

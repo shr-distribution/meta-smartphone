@@ -1,6 +1,6 @@
 DESCRIPTION = "Little utility to read 'tokens' from internal flash and store them in a smartkeyfile; specific for palmpre machine"
 HOMEPAGE = "http://www.freesmartphone.org"
-AUTHOR = "Simon Busch <morphis@gravedo.de>
+AUTHOR = "Simon Busch <morphis@gravedo.de>"
 SECTION = "console/utils"
 LICENSE = "GPLv3"
 PR = "r1"

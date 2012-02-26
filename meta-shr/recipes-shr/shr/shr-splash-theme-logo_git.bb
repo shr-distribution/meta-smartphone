@@ -17,7 +17,7 @@ SS_append_om-gta04 = "/om-gta04"
 SS_append_htcdream = "/htcdream"
 SS_append_palmpre  = "/palmpre"
 
-ALTERNATIVE_PRIORITY = 3
+ALTERNATIVE_PRIORITY = "3"
 
 require shr-splash-theme.inc
 # only this recipe is MACHINE specific
