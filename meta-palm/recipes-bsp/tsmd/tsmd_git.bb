@@ -1,6 +1,6 @@
 DESCRIPTION = "Touchscreen management daemon - manages the touchscreen of the palm pre machine"
 HOMEPAGE = "http://www.freesmartphone.org"
-AUTHOR = "Valéry Febvre <vfebvre@easter-eggs.com>
+AUTHOR = "Valéry Febvre <vfebvre@easter-eggs.com>"
 SECTION = "base"
 
 LICENSE = "GPLv3"
