@@ -8,7 +8,7 @@ inherit allarch
 LICENSE = "MIT BSD"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=f523ab5986cc79b52a90d2ac3d5454a2"
 
-SRCREV = "8818c3a1a4925f185baa18b22ef4a33e39b24eef"
+SRCREV = "849397eca17f950567d3bf879cbba5dbdaaffcde"
 PV = "0.4+gitr${SRCPV}"
 PR = "r2"
 
