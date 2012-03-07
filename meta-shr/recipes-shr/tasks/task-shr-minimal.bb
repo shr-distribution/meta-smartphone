@@ -1,5 +1,5 @@
 DESCRIPTION = "SHR Lite Image Feed"
-PR = "r49"
+PR = "r50"
 PV = "2.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -89,9 +89,12 @@ RDEPENDS_${PN}-cli = "\
   rsyslog \
 "
 
+MACHINE_GPSD_PROVIDER = "fso-gpsd"
+MACHINE_GPSD_PROVIDER_om-gta04 = "gpsd"
+
 RDEPENDS_${PN}-fso = "\
   fsoraw \
-  fso-gpsd \
+  ${MACHINE_GPSD_PROVIDER} \
   opimd-utils-cli \
   python-codecs \
   python-gst \
