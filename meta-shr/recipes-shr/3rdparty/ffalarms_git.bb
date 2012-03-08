@@ -9,6 +9,7 @@ DEPENDS = "elementary libeflvala libical"
 RDEPENDS_${PN} = "atd alsa-utils-amixer ttf-dejavu-sans libical"
 RSUGGESTS_${PN} = "mplayer alsa-utils-aplay frameworkd"
 PV = "0.4+gitr${SRCPV}"
+PR = "r1"
 
 #disable as-needed for now, fails on many undefined symbols otherwise
 ASNEEDED = ""
