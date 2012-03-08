@@ -8,7 +8,7 @@ SECTION = "x11/application"
 
 SRCREV = "64380ee528eeb370866ca8c675e5a1ade5fbfc38"
 PV = "0.0.0+gitr${SRCPV}"
-PR = "r15"
+PR = "r16"
 
 inherit autotools
 
@@ -25,7 +25,7 @@ FILES_${PN} += "\
 	${libdir}/enlightenment/modules/*/*.edj \
 	${libdir}/enlightenment/modules/*/*/*.so \
 "
-FILES_${PN}-static += "${libdir}/enlightenment/modules/*/*/*.a"
+FILES_${PN}-staticdev += "${libdir}/enlightenment/modules/*/*/*.a"
 FILES_${PN}-dev += "${libdir}/enlightenment/modules/*/*/*.la"
 FILES_${PN}-dbg += "${libdir}/enlightenment/modules/*/*/.debug"
 
