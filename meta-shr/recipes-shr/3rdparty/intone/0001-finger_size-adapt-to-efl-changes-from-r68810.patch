@@ -1,0 +1,26 @@
+From d5c211f7f5ed815437b4dbd880bf2fa3af7105e1 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Thu, 8 Mar 2012 17:13:42 +0100
+Subject: [PATCH] finger_size: adapt to efl changes from r68810
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ src/main.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/main.c b/src/main.c
+index 9a43284..0329840 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -113,7 +113,7 @@ elm_main(int argc, char **argv)
+ 	//printf("restoring state\n");
+ 	restore_state();
+ 	//adjust finger size
+-	if(finger == SMALL) elm_finger_size_set(60); 
++	if(finger == SMALL) elm_config_finger_size_set(60); 
+ 	//load snd-pcm-oss
+ 	ret = system("modprobe snd-pcm-oss");
+ 	//TODO : auto rescan the media directory on changes
+-- 
+1.7.8.5
+

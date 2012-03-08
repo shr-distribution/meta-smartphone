@@ -13,6 +13,7 @@ PR = "r2"
 
 SRC_URI = "git://code.google.com/p/intone;protocol=http \
   file://0001-genlist-adapt-to-elementary-changes-from-r68943.patch \
+  file://0001-finger_size-adapt-to-efl-changes-from-r68810.patch \
 "
 
 S = "${WORKDIR}/git"
