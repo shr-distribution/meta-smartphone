@@ -6,9 +6,9 @@ DEPENDS = "e-wm elementary"
 RDEPENDS_${PN} = "e-wm"
 SECTION = "x11/application"
 
-SRCREV = "64380ee528eeb370866ca8c675e5a1ade5fbfc38"
+SRCREV = "67bdd8c808bb6e1569a4c3ba1189c24612126f17"
 PV = "0.0.0+gitr${SRCPV}"
-PR = "r14"
+PR = "r16"
 
 inherit autotools
 
@@ -25,7 +25,7 @@ FILES_${PN} += "\
 	${libdir}/enlightenment/modules/*/*.edj \
 	${libdir}/enlightenment/modules/*/*/*.so \
 "
-FILES_${PN}-static += "${libdir}/enlightenment/modules/*/*/*.a"
+FILES_${PN}-staticdev += "${libdir}/enlightenment/modules/*/*/*.a"
 FILES_${PN}-dev += "${libdir}/enlightenment/modules/*/*/*.la"
 FILES_${PN}-dbg += "${libdir}/enlightenment/modules/*/*/.debug"
 

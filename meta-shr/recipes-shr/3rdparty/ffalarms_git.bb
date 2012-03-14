@@ -14,10 +14,9 @@ PV = "0.4+gitr${SRCPV}"
 ASNEEDED = ""
 
 SRC_URI = "git://git.shr-project.org/repo/ffalarms.git;protocol=http;branch=master \
-  file://0001-fix-name-of-changed-genlist-gengrid-callbacks.patch \
 "
 
-SRCREV = "7f27c2f42a72d1076f5ce224659f2e2ea09bc5af"
+SRCREV = "7f3e25dc80a9d337f2bb2dacf6ebeb62491a2445"
 S = "${WORKDIR}/git"
 
 inherit vala

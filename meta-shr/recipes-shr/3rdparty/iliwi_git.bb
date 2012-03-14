@@ -9,7 +9,7 @@ RDEPENDS_${PN} = "wireless-tools wpa-supplicant"
 
 SRCREV = "f1fa0ca8128da5aee47aca5a0900589b5cbd96d6"
 PV = "0.0.1.1+gitr${SRCPV}"
-PR = "r14"
+PR = "r15"
 
 SRC_URI = "git://github.com/shr-project/Iliwi.git;protocol=http;branch=master \
 "
