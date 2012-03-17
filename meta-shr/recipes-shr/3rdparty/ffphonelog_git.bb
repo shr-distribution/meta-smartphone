@@ -8,6 +8,7 @@ LIC_FILES_CHKSUM = "file://ffphonelog.vala;endline=16;md5=37b136bcd8f47e0d65fcaf
 DEPENDS = "libeflvala"
 RDEPENDS_${PN} = "phoneuid"
 PV = "0.1+gitr${SRCPV}"
+PR = "r1"
 
 SRC_URI = "\
 	git://git.shr-project.org/repo/ffphonelog.git;protocol=http;branch=master \
