@@ -5,9 +5,8 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
 DEPENDS = "e-wm"
 RDEPENDS_${PN} = "python-elementary shr-settings python-phoneutils e-wm python-dbus python-edbus"
 SECTION = "x11/application"
-SRCREV = "142bc2c9480469d9ad4a3a7e476ab454aae1ddd0"
+SRCREV = "71ad9bcbf45bc05446687f9fb38914811c5d1846"
 PV = "0.0.0+gitr${SRCPV}"
-PR = "r1"
 
 inherit autotools
 
