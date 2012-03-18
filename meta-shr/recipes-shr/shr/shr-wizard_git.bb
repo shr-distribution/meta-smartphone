@@ -5,7 +5,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
 DEPENDS = "e-wm"
 RDEPENDS_${PN} = "python-elementary shr-settings python-phoneutils e-wm python-dbus python-edbus"
 SECTION = "x11/application"
-SRCREV = "179d99975c4e62cc4f7d9256efece25e2ea35fb2"
+SRCREV = "142bc2c9480469d9ad4a3a7e476ab454aae1ddd0"
 PV = "0.0.0+gitr${SRCPV}"
 PR = "r1"
 
