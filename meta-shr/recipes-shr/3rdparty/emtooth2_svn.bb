@@ -10,7 +10,7 @@ RRECOMMENS_${PN} += "libasound-module-bluez kernel-module-btusb"
 
 SRCREV = "169"
 PV = "0.1+svnr${SRCPV}"
-PR = "r2"
+PR = "r3"
 
 SRC_URI = "svn://emtooth.googlecode.com/svn/trunk;module=app2;proto=http \
 "
