@@ -7,6 +7,7 @@ RDEPENDS_${PN} = "python-elementary shr-settings python-phoneutils e-wm python-d
 SECTION = "x11/application"
 SRCREV = "71ad9bcbf45bc05446687f9fb38914811c5d1846"
 PV = "0.0.0+gitr${SRCPV}"
+PR = "r1"
 
 inherit autotools
 
@@ -14,3 +15,6 @@ SRC_URI = "git://git.shr-project.org/repo/shr-wizard.git;protocol=http;branch=ma
 S = "${WORKDIR}/git"
 
 FILES_${PN} += "${libdir}/enlightenment/modules/wizard/*/page_900.so"
+FILES_${PN}-dev += "${libdir}/enlightenment/modules/wizard/*/page_900.la"
+FILES_${PN}-staticdev += "${libdir}/enlightenment/modules/wizard/*/page_900.a"
+FILES_${PN}-dbg += "${libdir}/enlightenment/modules/wizard/*/.debug/"
