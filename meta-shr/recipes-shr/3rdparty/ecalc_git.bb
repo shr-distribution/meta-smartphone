@@ -5,11 +5,13 @@ LICENSE  = "MIT"
 LIC_FILES_CHKSUM = "file://ecalc;endline=19;md5=4db4fc5e62ce4982122df4db99e80b85"
 RDEPENDS_${PN} = "python-elementary python python-edbus"
 SECTION = "x11/application"
-PR = "r1"
+PR = "r2"
 RPROVIDES_${PN} = "calc"
 
 SRCREV = "a226c689d801330eabab08dea0b66dbc8d18b851"
-SRC_URI = "git://github.com/spaetz/calc.git;protocol=http;branch=master"
+SRC_URI = "git://github.com/spaetz/calc.git;protocol=http;branch=master \
+  file://0001-replace-deprecated-label_set-with-text_set.patch \
+"
 S = "${WORKDIR}/git"
 
 do_install(){

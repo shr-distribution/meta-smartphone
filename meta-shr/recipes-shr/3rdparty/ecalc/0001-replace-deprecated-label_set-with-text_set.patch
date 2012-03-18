@@ -1,0 +1,26 @@
+From 3f24993e1982fffb3ad44d369622a26b829a53a8 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Sun, 18 Mar 2012 15:58:53 +0100
+Subject: [PATCH] replace deprecated label_set with text_set
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ ecalc |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/ecalc b/ecalc
+index f824a87..050f167 100755
+--- a/ecalc
++++ b/ecalc
+@@ -128,7 +128,7 @@ class MainGUI_E:
+       bt = e.Button(tab)
+       bt.size_hint_align_set(-1.0, -1.0)
+       bt.size_hint_weight_set(1.0, 1.0)
+-      bt.label_set(key)
++      bt.text_set(key)
+       bt.name_set(key)
+       bt._callback_add('clicked', self.cb_buttonpress)
+       bt.show()
+-- 
+1.7.8.5
+
