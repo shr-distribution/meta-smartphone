@@ -8,7 +8,7 @@ DEPENDS = "glib-2.0 libeflvala"
 RDEPENDS_${PN} += "bluez4 obexd"
 RRECOMMENS_${PN} += "libasound-module-bluez kernel-module-btusb"
 
-SRCREV = "168"
+SRCREV = "169"
 PV = "0.1+svnr${SRCPV}"
 PR = "r2"
 
