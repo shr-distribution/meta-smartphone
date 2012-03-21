@@ -6,7 +6,7 @@ SECTION = "base"
 LICENSE = "GPLv3"
 LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
 
-RDEPENDS += "python-pygps python-pygobject python-core"
+RDEPENDS_${PN} += "python-pygps python-pygobject python-core"
 
 PR = "r0"
 PV = "0.0.0+gitr${SRCPV}"
