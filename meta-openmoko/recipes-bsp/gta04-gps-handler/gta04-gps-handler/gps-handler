@@ -1,0 +1,7 @@
+#!/bin/sh
+case "$1" in
+    "start" | "stop")
+       /usr/bin/gps_handler.py stop ;;
+esac
+
+exit 0
