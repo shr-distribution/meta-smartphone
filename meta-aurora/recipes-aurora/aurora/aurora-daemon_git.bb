@@ -11,7 +11,7 @@ LIC_FILES_CHKSUM = " \
 PR = "${INC_PR}.13"
 
 DEPENDS = "qt4-x11-free libfsobasics libfsoframework dconf-qt"
-RDEPENDS = "qt4-plugin-imageformat-svg"
+RDEPENDS_${PN} = "qt4-plugin-imageformat-svg"
 
 PV = "0.1+gitr${SRCPV}"
 
