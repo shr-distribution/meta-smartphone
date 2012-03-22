@@ -31,19 +31,6 @@ ARM_KEEP_OABI_om-gta01 = "1"
 ARM_INSTRUCTION_SET = "arm"
 THUMB_INTERWORKING = "no"
 
-###############################################################
-# module configs specific to this kernel
-#
-
-# usb
-module_autoload_ohci-hcd = "ohci-hcd"
-module_autoload_hci_usb = "hci_usb"
-module_autoload_g_ether = "g_ether"
-module_autoload_ppp_generic = "ppp_generic"
-# snd modules module_autoload_snd-soc-neo1973-*-wm8753 are in machine.conf 
-# sd/mmc
-module_autoload_s3cmci = "s3cmci"
-
 ################################################################
 # extra stuff we need for openmoko that is not in linux.inc
 #
