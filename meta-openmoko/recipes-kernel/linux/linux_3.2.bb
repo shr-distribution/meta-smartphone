@@ -5,6 +5,8 @@ DEFAULT_PREFERENCE = "-2"
 
 COMPATIBLE_MACHINE = "(om-gta02)"
 
+PR = "r2"
+
 SRC_URI += "${KERNELORG_MIRROR}/linux/kernel/v3.x/linux-${PV}.tar.bz2;name=kernel \
            ${KERNELORG_MIRROR}/linux/kernel/v3.x/patch-${PV}.1.bz2;apply=yes;name=stablepatch \
            file://defconfig \
