@@ -1,7 +1,5 @@
 require recipes-kernel/linux/linux.inc
 
-PR = "r8"
-
 # Mark archs/machines that this kernel supports
 DEFAULT_PREFERENCE = "-1"
 DEFAULT_PREFERENCE_om-gta02 = "1"

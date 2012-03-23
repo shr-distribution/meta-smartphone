@@ -7,14 +7,6 @@ COMPATIBLE_MACHINE = "om-gta01|om-gta02"
 #FILESPATHPKG .= ":linux-${PV}"
 FILESPATH =. "${FILE_DIRNAME}/linux-${PV}/${MACHINE}:${FILE_DIRNAME}/linux-${PV}:${FILE_DIRNAME}/linux"
 
-# add extra PR for linux-openmoko kernels
-# because we expect OM/SHR patches to be updated quite often and don't want to
-# force everybody using same linux recipe to upgrade
-# make sure PR is set before appending to it
-OM-PR ?= "0"
-PR ?= "r0"
-PR_append = "-oe${OM-PR}"
-
 S = "${WORKDIR}/linux-${PV}"
 
 DESCRIPTION_${PN} = "Linux kernel for the Openmoko Neo GSM Smartphones"
