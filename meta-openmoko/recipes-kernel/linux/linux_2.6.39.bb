@@ -1,6 +1,6 @@
-require linux.inc
+require recipes-kernel/linux/linux.inc
 
-PR = "r7"
+PR = "r8"
 
 # Mark archs/machines that this kernel supports
 DEFAULT_PREFERENCE = "-1"

@@ -1,8 +1,8 @@
-require linux.inc
+require recipes-kernel/linux/linux.inc
 
 KERNEL_RELEASE = "3.2.0"
 PV = "${KERNEL_RELEASE}+gitr${SRCPV}"
-PR = "r1"
+PR = "r2"
 PE = "3"
 
 SRCREV = "5d298fede5f6c7de5392b784f44ac63a44f04c62"
@@ -13,14 +13,6 @@ SRC_URI = "\
 "
 S = "${WORKDIR}/git"
 
-do_configure_prepend() {
-#otherwise it gets extra '+' "2.6.37+"
-#because:
-#$ scripts/setlocalversion . => +
-#$ make kernelversion => 2.6.37
-#$ make kernelrelease => 2.6.37+
-  rm -rf ${S}/.git
-}
 CMDLINE_om-gta04 = "console=ttyO2,115200n8 mpurate=800 vram=12M omapfb.rotate_type=0 omapdss.def_disp=lcd root=/dev/mmcblk0p2 rw rootfstype=ext3 rootwait twl4030_charger.allow_usb=1 twl4030_charger.charge_backup=1 musb_hdrc.preserve_vbus=1 log_buf_len=8M ignore_loglevel no_console_suspend"
 
 # Mark archs/machines that this kernel supports

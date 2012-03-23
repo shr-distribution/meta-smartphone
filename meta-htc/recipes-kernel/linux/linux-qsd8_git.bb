@@ -1,7 +1,7 @@
-require linux.inc
+require recipes-kernel/linux/linux.inc
 
 PV = "2.6.32+${PR}+gitr${SRCREV}"
-PR = "r15"
+PR = "r16"
 
 COMPATIBLE_MACHINE = "htcnexus|htcleo"
 

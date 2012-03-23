@@ -1,4 +1,4 @@
-require linux.inc
+require recipes-kernel/linux/linux.inc
 
 SECTION = "kernel"
 DEPENDS += "android-image-utils-native chroot-image"
@@ -15,7 +15,7 @@ S = "${WORKDIR}/git/"
 SRCREV = "7ae1282f5b3b80bda87ef9aa1d8bf582875ffb67"
 
 KV = "3.0.8"
-PR = "r2"
+PR = "r3"
 PV = "${KV}+gitr${SRCPV}"
 
 # Workaround default -Werror setting and some warnings in kernel compilation

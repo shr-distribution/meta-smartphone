@@ -1,8 +1,8 @@
-require linux.inc
+require recipes-kernel/linux/linux.inc
 DEPENDS += "android-image-utils-native"
 
 PV = "2.6.37+${PR}+gitr${SRCREV}"
-PR = "r2"
+PR = "r3"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=d7810fab7487fb0aad327b76f1be7cd7"
 

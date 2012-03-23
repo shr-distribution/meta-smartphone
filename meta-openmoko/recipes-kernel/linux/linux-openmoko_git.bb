@@ -1,4 +1,4 @@
-require linux.inc
+require recipes-kernel/linux/linux.inc
 require linux-openmoko.inc
 
 # Mark archs/machines that this kernel supports
@@ -9,6 +9,7 @@ DEFAULT_PREFERENCE = "-3"
 KERNEL_RELEASE = "3.3.0-rc0"
 OLD_KERNEL_RELEASE = "3.2.99"
 PV = "${OLD_KERNEL_RELEASE}+${KERNEL_RELEASE}+gitr${SRCPV}"
+PR = "r1"
 
 SRCREV = "7089727d63b17615fb0a652374d79cb7df0835ad"
 
@@ -17,12 +18,3 @@ SRC_URI = "\
   file://defconfig \
 "
 S = "${WORKDIR}/git"
-
-do_configure_prepend() {
-#otherwise it gets extra '+' "2.6.37+"
-#because:
-#$ scripts/setlocalversion . => +
-#$ make kernelversion => 2.6.37
-#$ make kernelrelease => 2.6.37+
-  rm -rf ${S}/.git
-}
