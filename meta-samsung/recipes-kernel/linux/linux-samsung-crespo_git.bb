@@ -15,8 +15,8 @@ S = "${WORKDIR}/git/"
 SRCREV = "7ae1282f5b3b80bda87ef9aa1d8bf582875ffb67"
 
 KV = "3.0.8"
-PR = "r3"
 PV = "${KV}+gitr${SRCPV}"
+# for bumping PR bump MACHINE_KERNEL_PR in the machine config
 
 # Workaround default -Werror setting and some warnings in kernel compilation
 TARGET_CC_KERNEL_ARCH += " -Wno-error=unused-but-set-variable -Wno-error=array-bounds"
