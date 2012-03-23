@@ -1,4 +1,4 @@
-PRINC := "${@int(PRINC) + 2}"
+PRINC := "${@int(PRINC) + 3}"
 
 SUPPORTED_EXTRA_ARCHS ?= "armv4t armv5te armv6-novfp armv7a-vfp-neon x86_64 x86"
 
