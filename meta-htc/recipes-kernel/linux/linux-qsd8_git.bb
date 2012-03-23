@@ -1,7 +1,7 @@
 require recipes-kernel/linux/linux.inc
 
 PV = "2.6.32+${PR}+gitr${SRCREV}"
-PR = "r16"
+# for bumping PR bump MACHINE_KERNEL_PR in the machine config
 
 COMPATIBLE_MACHINE = "htcnexus|htcleo"
 
