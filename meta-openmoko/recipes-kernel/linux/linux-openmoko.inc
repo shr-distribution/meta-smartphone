@@ -5,6 +5,7 @@ COMPATIBLE_HOST = "arm.*-linux"
 COMPATIBLE_MACHINE = "om-gta01|om-gta02"
 
 S = "${WORKDIR}/linux-${PV}"
+PE = "1"
 
 DESCRIPTION_${PN} = "Linux kernel for the Openmoko Neo GSM Smartphones"
 
