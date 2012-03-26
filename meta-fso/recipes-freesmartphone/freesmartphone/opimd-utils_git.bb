@@ -1,7 +1,9 @@
 DESCRIPTION = "Test scripts for freesmartphone.org opimd interface"
 HOMEPAGE = "http://freesmartphone.org"
-LICENSE = "GPL"
-LIC_FILES_CHKSUM = "file://setup.py;beginline=21;endline=21;md5=7fdad70bdcd4f6b50d634caae99e60d7"
+LICENSE = "GPLv2+"
+LIC_FILES_CHKSUM = "file://setup.py;beginline=21;endline=21;md5=7fdad70bdcd4f6b50d634caae99e60d7 \
+                    file://opimd-dates;beginline=4;endline=9;md5=d866a506fcc240d5af028dd8a0bbb6ae \
+"
 RDEPENDS_${PN} = "python-elementary python-dbus python-codecs python-shell python python-core python-edbus frameworkd"
 SECTION = "x11/application"
 SRCREV = "8ae0f75998a965de399df9edc67cc3e40b18cc4c"
