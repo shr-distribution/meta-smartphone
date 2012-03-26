@@ -4,10 +4,9 @@ LICENSE = "GPLv3+"
 LIC_FILES_CHKSUM = "file://shr-settings;endline=4;md5=ec1482bfb96c1ba7a2d5c69812980bf2"
 RDEPENDS_${PN} = "python-elementary python-dbus python-codecs python-shell python-pyrtc python python-core python-edbus dbus-x11 frameworkd python-phoneutils python-pexpect"
 SECTION = "x11/application"
-SRCREV = "b3942cd5f6c2486deeac76ec5b70bb752fce20ed"
+SRCREV = "9f5e7083457999210a46e3123c34ceeba7295544"
 PE = "1"
 PV = "0.1.1+gitr${SRCPV}"
-PR = "r15"
 
 inherit setuptools
 

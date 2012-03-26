@@ -1,7 +1,7 @@
 require msmcomm.inc
 
 PR = "${INC_PR}.5"
-PV = "0.6.0+gitr${SRCPV}"
+PV = "0.10.0+gitr${SRCPV}"
 
 DEPENDS = " \
  vala-native \

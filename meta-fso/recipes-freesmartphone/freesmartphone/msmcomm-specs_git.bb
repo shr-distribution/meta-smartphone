@@ -1,7 +1,7 @@
 require msmcomm.inc
 
 PR = "${INC_PR}.2"
-PV = "0.6.0+gitr${SRCPV}"
+PV = "0.10.0+gitr${SRCPV}"
 PE = "1"
 
 DEPENDS = " \

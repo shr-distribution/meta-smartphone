@@ -1,10 +1,10 @@
-require linux.inc
+require recipes-kernel/linux/linux.inc
 DEPENDS += "android-image-utils-native"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=d7810fab7487fb0aad327b76f1be7cd7"
 
 PV = "2.6.32+${PR}+gitr${SRCREV}"
-PR = "r1"
+# for bumping PR bump MACHINE_KERNEL_PR in the machine config
 
 COMPATIBLE_MACHINE = "htcdream"
 CMDLINE = "console=tty1 root=/dev/mmcblk0p1 rootdelay=8 fbcon=rotate:1 panic=30 mem=110M"

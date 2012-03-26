@@ -8,10 +8,10 @@ LIC_FILES_CHKSUM = " \
   file://COPYING;md5=2c195aa863d9e4c30a30752d48fe8f51 \
 "
 
-PR = "${INC_PR}.13"
+PR = "${INC_PR}.14"
 
 DEPENDS = "qt4-x11-free libfsobasics libfsoframework dconf-qt"
-RDEPENDS = "qt4-plugin-imageformat-svg"
+RDEPENDS_${PN} = "qt4-plugin-imageformat-svg"
 
 PV = "0.1+gitr${SRCPV}"
 
@@ -26,7 +26,7 @@ EXTRA_OECONF_append = " --with-qt-basedir=qt4"
 
 FILES_${PN} += " ${datadir}/aurora ${libdir}/qt4/imports/Aurora ${datadir}/aurora \
   ${datadir}/glib-2.0/schemas/org.aurora.gschema.xml"
-FILES_${PN}-dbg += "${libdir}/qt4/imports/Aurora/*/.debug"
+FILES_${PN}-dbg += "${libdir}/qt4/imports/Aurora/*/.debug ${datadir}/aurora/applications/*/.debug"
 
 ALTERNATIVE_PATH = "${bindir}/aurora-daemon"
 ALTERNATIVE_NAME = "x-window-manager"

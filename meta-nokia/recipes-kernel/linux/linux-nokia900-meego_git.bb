@@ -1,4 +1,4 @@
-require linux.inc
+require recipes-kernel/linux/linux.inc
 
 KERNEL_RELEASE = "2.6.37"
 PV = "${KERNEL_RELEASE}+gitr${SRCPV}"
@@ -12,14 +12,6 @@ SRC_URI = "\
 "
 S = "${WORKDIR}/git"
 
-do_configure_prepend() {
-#otherwise it gets extra '+' "2.6.37+"
-#because:
-#$ scripts/setlocalversion . => +
-#$ make kernelversion => 2.6.37
-#$ make kernelrelease => 2.6.37+
-  rm -rf ${S}/.git
-}
 CMDLINE_nokia900 = "root=/dev/mmcblk0p1 rootwait rw console=ttyO2,115200n8 console=tty0 omapfb.vram=0:2M,1:2M,2:2M mtdoops.mtddev=2"
 
 # Mark archs/machines that this kernel supports

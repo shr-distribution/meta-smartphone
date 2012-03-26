@@ -8,6 +8,7 @@ LIC_FILES_CHKSUM = "file://ffphonelog.vala;endline=16;md5=37b136bcd8f47e0d65fcaf
 DEPENDS = "libeflvala"
 RDEPENDS_${PN} = "phoneuid"
 PV = "0.1+gitr${SRCPV}"
+PR = "r1"
 
 SRC_URI = "\
 	git://git.shr-project.org/repo/ffphonelog.git;protocol=http;branch=master \
@@ -15,7 +16,7 @@ SRC_URI = "\
 
 export XDG_DATA_DIRS = "${STAGING_DATADIR}"
 
-SRCREV = "0680f5ecfefe5eeb9555e71222efafa2c88d2c86"
+SRCREV = "316fc86cbd9ef7a547117541f816ce10adae37d4"
 S = "${WORKDIR}/git"
 
 FILES_${PN} += "${datadir}/applications ${datadir}/pixmaps"
