@@ -1,13 +1,13 @@
 DESCRIPTION = "A library implemented the modem IPC protocol from Samsung"
 SECTION = "libs/network"
 AUTHOR = " Joerie de Gram, PaulK, Simon Busch"
-LICENSE = "LGPLv2"
-LIC_FILES_CHKSUM = "file://COPYING;md5=fbc093901857fcd118f065f900982c24"
+LICENSE = "GPLv3"
+LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
 DEPENDS = "openssl mtd-utils"
 SRC_URI = "git://github.com/morphis/libsamsung-ipc.git;protocol=git;branch=master"
 S = "${WORKDIR}/git"
 
-SRCREV = "f22b2a9f995019f33022aefdfe090e63e3f7801c"
+SRCREV = "ed22d1fdb6205a73369e3ee311d8c605ded3e70e"
 PV = "0.1.0+gitr${SRCPV}"
 PR = "r2"
 
