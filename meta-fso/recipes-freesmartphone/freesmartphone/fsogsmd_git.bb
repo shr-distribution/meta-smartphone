@@ -3,8 +3,8 @@ inherit fso-plugin
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
-PR = "${INC_PR}.12"
-PV = "0.5.0+gitr${SRCPV}"
+PR = "${INC_PR}.0"
+PV = "0.10.0+gitr${SRCPV}"
 PE = "1"
 
 DEPENDS += "libfsosystem libfsotransport libfsoresource libgsm0710mux \

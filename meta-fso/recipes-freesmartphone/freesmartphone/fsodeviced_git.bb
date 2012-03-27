@@ -4,9 +4,9 @@ inherit fso-plugin
 DEPENDS += "alsa-lib libfsoresource android-rpc libfsosystem"
 RPROVIDES_${PN} = "openmoko-alsa-scenarios virtual/alsa-scenarios"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
-PV = "0.9.4+gitr${SRCPV}"
+PV = "0.10.0+gitr${SRCPV}"
 PE = "2"
-PR = "${INC_PR}.28"
+PR = "${INC_PR}.0"
 
 EXTRA_OECONF = "\
   --enable-kernel26-rfkill \
