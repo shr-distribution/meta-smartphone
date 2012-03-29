@@ -1,4 +1,4 @@
-PRINC := "${@int(PRINC) + 2}"
+PRINC := "${@int(PRINC) + 3}"
 
 pkg_preinst_${PN} () {
   # work-arround to switch from sysvinit to systemd ie on n900 where we were using
