@@ -5,7 +5,7 @@ After=dbus.socket fsodeviced.service
 [Service]
 Type=dbus
 BusName=org.shr.phonefso
-ExecStart=/usr/bin/phonefsod
+ExecStart=/usr/bin/phonefsod -d 1
 
 [Install]
 WantedBy=basic.target

@@ -3,7 +3,7 @@
 #------------------------------------------------------
 
 PV = "1.0"
-PR = "r5"
+PR = "r6"
 
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -16,23 +16,7 @@ IMAGE_FEATURES += " \
 
 inherit core-image
 
-IMAGE_LOGIN_MANAGER = "tinylogin"
-
-# udev, devfsd, busybox-mdev (from busybox) or none
-IMAGE_DEV_MANAGER ?= ""
-IMAGE_INIT_MANAGER ?= "sysvinit sysvinit-pidof"
-IMAGE_INITSCRIPTS = "initscripts"
 SPLASH ?= ""
-
-IMAGE_BOOT ?= " \
-  ${IMAGE_INITSCRIPTS} \
-  ${IMAGE_DEV_MANAGER} \
-  ${IMAGE_INIT_MANAGER} \
-  ${IMAGE_LOGIN_MANAGER} \
-"
-
-IMAGE_LINGUAS ?= "en-us"
-IMAGE_BASENAME = "aurora-image"
 
 RDEPENDS_${PN} += " \
   opkg \
@@ -44,7 +28,6 @@ TOUCH = ' ${@base_contains("MACHINE_FEATURES", "touchscreen", "tslib tslib-calib
 # FIXME: We need to separate the things below into a task later
 IMAGE_INSTALL += " \
   task-core-boot \
-  ${IMAGE_BOOT} \
   \
   opkg \
   task-fso2-compliance \
