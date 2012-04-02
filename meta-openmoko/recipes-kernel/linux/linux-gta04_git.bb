@@ -5,7 +5,7 @@ PV = "${KERNEL_RELEASE}+gitr${SRCPV}"
 PE = "3"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 
-SRCREV = "5d298fede5f6c7de5392b784f44ac63a44f04c62"
+SRCREV = "171b54266f6cd05e40377fac99159dacd0e56d62"
 
 SRC_URI = "\
   git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=3.2-gta04 \
