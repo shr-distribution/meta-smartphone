@@ -40,7 +40,7 @@ RDEPENDS_${PN}_om-gta02 += "fsogsmd-module-modem-ti-calypso"
 
 ## om-gta04
 #  modem_option_gtm601.so
-RDEPENDS_${PN}_gta04 += "fsogsmd-module-modem-option-gtm601"
+RDEPENDS_${PN}_om-gta04 += "fsogsmd-module-modem-option-gtm601"
 
 ## motorola-ezx
 #  modem_freescale_neptune.so
