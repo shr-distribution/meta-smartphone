@@ -7,9 +7,8 @@ DEPENDS = "dbus-glib elementary libgee libeflvala"
 # killall and udhcpc from busybox are enough
 RDEPENDS_${PN} = "wireless-tools wpa-supplicant"
 
-SRCREV = "fa62794a84bdae1992a04e3d9dabcdb29837e52d"
+SRCREV = "be1ebf0978deb3b16f69e65af225b2630128e612"
 PV = "0.0.1.1+gitr${SRCPV}"
-PR = "r16"
 
 SRC_URI = "git://github.com/shr-project/Iliwi.git;protocol=http;branch=master \
 "
