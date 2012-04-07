@@ -4,7 +4,6 @@ LICENSE = "GPLv3+"
 LIC_FILES_CHKSUM = "file://podboy/podboy.py;endline=21;md5=62ee40ef06dee48a8326fbddea3859d3"
 AUTHOR = "Valéry Febvre <vfebvre@easter-eggs.com>"
 SECTION = "x11/applications"
-PRIORITY = "optional"
 
 SRCREV = "217"
 PV = "1.7.3+svnr${SRCPV}"

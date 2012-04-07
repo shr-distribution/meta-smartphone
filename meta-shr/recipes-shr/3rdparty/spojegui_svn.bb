@@ -4,7 +4,6 @@ LICENSE = "GPLv3"
 LIC_FILES_CHKSUM = "file://src/spoje-gui.py;beginline=6;endline=17;md5=b9c4fb15d796c1241daf1c28217bf8a1"
 AUTHOR = "Josef Jebavy <josef.jebavy@gmail.com>"
 SECTION = "x11/applications"
-PRIORITY = "optional"
 RDEPENDS_${PN} = "python-core python-elementary python-sqlite3 python-netclient"
 
 SRCREV = "68"

@@ -4,7 +4,6 @@ LICENSE = "GPLv3"
 LIC_FILES_CHKSUM = "file://COPYING;md5=f27defe1e96c2e1ecd4e0c9be8967949"
 AUTHOR = "Petr Vanek <vanous@penguin.cz>"
 SECTION = "x11/applications"
-PRIORITY = "optional"
 
 SRCREV = "128"
 PV = "0.0.81+svnr${SRCPV}"

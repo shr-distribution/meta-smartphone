@@ -1,6 +1,5 @@
 DESCRIPTION = "Vala application for monitoring raw sensor values on the handheld"
 AUTHOR = "Michele Brocco <ssj2micvm@gmail.com>"
-PRIORITY = "optional"
 LICENSE = "GPLv3"
 LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
 DEPENDS = "glib-2.0 gtk+ libgee cairo libsensmon"

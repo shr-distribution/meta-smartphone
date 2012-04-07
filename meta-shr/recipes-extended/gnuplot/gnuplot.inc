@@ -4,7 +4,6 @@ HOMEPAGE = "http://www.gnuplot.info/"
 SECTION = "console/scientific"
 LICENSE = "BSD-4"
 LIC_FILES_CHKSUM = "file://Copyright;md5=243a186fc2fd3b992125d60d5b1bab8f"
-PRIORITY = "optional"
 DEPENDS = "virtual/libx11 gd cairo readline"
 
 inherit autotools

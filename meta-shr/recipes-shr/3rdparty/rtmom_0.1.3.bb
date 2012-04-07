@@ -1,6 +1,5 @@
 DESCRIPTION = "Elementary based client for Remember the Milk written in Python. "
 AUTHOR = "Michael Pilgermann"
-PRIORITY = "optional"
 LICENSE = "GPL"
 HOMEPAGE = "http://freshmeat.net/projects/rtmom"
 SRCNAME = "rtmom"

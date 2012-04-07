@@ -1,7 +1,6 @@
 DESCRIPTION = "FBreader is an ebook reader"
 HOMEPAGE = "http://www.fbreader.org"
 SECTION = "x11/utils"
-PRIORITY = "optional"
 LICENSE = "GPLv2+"
 LIC_FILES_CHKSUM = "file://fbreader/LICENSE;md5=94d55d512a9ba36caa9b7df079bae19f"
 DEPENDS = "gtk+ enca expat bzip2 libgpewidget virtual/libiconv liblinebreak libfribidi curl"
