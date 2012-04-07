@@ -1,7 +1,7 @@
 DESCRIPTION = "PISI is synchronizing information"
 AUTHOR = "Michael Pilgermann"
-PRIORITY = "optional"
-LICENSE = "GPL"
+LICENSE = "GPLv3"
+LIC_FILES_CHKSUM = "file://COPYING;md5=8f0e2cd40e05189ec81232da84bd6e1a"
 HOMEPAGE = "http://freshmeat.net/projects/pisiom"
 SRCNAME = "pisi"
 DEPENDS = "python-native"
@@ -9,7 +9,6 @@ RDEPENDS_${PN} = "python-vobject python-core python-pygtk python-pygobject pytho
            python-gdata python-webdav python-ldap python-epydoc python-core\
            python-dateutil python-sqlite3 python-netserver python-netclient\
            python-misc python-ctypes libsyncml"
-PR = "r2"
 
 SRC_URI = "http://github.com/downloads/kichkasch/pisi/pisi-src-${PV}.tar.gz"
 SRC_URI[md5sum] = "c416b316668575f8506dc54e19475795"
