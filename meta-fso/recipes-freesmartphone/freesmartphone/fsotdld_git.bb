@@ -2,7 +2,7 @@ require cornucopia.inc
 inherit fso-plugin
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
 PR = "${INC_PR}.0"
-PV = "0.10.0+gitr${SRCPV}"
+PV = "0.11.0+gitr${SRCPV}"
 PE = "1"
 
 DEPENDS += "libfsotransport libfsoresource json-glib libsoup-2.4 gpsd"

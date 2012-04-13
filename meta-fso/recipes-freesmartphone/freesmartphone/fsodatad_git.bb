@@ -4,7 +4,7 @@ LICENSE = "LGPLv2.1"
 LIC_FILES_CHKSUM = "file://COPYING;md5=78aab3f7875ffe21aebed9932fa3f993"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
 PR = "${INC_PR}.0"
-PV = "0.10.0+gitr${SRCPV}"
+PV = "0.11.0+gitr${SRCPV}"
 PE = "1"
 
 DEPENDS += "\

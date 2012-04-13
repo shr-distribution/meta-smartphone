@@ -8,7 +8,7 @@ DEPENDS = "vala-native glib-2.0 libfso-glib libgee"
 DEPENDS += "${@['libfsoframework', ''][(bb.data.getVar('PN', d, 1) in 'libfsoframework libfsobasics'.split())]}"
 PV = "invalid, please override"
 
-FSO_CORNUCOPIA_SRCREV ?= "264970f6cf6af484764b4e6eb906fee33f535abf"
+FSO_CORNUCOPIA_SRCREV ?= "84b83e6565887cbbc07ef806188096b3bd3640a7"
 INC_PR = "r0"
 
 FSO_CORNUCOPIA_BRANCH ?= "master"

@@ -5,8 +5,8 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=fad9b3332be894bab9bc501572864b29"
 SECTION = "devel"
 DEPENDS = "vala-dbus-binding-tool-native vala-dbus-binding-tool glib-2.0 fso-specs"
 SRCREV = "b6e5aac3d893d730aeafd82034d32393a5f1bac1"
-PV = "2012.02.16.1+gitr${SRCPV}"
-PR = "r1"
+PV = "2012.04.18.1+gitr${SRCPV}"
+PR = "r0"
 PE = "1"
 
 inherit autotools vala
