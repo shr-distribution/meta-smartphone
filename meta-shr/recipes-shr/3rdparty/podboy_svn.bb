@@ -1,12 +1,12 @@
 DESCRIPTION = "A podcast aggregator/player"
 HOMEPAGE = "http://code.google.com/p/podboy/"
 LICENSE = "GPLv3+"
-LIC_FILES_CHKSUM = "file://podboy/podboy.py;endline=21;md5=62ee40ef06dee48a8326fbddea3859d3"
+LIC_FILES_CHKSUM = "file://podboy/podboy.py;endline=21;md5=f9d3cabc5e813b17f94c9ca6821b7dda"
 AUTHOR = "Valéry Febvre <vfebvre@easter-eggs.com>"
 SECTION = "x11/applications"
 
-SRCREV = "217"
-PV = "1.7.3+svnr${SRCPV}"
+SRCREV = "218"
+PV = "1.7.4+svnr${SRCPV}"
 
 SRC_URI = "svn://podboy.googlecode.com/svn;module=trunk;proto=http"
 S = "${WORKDIR}/trunk"
