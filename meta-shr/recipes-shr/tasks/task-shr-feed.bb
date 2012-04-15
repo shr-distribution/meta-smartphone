@@ -161,6 +161,7 @@ MISSING = "\
 "
 
 RDEPENDS_${PN} += "\
+		monav \
 		chroneo \
 		pisi \
 		rfkill \
