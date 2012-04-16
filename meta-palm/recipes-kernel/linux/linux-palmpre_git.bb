@@ -10,7 +10,7 @@ PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 
 SRC_URI = " \
-  git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=palmpre/devtmpfs \
+  git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=palmpre/master \
   file://defconfig \
 "
 S = "${WORKDIR}/git/"
