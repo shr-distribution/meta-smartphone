@@ -9,6 +9,7 @@ RDEPENDS_${PN} = "mplayer lame"
 
 SRCREV = "d5c211f7f5ed815437b4dbd880bf2fa3af7105e1"
 PV = "0.70+gitr${SRCPV}"
+PR = "r1"
 
 SRC_URI = "git://code.google.com/p/intone;protocol=http \
 "

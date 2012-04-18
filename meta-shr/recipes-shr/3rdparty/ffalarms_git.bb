@@ -2,7 +2,6 @@ DESCRIPTION = "Finger friendly alarms"
 AUTHOR = "Lukasz Pankowski <lukpank@o2.pl>"
 HOMEPAGE = "http://ffalarms.projects.openmoko.org/"
 SECTION = "x11/applications"
-PRIORITY = "optional"
 LICENSE = "GPLv3"
 LIC_FILES_CHKSUM = "file://COPYING;md5=f27defe1e96c2e1ecd4e0c9be8967949"
 DEPENDS = "elementary libeflvala libical"
@@ -17,7 +16,7 @@ ASNEEDED = ""
 SRC_URI = "git://git.shr-project.org/repo/ffalarms.git;protocol=http;branch=master \
 "
 
-SRCREV = "b70b1e38482ee4a471f90754f6eaa29450f8d973"
+SRCREV = "679a1e54f4993d16b4f048b80b0c970d92a54052"
 S = "${WORKDIR}/git"
 
 inherit vala

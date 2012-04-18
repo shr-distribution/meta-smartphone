@@ -1,6 +1,5 @@
 DESCRIPTION = "Advanced Geocaching Tool for Linux - Towards paperless geocaching!"
 SECTION = "devel/python"
-PRIORITY = "optional"
 LICENSE = "GPLv3"
 LIC_FILES_CHKSUM = "file://advancedcaching/core.py;beginline=4;endline=16;md5=d5fc7b3fd794f424532528575c11046b"
 AUTHOR = "Daniel Fett"

@@ -1,6 +1,5 @@
 DESCRIPTION = "Compass written in vala that uses the hmc5843 compass and the lis302dl accelerometer"
 AUTHOR = "Michele Brocco <ssj2micvm@gmail.com>"
-PRIORITY = "optional"
 LICENSE = "GPLv3"
 LIC_FILES_CHKSUM = "file://COPYING;md5=f27defe1e96c2e1ecd4e0c9be8967949"
 DEPENDS = "glib-2.0 gtk+ libgee cairo libsensmon"

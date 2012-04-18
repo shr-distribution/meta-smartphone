@@ -1,5 +1,5 @@
 DESCRIPTION = "SHR Feed"
-PR = "r104"
+PR = "r107"
 PV = "1.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -119,7 +119,6 @@ MISSING = "\
 		fltkspacetrader \
 		mokoeightball \
 		libsyncml \
-		pisi \
 		wpa-gui \
 		gabriel \
 		stopwatch \
@@ -162,6 +161,9 @@ MISSING = "\
 "
 
 RDEPENDS_${PN} += "\
+		monav \
+		chroneo \
+		pisi \
 		rfkill \
 		mcnavi \
 		estardict \

@@ -1,6 +1,5 @@
 DESCRIPTION = "A console wrapper for the FSO Usage API"
 SECTION = "fso/base"
-PRIORITY = "optional"
 HOMEPAGE = "http://noko.sourceforge.net"
 LICENSE = "GPL"
 DEPENDS = "dbus"
