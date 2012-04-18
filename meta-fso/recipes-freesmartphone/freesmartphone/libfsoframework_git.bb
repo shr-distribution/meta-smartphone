@@ -1,4 +1,6 @@
-require cornucopia.inc
+require cornucopia-from-git.inc
+require cornucopia-base.inc
+
 DESCRIPTION = "freesmartphone.org support library"
 DEPENDS += "libfsobasics alsa-lib"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"

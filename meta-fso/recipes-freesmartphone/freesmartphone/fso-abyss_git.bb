@@ -1,4 +1,5 @@
-require cornucopia.inc
+require cornucopia-from-git.inc
+require cornucopia-base.inc
 
 DESCRIPTION = "Abyss is a GSM 07.10 muxer userspace daemon"
 HOMEPAGE = "http://www.freesmartphone.org/mediawiki/index.php/Implementations/Abyss"

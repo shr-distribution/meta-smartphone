@@ -1,4 +1,6 @@
-require cornucopia.inc
+require cornucopia-from-git.inc
+require cornucopia-base.inc
+
 inherit fso-plugin
 LICENSE = "LGPLv2.1"
 LIC_FILES_CHKSUM = "file://COPYING;md5=78aab3f7875ffe21aebed9932fa3f993"

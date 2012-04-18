@@ -1,4 +1,5 @@
-require cornucopia.inc
+require cornucopia-from-git.inc
+require cornucopia-base.inc
 
 DESCRIPTION = "A GSM 07.10 Multiplexing Engine"
 AUTHOR = "Michael 'Mickey' Lauer <mlauer@vanille-media.de>"

@@ -1,4 +1,6 @@
-require cornucopia.inc
+require cornucopia-from-git.inc
+require cornucopia-base.inc
+
 DESCRIPTION = "freesmartphone.org dbus resource library"
 DEPENDS += "libfso-glib"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"

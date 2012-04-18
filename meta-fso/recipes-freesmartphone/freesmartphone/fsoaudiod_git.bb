@@ -1,4 +1,6 @@
-require cornucopia.inc
+require cornucopia-from-git.inc
+require cornucopia-base.inc
+
 inherit fso-plugin
 
 LICENSE = "GPLv2+"

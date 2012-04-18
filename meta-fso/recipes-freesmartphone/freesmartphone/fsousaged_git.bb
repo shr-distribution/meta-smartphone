@@ -1,4 +1,6 @@
-require cornucopia.inc
+require cornucopia-from-git.inc
+require cornucopia-base.inc
+
 inherit fso-plugin
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
 PV = "0.11.0+gitr${SRCPV}"

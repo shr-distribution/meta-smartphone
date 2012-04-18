@@ -1,4 +1,5 @@
-require cornucopia.inc
+require cornucopia-from-git.inc
+require cornucopia-base.inc
 
 DESCRIPTION = "mterm is a versatile muxer-aware terminal program"
 HOMEPAGE = "http://www.freesmartphone.org/index.php/Implementations/fso-term"
