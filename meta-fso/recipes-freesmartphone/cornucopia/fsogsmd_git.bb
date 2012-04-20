@@ -10,7 +10,7 @@ PV = "0.11.0+gitr${SRCPV}"
 PE = "1"
 
 DEPENDS += "libfsosystem libfsotransport libfsoresource libgsm0710mux \
-  libgisi ppp connman msmcomm-specs libsamsung-ipc fsodatad"
+  libgisi ppp connman msmcomm-specs libsamsung-ipc"
 
 EXTRA_OECONF_append = "\
   --enable-libgsm0710mux \
