@@ -49,6 +49,10 @@ if [ -e /sdcard/linux/rootfs.ext2 ] ; then
 	e2fsck -y /dev/loop2
 	mount -t ext2 -o noatime,nodiratime,sync,rw /dev/loop2 /rfs
 	[ $? -eq 0 ] || fail "Failed to mount /rootfs"
+elif [ -d /sdcard/linux/rootfs ] ; then
+	echo "Rootfs folder found; chrooting into ..."
+	mount -o bind /sdcard/linux/rootfs /rfs
+	[ $? -eq 0 ] || fail "Failed to mount /rootfs"
 fi
 
 echo "Umount not needed filesystems ..."
