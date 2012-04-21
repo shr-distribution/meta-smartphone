@@ -7,6 +7,6 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=59530bdf33659b29e73d4adb9f9f6552"
 INC_PR = "r4"
 PV = "Please override!"
 
-SRCREV = "34778c047e34ee008f45f6aef8fe983b3a197133"
+SRCREV = "ec3ba8e5fdca377a914412dee2327fb281343e43"
 SRC_URI = "${FREESMARTPHONE_GIT}/msmcomm.git;protocol=git;branch=master"
 

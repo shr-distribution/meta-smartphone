@@ -7,7 +7,7 @@ DEPENDS = "glib-2.0"
 SRC_URI = "${FREESMARTPHONE_GIT}/libgisi.git;protocol=git;branch=master"
 S = "${WORKDIR}/git"
 
-SRCREV = "2917e6c468c136cfa9feed121a98bbde59cedc59"
+SRCREV = "07d5f4860e61532fa46638ac705cdeed15f2f015"
 PV = "0.1.0+gitr${SRCPV}"
 PR = "r1"
 
