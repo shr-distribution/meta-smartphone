@@ -3,6 +3,7 @@ rebased on top of openmoko kernel repository (om-2.6.39-stable)
 
 https://gitorious.org/shr/linux/commits/shr-2.6.39-nodrm
 
+338d257: Fix a freeze on change to external power supply
 31bdfe1: ASOC: samsung: neo1973_wm8753.c: fix openmoko bug #2478
 b851f9f: glamo-mci: disable glamo_mci_pre_request & glamo_mci_post_request
 6e1d25a: shr-create-patch.sh: utility used to generate shr.patch for meta-smartphone
@@ -2125,6 +2126,21 @@ index cb5d2c0..66b75c6 100644
  
  	switch (info->cpu_type) {
  	case TYPE_S3C2410:
+diff --git a/drivers/power/bq27x00_battery.c b/drivers/power/bq27x00_battery.c
+index 59e68db..346b489 100644
+--- a/drivers/power/bq27x00_battery.c
++++ b/drivers/power/bq27x00_battery.c
+@@ -513,8 +513,10 @@ static void bq27x00_external_power_changed(struct power_supply *psy)
+ {
+ 	struct bq27x00_device_info *di = to_bq27x00_device_info(psy);
+ 
++	mutex_lock(&di->lock);
+ 	cancel_delayed_work_sync(&di->work);
+ 	schedule_delayed_work(&di->work, 0);
++	mutex_unlock(&di->lock);
+ }
+ 
+ static int bq27x00_powersupply_init(struct bq27x00_device_info *di)
 diff --git a/drivers/usb/host/ohci-s3c2410.c b/drivers/usb/host/ohci-s3c2410.c
 index a68af2d..02bd7b0 100644
 --- a/drivers/usb/host/ohci-s3c2410.c
@@ -2402,7 +2418,7 @@ index 8275a2f..8e3e56e 100644
  #endif /* __GLAMO_CORE_H */
 diff --git a/shr-create-patch.sh b/shr-create-patch.sh
 new file mode 100755
-index 0000000..a09d4c2
+index 0000000..b251946
 --- /dev/null
 +++ b/shr-create-patch.sh
 @@ -0,0 +1,12 @@
@@ -2414,9 +2430,9 @@ index 0000000..a09d4c2
 +
 +https://gitorious.org/shr/linux/commits/shr-2.6.39-nodrm
 +
-+$(git log --pretty=format:"%h: %s" d09e21824bacd5f9ac0285c14c6ddc2d79b96608..)
++$(git log --pretty=format:"%h: %s" gitorious/om-2.6.39-stable..)
 +
-+$(git diff d09e21824bacd5f9ac0285c14c6ddc2d79b96608)
++$(git diff om-2.6.39-stable)
 +EOF
 diff --git a/sound/soc/codecs/wm8753.c b/sound/soc/codecs/wm8753.c
 index ffa2ffe..69c499a 100644
