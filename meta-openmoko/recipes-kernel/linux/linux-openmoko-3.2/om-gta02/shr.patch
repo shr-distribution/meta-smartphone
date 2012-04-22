@@ -1,60 +1,63 @@
 All patches from shr kernel repository
-rebased on top latest stable patch (linux-stable tag v3.2.12 now)
+rebased on top latest stable patch (linux-stable tag v3.2.15 now)
 
 https://gitorious.org/shr/linux/commits/shr-3.2-nodrm
 
-a827de4: shr-create-patch: update for 3.2 release
-52d9770: Revert "ARM: SAMSUNG: use regulator VDD for ADC"
-acbda9e: shr-create-patch.sh: utility used to generate shr.patch for meta-smartphone
-33e73d4: glamo-mci: disable glamo_mci_pre_request & glamo_mci_post_request
-33f3d5c: wm8753: Workaround toolchain bug: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=48783
-33254fd: wm8753: allow setting DAI mode even while pcm is active
-d5dd1d1: s3c2410_ts: jitter less touchscreen for glamo, version 4
-9223ef6: touchscreen: ignore unexpected interrupts
-19ad554: tslib relies on ts pressures events so this hack is needed to get tslib stuff working
-ad314b5: Fix compile error for gta02 accelerometer.
-56851ee: lis302dl: use ABS events rather then REL events
-827df90: input: lis302dl: fix the resume path
-2af2e8e: lis302dl accelerometer driver
-a143463: Force GPS power up on resume if it were powered up on suspend
-d38c74a: Fix high power consumption in suspend
-afbfcf0: wm8753: use snd_soc_jack on neo1973
-e478fbd: ar6000_delay.patch
-4f3afab: gta02: add support for usb host mode
-e9cfa9e: Enable powering off after 8s POWER press
-47c41f5: glamo-display: fix WSOD for 242 timming
-31f52c3: Openmoko resume reason sysfs node ported from 2.6.29
-98137b2: nand/s3c2410: add mising badblocksbits value
-abc46a6: Define machine_is_neo1973_gta01()
-80106c6: power: implement platform battery driver
-12f121a: MFD: pcf50633: Use the genirq for irq handling
-90bd133: MFD: pcf50633: Use mfd cells to register child devices
-be66ab5: pcf50633: Move pcf50633-gpio driver to the gpio drivers folder
-6fc9cbb: pcf50633-gpio: Add gpiolib support.
-bcff5a8: LEDS: leds-pwm: Add init, notfiy and exit callbacks
-c1b0cb1: Add jbt6k74 display driver.
-bc6753d: Add ar6000 wireless driver.
-7d4d830: Add atheros sdio ids.
-0a27ae38d: gta02: add support for platform_battery
-30fd96c: gta02: Add battery driver
-f077d35: gta02: Add fiq handler
-526d408: Add jbt device.
-0c38984: gta02: Add glamo device
-8082945: gta02: Add wlan power management device
-22a35c4: gta02: Add gsm power management device
-5cf8323: gta02: Add gps power management device
-b0c1dd6: gta02: Add bt power management device
-981fd68: gta02: Add notify handler to probe device children
-b030c36: ARM: s3c2440: GTA02: Select SPARSE_IRQ
-e75927b: s3c2440: gta02: Configure pcf50633 gpios.
-c95e993: gta02: Remove usage of pcf50633 gpio api
-bd5610c: gta02: Disable hardware ECC unless we get instructed to enable it
-b624f13: ARM: gta02: Add LED support
-02e6be3: Add glamo driver.
-dcc0405: Add c fiq handler.
-d4af6e6: Add s3c24xx_serial_console_set_silence
-f58b817: mtd: s3c2410_nand: Add config option to disable hw ecc at runtime
-7c3d8713: s3c24xx: Fix level irqs on external interrupts.
+22300b6: shr-create-patch.sh: update for 3.2.15
+132754a: Fix a freeze on change to external power supply
+217fdb0: shr-create-patch: update for 3.2.12
+3f69922: shr-create-patch: update for 3.2 release
+c641b12: Revert "ARM: SAMSUNG: use regulator VDD for ADC"
+5a3a719: shr-create-patch.sh: utility used to generate shr.patch for meta-smartphone
+b8e0314: glamo-mci: disable glamo_mci_pre_request & glamo_mci_post_request
+c6014a8: wm8753: Workaround toolchain bug: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=48783
+c86a683: wm8753: allow setting DAI mode even while pcm is active
+48f51e4: s3c2410_ts: jitter less touchscreen for glamo, version 4
+85bbec3: touchscreen: ignore unexpected interrupts
+0077878: tslib relies on ts pressures events so this hack is needed to get tslib stuff working
+eadcf02: Fix compile error for gta02 accelerometer.
+2ec97dc: lis302dl: use ABS events rather then REL events
+97f3fc7: input: lis302dl: fix the resume path
+614dd5a: lis302dl accelerometer driver
+5ca03eb: Force GPS power up on resume if it were powered up on suspend
+033e68a: Fix high power consumption in suspend
+2573096: wm8753: use snd_soc_jack on neo1973
+1d9647f: ar6000_delay.patch
+0a39f1e: gta02: add support for usb host mode
+9d87d7f: Enable powering off after 8s POWER press
+ba43994: glamo-display: fix WSOD for 242 timming
+50e6a61: Openmoko resume reason sysfs node ported from 2.6.29
+974faaf: nand/s3c2410: add mising badblocksbits value
+201c49b: Define machine_is_neo1973_gta01()
+ede0fe3: power: implement platform battery driver
+cd93c71: MFD: pcf50633: Use the genirq for irq handling
+92dfdc7: MFD: pcf50633: Use mfd cells to register child devices
+b392624: pcf50633: Move pcf50633-gpio driver to the gpio drivers folder
+c098430: pcf50633-gpio: Add gpiolib support.
+944a5e9: LEDS: leds-pwm: Add init, notfiy and exit callbacks
+41a16d7: Add jbt6k74 display driver.
+49f24ff: Add ar6000 wireless driver.
+9d732ea: Add atheros sdio ids.
+b4aad94: gta02: add support for platform_battery
+53ca4dc: gta02: Add battery driver
+66e654c: gta02: Add fiq handler
+9389ffb: Add jbt device.
+d53f42a: gta02: Add glamo device
+e705829: gta02: Add wlan power management device
+c0b69f2: gta02: Add gsm power management device
+d026615e: gta02: Add gps power management device
+0b75f80: gta02: Add bt power management device
+fc1d1f4: gta02: Add notify handler to probe device children
+b092bf2: ARM: s3c2440: GTA02: Select SPARSE_IRQ
+1b4b4c3: s3c2440: gta02: Configure pcf50633 gpios.
+095d6ae: gta02: Remove usage of pcf50633 gpio api
+a414826: gta02: Disable hardware ECC unless we get instructed to enable it
+581d1da: ARM: gta02: Add LED support
+c718a96: Add glamo driver.
+8c77922: Add c fiq handler.
+a7f36b6: Add s3c24xx_serial_console_set_silence
+35660ff: mtd: s3c2410_nand: Add config option to disable hw ecc at runtime
+4e0f214: s3c24xx: Fix level irqs on external interrupts.
 
 diff --git a/arch/arm/include/asm/fiq.h b/arch/arm/include/asm/fiq.h
 index d493d0b..6902e6c 100644
@@ -42893,6 +42896,21 @@ index b4af13d..d3b74d6 100644
  obj-$(CONFIG_BATTERY_DS2760)	+= ds2760_battery.o
  obj-$(CONFIG_BATTERY_DS2780)	+= ds2780_battery.o
  obj-$(CONFIG_BATTERY_DS2782)	+= ds2782_battery.o
+diff --git a/drivers/power/bq27x00_battery.c b/drivers/power/bq27x00_battery.c
+index bb16f5b..6402b11 100644
+--- a/drivers/power/bq27x00_battery.c
++++ b/drivers/power/bq27x00_battery.c
+@@ -514,8 +514,10 @@ static void bq27x00_external_power_changed(struct power_supply *psy)
+ {
+ 	struct bq27x00_device_info *di = to_bq27x00_device_info(psy);
+ 
++	mutex_lock(&di->lock);
+ 	cancel_delayed_work_sync(&di->work);
+ 	schedule_delayed_work(&di->work, 0);
++	mutex_unlock(&di->lock);
+ }
+ 
+ static int bq27x00_powersupply_init(struct bq27x00_device_info *di)
 diff --git a/drivers/power/pcf50633-charger.c b/drivers/power/pcf50633-charger.c
 index 4fa52e1..97dbcb2 100644
 --- a/drivers/power/pcf50633-charger.c
@@ -45613,7 +45631,7 @@ index 0000000..6c3fe9c
 +MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:glamo-fb");
 diff --git a/include/linux/fb.h b/include/linux/fb.h
-index 1d6836c..0c960f8 100644
+index 73845ce..2c44628 100644
 --- a/include/linux/fb.h
 +++ b/include/linux/fb.h
 @@ -135,6 +135,7 @@
@@ -46812,7 +46830,7 @@ index 0000000..00f7651
 +#endif
 diff --git a/shr-create-patch.sh b/shr-create-patch.sh
 new file mode 100755
-index 0000000..5f03824
+index 0000000..97d9f82
 --- /dev/null
 +++ b/shr-create-patch.sh
 @@ -0,0 +1,12 @@
@@ -46820,13 +46838,13 @@ index 0000000..5f03824
 +
 +cat <<EOF > shr.patch
 +All patches from shr kernel repository
-+rebased on top latest stable patch (linux-stable tag v3.2.12 now)
++rebased on top latest stable patch (linux-stable tag v3.2.15 now)
 +
 +https://gitorious.org/shr/linux/commits/shr-3.2-nodrm
 +
-+$(git log --pretty=format:"%h: %s" v3.2.12..)
++$(git log --pretty=format:"%h: %s" v3.2.15..)
 +
-+$(git diff v3.2.12)
++$(git diff v3.2.15)
 +EOF
 diff --git a/sound/soc/codecs/wm8753.c b/sound/soc/codecs/wm8753.c
 index 3a629d0..5d25bb0 100644
