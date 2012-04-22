@@ -12,5 +12,5 @@ do_install_append() {
         fi
 }
 
-inherit systemd
+INHERIT_append_om-gta02 = " systemd"
 SYSTEMD_SERVICE_om-gta02 = "g_ether.service"

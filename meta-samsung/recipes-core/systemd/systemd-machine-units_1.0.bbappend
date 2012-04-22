@@ -21,5 +21,5 @@ do_install_append() {
         fi
 }
 
-inherit systemd
+INHERIT_append_crespo = " systemd"
 SYSTEMD_SERVICE_crespo = "rndissetup.service mountdevtmpfs.service"

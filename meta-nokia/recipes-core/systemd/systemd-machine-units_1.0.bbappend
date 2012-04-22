@@ -16,5 +16,5 @@ do_install_append() {
         fi
 }
 
-inherit systemd
+INHERIT_append_nokia900 = " systemd"
 SYSTEMD_SERVICE_nokia900 = "nokia-n900-cmt-gpio.service"
