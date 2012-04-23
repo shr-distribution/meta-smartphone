@@ -27,6 +27,9 @@ do_install_append() {
   rm -rf ${D}${sysconfdir}/freesmartphone
   # Fix permissions
   chmod 755 ${D}${sysconfdir}/init.d/frameworkd
+
+  install -d ${D}${systemd_unitdir}/system/
+  install -m 0644 ${S}/data/${PN}.service ${D}${systemd_unitdir}/system/${PN}.service
 }
 
 RDEPENDS_${PN} += "\
