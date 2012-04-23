@@ -8,7 +8,7 @@ DEPENDS = " \
  libgee \
  libmsmcomm \
  libmsmhll \
- msmcomm-specs \
+ msmcommd-specs \
 "
 
 SRC_URI += "file://msmcommd"

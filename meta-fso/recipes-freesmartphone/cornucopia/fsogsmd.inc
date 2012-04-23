@@ -5,7 +5,7 @@ LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
 
 DEPENDS += "libfsosystem libfsotransport libfsoresource libgsm0710mux \
-  libgisi ppp connman msmcomm-specs libsamsung-ipc"
+  libgisi ppp connman msmcommd-specs libsamsung-ipc"
 
 EXTRA_OECONF_append = "\
   --enable-libgsm0710mux \
