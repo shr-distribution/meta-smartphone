@@ -37,6 +37,8 @@ SRCREV_pn-zhone = "${AUTOREV}"
 SRCREV_pn-zhone2 = "${AUTOREV}"
 SRCREV_pn-libsamsung-ipc = "${AUTOREV}"
 
+PREFERRED_VERSION_frameworkd = "0.10.99+git%"
+PREFERRED_VERSION_frameworkd-config = "0.10.99+git%"
 PREFERRED_VERSION_fsoaudiod = "0.10.99+git%"
 PREFERRED_VERSION_fsodatad = "0.10.99+git%"
 PREFERRED_VERSION_fsodeviced-modules = "0.10.99+git%"
