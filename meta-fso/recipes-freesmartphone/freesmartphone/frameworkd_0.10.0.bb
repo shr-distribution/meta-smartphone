@@ -1,13 +1,10 @@
 require ${BPN}.inc
 
-DEFAULT_PREFERENCE = "-1"
-
-SRCREV = "7867e63de20cf6fb8d62fae8ab56eb50aa2bebf8"
-
-SRC_URI = "${FREESMARTPHONE_GIT}/framework.git;protocol=git;branch=master \
+SRC_URI += " \
            file://oeventsd-use-opimd-signals.patch \
            file://0001-oeventsd-workaround-buggy-kernel-to-get-full-vibrati.patch \
            file://${PN}.service \
 "
 
-S = "${WORKDIR}/git"
+SRC_URI[md5sum] = "c69db48f9203de9ac6c932cc469b61cd"
+SRC_URI[sha256sum] = "a65298ebf0edba6469280e56f93b0e6df088b9a4f76d9f4520dac3521d183612"
