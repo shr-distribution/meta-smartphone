@@ -1,5 +1,5 @@
-require cornucopia-from-git.inc
 require cornucopia-base.inc
+require cornucopia-from-git.inc
 
 DESCRIPTION = "freesmartphone.org apm compatibility utility"
 AUTHOR = "Michael 'Mickey' Lauer <mlauer@vanille-media.de>"

@@ -1,5 +1,5 @@
-require cornucopia-from-git.inc
 require cornucopia-base.inc
+require cornucopia-from-git.inc
 
 DESCRIPTION = "mkdump is a kernel message dumper"
 HOMEPAGE = "http://www.freesmartphone.org/index.php/Implementations/mkdump"

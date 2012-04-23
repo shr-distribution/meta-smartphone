@@ -1,5 +1,5 @@
-require cornucopia-from-git.inc
 require cornucopia-base.inc
+require cornucopia-from-git.inc
 
 DESCRIPTION = "Mickey's DBus introspection and calling Program V2"
 AUTHOR = "Michael 'Mickey' Lauer <mlauer@vanille-media.de>"

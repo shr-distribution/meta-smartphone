@@ -1,5 +1,5 @@
-require cornucopia-from-git.inc
 require cornucopia-base.inc
+require cornucopia-from-git.inc
 
 inherit fso-plugin
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"

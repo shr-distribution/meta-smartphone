@@ -1,5 +1,5 @@
-require cornucopia-from-git.inc
 require cornucopia-base.inc
+require cornucopia-from-git.inc
 
 DESCRIPTION = "A console wrapper for the FSO Usage API"
 AUTHOR = "Michael 'Mickey' Lauer <mlauer@vanille-media.de>"
