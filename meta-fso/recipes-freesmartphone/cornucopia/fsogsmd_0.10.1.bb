@@ -1,5 +1,8 @@
 require ${BPN}.inc
 
+# build time dependency for 0.10.0, runtime dependency for newer
+DEPENDS += "fsodatad"
+
 PR = "${INC_PR}.0"
 
 SRC_URI[md5sum] = "f4323b17d856264638dc44a8db6594c2"

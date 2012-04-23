@@ -27,6 +27,7 @@ CONFFILES_${PN}-config = " \
 "
 RRECOMMENDS_${PN} += "${PN}-config"
 RDEPENDS_${PN}-config += "${PN}-modules"
+RDEPENDS_${PN} += "fsodatad"
 
 PACKAGES =+ "${PN}-connman ${PN}-connman-dev ${PN}-connman-dbg"
 FILES_${PN}-connman = "${libdir}/connman/plugins/fsogsm.so"
