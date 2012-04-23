@@ -1,8 +1,7 @@
-require msmcomm.inc
+require ${BPN}.inc
+require msmcomm-from-git.inc
 
-PR = "${INC_PR}.0"
+SRCREV = "${MSMCOMM_SRCREV}"
+
 PV = "0.1.0+gitr${SRCPV}"
-
-S = "${WORKDIR}/git/${PN}"
-
-inherit autotools
+PR = "${INC_PR}.0"

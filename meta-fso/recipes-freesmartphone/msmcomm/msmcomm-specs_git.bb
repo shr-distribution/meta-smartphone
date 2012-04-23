@@ -1,15 +1,7 @@
-require msmcomm.inc
+require ${BPN}.inc
+require msmcomm-from-git.inc
 
-PR = "${INC_PR}.2"
+SRCREV = "${MSMCOMM_SRCREV}"
+
 PV = "0.10.0+gitr${SRCPV}"
-PE = "1"
-
-DEPENDS = " \
- vala-native \
- glib-2.0 \
-"
-
-S = "${WORKDIR}/git/msmcomm-specs"
-
-inherit autotools vala
-
+PR = "${INC_PR}.2"

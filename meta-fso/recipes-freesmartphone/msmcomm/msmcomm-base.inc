@@ -4,9 +4,9 @@ AUTHOR = "Simon Busch <morphis@gravedo.de>"
 SECTION = "console/network"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=59530bdf33659b29e73d4adb9f9f6552"
-INC_PR = "r4"
-PV = "Please override!"
 
-SRCREV = "ec3ba8e5fdca377a914412dee2327fb281343e43"
-SRC_URI = "${FREESMARTPHONE_GIT}/msmcomm.git;protocol=git;branch=master"
+PE = "1"
+INC_PR = "r0"
 
+SHRT_VER = "${@bb.data.getVar('PV',d,1).split('.')[0]}.${@bb.data.getVar('PV',d,1).split('.')[1]}"
+SRC_URI = "http://downloads.freesmartphone.org/sources/msmcomm/${SHRT_VER}/${P}.tar.bz2"
