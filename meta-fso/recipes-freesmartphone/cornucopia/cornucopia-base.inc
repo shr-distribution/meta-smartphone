@@ -6,14 +6,11 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=fbc093901857fcd118f065f900982c24"
 SECTION = "devel"
 DEPENDS = "vala-native glib-2.0 libfso-glib libgee"
 DEPENDS += "${@['libfsoframework', ''][(bb.data.getVar('PN', d, 1) in 'libfsoframework libfsobasics'.split())]}"
-PV = "invalid, please override"
 
-FSO_CORNUCOPIA_SRCREV ?= "84b83e6565887cbbc07ef806188096b3bd3640a7"
 INC_PR = "r0"
 
-FSO_CORNUCOPIA_BRANCH ?= "master"
-SRC_URI = "${FREESMARTPHONE_GIT}/cornucopia;protocol=git;branch=${FSO_CORNUCOPIA_BRANCH}"
-S = "${WORKDIR}/git/${PN}"
+SHRT_VER = "${@bb.data.getVar('PV',d,1).split('.')[0]}.${@bb.data.getVar('PV',d,1).split('.')[1]}"
+SRC_URI = "http://downloads.freesmartphone.org/sources/cornucopia/${SHRT_VER}/${PN}-${PV}.tar.bz2"
 
 inherit autotools pkgconfig vala
 
