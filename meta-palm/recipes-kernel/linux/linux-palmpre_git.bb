@@ -6,6 +6,7 @@ KERNEL_IMAGETYPE = "uImage"
 COMPATIBLE_MACHINE = "(palmpre|palmpre2)"
 SRCREV = "dc2ff991a816e51847cc5edd0bbbf19d1600ad49"
 KV = "2.6.24"
+PE = "1"
 PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 
