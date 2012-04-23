@@ -1,16 +1,7 @@
+require ${BPN}.inc
 require cornucopia-from-git.inc
-require cornucopia-base.inc
 
-inherit fso-plugin
-LICENSE = "LGPLv2.1"
-LIC_FILES_CHKSUM = "file://COPYING;md5=78aab3f7875ffe21aebed9932fa3f993"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
-PR = "${INC_PR}.0"
-PV = "0.11.0+gitr${SRCPV}"
-PE = "1"
 
-DEPENDS += "\
-  libxml2 \
-  mobile-broadband-provider-info \
-"
-RDEPENDS_${PN} += "mobile-broadband-provider-info"
+PV = "0.10.99+gitr${SRCPV}"
+PR = "${INC_PR}.0"
