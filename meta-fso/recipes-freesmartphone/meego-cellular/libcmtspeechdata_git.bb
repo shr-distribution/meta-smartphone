@@ -6,7 +6,13 @@ DEPENDS = "check dbus"
 SRC_URI = "git://git.gitorious.org/meego-cellular/libcmtspeechdata.git;protocol=http"
 SRCREV = "845034568692d289573e18163d497fce6177cffb"
 PV = "0.0.0+gitr${SRCPV}"
+PR = "r1"
 
 S = "${WORKDIR}/git"
 
 inherit autotools
+
+FILES_${PN} += "${libdir}/${PN}-dummy/*${SOLIBS}"
+FILES_${PN}-dbg += "${libdir}/${PN}-dummy/.debug"
+FILES_${PN}-dev += "${libdir}/${PN}-dummy/*${SOLIBSDEV} ${libdir}/${PN}-dummy/*.la"
+FILES_${PN}-staticdev += "${libdir}/${PN}-dummy/*.a" 

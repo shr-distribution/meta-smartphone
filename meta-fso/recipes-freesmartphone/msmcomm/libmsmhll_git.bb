@@ -1,14 +1,7 @@
-require msmcomm.inc
+require ${BPN}.inc
+require msmcomm-from-git.inc
 
-PR = "${INC_PR}.2"
+SRCREV = "${MSMCOMM_SRCREV}"
+
 PV = "0.10.0+gitr${SRCPV}"
-
-S = "${WORKDIR}/git/libmsmhll"
-
-DEPENDS = " \
-  vala-native \
-  glib-2.0 \
-  libgee \
-"
-
-inherit autotools vala
+PR = "${INC_PR}.0"
