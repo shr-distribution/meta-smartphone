@@ -9,7 +9,6 @@ DEPENDS = "dbus dbus-glib libgsm0710mux"
 LICENSE = "GPL"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
 PV = "0.9.2+gitr${SRCPV}"
-PE = "1"
 PR = "${INC_PR}.1"
 
 SRC_URI += " file://fso-abyss.conf"

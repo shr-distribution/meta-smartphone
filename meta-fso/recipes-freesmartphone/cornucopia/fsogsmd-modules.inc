@@ -4,7 +4,7 @@ HOMEPAGE = "http://www.freesmartphone.org"
 
 INHIBIT_DEFAULT_DEPS = "1"
 
-PE = "1"
+PE = "2"
 
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"

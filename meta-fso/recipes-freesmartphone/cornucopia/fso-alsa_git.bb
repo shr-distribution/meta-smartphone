@@ -10,6 +10,5 @@ DEPENDS = "fsodeviced glib-2.0 dbus dbus-glib"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
 PV = "1.0.0+gitr${SRCPV}"
 PR = "${INC_PR}.1"
-PE = "1"
 
 S = "${WORKDIR}/git/tools/${PN}"

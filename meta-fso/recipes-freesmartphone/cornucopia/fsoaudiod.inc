@@ -12,8 +12,6 @@ DEPENDS += "alsa-lib libcmtspeechdata libsamplerate0"
 # and fsoaudiod are dependencies of the FSO framework.
 # PROVIDES_${PN} = "openmoko-alsa-scenarios virtual/alsa-scenarios"
 
-PE = "2"
-
 EXTRA_OECONF = "\
   --enable-cmtspeechdata \
   --enable-samplerate \

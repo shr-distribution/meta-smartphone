@@ -10,6 +10,5 @@ DEPENDS = "glib-2.0 dbus dbus-glib"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
 PV = "2.0.2+gitr${SRCPV}"
 PR = "${INC_PR}.0"
-PE = "1"
 
 S = "${WORKDIR}/git/tools/${PN}"

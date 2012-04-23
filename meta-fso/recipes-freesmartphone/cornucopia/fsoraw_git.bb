@@ -9,7 +9,6 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=ebb5c50ab7cab4baeffba14977030c07"
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
 PV = "1.0.0+gitr${SRCPV}"
 PR = "${INC_PR}.0"
-PE = "1"
 
 S = "${WORKDIR}/git/tools/fso-raw"
 

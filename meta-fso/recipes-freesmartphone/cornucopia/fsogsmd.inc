@@ -3,7 +3,6 @@ require cornucopia-base.inc
 inherit fso-plugin
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
-PE = "1"
 
 DEPENDS += "libfsosystem libfsotransport libfsoresource libgsm0710mux \
   libgisi ppp connman msmcomm-specs libsamsung-ipc"
