@@ -16,8 +16,6 @@ SRC_URI += "file://${PN}"
 do_install_append() {
 	install -d ${D}${sysconfdir}/init.d/
 	install -m 0755 ${WORKDIR}/${PN} ${D}${sysconfdir}/init.d/
-	if [ -e ${S}/data/${PN}.service ] ; then
-		install -d ${D}${systemd_unitdir}/system/
-		install -m 0644 ${S}/data/${PN}.service ${D}${systemd_unitdir}/system/${PN}.service
-	fi
+	install -d ${D}${systemd_unitdir}/system/
+	install -m 0644 ${S}/data/${PN}.service ${D}${systemd_unitdir}/system/${PN}.service
 }
