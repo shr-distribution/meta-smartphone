@@ -12,5 +12,6 @@ do_install_append() {
         fi
 }
 
-INHERIT_append_om-gta02 = " systemd"
 SYSTEMD_SERVICE_om-gta02 = "g_ether.service"
+
+PRINC := "${@int(PRINC) + 1}"
