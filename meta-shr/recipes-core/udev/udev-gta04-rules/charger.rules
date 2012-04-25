@@ -1,0 +1,3 @@
+SUBSYSTEM=="power_supply", ACTION=="change", DEVPATH=="*power_supply/twl4030_usb" ATTRS{1-0048/twl4030_usb/id}=="floating", ATTR{../../max_current}="500000"
+SUBSYSTEM=="power_supply", ACTION=="change", DEVPATH=="*power_supply/twl4030_usb" ATTRS{1-0048/twl4030_usb/id}=="102k", ATTR{../../max_current}="851000"
+
