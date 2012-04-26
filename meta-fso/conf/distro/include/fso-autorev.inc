@@ -54,6 +54,7 @@ PREFERRED_VERSION_libfsoframework = "0.10.99+git%"
 PREFERRED_VERSION_libfsoresource = "0.10.99+git%"
 PREFERRED_VERSION_libfsosystem = "0.10.99+git%"
 PREFERRED_VERSION_libfsotransport = "0.10.99+git%"
+PREFERRED_VERSION_libgsm0710mux = "0.10.99+git%"
 
 PREFERRED_VERSION_libmsmcomm = "0.10.0+git%"
 PREFERRED_VERSION_libmsmhll = "0.10.0+git%"
