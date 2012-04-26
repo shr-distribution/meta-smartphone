@@ -14,4 +14,4 @@ do_install_append() {
 
 SYSTEMD_SERVICE_om-gta02 = "g_ether.service"
 
-PRINC := "${@int(PRINC) + 1}"
+PRINC := "${@int(PRINC) + 2}"

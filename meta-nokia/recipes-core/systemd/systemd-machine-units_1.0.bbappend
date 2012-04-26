@@ -18,4 +18,4 @@ do_install_append() {
 
 SYSTEMD_SERVICE_nokia900 = "nokia-n900-cmt-gpio.service"
 
-PRINC := "${@int(PRINC) + 1}"
+PRINC := "${@int(PRINC) + 2}"
