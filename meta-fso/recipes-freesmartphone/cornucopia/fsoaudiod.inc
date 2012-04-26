@@ -28,7 +28,7 @@ SYSTEMD_SERVICE = "${PN}.service"
 
 RDEPENDS_${PN} += "${PN}-config"
 
-SRC_URI += "file://${PN}"
+SRC_URI_append = " file://${PN}"
 
 FILES_${PN}-config = " \
   ${sysconfdir}/asound.conf \
