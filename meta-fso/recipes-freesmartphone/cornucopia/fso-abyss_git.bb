@@ -11,7 +11,7 @@ SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
 PV = "0.9.2+gitr${SRCPV}"
 PR = "${INC_PR}.1"
 
-SRC_URI += " file://fso-abyss.conf"
+SRC_URI_append = " file://fso-abyss.conf"
 S = "${WORKDIR}/git/tools/${PN}"
 
 do_install_append() {

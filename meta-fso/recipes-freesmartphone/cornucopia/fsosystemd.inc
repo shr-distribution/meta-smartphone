@@ -11,7 +11,7 @@ inherit systemd
 SYSTEMD_PACKAGES = "${PN}-systemd"
 SYSTEMD_SERVICE = "${PN}.service"
 
-SRC_URI += "file://${PN}"
+SRC_URI_append = " file://${PN}"
 
 do_install_append() {
 	install -d ${D}${sysconfdir}/init.d/
