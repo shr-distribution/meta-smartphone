@@ -28,8 +28,8 @@ PREFERRED_VERSION_qt4-x11-free = "${PREFERRED_QT_VERSION}"
 PREFERRED_VERSION_qt4-x11-free-gles = "${PREFERRED_QT_VERSION}"
 
 # Prefer gcc from meta-oe
-GCCVERSION ?= "4.6%"
-SDKGCCVERSION ?= "4.6%"
+GCCVERSION ?= "4.7%"
+SDKGCCVERSION ?= "4.7%"
 # and newer eglibc
 EGLIBCVERSION ?= "2.15"
 
