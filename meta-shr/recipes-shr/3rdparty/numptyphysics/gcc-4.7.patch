@@ -1,0 +1,11 @@
+diff -uNr trunk.orig/happyhttp.cpp trunk/happyhttp.cpp
+--- trunk.orig/happyhttp.cpp	2012-04-28 19:27:44.357274404 +0200
++++ trunk/happyhttp.cpp	2012-04-28 19:27:15.262273360 +0200
+@@ -29,6 +29,7 @@
+ 
+ #ifndef WIN32
+ //	#include <sys/types.h>
++	#include <unistd.h>
+ 	#include <sys/socket.h>
+ 	#include <netinet/in.h>
+ 	#include <arpa/inet.h>

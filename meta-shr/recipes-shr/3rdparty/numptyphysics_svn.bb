@@ -8,7 +8,7 @@ HOMEPAGE = "http://numptyphysics.garage.maemo.org/"
 SECTION = "x11/games"
 SRCREV = "109"
 PV = "0.2+svnr${SRCPV}"
-PR = "r4"
+PR = "r5"
 
 inherit autotools
 
@@ -22,6 +22,7 @@ SRC_URI = "\
   file://keyb.png \
   file://faster.patch;striplevel=0 \
   file://numptyphysics.desktop \
+  file://gcc-4.7.patch \
 "
 S = "${WORKDIR}/trunk"
 
