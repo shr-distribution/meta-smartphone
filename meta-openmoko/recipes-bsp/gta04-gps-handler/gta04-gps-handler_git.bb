@@ -20,6 +20,7 @@ SRC_URI = "${FREESMARTPHONE_GIT}/utilities.git;protocol=git;branch=master \
 S = "${WORKDIR}/git/gta04/gps-handler"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
+COMPATIBLE_MACHINE = "om-gta04"
 
 inherit distutils update-rc.d
 
