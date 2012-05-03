@@ -1,2 +1,5 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
-PRINC := "${@int(PRINC) + 1}"
+EXTRA_DEPS = ""
+EXTRA_DEPS_om-gta04 = "gta04-gps-handler"
+RDEPENDS_${PN} += "${EXTRA_DEPS}"
+PRINC := "${@int(PRINC) + 2}"
