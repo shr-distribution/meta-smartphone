@@ -1,4 +1,11 @@
 #!/bin/sh
+### BEGIN INIT INFO
+# Provides: rndissetup
+# Required-Start:    mountkernfs
+# Required-Stop:     mountkernfs
+# Default-Start:     S
+# Default-Stop:
+### END INIT INFO
 
 if [ `uname -a | grep 2.6.35` ] ; then
 	# for 2.6.35 based kernels

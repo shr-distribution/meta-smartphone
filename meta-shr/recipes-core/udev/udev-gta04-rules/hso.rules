@@ -1,0 +1,2 @@
+SUBSYSTEM=="tty", KERNEL=="ttyHS*", ATTR{hsotype}=="?*", ATTRS{busnum}=="?*", SYMLINK+="ttyHS_$attr{hsotype}", OPTIONS+="string_escape=replace"
+

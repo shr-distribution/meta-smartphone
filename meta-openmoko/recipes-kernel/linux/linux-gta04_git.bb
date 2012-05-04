@@ -5,10 +5,13 @@ PV = "${KERNEL_RELEASE}+gitr${SRCPV}"
 PE = "3"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 
-SRCREV = "4359d431d12a627916fb9bcdda4bbdabcfcb1f75"
+SRCREV_kernel = "4359d431d12a627916fb9bcdda4bbdabcfcb1f75"
+SRCREV_init = "47dd9fd631f1908f3fcbabaf8fd48ba1503c2ea2"
+SRCREV_FORMAT = "kernel_init"
 
 SRC_URI = "\
-  git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=3.2-gta04 \
+  git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=3.2-gta04;name=kernel \
+  git://github.com/radekp/gta04-init.git;protocol=git;branch=master;name=init;destsuffix=git/gta04-init \
   file://defconfig \
 "
 S = "${WORKDIR}/git"

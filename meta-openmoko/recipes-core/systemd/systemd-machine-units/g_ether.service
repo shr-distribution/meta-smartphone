@@ -1,0 +1,8 @@
+[Unit]
+Description=Set up unique hwaddr from factory NAND partition for g_ether interface on GTA02
+
+[Service]
+ExecStart=/usr/bin/g_ether.sh
+
+[Install]
+WantedBy=basic.target

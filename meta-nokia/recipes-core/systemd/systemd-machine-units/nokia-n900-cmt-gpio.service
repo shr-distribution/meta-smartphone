@@ -1,0 +1,8 @@
+[Unit]
+Description=Set up GPIO lines for N900 modem
+
+[Service]
+ExecStart=/usr/bin/nokia-n900-cmt-gpio.sh start
+
+[Install]
+WantedBy=basic.target
