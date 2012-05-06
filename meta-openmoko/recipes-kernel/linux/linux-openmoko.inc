@@ -28,6 +28,10 @@ THUMB_INTERWORKING = "no"
 # opkg flash update service
 RDEPENDS_kernel-image += "mtd-utils"
 
+do_install_prepend() {
+  install -d ${D}/lib/firmware
+}
+
 pkg_postinst_kernel-image () {
 
 # Get the lastest root file system value of boot args
