@@ -6,7 +6,11 @@ DEPENDS = "libgcrypt zlib gtk+"
 DEPENDS += "gdk-pixbuf-native"
 LIC_FILES_CHKSUM = "file://COPYING;md5=c93c0550bd3173f4504b2cbd8991e50b"
 
-SRC_URI = "http://xchat.org/files/source/2.8/xchat-${PV}.tar.bz2"
+PR = "r1"
+
+SRC_URI = "http://xchat.org/files/source/2.8/xchat-${PV}.tar.bz2 \
+  file://glib-2.32.patch \
+"
 
 inherit autotools gettext
 
