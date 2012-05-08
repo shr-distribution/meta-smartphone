@@ -4,6 +4,8 @@ DEPENDS = "gtk+ libetpan openssl aspell"
 LICENSE = "GPLv3"
 LIC_FILES_CHKSUM = "file://COPYING;md5=e059bde2972c1790af786f3e86bac22e"
 
+PR = "r1"
+
 inherit autotools pkgconfig gettext
 
 # translation patch: http://www.thewildbeast.co.uk/claws-mail/bugzilla/show_bug.cgi?id=1774
@@ -13,6 +15,7 @@ SRC_URI = "\
 	file://desktop.patch \
 	file://claws-mail-g_strcmp0.patch \
 	file://duplicate-header.patch \
+        file://glib-2.32.patch \
 	"
 SRC_URI[archive.md5sum] = "761b8ae2d574588460a0fb1ea4931ccb"
 SRC_URI[archive.sha256sum] = "67337a4a1a5a5ce09f2a38422b7a6fc481e4747f74d4ddedd130d4fb06fc3907"
