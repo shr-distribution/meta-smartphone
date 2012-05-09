@@ -1,5 +1,6 @@
 DESCRIPTION = "Finger friendly alarms"
 AUTHOR = "Lukasz Pankowski <lukpank@o2.pl>"
+MAINTAINER = "Lukasz Pankowski <lukpank@o2.pl>"
 HOMEPAGE = "http://ffalarms.projects.openmoko.org/"
 SECTION = "x11/applications"
 LICENSE = "GPLv3"
@@ -8,7 +9,7 @@ DEPENDS = "elementary libeflvala libical"
 RDEPENDS_${PN} = "atd alsa-utils-amixer ttf-dejavu-sans libical"
 RSUGGESTS_${PN} = "mplayer alsa-utils-aplay frameworkd"
 PV = "0.4+gitr${SRCPV}"
-PR = "r1"
+PR = "r2"
 
 #disable as-needed for now, fails on many undefined symbols otherwise
 ASNEEDED = ""
@@ -28,16 +29,20 @@ do_install() {
         oe_runmake install DESTDIR=${D} SYSCONFDIR=${sysconfdir}
 }
 
+FILES_${PN} += "${datadir}/${PN} ${datadir}/applications ${datadir}/pixmaps"
+
 pkg_postinst_${PN}() {
-#!/bin/sh
-/etc/init.d/dbus-1 reload
+    if [ -z "$D" ]; then
+        if [ -f /etc/init.d/dbus-1 ]; then
+             /etc/init.d/dbus-1 reload || true
+        fi
+    fi
 }
 
 pkg_postrm_${PN}() {
-#!/bin/sh
-/etc/init.d/dbus-1 reload
+    if [ -z "$D" ]; then
+        if [ -f /etc/init.d/dbus-1 ]; then
+             /etc/init.d/dbus-1 reload || true
+        fi
+    fi
 }
-
-FILES_${PN} += "${datadir}/${PN} ${datadir}/applications ${datadir}/pixmaps"
-
-MAINTAINER = "Lukasz Pankowski <lukpank@o2.pl>"
