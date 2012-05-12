@@ -67,3 +67,5 @@ PREFERRED_VERSION_fso-specs = "2012.04.18.1+git%"
 PREFERRED_VERSION_libfso-glib = "2012.04.18.1+git%"
 PREFERRED_VERSION_libgisi = "0.2.0+git%"
 PREFERRED_VERSION_libsamsung-ipc = "0.1.0+git%"
+
+PREFERRED_VERSION_libnl_forcevariable = "3%"
