@@ -7,7 +7,7 @@ branch: shr
 revision: HEAD
 
 URI: git://git.openembedded.org/meta-openembedded-contrib
-layers: meta-oe, meta-efl, meta-gnome, meta-gpe
+layers: meta-oe, meta-efl, meta-gnome, meta-gpe, meta-systemd
 branch: shr
 revision: HEAD
 
