@@ -8,7 +8,7 @@ index 4686fa2..a95578b 100644
  			       "console=ttySAC0,115200 "
 -			       "init=/sbin/init "
 -			       "ro ",
-+			       "init=/usr/bin/bootchart-lite "
++			       "init=/sbin/bootchartd initcall_debug=1 "
 +			       "rw ",
  	.commandline_board_debug = " loglevel=8 ",
  	.noboot = "boot/noboot-GTA01",
@@ -23,7 +23,7 @@ index 48ee245..5dda349 100644
  				      "console=ttySAC2,115200 "
 -				      "init=/sbin/init "
 -				      "ro ",
-+				      "init=/usr/bin/bootchart-lite "
++				      "init=/sbin/bootchartd initcall_debug=1 "
 +				      "rw ",
  	.commandline_board_debug =  " loglevel=8",
  	.noboot = "boot/noboot-GTA02",
@@ -37,7 +37,7 @@ index 71c57f9..62564d0 100644
  	.commandline_board = "console=tty0 "
  			     "console=ttySAC3,115200 "
 -			     "init=/sbin/init "
-+			     "init=/usr/bin/bootchart-lite "
++			     "init=/sbin/bootchartd initcall_debug=1 "
  			     "loglevel=8 "
  			     "rootdelay=1 no_console_suspend "
 -			     "ro ",
