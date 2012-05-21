@@ -1,7 +1,7 @@
-From 9040a0a08f976e535760c23dcba74770c5368b7c Mon Sep 17 00:00:00 2001
+From b59d8cf4ce377db01050fe4fa4b32a7ee31af6b3 Mon Sep 17 00:00:00 2001
 From: Gennady Kupava <gb@bsdmn.com>
 Date: Mon, 27 Sep 2010 15:16:38 +0200
-Subject: [PATCH] Glamo 242 timings
+Subject: [PATCH 2/7] Glamo 242 timings
 
 This patch initializes glamo with better timings which will make
 graphics work faster (e.g. decoding theora video for me goes from
@@ -48,5 +48,5 @@ index 2a1654c..307d8ae 100644
  #define B1_PMC		 	0x0
  
 -- 
-1.7.3.1
+1.7.8.6
 

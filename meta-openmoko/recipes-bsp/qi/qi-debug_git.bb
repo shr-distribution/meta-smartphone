@@ -6,5 +6,5 @@ do_configure_prepend() {
 }
 
 SRC_URI_append = "\
-  file://debug.patch;patch=1 \
+  file://0005-enable-debug-output-by-default.patch \
 "

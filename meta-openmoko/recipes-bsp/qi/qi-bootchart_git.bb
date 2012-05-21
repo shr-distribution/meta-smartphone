@@ -7,5 +7,5 @@ do_configure_prepend() {
 }
 
 SRC_URI_append = "\
-  file://init.bootchart-lite.patch \
+  file://0007-use-bootchart-as-init.patch \
 "

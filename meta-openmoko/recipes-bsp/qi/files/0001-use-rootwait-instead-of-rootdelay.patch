@@ -1,7 +1,7 @@
 From d4091656e85cf12a209ddce7cd07f4d38df3a01a Mon Sep 17 00:00:00 2001
 From: Martin Jansa <Martin.Jansa@gmail.com>
 Date: Tue, 5 Jan 2010 12:43:46 +0100
-Subject: [PATCH 1/2] use rootwait instead of rootdelay
+Subject: [PATCH 1/7] use rootwait instead of rootdelay
 
 ---
  src/cpu/s3c2410/gta01.c                 |    6 +++---
@@ -94,5 +94,5 @@ index 71c57f9..1944e36 100644
  	.commandline_board_debug =  " loglevel=8",
  	.kernel_source = {
 -- 
-1.7.8.rc1
+1.7.8.6
 

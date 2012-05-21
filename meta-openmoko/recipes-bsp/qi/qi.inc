@@ -4,7 +4,7 @@ LIC_FILES_CHKSUM = "file://Makefile;endline=15;md5=a6394710a271493a533a3724a1bce
 SECTION = "bootloader"
 PROVIDES = "virtual/bootloader"
 PV = "1.0.2"
-PR = "r7"
+PR = "r8"
 PR_append = "+gitr${SRCPV}"
 
 EXTRA_OEMAKE = ""
@@ -13,9 +13,9 @@ PARALLEL_MAKE = ""
 SRCREV = "aa934abb5e8771100240e344411ddebacca33ece"
 SRC_URI = "\
   git://git.openmoko.org/git/qi.git;protocol=git;branch=master \
-  file://sanitize-makefile.patch \
   file://0001-use-rootwait-instead-of-rootdelay.patch \
-  file://0001-Glamo-242-timings.patch \
+  file://0002-Glamo-242-timings.patch \
+  file://0004-Makefile-sanitize-use-values-provided-by-recipe.patch \
 "
 S = "${WORKDIR}/git"
 

@@ -1,0 +1,87 @@
+From 0174166ca66302ecd435cc16a055b01663b9900b Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Mon, 21 May 2012 09:16:01 +0200
+Subject: [PATCH 5/7] enable debug output by default
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ src/cpu/s3c2410/gta01.c                  |    6 +++---
+ src/cpu/s3c2442/gta02.c                  |    6 +++---
+ src/cpu/s3c6410/om_3d7k-steppingstone.c  |    4 ++--
+ src/cpu/s3c6410/smdk6410-steppingstone.c |    5 +++--
+ 4 files changed, 11 insertions(+), 10 deletions(-)
+
+diff --git a/src/cpu/s3c2410/gta01.c b/src/cpu/s3c2410/gta01.c
+index 7ea74db..b66dbe5 100644
+--- a/src/cpu/s3c2410/gta01.c
++++ b/src/cpu/s3c2410/gta01.c
+@@ -263,11 +263,11 @@ const struct board_api board_api_gta01 = {
+ 				 "0x00200000(kernel),"
+ 				 "0x000a0000(splash),"
+ 				 "0x03d1c000(rootfs) "
+-			       "loglevel=4 "
++			       "loglevel=8 "
+ 			       "console=tty0 "
+ 			       "console=ttySAC0,115200 "
+-			       "init=/sbin/init "
+-			       "ro ",
++			       "init=/sbin/init user_debug=-1 "
++			       "rw ",
+ 	.commandline_board_debug = " loglevel=8 ",
+ 	.noboot = "boot/noboot-GTA01",
+ 	.append = "boot/append-GTA01",
+diff --git a/src/cpu/s3c2442/gta02.c b/src/cpu/s3c2442/gta02.c
+index d56c6f4..021ff5f 100644
+--- a/src/cpu/s3c2442/gta02.c
++++ b/src/cpu/s3c2442/gta02.c
+@@ -691,11 +691,11 @@ const struct board_api board_api_gta02 = {
+ 	.get_ui_keys = get_ui_keys_gta02,
+ 	.get_ui_debug = get_ui_debug_gta02,
+ 	.set_ui_indication = set_ui_indication_gta02,
+-	.commandline_board = "loglevel=4 "
++	.commandline_board = "loglevel=8 "
+ 				      "console=tty0 "
+ 				      "console=ttySAC2,115200 "
+-				      "init=/sbin/init "
+-				      "ro ",
++				      "init=/sbin/init user_debug=-1 "
++				      "rw ",
+ 	.commandline_board_debug =  " loglevel=8",
+ 	.noboot = "boot/noboot-GTA02",
+ 	.append = "boot/append-GTA02",
+diff --git a/src/cpu/s3c6410/om_3d7k-steppingstone.c b/src/cpu/s3c6410/om_3d7k-steppingstone.c
+index 1944e36..67ca1bc 100644
+--- a/src/cpu/s3c6410/om_3d7k-steppingstone.c
++++ b/src/cpu/s3c6410/om_3d7k-steppingstone.c
+@@ -87,10 +87,10 @@ const struct board_api board_api_om_3d7k = {
+ 	.get_ui_keys = get_ui_keys_om_3d7k,
+ 	.commandline_board = "console=tty0 "
+ 			     "console=ttySAC3,115200 "
+-			     "init=/sbin/init "
++			     "init=/sbin/init user_debug=-1 "
+ 			     "loglevel=8 "
+ 			     "rootwait no_console_suspend "
+-			     "ro ",
++			     "rw ",
+ 	.commandline_board_debug =  " loglevel=8",
+ 	.kernel_source = {
+ 		[0] = {
+diff --git a/src/cpu/s3c6410/smdk6410-steppingstone.c b/src/cpu/s3c6410/smdk6410-steppingstone.c
+index c1d991f..da82e4f 100644
+--- a/src/cpu/s3c6410/smdk6410-steppingstone.c
++++ b/src/cpu/s3c6410/smdk6410-steppingstone.c
+@@ -46,8 +46,9 @@ const struct board_api board_api_smdk6410 = {
+ 	.is_this_board = is_this_board_smdk6410,
+ 	.putc = putc_smdk6410,
+ 	.commandline_board = "console=ttySAC0,115200 "
+-			     "loglevel=3 "
+-			     "init=/bin/sh ",
++			     "loglevel=8 "
++			     "init=/bin/sh user_debug=-1 "
++			     "rw",
+ 	.commandline_board_debug =  " loglevel=8",
+ 	.noboot = "boot/noboot-SDMK6410",
+ 	.append = "boot/append-SMDK6410",
+-- 
+1.7.8.6
+
