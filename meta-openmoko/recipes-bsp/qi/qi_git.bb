@@ -6,5 +6,5 @@ do_configure_prepend() {
 }
 
 SRC_URI_append = "\
-  file://0001-Revert-gta02-gta01-change-kernel-parameters-to-boot-.patch \
+  file://0003-Revert-gta02-gta01-change-kernel-parameters-to-boot-.patch \
 "

@@ -1,8 +1,8 @@
 From dbd2fe5ea2513f9ba4a32c611840f7d316fadcad Mon Sep 17 00:00:00 2001
 From: Martin Jansa <Martin.Jansa@gmail.com>
 Date: Sun, 13 Nov 2011 17:14:25 +0100
-Subject: [PATCH] Revert "gta02|gta01: change kernel parameters to boot from
- ubifs ubi0:rootfs"
+Subject: [PATCH 3/7] Revert "gta02|gta01: change kernel parameters to boot
+ from ubifs ubi0:rootfs"
 
 This reverts commit 6c02038d6bab6977fddda7736887b95807b064ce.
 ---
@@ -43,5 +43,5 @@ index d15ca9b..d56c6f4 100644
  	},
  };
 -- 
-1.7.8.rc1
+1.7.8.6
 

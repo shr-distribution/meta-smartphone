@@ -1,5 +1,5 @@
 require qi_git.bb
-RDEPENDS_${PN} = "bootchart-lite"
+RDEPENDS_${PN} = "bootchart"
 
 do_configure_prepend() {
   sed -i 's#\(IMAGE = .(IMAGE_DIR)/\)qi-\(.(CPU)-.(BUILD_VERSION)\)#\1qi-bootchart-\2#g' ${S}/Makefile
@@ -7,5 +7,5 @@ do_configure_prepend() {
 }
 
 SRC_URI_append = "\
-  file://init.bootchart-lite.patch;patch=1 \
+  file://0007-use-bootchart-as-init.patch \
 "

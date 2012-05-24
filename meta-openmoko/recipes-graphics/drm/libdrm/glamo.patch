@@ -1,27 +1,27 @@
 diff --git a/Makefile.am b/Makefile.am
-index 25d1747..f384228 100644
+index 4f625a1..9cea5bf 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -41,7 +41,11 @@ if HAVE_RADEON
- RADEON_SUBDIR = radeon
+@@ -45,7 +45,11 @@ if HAVE_OMAP
+ OMAP_SUBDIR = omap
  endif
  
--SUBDIRS = . $(LIBKMS_SUBDIR) $(INTEL_SUBDIR) $(NOUVEAU_SUBDIR) $(RADEON_SUBDIR) tests include
+-SUBDIRS = . $(LIBKMS_SUBDIR) $(INTEL_SUBDIR) $(NOUVEAU_SUBDIR) $(RADEON_SUBDIR) $(OMAP_SUBDIR) tests include
 +if HAVE_GLAMO
 +GLAMO_SUBDIR = glamo
 +endif
 +
-+SUBDIRS = . $(LIBKMS_SUBDIR) $(INTEL_SUBDIR) $(NOUVEAU_SUBDIR) $(RADEON_SUBDIR) $(GLAMO_SUBDIR) tests include
++SUBDIRS = . $(LIBKMS_SUBDIR) $(INTEL_SUBDIR) $(NOUVEAU_SUBDIR) $(RADEON_SUBDIR) $(OMAP_SUBDIR) $(GLAMO_SUBDIR) tests include
  
  libdrm_la_LTLIBRARIES = libdrm.la
  libdrm_ladir = $(libdir)
 diff --git a/configure.ac b/configure.ac
-index 62db817..0b2a33e 100644
+index 538d0d8..5d6e0b7 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -73,6 +73,11 @@ AC_ARG_ENABLE(nouveau-experimental-api,
- 	      [NOUVEAU=$enableval], [NOUVEAU=no])
- 
+@@ -88,6 +88,11 @@ AC_ARG_ENABLE(omap-experimental-api,
+ 	      [Enable support for OMAP's experimental API (default: disabled)]),
+ 	      [OMAP=$enableval], [OMAP=no])
  
 +AC_ARG_ENABLE(glamo-experimental-api,
 +	      AS_HELP_STRING([--enable-glamo-experimental-api],
@@ -31,8 +31,8 @@ index 62db817..0b2a33e 100644
  dnl ===========================================================================
  dnl check compiler flags
  AC_DEFUN([LIBDRM_CC_TRY_FLAG], [
-@@ -169,6 +174,11 @@ if test "x$NOUVEAU" = xyes; then
- 	AC_DEFINE(HAVE_NOUVEAU, 1, [Have nouveau (nvidia) support])
+@@ -191,6 +196,11 @@ if test "x$OMAP" = xyes; then
+ 	AC_DEFINE(HAVE_OMAP, 1, [Have OMAP support])
  fi
  
 +AM_CONDITIONAL(HAVE_GLAMO, [test "x$GLAMO" = xyes])
@@ -43,10 +43,10 @@ index 62db817..0b2a33e 100644
  PKG_CHECK_MODULES(CAIRO, cairo, [HAVE_CAIRO=yes], [HAVE_CAIRO=no])
  if test "x$HAVE_CAIRO" = xyes; then
  	AC_DEFINE(HAVE_CAIRO, 1, [Have cairo support])
-@@ -262,6 +272,8 @@ AC_OUTPUT([
- 	radeon/libdrm_radeon.pc
- 	nouveau/Makefile
+@@ -313,6 +323,8 @@ AC_CONFIG_FILES([
  	nouveau/libdrm_nouveau.pc
+ 	omap/Makefile
+ 	omap/libdrm_omap.pc
 +	glamo/Makefile
 +	glamo/libdrm_glamo.pc
  	tests/Makefile
@@ -923,10 +923,10 @@ index 0000000..d4d8e70
 +Libs: -L${libdir} -ldrm_glamo
 +Cflags: -I${includedir} -I${includedir}/libdrm
 diff --git a/include/drm/Makefile.am b/include/drm/Makefile.am
-index 43695bd..f3f7edf 100644
+index 2923ab4..2124178 100644
 --- a/include/drm/Makefile.am
 +++ b/include/drm/Makefile.am
-@@ -35,6 +35,7 @@ klibdrminclude_HEADERS = \
+@@ -36,6 +36,7 @@ klibdrminclude_HEADERS = \
  	savage_drm.h \
  	sis_drm.h \
  	via_drm.h \

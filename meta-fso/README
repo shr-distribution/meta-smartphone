@@ -7,7 +7,7 @@ branch: master
 revision: HEAD
 
 URI: git://git.openembedded.org/meta-openembedded
-layers: meta-oe
+layers: meta-oe, meta-systemd
 branch: master
 revision: HEAD
 
