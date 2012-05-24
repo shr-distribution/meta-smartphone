@@ -1,0 +1,6 @@
+require ${BPN}.inc
+
+PR = "${INC_PR}.0"
+
+SRC_URI[md5sum] = "a04cf0c977ad033fb6df20f62281e764"
+SRC_URI[sha256sum] = "d6030450783348565e24ce056d0e251a20894bcf082626769e5674a0fb6142c9"
