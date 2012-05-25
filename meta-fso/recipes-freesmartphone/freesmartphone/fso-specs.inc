@@ -9,7 +9,7 @@ PE = "1"
 
 SRCNAME = "specs"
 
-SRC_URI = "http://downloads.freesmartphone.org/sources/${SRCNAME}/${PV}/${SRCNAME}-${PV}.tar.bz2"
+SRC_URI = "http://downloads.freesmartphone.org/sources/${SRCNAME}/${SRCNAME}-${PV}.tar.bz2"
 
 S = "${WORKDIR}/${SRCNAME}-${PV}"
 

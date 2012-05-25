@@ -37,5 +37,4 @@ EGLIBCVERSION ?= "2.15"
 # need for some mobile handset devices
 PREFERRED_VERSION_tslib = "1.0+git%"
 
-# libnl-3 is again incompatible with libnl-2, lets keep 2 for a bit longer
-PREFERRED_VERSION_libnl = "2%"
+PREFERRED_VERSION_libnl = "3%"

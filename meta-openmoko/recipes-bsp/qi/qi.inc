@@ -4,7 +4,7 @@ LIC_FILES_CHKSUM = "file://Makefile;endline=15;md5=a6394710a271493a533a3724a1bce
 SECTION = "bootloader"
 PROVIDES = "virtual/bootloader"
 PV = "1.0.2"
-PR = "r8"
+PR = "r9"
 PR_append = "+gitr${SRCPV}"
 
 EXTRA_OEMAKE = ""

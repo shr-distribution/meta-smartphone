@@ -1,4 +1,4 @@
-From e7ca8dbf112be88ca102ef87440485312f732376 Mon Sep 17 00:00:00 2001
+From d6fa2302293e91d52fd3415530475ad1d49a1ec5 Mon Sep 17 00:00:00 2001
 From: Martin Jansa <Martin.Jansa@gmail.com>
 Date: Mon, 21 May 2012 09:52:57 +0200
 Subject: [PATCH 7/7] use bootchart as init
@@ -12,7 +12,7 @@ Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
  4 files changed, 9 insertions(+), 8 deletions(-)
 
 diff --git a/src/cpu/s3c2410/gta01.c b/src/cpu/s3c2410/gta01.c
-index 7ea74db..d4c4591 100644
+index 7ea74db..00ef552 100644
 --- a/src/cpu/s3c2410/gta01.c
 +++ b/src/cpu/s3c2410/gta01.c
 @@ -266,8 +266,8 @@ const struct board_api board_api_gta01 = {
@@ -21,13 +21,13 @@ index 7ea74db..d4c4591 100644
  			       "console=ttySAC0,115200 "
 -			       "init=/sbin/init "
 -			       "ro ",
-+			       "init=/sbin/bootchartd initcall_debug=1 "
++			       "init=/usr/sbin/bootchartd printk.time=y initcall_debug=1 "
 +			       "rw ",
  	.commandline_board_debug = " loglevel=8 ",
  	.noboot = "boot/noboot-GTA01",
  	.append = "boot/append-GTA01",
 diff --git a/src/cpu/s3c2442/gta02.c b/src/cpu/s3c2442/gta02.c
-index d56c6f4..6673409 100644
+index d56c6f4..07d15d8 100644
 --- a/src/cpu/s3c2442/gta02.c
 +++ b/src/cpu/s3c2442/gta02.c
 @@ -694,8 +694,8 @@ const struct board_api board_api_gta02 = {
@@ -36,13 +36,13 @@ index d56c6f4..6673409 100644
  				      "console=ttySAC2,115200 "
 -				      "init=/sbin/init "
 -				      "ro ",
-+				      "init=/sbin/bootchartd initcall_debug=1 "
++				      "init=/usr/sbin/bootchartd printk.time=y initcall_debug=1 "
 +				      "rw ",
  	.commandline_board_debug =  " loglevel=8",
  	.noboot = "boot/noboot-GTA02",
  	.append = "boot/append-GTA02",
 diff --git a/src/cpu/s3c6410/om_3d7k-steppingstone.c b/src/cpu/s3c6410/om_3d7k-steppingstone.c
-index 1944e36..d104e8e 100644
+index 1944e36..e807010 100644
 --- a/src/cpu/s3c6410/om_3d7k-steppingstone.c
 +++ b/src/cpu/s3c6410/om_3d7k-steppingstone.c
 @@ -87,10 +87,10 @@ const struct board_api board_api_om_3d7k = {
@@ -51,7 +51,7 @@ index 1944e36..d104e8e 100644
  			     "console=ttySAC3,115200 "
 -			     "init=/sbin/init "
 -			     "loglevel=8 "
-+			     "init=/sbin/bootchartd initcall_debug=1 "
++			     "init=/usr/sbin/bootchartd printk.time=y initcall_debug=1 "
 +			     "loglevel=3 "
  			     "rootwait no_console_suspend "
 -			     "ro ",
@@ -60,7 +60,7 @@ index 1944e36..d104e8e 100644
  	.kernel_source = {
  		[0] = {
 diff --git a/src/cpu/s3c6410/smdk6410-steppingstone.c b/src/cpu/s3c6410/smdk6410-steppingstone.c
-index c1d991f..d785f3a 100644
+index c1d991f..aa82f4e 100644
 --- a/src/cpu/s3c6410/smdk6410-steppingstone.c
 +++ b/src/cpu/s3c6410/smdk6410-steppingstone.c
 @@ -47,7 +47,8 @@ const struct board_api board_api_smdk6410 = {
@@ -68,7 +68,7 @@ index c1d991f..d785f3a 100644
  	.commandline_board = "console=ttySAC0,115200 "
  			     "loglevel=3 "
 -			     "init=/bin/sh ",
-+			     "init=/sbin/bootchartd initcall_debug=1 "
++			     "init=/usr/sbin/bootchartd printk.time=y initcall_debug=1 "
 +			     "rw",
  	.commandline_board_debug =  " loglevel=8",
  	.noboot = "boot/noboot-SDMK6410",

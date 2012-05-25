@@ -1,16 +1,16 @@
 require recipes-kernel/linux/linux.inc
 
-KERNEL_RELEASE = "3.3.1"
+KERNEL_RELEASE = "3.4"
 PV = "${KERNEL_RELEASE}+gitr${SRCPV}"
 PE = "3"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 
-SRCREV_kernel = "ab30fea70d28b4590eb899e0465e9423f32206cd"
+SRCREV_kernel = "9c432c1661017b994e75815c5997d4946b7c9252"
 SRCREV_init = "47dd9fd631f1908f3fcbabaf8fd48ba1503c2ea2"
 SRCREV_FORMAT = "kernel_init"
 
 SRC_URI = "\
-  git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=3.3-gta04;name=kernel \
+  git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=3.4-gta04;name=kernel \
   git://github.com/radekp/gta04-init.git;protocol=git;branch=master;name=init;destsuffix=git/gta04-init \
   file://defconfig \
 "
