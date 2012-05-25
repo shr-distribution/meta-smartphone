@@ -63,7 +63,7 @@ PREFERRED_VERSION_msmcommd-specs = "0.10.0+git%"
 PREFERRED_VERSION_msmcommd = "0.10.0+git%"
 
 PREFERRED_VERSION_libgsm0710 = "1.2.2+git%"
-PREFERRED_VERSION_fso-specs = "2012.04.18.1+git%"
+PREFERRED_VERSION_fso-specs = "2012.05.24.1+git%"
 # change of this needs at least 3 recipes to be rebuild/PR bumped
 # meta-smartphone/meta-shr/recipes-shr/shr/libphone-ui-shr_git.bb
 # meta-smartphone/meta-shr/recipes-shr/shr/libphone-ui_git.bb
