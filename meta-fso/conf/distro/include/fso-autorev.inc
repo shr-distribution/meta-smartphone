@@ -1,4 +1,5 @@
 # FSO
+# there is no support for palm pre* devices with this version of components!
 FSO_CORNUCOPIA_SRCREV = "${AUTOREV}"
 FSO_PYTHONHELPERS_SRCREV = "${AUTOREV}"
 
