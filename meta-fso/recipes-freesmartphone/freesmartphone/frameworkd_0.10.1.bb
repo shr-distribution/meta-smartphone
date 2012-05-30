@@ -1,5 +1,7 @@
 require ${BPN}.inc
 
+PR = "r1"
+
 SRC_URI += " \
            file://oeventsd-use-opimd-signals.patch \
            file://0001-oeventsd-workaround-buggy-kernel-to-get-full-vibrati.patch \
