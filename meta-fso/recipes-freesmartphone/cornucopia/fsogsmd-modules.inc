@@ -5,6 +5,7 @@ HOMEPAGE = "http://www.freesmartphone.org"
 INHIBIT_DEFAULT_DEPS = "1"
 
 PE = "2"
+PR = "r1"
 
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -12,15 +13,6 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384
 PACKAGES = "${PN}"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 ALLOW_EMPTY = "1"
-
-# On the palmpre we need the msmcomm daemon to talk to the modem
-RDEPENDS_${PN}_palmpre += "msmcommd"
-
-## palmpre
-#  modem_qualcomm_pre.so
-#  lowlevel_palmpre.so
-RDEPENDS_${PN}_palmpre += "fsogsmd-module-lowlevel-palmpre"
-RDEPENDS_${PN}_palmpre += "fsogsmd-module-modem-qualcomm-palm"
 
 ## htcdream
 #  modem_qualcomm_htc.so
