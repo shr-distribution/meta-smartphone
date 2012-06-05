@@ -10,7 +10,7 @@ SRC_URI[sha256sum] = "5098273093c1d46f18f0e003a3921ca5c8a3d4b9b273f8af4acb4c9749
 # next release 0.12 of fsogsmd.
 
 EXTRA_OECONF_append = "--enable-modem-qualcomm-palm"
-DEPENDS += " msmcomm-specs"
+DEPENDS += " msmcommd-specs"
 
 PACKAGES =+ "${PN}-module-lowlevel-palmpre ${PN}-module-lowlevel-palmpre-dev ${PN}-module-lowlevel-palmpre-dbg"
 FILES_${PN}-module-lowlevel-palmpre = "${CORNUCOPIA_MODULE_DIR}/lowlevel_palmpre.so"
