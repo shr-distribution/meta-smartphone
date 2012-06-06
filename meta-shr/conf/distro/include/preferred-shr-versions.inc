@@ -7,6 +7,8 @@ PREFERRED_VERSION_openssl-native = "1.0.0%"
 PREFERRED_VERSION_subversion = "1.7.%"
 PREFERRED_VERSION_subversion-native = "1.7.%"
 PREFERRED_VERSION_udev = "182"
+PREFERRED_VERSION_dbus = "1.5%"
+PREFERRED_VERSION_dbus-native = "1.5%"
 
 # we need new headers for libc, now OLDEST_KERNEL_linux-gnueabi = "2.6.24"
 # and 2.6.31 for fsodeviced
