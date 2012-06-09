@@ -1,9 +1,9 @@
 require ${BPN}.inc
 
-PR = "${INC_PR}.1"
+PR = "${INC_PR}.0"
 
-SRC_URI[md5sum] = "e9cb7ce3a980acef772295c698171643"
-SRC_URI[sha256sum] = "5098273093c1d46f18f0e003a3921ca5c8a3d4b9b273f8af4acb4c97490bf17d"
+SRC_URI[md5sum] = "d192e790eaa5c8bd537ea980bdb37d95"
+SRC_URI[sha256sum] = "91fe816d357377fc9824752c0f9a697db59f2f3d8d8766f8a435d66b6df02f12"
 
 # The following adds support for the Palm Pre device which is not available in development
 # anymore, so we need to specify it's configuration here. This can be removed with the
