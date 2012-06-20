@@ -7,7 +7,7 @@ LICENSE = "GPL"
 SRCREV = "154652fdbd2cf68e03a3c91c49ff2ece8ffd7288"
 PV = "1.0.1+gitr${SRCPV}"
 PE = "1"
-PR = "r0"
+PR = "r1"
 
 SRC_URI = "${FREESMARTPHONE_GIT}/dbus-hlid.git;protocol=git;branch=master"
 S = "${WORKDIR}/git"
