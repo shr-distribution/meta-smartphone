@@ -14,6 +14,10 @@ SRC_URI = "http://github.com/downloads/kichkasch/pisi/pisi-src-${PV}.tar.gz"
 SRC_URI[md5sum] = "c416b316668575f8506dc54e19475795"
 SRC_URI[sha256sum] = "a27603662747aee9a0440acc6472fe274c0724fcc66ad05849eb186bfb24868e"
 
+PR = "r1"
+
+# we want conf.example in $PN
+FILES_${PN}-doc = ""
 FILES_${PN} += "/opt/${PN} \
                 ${datadir}/pixmaps \
                 ${datadir}/applications \
