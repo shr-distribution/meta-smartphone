@@ -6,7 +6,7 @@ LICENSE = "GPL"
 SRCREV = "b4ae1e9b10e710042624c2cf1a15b91a7d5b1d44"
 PV = "0.0.0+gitr${SRCPV}"
 PE = "1"
-PR = "r0"
+PR = "r1"
 
 SRC_URI = "${FREESMARTPHONE_GIT}/fso-monitord.git;protocol=git;branch=master"
 S = "${WORKDIR}/git"

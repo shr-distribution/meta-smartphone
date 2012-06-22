@@ -14,4 +14,7 @@ do_install_append() {
 
 SYSTEMD_SERVICE_om-gta02 = "g_ether.service"
 
-PRINC := "${@int(PRINC) + 2}"
+#Add GPS for gta04
+RDEPENDS_${PN}_om-gta04 = "gta04-gps-handler-systemd"
+
+PRINC := "${@int(PRINC) + 3}"

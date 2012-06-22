@@ -1,8 +1,0 @@
-[Unit]
-Description=Custom mount of devtmpfs for samsung
-
-[Service]
-ExecStart=/usr/bin/mountdevtmpfs.sh
-
-[Install]
-WantedBy=basic.target

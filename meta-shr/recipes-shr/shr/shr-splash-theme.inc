@@ -4,6 +4,7 @@ RDEPENDS_${PN} += "shr-splash"
 inherit allarch update-alternatives
 
 FILES_${PN} = "${datadir}/shr-splash/themes/${PN}"
+FILES_${PN} += "/boot"
 
 LICENSE = "MIT BSD"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=f523ab5986cc79b52a90d2ac3d5454a2"
@@ -19,6 +20,11 @@ SS ?= "${S}"
 
 do_install() {
     install -d ${D}${datadir}/shr-splash/themes/${PN}
+    # install /boot/logo.bmp (if available) to display a SHR logo when using the gta04-init system
+    if [ -e ${SS}/logo.bmp ]; then
+        install -d ${D}/boot
+        install -m 0644 ${SS}/logo.bmp ${D}/boot/logo.bmp 
+    fi;
 
     install -m 0644 ${SS}/xsplash-vga.ppm ${D}${datadir}/shr-splash/themes/${PN}/xsplash-vga.ppm
     install -m 0644 ${SS}/boot.fbz ${D}${datadir}/shr-splash/themes/${PN}/boot.fbz

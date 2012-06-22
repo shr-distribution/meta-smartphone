@@ -1,8 +1,7 @@
 [Unit]
 Description=Set up rndis interface on samsung devices
+Before=basic.target
+DefaultDependencies=no
 
 [Service]
 ExecStart=/usr/bin/rndissetup.sh
-
-[Install]
-WantedBy=basic.target

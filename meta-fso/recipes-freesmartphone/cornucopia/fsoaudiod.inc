@@ -32,11 +32,9 @@ SRC_URI_append = " file://${PN}"
 
 FILES_${PN}-config = " \
   ${sysconfdir}/asound.conf \
-  ${sysconfdir}/freesmartphone/conf/palm_pre/${PN}.conf \
 "
 CONFFILES_${PN}-config = " \
   ${sysconfdir}/asound.conf \
-  ${sysconfdir}/freesmartphone/conf/palm_pre/${PN}.conf \
 "
 RCONFLICTS_${PN} = "alsa-state"
 

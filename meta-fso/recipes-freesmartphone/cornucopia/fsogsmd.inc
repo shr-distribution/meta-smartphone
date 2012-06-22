@@ -5,12 +5,11 @@ LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
 
 DEPENDS += "libfsosystem libfsotransport libfsoresource libgsm0710mux \
-  libgisi ppp connman msmcommd-specs libsamsung-ipc"
+  libgisi ppp connman libsamsung-ipc"
 
 EXTRA_OECONF_append = "\
   --enable-libgsm0710mux \
   --enable-modem-nokia-isi \
-  --enable-modem-qualcomm-palm \
   --enable-modem-samsung \
 "
 
@@ -20,7 +19,6 @@ PACKAGES =+ "${PN}-config"
 FILES_${PN}-config = "${sysconfdir}/freesmartphone/"
 CONFFILES_${PN}-config = " \
   ${sysconfdir}/freesmartphone/conf/openmoko_gta/fsogsmd.conf \
-  ${sysconfdir}/freesmartphone/conf/palm_pre/fsogsmd.conf \
   ${sysconfdir}/freesmartphone/conf/htc_qualcomm_dream/fsogsmd.conf \
   ${sysconfdir}/freesmartphone/conf/htc_qualcomm_msm/fsogsmd.conf \
   ${sysconfdir}/freesmartphone/conf/GTA04/fsogsmd.conf \
@@ -34,16 +32,6 @@ FILES_${PN}-connman = "${libdir}/connman/plugins/fsogsm.so"
 FILES_${PN}-connman-dev = "${libdir}/connman/plugins/fsogsm.la"
 FILES_${PN}-connman-dbg = "${libdir}/connman/plugins/.debug/fsogsm*"
 RRECOMMENDS_${PN} += "${PN}-connman"
-
-PACKAGES =+ "${PN}-module-lowlevel-palmpre ${PN}-module-lowlevel-palmpre-dev ${PN}-module-lowlevel-palmpre-dbg"
-FILES_${PN}-module-lowlevel-palmpre = "${CORNUCOPIA_MODULE_DIR}/lowlevel_palmpre.so"
-FILES_${PN}-module-lowlevel-palmpre-dev = "${CORNUCOPIA_MODULE_DIR}/lowlevel_palmpre.la"
-FILES_${PN}-module-lowlevel-palmpre-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/lowlevel_palmpre*"
-
-PACKAGES =+ "${PN}-module-modem-qualcomm-palm ${PN}-module-modem-qualcomm-palm-dev ${PN}-module-modem-qualcomm-palm-dbg"
-FILES_${PN}-module-modem-qualcomm-palm = "${CORNUCOPIA_MODULE_DIR}/modem_qualcomm_palm.so"
-FILES_${PN}-module-modem-qualcomm-palm-dev = "${CORNUCOPIA_MODULE_DIR}/modem_qualcomm_palm.la"
-FILES_${PN}-module-modem-qualcomm-palm-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/modem_qualcomm_palm*"
 
 PACKAGES =+ "${PN}-module-modem-qualcomm-htc ${PN}-module-modem-qualcomm-htc-dev ${PN}-module-modem-qualcomm-htc-dbg"
 FILES_${PN}-module-modem-qualcomm-htc = "${CORNUCOPIA_MODULE_DIR}/modem_qualcomm_htc.so"

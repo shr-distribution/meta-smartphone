@@ -7,6 +7,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=ebb5c50ab7cab4baeffba14977030c07"
 SRCREV = "43fae6cf5e3aa57f5d7fed467896d2d4d0f69679"
 PV = "0.1.0+gitr${SRCPV}"
 PE = "1"
+PR = "r1"
 DEPENDS = "glib-2.0"
 
 SRC_URI = "${FREESMARTPHONE_GIT}/cornucopia;protocol=git;branch=master"

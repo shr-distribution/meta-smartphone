@@ -6,7 +6,7 @@ SECTION = "x11/applications"
 DEPENDS += " libfso-glib libshr-glib sqlite3 shr-specs libfsoframework"
 SRCREV = "42dd49e95660ca1237b244bb45fe6474d9241bd1"
 PV = "0.0.0+gitr${SRCPV}"
-PR = "r9"
+PR = "r10"
 
 SRC_URI = "git://git.shr-project.org/repo/phonefsod.git;protocol=http;branch=master \
   file://${PN}.service \

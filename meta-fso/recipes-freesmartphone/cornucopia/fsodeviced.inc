@@ -40,7 +40,6 @@ PACKAGES =+ "${PN}-config"
 FILES_${PN}-config = "${sysconfdir}/freesmartphone/"
 CONFFILES_${PN}-config = " \
   ${sysconfdir}/freesmartphone/conf/openmoko_gta/${PN}.conf \
-  ${sysconfdir}/freesmartphone/conf/palm_pre/${PN}.conf \
   ${sysconfdir}/freesmartphone/conf/htc_qualcomm_dream/${PN}.conf \
   ${sysconfdir}/freesmartphone/conf/htc_qualcomm_msm/${PN}.conf \
   ${sysconfdir}/freesmartphone/conf/motorola_ezx/${PN}.conf \
@@ -52,11 +51,6 @@ PACKAGES =+ "${PN}-module-accelerometer-kxsd9 ${PN}-module-accelerometer-kxsd9-d
 FILES_${PN}-module-accelerometer-kxsd9 = "${CORNUCOPIA_MODULE_DIR}/accelerometer_kxsd9.so"
 FILES_${PN}-module-accelerometer-kxsd9-dev = "${CORNUCOPIA_MODULE_DIR}/accelerometer_kxsd9.la"
 FILES_${PN}-module-accelerometer-kxsd9-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/accelerometer_kxsd9*"
-
-PACKAGES =+ "${PN}-module-palmpre-quirks ${PN}-module-palmpre-quirks-dev ${PN}-module-palmpre-quirks-dbg"
-FILES_${PN}-module-palmpre-quirks = "${CORNUCOPIA_MODULE_DIR}/palmpre_quirks.so"
-FILES_${PN}-module-palmpre-quirks-dev = "${CORNUCOPIA_MODULE_DIR}/palmpre_quirks.la"
-FILES_${PN}-module-palmpre-quirks-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/palmpre_quirks*"
 
 PACKAGES =+ "${PN}-module-backlight-omappanel ${PN}-module-backlight-omappanel-dev ${PN}-module-backlight-omappanel-dbg"
 FILES_${PN}-module-backlight-omappanel = "${CORNUCOPIA_MODULE_DIR}/backlight_omappanel.so"

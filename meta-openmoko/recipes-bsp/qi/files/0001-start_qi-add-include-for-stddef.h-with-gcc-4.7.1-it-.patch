@@ -1,0 +1,40 @@
+From 5dbb5dd9110d85a04ddbb4e2d9a741b327b40c00 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Thu, 21 Jun 2012 21:27:14 +0200
+Subject: [PATCH] start_qi: add include for stddef.h with gcc-4.7.1 it fails
+
+* src/cpu/s3c2442/start_qi.c:39:4: error: 'NULL' undeclared here (not in a function)
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ src/cpu/s3c2410/start_qi.c |    1 +
+ src/cpu/s3c2442/start_qi.c |    1 +
+ 2 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/src/cpu/s3c2410/start_qi.c b/src/cpu/s3c2410/start_qi.c
+index 4d9b7ae..f41e60c 100644
+--- a/src/cpu/s3c2410/start_qi.c
++++ b/src/cpu/s3c2410/start_qi.c
+@@ -25,6 +25,7 @@
+ 
+ 
+ #include <qi.h>
++#include <stddef.h>
+ #include "nand_read.h"
+ #include <neo_gta01.h>
+ 
+diff --git a/src/cpu/s3c2442/start_qi.c b/src/cpu/s3c2442/start_qi.c
+index d7136fd..ff297f6 100644
+--- a/src/cpu/s3c2442/start_qi.c
++++ b/src/cpu/s3c2442/start_qi.c
+@@ -25,6 +25,7 @@
+ 
+ 
+ #include <qi.h>
++#include <stddef.h>
+ #include "nand_read.h"
+ #include <neo_gta02.h>
+ 
+-- 
+1.7.8.6
+
