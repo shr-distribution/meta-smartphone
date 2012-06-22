@@ -1,0 +1,113 @@
+From a4ee184006a324299e199867c70cd99f0f4484cb Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Sat, 7 Jul 2012 04:41:47 +0200
+Subject: [PATCH] build: add default opkg build
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ agtl          |    2 ++
+ agtl.desktop  |    8 ++++++++
+ agtl.longdesc |   19 +++++++++++++++++++
+ agtl.png      |    1 +
+ setup.py      |   20 ++++++++++++++++++++
+ splash.png    |    1 +
+ 6 files changed, 51 insertions(+), 0 deletions(-)
+ create mode 100755 agtl
+ create mode 100644 agtl.desktop
+ create mode 100644 agtl.longdesc
+ create mode 120000 agtl.png
+ create mode 100644 setup.py
+ create mode 120000 splash.png
+
+diff --git a/agtl b/agtl
+new file mode 100755
+index 0000000..2cbf6d8
+--- /dev/null
++++ b/agtl
+@@ -0,0 +1,2 @@
++#!/bin/sh
++python ./core.py --simple
+diff --git a/agtl.desktop b/agtl.desktop
+new file mode 100644
+index 0000000..1f66f1c
+--- /dev/null
++++ b/agtl.desktop
+@@ -0,0 +1,8 @@
++[Desktop Entry]
++Encoding=UTF-8
++Version=1.0
++Type=Application
++Name=AGTL
++Exec=/usr/bin/agtl
++Icon=/usr/share/icons/hicolor/64x64/apps/agtl.png
++Categories=Utilities;
+diff --git a/agtl.longdesc b/agtl.longdesc
+new file mode 100644
+index 0000000..a90bb3c
+--- /dev/null
++++ b/agtl.longdesc
+@@ -0,0 +1,19 @@
++AGTL downloads geocaches including their description, hints, difficulty levels and images. No premium account needed. Searching for caches in your local database is a matter of seconds.
++.
++- Map view - supporting Open Street Maps and Open Cycle Maps by default.
++.
++- GPS view - shows the distance and direction to the selected geocache.
++.
++- Cache details - all necessary details are available even in offline mode.
++.
++- Paperless geocaching features - take notes for a geocache on the go, see the hints and spoiler images, check the latest logs.
++.
++- Multicache calculation help - Let your phone do the math for you. Working for the most multi-stage geocaches, AGTL finds the coordinate calculations and let you enter the missing variables.
++.
++- Fieldnotes support - Ever came home after a long tour and asked yourself which geocaches you found? Never again: Log your find in the field and upload notes and log text when you're at home. Review them on the geocaching website and post the logs.
++.
++- Advanced waypoint handling - AGTL finds waypoints in the geocache descriptions and in the list of waypoints. 
++.
++- Instant update feature - Follow web site updates as soon as possible.
++.
++AGTL is Open source and in active development.
+diff --git a/agtl.png b/agtl.png
+new file mode 120000
+index 0000000..8c0786d
+--- /dev/null
++++ b/agtl.png
+@@ -0,0 +1 @@
++res/advancedcaching-64.png
+\ No newline at end of file
+diff --git a/setup.py b/setup.py
+new file mode 100644
+index 0000000..555c547
+--- /dev/null
++++ b/setup.py
+@@ -0,0 +1,20 @@
++from distutils.core import setup
++from glob import glob
++import os, sys, shutil
++
++def read(fname):
++    return open(os.path.join(os.path.dirname(__file__), fname)).read()
++
++setup(name="agtl",
++      version='___VERSION___',
++      maintainer="daniel",
++      maintainer_email="advancedcaching@fragcom.de",
++      description="AGTL makes geocaching paperless!",
++      long_description=read('agtl.longdesc'),
++      package_dir={'agtl': 'advancedcaching'},
++      packages = {"advancedcaching", "advancedcaching.actors"},
++      package_data = {"advancedcaching": ["data/*", "qml/*"]},
++      scripts = {"agtl"},
++      data_files=[('applications',['agtl.desktop']),
++                  ('icons/hicolor/64x64/apps', ['agtl.png'])],
++)
+diff --git a/splash.png b/splash.png
+new file mode 120000
+index 0000000..d03e119
+--- /dev/null
++++ b/splash.png
+@@ -0,0 +1 @@
++res/splash.png
+\ No newline at end of file
+-- 
+1.7.8.6
+
