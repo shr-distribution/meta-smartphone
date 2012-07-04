@@ -1,27 +1,27 @@
 diff --git a/Makefile.am b/Makefile.am
-index 4f625a1..9cea5bf 100644
+index 256a8cc..7de5ded 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -45,7 +45,11 @@ if HAVE_OMAP
- OMAP_SUBDIR = omap
+@@ -49,7 +49,11 @@ if HAVE_EXYNOS
+ EXYNOS_SUBDIR = exynos
  endif
  
--SUBDIRS = . $(LIBKMS_SUBDIR) $(INTEL_SUBDIR) $(NOUVEAU_SUBDIR) $(RADEON_SUBDIR) $(OMAP_SUBDIR) tests include
+-SUBDIRS = . $(LIBKMS_SUBDIR) $(INTEL_SUBDIR) $(NOUVEAU_SUBDIR) $(RADEON_SUBDIR) $(OMAP_SUBDIR) $(EXYNOS_SUBDIR) tests include
 +if HAVE_GLAMO
 +GLAMO_SUBDIR = glamo
 +endif
 +
-+SUBDIRS = . $(LIBKMS_SUBDIR) $(INTEL_SUBDIR) $(NOUVEAU_SUBDIR) $(RADEON_SUBDIR) $(OMAP_SUBDIR) $(GLAMO_SUBDIR) tests include
++SUBDIRS = . $(LIBKMS_SUBDIR) $(INTEL_SUBDIR) $(NOUVEAU_SUBDIR) $(RADEON_SUBDIR) $(OMAP_SUBDIR) $(EXYNOS_SUBDIR) $(GLAMO_SUBDIR) tests include
  
  libdrm_la_LTLIBRARIES = libdrm.la
  libdrm_ladir = $(libdir)
 diff --git a/configure.ac b/configure.ac
-index 538d0d8..5d6e0b7 100644
+index f7bea35..49bcdcc 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -88,6 +88,11 @@ AC_ARG_ENABLE(omap-experimental-api,
- 	      [Enable support for OMAP's experimental API (default: disabled)]),
- 	      [OMAP=$enableval], [OMAP=no])
+@@ -93,6 +93,11 @@ AC_ARG_ENABLE(exynos-experimental-api,
+ 	      [Enable support for EXYNOS's experimental API (default: disabled)]),
+ 	      [EXYNOS=$enableval], [EXYNOS=no])
  
 +AC_ARG_ENABLE(glamo-experimental-api,
 +	      AS_HELP_STRING([--enable-glamo-experimental-api],
@@ -31,8 +31,8 @@ index 538d0d8..5d6e0b7 100644
  dnl ===========================================================================
  dnl check compiler flags
  AC_DEFUN([LIBDRM_CC_TRY_FLAG], [
-@@ -191,6 +196,11 @@ if test "x$OMAP" = xyes; then
- 	AC_DEFINE(HAVE_OMAP, 1, [Have OMAP support])
+@@ -201,6 +206,11 @@ if test "x$EXYNOS" = xyes; then
+ 	AC_DEFINE(HAVE_EXYNOS, 1, [Have EXYNOS support])
  fi
  
 +AM_CONDITIONAL(HAVE_GLAMO, [test "x$GLAMO" = xyes])
@@ -43,10 +43,10 @@ index 538d0d8..5d6e0b7 100644
  PKG_CHECK_MODULES(CAIRO, cairo, [HAVE_CAIRO=yes], [HAVE_CAIRO=no])
  if test "x$HAVE_CAIRO" = xyes; then
  	AC_DEFINE(HAVE_CAIRO, 1, [Have cairo support])
-@@ -313,6 +323,8 @@ AC_CONFIG_FILES([
- 	nouveau/libdrm_nouveau.pc
- 	omap/Makefile
+@@ -325,6 +335,8 @@ AC_CONFIG_FILES([
  	omap/libdrm_omap.pc
+ 	exynos/Makefile
+ 	exynos/libdrm_exynos.pc
 +	glamo/Makefile
 +	glamo/libdrm_glamo.pc
  	tests/Makefile
