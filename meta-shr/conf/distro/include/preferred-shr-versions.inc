@@ -33,7 +33,7 @@ PREFERRED_VERSION_qt4-x11-free-gles = "${PREFERRED_QT_VERSION}"
 GCCVERSION ?= "4.7%"
 SDKGCCVERSION ?= "4.7%"
 # and newer eglibc
-EGLIBCVERSION ?= "2.15"
+EGLIBCVERSION ?= "2.16"
 
 # We need git version of tslib as the old 1.0 release does not the support the features we
 # need for some mobile handset devices
