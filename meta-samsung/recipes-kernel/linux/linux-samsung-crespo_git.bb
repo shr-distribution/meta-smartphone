@@ -6,13 +6,13 @@ DESCRIPTION = "Linux kernel for the Samsung Crespo device based on the offical \
 source from Samsung"
 
 SRC_URI = " \
-  git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=samsung-crespo/master-next \
+  git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=samsung-crespo/master \
   file://defconfig \
 "
 
 S = "${WORKDIR}/git/"
 
-SRCREV = "97f694562547e6762b142a0ef10f72af3d222fbd"
+SRCREV = "94d2a0a01dac53b5756dddbd5ef887dda3329c8f"
 
 KV = "3.0.8"
 PV = "${KV}+gitr${SRCPV}"
