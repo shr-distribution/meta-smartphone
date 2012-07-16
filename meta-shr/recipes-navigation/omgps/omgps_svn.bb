@@ -13,7 +13,7 @@ do_configure_prepend() {
    sed -i "s#PY_INC_DIR = \$(OPIEDIR)#PY_INC_DIR = ${STAGING_DIR_HOST}#g" ${S}/Makefile.am
 }
 
-SRC_URI = "svn://omgps.googlecode.com/svn/trunk;module=omgps;proto=http \
+SRC_URI = "svn://omgps.googlecode.com/svn/trunk;module=omgps;protocol=http \
            file://gcc-4.4.patch \
            file://sysfs.node.2.6.32.patch \
            file://fix.capability.patch \

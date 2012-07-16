@@ -12,7 +12,7 @@ SRCREV = "171"
 PV = "0.1+svnr${SRCPV}"
 PR = "r3"
 
-SRC_URI = "svn://emtooth.googlecode.com/svn/trunk;module=app2;proto=http \
+SRC_URI = "svn://emtooth.googlecode.com/svn/trunk;module=app2;protocol=http \
 "
 
 EXTRA_OECONF += "--enable-fso"

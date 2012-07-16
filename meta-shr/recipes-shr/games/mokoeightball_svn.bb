@@ -10,7 +10,7 @@ PV = "0.2+svnr${SRCPV}"
 FILES_${PN} += "${datadir}/moko_eightball/Accelerometer/__init__.py"
 FILES_${PN} += "${datadir}/moko_eightball/themes/eightball.edj"
 
-SRC_URI = "svn://svn.pureenergy.cc/moko_eightball;module=python;proto=svn \
+SRC_URI = "svn://svn.pureenergy.cc/moko_eightball;module=python;protocol=svn \
 	   file://fixpath.patch"
 S = "${WORKDIR}/python"
 

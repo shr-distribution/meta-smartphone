@@ -14,7 +14,7 @@ inherit autotools
 
 # Maemo garage is sadly only available with https. Can make you trouble while fetching without accepting the certificate.
 SRC_URI = "\
-  svn://vcs.maemo.org/svn/${PN};module=trunk;proto=http \
+  svn://vcs.maemo.org/svn/${PN};module=trunk;protocol=http \
   http://wwwpub.zih.tu-dresden.de/~mkluge/numptyphysics_setup.tgz \
   file://replay_off.patch;striplevel=0 \
   file://next.png \

@@ -8,7 +8,7 @@ SECTION = "x11/applications"
 SRCREV = "218"
 PV = "1.7.4+svnr${SRCPV}"
 
-SRC_URI = "svn://podboy.googlecode.com/svn;module=trunk;proto=http"
+SRC_URI = "svn://podboy.googlecode.com/svn;module=trunk;protocol=http"
 S = "${WORKDIR}/trunk"
 
 inherit distutils
