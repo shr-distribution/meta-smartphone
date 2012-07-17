@@ -9,7 +9,7 @@ SRCREV = "6"
 PV = "1.0.2+svnr${SRCPV}"
 PR = "r2"
 
-SRC_URI = "svn://minneo.googlecode.com/svn;module=trunk;proto=http \
+SRC_URI = "svn://minneo.googlecode.com/svn;module=trunk;protocol=http \
            file://setup.py.patch"
 S = "${WORKDIR}/trunk"
 

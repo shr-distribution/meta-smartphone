@@ -8,7 +8,7 @@ RRECOMMENDS_${PN} = "ca-certificates"
 PV = "0.2+svnr${SRCPV}"
 PR = "r7"
 
-SRC_URI = "svn://elm-browser.googlecode.com/svn;module=trunk;proto=http"
+SRC_URI = "svn://elm-browser.googlecode.com/svn;module=trunk;protocol=http"
 
 SRCREV = "16"
 S = "${WORKDIR}/trunk"

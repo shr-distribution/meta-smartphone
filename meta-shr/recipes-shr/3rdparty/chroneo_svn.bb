@@ -8,7 +8,7 @@ SECTION = "x11/applications"
 SRCREV = "9"
 PV = "1.0.2+svnr${SRCPV}"
 
-SRC_URI = "svn://chroneo.googlecode.com/svn;module=trunk;proto=http"
+SRC_URI = "svn://chroneo.googlecode.com/svn;module=trunk;protocol=http"
 S = "${WORKDIR}/trunk"
 
 inherit distutils

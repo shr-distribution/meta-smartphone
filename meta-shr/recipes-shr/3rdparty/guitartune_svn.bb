@@ -9,7 +9,7 @@ DEPENDS = "gtk+ libglade fftw sqlite3"
 SRCREV = "11"
 PV = "0.36+svnr${SRCPV}"
 
-SRC_URI = "svn://guitartune.googlecode.com/svn;module=trunk;proto=http"
+SRC_URI = "svn://guitartune.googlecode.com/svn;module=trunk;protocol=http"
 S = "${WORKDIR}/trunk"
 
 inherit autotools

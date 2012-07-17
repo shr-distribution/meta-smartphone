@@ -9,7 +9,7 @@ SRCREV = "16"
 PV = "1.4.0+svnr${SRCPV}"
 PR = "r3"
 
-SRC_URI = "svn://neolight.googlecode.com/svn;module=trunk;proto=http"
+SRC_URI = "svn://neolight.googlecode.com/svn;module=trunk;protocol=http"
 S = "${WORKDIR}/trunk"
 
 inherit distutils

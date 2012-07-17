@@ -13,7 +13,7 @@ PR = "r4"
 
 S = "${WORKDIR}/trunk"
 
-SRC_URI = "svn://neomis.googlecode.com/svn;module=trunk;proto=http"
+SRC_URI = "svn://neomis.googlecode.com/svn;module=trunk;protocol=http"
 
 inherit distutils
 

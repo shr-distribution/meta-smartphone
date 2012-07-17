@@ -12,7 +12,7 @@ PR = "r3"
 
 S = "${WORKDIR}/trunk"
 
-SRC_URI = "svn://numberx.googlecode.com/svn;module=trunk;proto=http"
+SRC_URI = "svn://numberx.googlecode.com/svn;module=trunk;protocol=http"
 
 inherit distutils
 
