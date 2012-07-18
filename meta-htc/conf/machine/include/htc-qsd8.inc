@@ -23,7 +23,7 @@ MACHINE_DISPLAY_HEIGHT_PIXELS = "640"
 MACHINE_CLASS = "htc-qsd8"
 
 # use uncompressed kernel image
-KERNEL_IMAGETYPE = Image
+KERNEL_IMAGETYPE = "Image"
 
 # features
 MACHINE_FEATURES = "kernel26 touchscreen screen phone gps usb keyboard"
