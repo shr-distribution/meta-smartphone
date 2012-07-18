@@ -6,7 +6,7 @@ DEPENDS = "dbus-glib"
 SRCREV = "39e810899110a9bb302cf2064e1c0f73541fb4e6"
 PV = "0.8+gitr${SRCPV}"
 PE = "1"
-PR = "r5"
+PR = "r6"
 
 SRC_URI = "\
   ${FREESMARTPHONE_GIT}/fso-gpsd.git;protocol=git;branch=master \
@@ -17,7 +17,7 @@ S = "${WORKDIR}/git"
 
 inherit autotools update-rc.d systemd
 
-INITSCRIPT_NAME = "fso-gpsd"
+INITSCRIPT_NAME = "fso-gpsd-sysv"
 INITSCRIPT_PARAMS = "defaults 35"
 
 SYSTEMD_PACKAGES = "${PN}-systemd"
@@ -25,7 +25,7 @@ SYSTEMD_SERVICE = "${PN}.service"
 
 do_install_append() {
     install -d ${D}${sysconfdir}/init.d/
-    install -m 0755 ${WORKDIR}/fso-gpsd ${D}${sysconfdir}/init.d/
+    install -m 0755 ${WORKDIR}/fso-gpsd ${D}${sysconfdir}/init.d/fso-gpsd-sysv
 }
 
 FILES_${PN} += "${sysconfdir}"
