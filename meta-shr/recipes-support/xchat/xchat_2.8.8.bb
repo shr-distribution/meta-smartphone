@@ -20,7 +20,7 @@ EXTRA_OECONF = "\
   --disable-tcl \
 "
 do_configure_prepend(){
-	rm -f ${S}/po/Makefile.in.in
+    rm -f ${S}/po/Makefile.in.in
 }
 
 FILES_${PN} += "${datadir}/dbus-1"

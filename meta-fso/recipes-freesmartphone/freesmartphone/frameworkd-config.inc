@@ -14,57 +14,57 @@ SRC_URI = "http://downloads.freesmartphone.org/sources/frameworkd/${SHRT_VER}/fr
 S = "${WORKDIR}/frameworkd-${PV}"
 
 do_install_append() {
-  # we care only about ${D}${sysconfdir}/freesmartphone
-  rm -rf ${D}${libdir}
-  rm -rf ${D}${bindir}
-  rm -rf ${D}${datadir}
-  rmdir ${D}${prefix} || true # only when it's empty, because e.g. for micro ${D}${prefix} == ${D}
-  rm -rf ${D}${sysconfdir}/dbus-1
-  rm -rf ${D}${sysconfdir}/init.d
+    # we care only about ${D}${sysconfdir}/freesmartphone
+    rm -rf ${D}${libdir}
+    rm -rf ${D}${bindir}
+    rm -rf ${D}${datadir}
+    rmdir ${D}${prefix} || true # only when it's empty, because e.g. for micro ${D}${prefix} == ${D}
+    rm -rf ${D}${sysconfdir}/dbus-1
+    rm -rf ${D}${sysconfdir}/init.d
 
-  install -d ${D}${sysconfdir}/freesmartphone/opim/
+    install -d ${D}${sysconfdir}/freesmartphone/opim/
 
-  frameworkd_install_machine_specific_configs
+    frameworkd_install_machine_specific_configs
 }
 
 # machines with enabled ogsmd
 do_install_append_a780() {
-  frameworkd_install_ogsmd_configs
+    frameworkd_install_ogsmd_configs
 }
 do_install_append_eten-m800() {
-  frameworkd_install_ogsmd_configs
+    frameworkd_install_ogsmd_configs
 }
 
 frameworkd_install_ogsmd_configs() {
-        # Install machine specific files
-        install -d ${D}${sysconfdir}/freesmartphone/ogsmd
-        install -m 0644 ${S}/etc/freesmartphone/ogsmd/cell.db ${D}${sysconfdir}/freesmartphone/ogsmd
-        install -m 0644 ${S}/etc/freesmartphone/ogsmd/la.db ${D}${sysconfdir}/freesmartphone/ogsmd
-        install -m 0644 ${S}/etc/freesmartphone/ogsmd/networks.tab ${D}${sysconfdir}/freesmartphone/ogsmd
+    # Install machine specific files
+    install -d ${D}${sysconfdir}/freesmartphone/ogsmd
+    install -m 0644 ${S}/etc/freesmartphone/ogsmd/cell.db ${D}${sysconfdir}/freesmartphone/ogsmd
+    install -m 0644 ${S}/etc/freesmartphone/ogsmd/la.db ${D}${sysconfdir}/freesmartphone/ogsmd
+    install -m 0644 ${S}/etc/freesmartphone/ogsmd/networks.tab ${D}${sysconfdir}/freesmartphone/ogsmd
 }
 frameworkd_install_machine_specific_configs() {
-        # Check for machine specific conf.
-        CONF_PATH="${S}/etc"
-        CONF_PATH_MACHINE="${CONF_PATH}"
-        if [ -d "${CONF_PATH}/${MACHINE}" ] ; then
-                CONF_PATH_MACHINE="${CONF_PATH}/${MACHINE}"
-        elif [ -d "${CONF_PATH}/${MACHINE_CLASS}" ] ; then
-                CONF_PATH_MACHINE="${CONF_PATH}/${MACHINE_CLASS}"
-        fi
-        # Install machine specific files
-        install -d ${D}${sysconfdir}
-        install -m 0644 ${CONF_PATH_MACHINE}/frameworkd.conf ${D}${sysconfdir}
+    # Check for machine specific conf.
+    CONF_PATH="${S}/etc"
+    CONF_PATH_MACHINE="${CONF_PATH}"
+    if [ -d "${CONF_PATH}/${MACHINE}" ] ; then
+        CONF_PATH_MACHINE="${CONF_PATH}/${MACHINE}"
+    elif [ -d "${CONF_PATH}/${MACHINE_CLASS}" ] ; then
+        CONF_PATH_MACHINE="${CONF_PATH}/${MACHINE_CLASS}"
+    fi
+    # Install machine specific files
+    install -d ${D}${sysconfdir}
+    install -m 0644 ${CONF_PATH_MACHINE}/frameworkd.conf ${D}${sysconfdir}
 
-        # Check for machine specific conf.
-        CONF_PATH="${S}/etc/freesmartphone/oevents"
-        CONF_PATH_MACHINE="${CONF_PATH}"
-        if [ -d "${CONF_PATH}/${MACHINE}" ] ; then
-                CONF_PATH_MACHINE="${CONF_PATH}/${MACHINE}"
-        elif [ -d "${CONF_PATH}/${MACHINE_CLASS}" ] ; then
-                CONF_PATH_MACHINE="${CONF_PATH}/${MACHINE_CLASS}"
-        fi
-	install -d ${D}${sysconfdir}/freesmartphone/oevents/
-        install -m 0644 ${CONF_PATH_MACHINE}/rules.yaml ${D}${sysconfdir}/freesmartphone/oevents/
+    # Check for machine specific conf.
+    CONF_PATH="${S}/etc/freesmartphone/oevents"
+    CONF_PATH_MACHINE="${CONF_PATH}"
+    if [ -d "${CONF_PATH}/${MACHINE}" ] ; then
+        CONF_PATH_MACHINE="${CONF_PATH}/${MACHINE}"
+    elif [ -d "${CONF_PATH}/${MACHINE_CLASS}" ] ; then
+        CONF_PATH_MACHINE="${CONF_PATH}/${MACHINE_CLASS}"
+    fi
+    install -d ${D}${sysconfdir}/freesmartphone/oevents/
+    install -m 0644 ${CONF_PATH_MACHINE}/rules.yaml ${D}${sysconfdir}/freesmartphone/oevents/
 }
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"

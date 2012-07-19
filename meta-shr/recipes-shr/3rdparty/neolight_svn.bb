@@ -19,5 +19,5 @@ FILES_${PN} += "${datadir}/neolight ${datadir}/applications/neolight.desktop ${d
 RDEPENDS_${PN} += "python-edbus python-elementary"
 
 do_compile_prepend() {
-	${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/data ${S}/data/neolight.edc
+    ${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/data ${S}/data/neolight.edc
 }

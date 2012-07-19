@@ -17,9 +17,9 @@ SYSTEMD_SERVICE = "${PN}.service"
 SRC_URI_append = " file://${PN}"
 
 do_install_append() {
-	install -d ${D}${sysconfdir}/init.d/
-	install -m 0755 ${WORKDIR}/${PN} ${D}${sysconfdir}/init.d/
-	install -d ${D}${systemd_unitdir}/system/
-	install -m 0644 ${S}/data/${PN}.service ${D}${systemd_unitdir}/system/${PN}.service
+    install -d ${D}${sysconfdir}/init.d/
+    install -m 0755 ${WORKDIR}/${PN} ${D}${sysconfdir}/init.d/
+    install -d ${D}${systemd_unitdir}/system/
+    install -m 0644 ${S}/data/${PN}.service ${D}${systemd_unitdir}/system/${PN}.service
 }
 

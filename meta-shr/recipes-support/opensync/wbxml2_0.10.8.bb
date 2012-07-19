@@ -21,9 +21,9 @@ FILES_${PN}-tools = "${bindir}"
 FILES_${PN} = "${libdir}/*.so.*"
 
 do_build_prepend() {
-	cd ${WORKDIR}/build
+    cd ${WORKDIR}/build
 }
 
 do_install_prepend() {
-	cd ${WORKDIR}/build
+    cd ${WORKDIR}/build
 }

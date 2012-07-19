@@ -7,9 +7,9 @@ LIC_FILES_CHKSUM = "file://main.cc;beginline=5;endline=9;md5=793da126c0859ce50ca
 DEPENDS = "fltk"
 
 SRC_URI = "http://www.ecirc.net/openmoko/${P}.tgz \
-	   file://sensors_fix.patch;apply=yes \
+           file://sensors_fix.patch;apply=yes \
            file://remove_buildflags.patch;apply=yes \
-	   file://desktop_fix.patch;apply=yes \
+           file://desktop_fix.patch;apply=yes \
 "
 
 SRC_URI[md5sum] = "b3be847e3f89dbbcdca3e0184686bcef"

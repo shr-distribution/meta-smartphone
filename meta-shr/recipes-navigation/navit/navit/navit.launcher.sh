@@ -8,7 +8,7 @@
 #
 #################################################################################
 #
-# 20080105 - v0.0.1	- Initial release
+# 20080105 - v0.0.1     - Initial release
 # 20090818 -            - Zoff <zoff@zoff.cc> addons and fixes
 # 20091025 -            - Zoff check if navit already running
 # 20091122 -            - Zoff use fsoraw, use correct LANG setting
@@ -44,19 +44,19 @@ else
         # HINT: that should be set in illume, but atm its not
         # export LANG=de_AT.utf8
 
-	if test "`cat /proc/meminfo | grep ^MemTotal | awk '{print $2}'`" -lt "500000"
-	then
-	        if test "$USER" = "root"
-	        then
-	                echo "Enabling low-mem workaround..."
-	                OLD=`cat /proc/sys/vm/overcommit_memory`
-	                echo 1 > /proc/sys/vm/overcommit_memory
-	                navit $*
-	                echo ${OLD} > /proc/sys/vm/overcommit_memory
-	                exit
-	        else
-	                echo "I need root-privs to enable the low-mem workaround!"
-	        fi
-	fi
+        if test "`cat /proc/meminfo | grep ^MemTotal | awk '{print $2}'`" -lt "500000"
+        then
+                if test "$USER" = "root"
+                then
+                        echo "Enabling low-mem workaround..."
+                        OLD=`cat /proc/sys/vm/overcommit_memory`
+                        echo 1 > /proc/sys/vm/overcommit_memory
+                        navit $*
+                        echo ${OLD} > /proc/sys/vm/overcommit_memory
+                        exit
+                else
+                        echo "I need root-privs to enable the low-mem workaround!"
+                fi
+        fi
         navit $*
 fi

@@ -21,10 +21,10 @@ do_configure_prepend() {
   sed -i 's/ -lrt/ -lrt -lm/g' ${S}/Makefile.am
 }
 do_install_append() {
-		    install -d ${D}${datadir}/orrery
-		    cp -a ${S}/data/* ${D}${datadir}/orrery
-		    install -d ${D}${datadir}/icons
-		    install -m 0755 ${WORKDIR}/orrery.png ${D}${datadir}/icons
+    install -d ${D}${datadir}/orrery
+    cp -a ${S}/data/* ${D}${datadir}/orrery
+    install -d ${D}${datadir}/icons
+    install -m 0755 ${WORKDIR}/orrery.png ${D}${datadir}/icons
 }
 
 FILES_${PN} += "${datadir}/icons/orrery.png"

@@ -13,12 +13,12 @@ SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http;branch=ma
 S = "${WORKDIR}/git/elementary/${PN}"
 
 do_compile() {
-	${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/images/. -fd ${S}/fonts/. ${S}/sowka.edc -o ${S}/sowka.edj
+    ${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/images/. -fd ${S}/fonts/. ${S}/sowka.edc -o ${S}/sowka.edj
 }
 
 do_install() {
-        install -d ${D}${datadir}/elementary/themes/
-        install -m 0644 ${S}/sowka.edj ${D}${datadir}/elementary/themes/
+    install -d ${D}${datadir}/elementary/themes/
+    install -m 0644 ${S}/sowka.edj ${D}${datadir}/elementary/themes/
 }
 
 FILES_${PN} = "${datadir}/elementary/themes/sowka.edj"

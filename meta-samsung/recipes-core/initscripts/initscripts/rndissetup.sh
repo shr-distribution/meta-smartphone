@@ -8,7 +8,7 @@
 ### END INIT INFO
 
 if [ `uname -a | grep 2.6.35` ] ; then
-	# for 2.6.35 based kernels
+        # for 2.6.35 based kernels
         echo 1 > /sys/class/usb_composite/rndis/enable
 else
         # for 3.0.x based kernels

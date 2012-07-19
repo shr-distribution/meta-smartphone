@@ -14,6 +14,6 @@ S = "${WORKDIR}/git/tools/fso-raw"
 
 # for backward compatibility in scripts
 do_install_append() {
-        install -d ${D}${bindir}
-	ln -s fso-raw ${D}${bindir}/fsoraw
+    install -d ${D}${bindir}
+    ln -s fso-raw ${D}${bindir}/fsoraw
 }

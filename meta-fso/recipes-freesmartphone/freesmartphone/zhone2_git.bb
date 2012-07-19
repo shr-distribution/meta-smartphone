@@ -25,8 +25,8 @@ INITSCRIPT_NAME = "zhone2"
 INITSCRIPT_PARAMS = "defaults 40"
 
 do_install_append() {
-	install -d ${D}${datadir}/zhone2/
-	install -d ${D}${sysconfdir}/init.d/
-	install -m 0644 ${WORKDIR}/splash ${D}${datadir}/zhone2/
-	install -m 0755 ${WORKDIR}/${INITSCRIPT_NAME} ${D}${sysconfdir}/init.d/
+    install -d ${D}${datadir}/zhone2/
+    install -d ${D}${sysconfdir}/init.d/
+    install -m 0644 ${WORKDIR}/splash ${D}${datadir}/zhone2/
+    install -m 0755 ${WORKDIR}/${INITSCRIPT_NAME} ${D}${sysconfdir}/init.d/
 }

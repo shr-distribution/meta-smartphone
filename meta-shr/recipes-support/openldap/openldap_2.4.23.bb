@@ -187,25 +187,27 @@ DEPENDS      += "${OPENLDAP_DEPENDS}"
 CPPFLAGS_append = " -D_GNU_SOURCE"
 
 do_configure() {
-	cp ${STAGING_DATADIR_NATIVE}/libtool/config/ltmain.sh ${S}/build
-	rm -f ${S}/libtool
-	aclocal
-	libtoolize --force --copy
-	gnu-configize
-	autoconf
-	oe_runconf
+    cp ${STAGING_DATADIR_NATIVE}/libtool/config/ltmain.sh ${S}/build
+    rm -f ${S}/libtool
+    aclocal
+    libtoolize --force --copy
+    gnu-configize
+    autoconf
+    oe_runconf
 }
 
 #FIXME: this is a hack, at present an openldap build will pick up the header
 # files from staging rather than the local ones (bad -I order), so remove
 # the headers (from openldap-old.x) before compiling...
 do_compile_prepend() {
-	(	cd ${STAGING_INCDIR}
-		rm -f ldap.h ldap_*.h
-	)
-	(	cd ${STAGING_LIBDIR}
-		rm -f libldap* liblber*
-	)
+    (
+        cd ${STAGING_INCDIR}
+        rm -f ldap.h ldap_*.h
+    )
+    (
+        cd ${STAGING_LIBDIR}
+        rm -f libldap* liblber*
+    )
 }
 
 LEAD_SONAME = "libldap-${LDAP_VER}.so.*"
@@ -218,51 +220,51 @@ PACKAGES += "${PN}-slapd ${PN}-slurpd ${PN}-bin"
 # Package contents - shift most standard contents to -bin
 FILES_${PN} = "${libdir}/lib*.so.* ${sysconfdir}/openldap/ldap.* ${localstatedir}/openldap-data"
 FILES_${PN}-slapd = "${sysconfdir}/init.d ${libexecdir}/slapd ${sbindir} ${localstatedir}/run \
-	${sysconfdir}/openldap/slapd.* ${sysconfdir}/openldap/schema \
-	${sysconfdir}/openldap/DB_CONFIG.example"
+    ${sysconfdir}/openldap/slapd.* ${sysconfdir}/openldap/schema \
+    ${sysconfdir}/openldap/DB_CONFIG.example"
 FILES_${PN}-slurpd = "${libexecdir}/slurpd ${localstatedir}/openldap-slurp ${localstatedir}/run"
 FILES_${PN}-bin = "${bindir}"
 FILES_${PN}-dev = "${includedir} ${libdir}/lib*.so ${libdir}/*.la ${libdir}/*.a ${libexecdir}/openldap/*.a ${libexecdir}/openldap/*.la ${libexecdir}/openldap/*.so"
 FILES_${PN}-dbg += "${libexecdir}/openldap/.debug"
 
 do_install_append() {
-	install -d ${D}${sysconfdir}/init.d
-	cat ${WORKDIR}/initscript > ${D}${sysconfdir}/init.d/openldap
-	chmod 755 ${D}${sysconfdir}/init.d/openldap
-	# This is duplicated in /etc/openldap and is for slapd
-	rm -f ${D}${localstatedir}/openldap-data/DB_CONFIG.example
+    install -d ${D}${sysconfdir}/init.d
+    cat ${WORKDIR}/initscript > ${D}${sysconfdir}/init.d/openldap
+    chmod 755 ${D}${sysconfdir}/init.d/openldap
+    # This is duplicated in /etc/openldap and is for slapd
+    rm -f ${D}${localstatedir}/openldap-data/DB_CONFIG.example
 }
 
 pkg_postinst_${PN}-slapd () {
-        if test -n "${D}"; then
-                D="-r $D"
-        fi
-        update-rc.d $D openldap defaults
+    if test -n "${D}"; then
+        D="-r $D"
+    fi
+    update-rc.d $D openldap defaults
 }
 
 pkg_prerm_${PN}-slapd () {
-        if test -n "${D}"; then
-                D="-r $D"
-        fi
-        update-rc.d $D openldap remove
+    if test -n "${D}"; then
+        D="-r $D"
+    fi
+    update-rc.d $D openldap remove
 }
 
 PACKAGES_DYNAMIC = "openldap-backends openldap-backend-*"
 
 python populate_packages_prepend () {
-	backend_dir    = bb.data.expand('${libexecdir}/openldap', d)
-	do_split_packages(d, backend_dir, 'back_([a-z]*)\-.*\.so\..*$', 'openldap-backend-%s', 'OpenLDAP %s backend', extra_depends='', allow_links=True)
+    backend_dir    = bb.data.expand('${libexecdir}/openldap', d)
+    do_split_packages(d, backend_dir, 'back_([a-z]*)\-.*\.so\..*$', 'openldap-backend-%s', 'OpenLDAP %s backend', extra_depends='', allow_links=True)
 
-	metapkg = "openldap-backends"
-	bb.data.setVar('ALLOW_EMPTY_' + metapkg, "1", d)
-	bb.data.setVar('FILES_' + metapkg, "", d)
-	metapkg_rdepends = []
-	packages = bb.data.getVar('PACKAGES', d, 1).split()
-	for pkg in packages[1:]:
-		if pkg.count("openldap-backend-") and not pkg in metapkg_rdepends and not pkg.count("-dev") and not pkg.count("-dbg") and not pkg.count("static") and not pkg.count("locale"):
-			metapkg_rdepends.append(pkg)
-	bb.data.setVar('RDEPENDS_' + metapkg, ' '.join(metapkg_rdepends), d)
-	bb.data.setVar('DESCRIPTION_' + metapkg, 'OpenLDAP backends meta package', d)
-	packages.append(metapkg)
-	bb.data.setVar('PACKAGES', ' '.join(packages), d)
+    metapkg = "openldap-backends"
+    bb.data.setVar('ALLOW_EMPTY_' + metapkg, "1", d)
+    bb.data.setVar('FILES_' + metapkg, "", d)
+    metapkg_rdepends = []
+    packages = bb.data.getVar('PACKAGES', d, 1).split()
+    for pkg in packages[1:]:
+        if pkg.count("openldap-backend-") and not pkg in metapkg_rdepends and not pkg.count("-dev") and not pkg.count("-dbg") and not pkg.count("static") and not pkg.count("locale"):
+            metapkg_rdepends.append(pkg)
+    bb.data.setVar('RDEPENDS_' + metapkg, ' '.join(metapkg_rdepends), d)
+    bb.data.setVar('DESCRIPTION_' + metapkg, 'OpenLDAP backends meta package', d)
+    packages.append(metapkg)
+    bb.data.setVar('PACKAGES', ' '.join(packages), d)
 }

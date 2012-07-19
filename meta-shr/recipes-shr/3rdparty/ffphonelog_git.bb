@@ -10,7 +10,7 @@ PV = "0.1+gitr${SRCPV}"
 PR = "r2"
 
 SRC_URI = "\
-	git://git.shr-project.org/repo/ffphonelog.git;protocol=http;branch=master \
+    git://git.shr-project.org/repo/ffphonelog.git;protocol=http;branch=master \
 "
 
 export XDG_DATA_DIRS = "${STAGING_DATADIR}"
@@ -21,11 +21,11 @@ S = "${WORKDIR}/git"
 FILES_${PN} += "${datadir}/applications ${datadir}/pixmaps"
 
 EXTRA_OEMAKE = " \
-	CC='${CC}' \
-	CFLAGS_APPEND='${CFLAGS}' \
-	LDFLAGS_APPEND='${LDFLAGS}' \
-	DESTDIR='${D}' \
-	PREFIX=/usr"
+    CC='${CC}' \
+    CFLAGS_APPEND='${CFLAGS}' \
+    LDFLAGS_APPEND='${LDFLAGS}' \
+    DESTDIR='${D}' \
+    PREFIX=/usr"
 
 do_install() {
        oe_runmake install

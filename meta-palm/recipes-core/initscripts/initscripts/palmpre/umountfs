@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# umountfs	Turn off swap and unmount all local filesystems.
+# umountfs    Turn off swap and unmount all local filesystems.
 #
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin

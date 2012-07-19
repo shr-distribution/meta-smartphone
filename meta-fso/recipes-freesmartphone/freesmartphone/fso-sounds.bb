@@ -13,8 +13,8 @@ SRC_URI = "\
 S = "${WORKDIR}/git/sounds"
 
 do_install() {
-	install -d ${D}${datadir}/sounds/
-	cp ${S}/*.wav ${D}${datadir}/sounds/
+    install -d ${D}${datadir}/sounds/
+    cp ${S}/*.wav ${D}${datadir}/sounds/
 }
 
 PACKAGES += "${PN}-extras"

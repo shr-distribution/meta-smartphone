@@ -18,13 +18,13 @@ FILES_${PN} += "/opt/rtmom \
 CONFFILES_${PN} += "/usr/share/doc/${PN}/rtmom.conf.example"
 
 do_compile() {
-	${STAGING_BINDIR_NATIVE}/python ${S}/setup.py build ${D}
+    ${STAGING_BINDIR_NATIVE}/python ${S}/setup.py build ${D}
 }
 
 do_install() {
-	${STAGING_BINDIR_NATIVE}/python ${S}/setup.py install ${D}
-	rm -rf ${D}/opt/rtmom/build/
-	rm -rf ${D}/opt/rtmom/patches/
+    ${STAGING_BINDIR_NATIVE}/python ${S}/setup.py install ${D}
+    rm -rf ${D}/opt/rtmom/build/
+    rm -rf ${D}/opt/rtmom/patches/
 }
 
 SRC_URI[md5sum] = "c4a1012fc0e00d2b64d8d794166bf893"

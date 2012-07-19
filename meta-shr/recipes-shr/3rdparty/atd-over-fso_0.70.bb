@@ -17,11 +17,11 @@ RDEPENDS_${PN} += "dbus dbus-glib frameworkd"
 PR = "r5"
 
 SRC_URI = "${HANDHELDS_CVS};module=apps/atd;tag=ATD-0_70 \
-			file://atd-startup.patch;striplevel=0 \
-			file://atd-startup-restart.patch;striplevel=0 \
-			file://atd-alarm-glue.patch;striplevel=0 \
-			file://atd-over-fso.conf.patch;striplevel=0 \
-			file://run-over-fso.patch"
+           file://atd-startup.patch;striplevel=0 \
+           file://atd-startup-restart.patch;striplevel=0 \
+           file://atd-alarm-glue.patch;striplevel=0 \
+           file://atd-over-fso.conf.patch;striplevel=0 \
+           file://run-over-fso.patch"
 S = "${WORKDIR}/atd"
 
 inherit update-rc.d
@@ -30,18 +30,18 @@ INITSCRIPT_NAME = "atd"
 INITSCRIPT_PARAMS = "defaults 97"
 
 do_compile() {
-	export CFLAGS="$CFLAGS `${STAGING_BINDIR_NATIVE}/pkg-config --cflags dbus-glib-1`"
-	export LDFLAGS="$LDFLAGS `${STAGING_BINDIR_NATIVE}/pkg-config --libs dbus-glib-1`"
-	oe_runmake
+    export CFLAGS="$CFLAGS `${STAGING_BINDIR_NATIVE}/pkg-config --cflags dbus-glib-1`"
+    export LDFLAGS="$LDFLAGS `${STAGING_BINDIR_NATIVE}/pkg-config --libs dbus-glib-1`"
+    oe_runmake
 }
 
 do_install() {
-	install -d ${D}${sbindir}
-	install atd ${D}${sbindir}/atd
-	install -d ${D}${sysconfdir}/init.d
-	install -d ${D}${sysconfdir}/dbus-1/system.d
-	install dist/etc/init.d/atd ${D}${sysconfdir}/init.d/atd
-	install dist/etc/dbus-1/system.d/atd-over-fso.conf ${D}${sysconfdir}/dbus-1/system.d/atd-over-fso.conf
+    install -d ${D}${sbindir}
+    install atd ${D}${sbindir}/atd
+    install -d ${D}${sysconfdir}/init.d
+    install -d ${D}${sysconfdir}/dbus-1/system.d
+    install dist/etc/init.d/atd ${D}${sysconfdir}/init.d/atd
+    install dist/etc/dbus-1/system.d/atd-over-fso.conf ${D}${sysconfdir}/dbus-1/system.d/atd-over-fso.conf
 }
 
 updatercd_postinst_prepend() {

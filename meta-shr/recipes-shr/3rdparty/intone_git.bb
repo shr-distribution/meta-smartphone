@@ -19,16 +19,16 @@ S = "${WORKDIR}/git"
 inherit autotools
 
 do_install_append() {
-	mkdir -p "${D}/${datadir}/pixmaps"
-	install -m 0644 "${S}/resources/intone.png" "${D}/${datadir}/pixmaps"
-	mkdir -p "${D}/${datadir}/applications"
-	install -m 0644 "${S}/resources/intone.desktop" "${D}/${datadir}/applications"
-	mkdir -p "${D}/${datadir}/intone"
-	for ico in "${S}/resources/"*.png; do
-		if [ "$(basename $ico)" != "intone.png" ]; then
-			install -m 0644 $ico "${D}/${datadir}/intone"
-		fi
-	done
+    mkdir -p "${D}/${datadir}/pixmaps"
+    install -m 0644 "${S}/resources/intone.png" "${D}/${datadir}/pixmaps"
+    mkdir -p "${D}/${datadir}/applications"
+    install -m 0644 "${S}/resources/intone.desktop" "${D}/${datadir}/applications"
+    mkdir -p "${D}/${datadir}/intone"
+    for ico in "${S}/resources/"*.png; do
+        if [ "$(basename $ico)" != "intone.png" ]; then
+            install -m 0644 $ico "${D}/${datadir}/intone"
+        fi
+    done
 }
 
 

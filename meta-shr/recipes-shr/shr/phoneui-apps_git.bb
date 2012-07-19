@@ -16,24 +16,24 @@ S = "${WORKDIR}/git"
 PACKAGES =+ "${PN}-dialer ${PN}-messages ${PN}-contacts ${PN}-quick-settings ${PN}-phone-log"
 
 FILES_${PN}-dialer = "\
-	${bindir}/phoneui-dialer \
-	${datadir}/applications/phoneui-dialer.desktop \
+    ${bindir}/phoneui-dialer \
+    ${datadir}/applications/phoneui-dialer.desktop \
 "
 FILES_${PN}-messages = "\
-	${bindir}/phoneui-messages \
-	${datadir}/applications/phoneui-messages.desktop \
+    ${bindir}/phoneui-messages \
+    ${datadir}/applications/phoneui-messages.desktop \
 "
 FILES_${PN}-contacts = "\
-	${bindir}/phoneui-contacts \
-	${datadir}/applications/phoneui-contacts.desktop \
+    ${bindir}/phoneui-contacts \
+    ${datadir}/applications/phoneui-contacts.desktop \
 "
 FILES_${PN}-phone-log = "\
-	${bindir}/phoneui-phone-log \
-	${datadir}/applications/phoneui-phone-log.desktop \
+    ${bindir}/phoneui-phone-log \
+    ${datadir}/applications/phoneui-phone-log.desktop \
 "
 FILES_${PN}-quick-settings = "\
-	${bindir}/phoneui-quick-settings \
+    ${bindir}/phoneui-quick-settings \
 "
 FILES_${PN}-dbg += "\
-	${bindir}/.debug \
+    ${bindir}/.debug \
 "

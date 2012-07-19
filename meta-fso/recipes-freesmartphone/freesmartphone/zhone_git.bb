@@ -15,8 +15,8 @@ S = "${WORKDIR}/git"
 inherit distutils
 
 do_install_append() {
-	install -d ${D}${sysconfdir}/X11/Xsession.d/
-	install -m 0755 ${WORKDIR}/80zhone ${D}${sysconfdir}/X11/Xsession.d/
+    install -d ${D}${sysconfdir}/X11/Xsession.d/
+    install -m 0755 ${WORKDIR}/80zhone ${D}${sysconfdir}/X11/Xsession.d/
 }
 
 FILES_${PN} += "${datadir} ${sysconfdir}"

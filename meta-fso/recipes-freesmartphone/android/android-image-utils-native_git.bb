@@ -13,8 +13,8 @@ S = "${WORKDIR}/git/android/image-utils"
 inherit autotools native
 
 do_deploy () {
-	install -d ${DEPLOY_DIR_TOOLS}
-	install -m 0755 fastboot/fastboot ${DEPLOY_DIR_TOOLS}
+    install -d ${DEPLOY_DIR_TOOLS}
+    install -m 0755 fastboot/fastboot ${DEPLOY_DIR_TOOLS}
 }
 do_deploy[dirs] = "${S}"
 addtask deploy before do_build after do_compile

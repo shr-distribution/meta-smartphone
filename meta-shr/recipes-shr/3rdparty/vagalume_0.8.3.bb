@@ -10,15 +10,15 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
 PR = "r2"
 
 SRC_URI = "http://vagalume.igalia.com/files/source/vagalume_${PV}.orig.tar.gz\
-	   file://index.theme \
-	  "
+           file://index.theme \
+          "
 S = "${WORKDIR}/${P}.orig"
 inherit autotools
 
 FILES_${PN} += "${datadir}/icons ${datadir}/dbus-1"
 
 do_install_append() {
-	install -m 0644 ${WORKDIR}/index.theme ${D}${datadir}/vagalume/icons/hicolor
+    install -m 0644 ${WORKDIR}/index.theme ${D}${datadir}/vagalume/icons/hicolor
 }
 
 SRC_URI[md5sum] = "f6cb301fe4eec68877484b258045d0df"

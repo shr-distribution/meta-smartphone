@@ -21,17 +21,17 @@ EXTRA_OECONF = "--disable-ssl --enable-gnutls"
 CFLAGS += "-D_GNU_SOURCE"
 
 do_configure_prepend() {
-	mkdir -p m4
-	for i in $(find ${S} -name "Makefile.am") ; do
-		sed -i s:'-I$(includedir)'::g $i
-	done
+    mkdir -p m4
+    for i in $(find ${S} -name "Makefile.am") ; do
+        sed -i s:'-I$(includedir)'::g $i
+    done
 }
 
 inherit autotools
 
 do_install_append() {
-	install -d ${D}${datadir}/applications
-	install -m 0644 sylpheed.desktop ${D}${datadir}/applications/
-	install -d ${D}${datadir}/pixmaps
-	install -m 0644 sylpheed.png ${D}${datadir}/pixmaps/
+    install -d ${D}${datadir}/applications
+    install -m 0644 sylpheed.desktop ${D}${datadir}/applications/
+    install -d ${D}${datadir}/pixmaps
+    install -m 0644 sylpheed.png ${D}${datadir}/pixmaps/
 }

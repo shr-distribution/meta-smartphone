@@ -18,15 +18,15 @@ RDEPENDS_${PN} = "\
 "
 
 do_compile() {
-	${CC} pyc.c -o pyc
+    ${CC} pyc.c -o pyc
 }
 
 do_install() {
-	install -d ${D}${bindir}
-	install -m 755 pyc ${D}${bindir}/pyc
-	install -d ${D}${sbindir}
-	install -m 755 pycd.py ${D}${sbindir}/pycd
-	install -d ${D}${sysconfdir}/dbus-1
-	install -m 644 pycd.conf ${D}${sysconfdir}/dbus-1
+    install -d ${D}${bindir}
+    install -m 755 pyc ${D}${bindir}/pyc
+    install -d ${D}${sbindir}
+    install -m 755 pycd.py ${D}${sbindir}/pycd
+    install -d ${D}${sysconfdir}/dbus-1
+    install -m 644 pycd.conf ${D}${sysconfdir}/dbus-1
 }
 

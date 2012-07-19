@@ -40,28 +40,28 @@ has_mtdblock=`echo $boot_arg |grep mtdblock`
 has_ubi=`echo $boot_arg |grep ubi`
 
 if test "x$D" != "x"; then
-        exit 1
+    exit 1
 elif test "empty$has_mtdblock" != "empty" -o "empty$has_ubi" != "empty"; then
-	if [ -f ${sysconfdir}/default/flashkernel ] ; then
-		echo "Upgrading Kernel in Flash"
-		echo "DO NOT stop this process"
+    if [ -f ${sysconfdir}/default/flashkernel ] ; then
+        echo "Upgrading Kernel in Flash"
+        echo "DO NOT stop this process"
 
-		MTD_KERNEL_PARTITION=`cat /proc/mtd | grep kernel | cut -d':' -f1`
-		MTD_KERNEL_PARTITION=/dev/$MTD_KERNEL_PARTITION
+        MTD_KERNEL_PARTITION=`cat /proc/mtd | grep kernel | cut -d':' -f1`
+        MTD_KERNEL_PARTITION=/dev/$MTD_KERNEL_PARTITION
 
-		if [ "x$MTD_KERNEL_PARTITION" = "x" ] ; then
-			exit 1
-		fi
+        if [ "x$MTD_KERNEL_PARTITION" = "x" ] ; then
+            exit 1
+        fi
 
-		if [ ! -f /${KERNEL_IMAGEDEST}/${KERNEL_IMAGETYPE}-${KERNEL_VERSION} ] ; then
-			exit 1
-		fi
+        if [ ! -f /${KERNEL_IMAGEDEST}/${KERNEL_IMAGETYPE}-${KERNEL_VERSION} ] ; then
+            exit 1
+        fi
 
-		${sbindir}/flash_eraseall $MTD_KERNEL_PARTITION
-		${sbindir}/nandwrite -p $MTD_KERNEL_PARTITION /${KERNEL_IMAGEDEST}/${KERNEL_IMAGETYPE}-${KERNEL_VERSION}
-	else
-		touch ${sysconfdir}/default/flashkernel
-	fi
+        ${sbindir}/flash_eraseall $MTD_KERNEL_PARTITION
+        ${sbindir}/nandwrite -p $MTD_KERNEL_PARTITION /${KERNEL_IMAGEDEST}/${KERNEL_IMAGETYPE}-${KERNEL_VERSION}
+    else
+        touch ${sysconfdir}/default/flashkernel
+    fi
 else
         echo "You are not booting from NAND, don't flash kernel into mtdblock."
 fi

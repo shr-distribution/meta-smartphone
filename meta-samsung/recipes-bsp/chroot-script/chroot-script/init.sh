@@ -43,16 +43,16 @@ mount -t vfat -o fmask=0000,dmask=0000,rw,flush,noatime,nodiratime /dev/$partiti
 mkdir -m 0755 /rfs
 echo "Checking for rootfs image on sdcard/nand ..."
 if [ -e /sdcard/linux/rootfs.ext2 ] ; then
-	echo "Rootfs image found; mounting it now ..."
-	losetup /dev/loop2 /sdcard/linux/rootfs.ext2
-	[ $? -eq 0 ] || fail "Failed to find rootfs.img on SD Card!"
-	e2fsck -y /dev/loop2
-	mount -t ext2 -o noatime,nodiratime,sync,rw /dev/loop2 /rfs
-	[ $? -eq 0 ] || fail "Failed to mount /rootfs"
+    echo "Rootfs image found; mounting it now ..."
+    losetup /dev/loop2 /sdcard/linux/rootfs.ext2
+    [ $? -eq 0 ] || fail "Failed to find rootfs.img on SD Card!"
+    e2fsck -y /dev/loop2
+    mount -t ext2 -o noatime,nodiratime,sync,rw /dev/loop2 /rfs
+    [ $? -eq 0 ] || fail "Failed to mount /rootfs"
 elif [ -d /sdcard/linux/rootfs ] ; then
-	echo "Rootfs folder found; chrooting into ..."
-	mount -o bind /sdcard/linux/rootfs /rfs
-	[ $? -eq 0 ] || fail "Failed to mount /rootfs"
+    echo "Rootfs folder found; chrooting into ..."
+    mount -o bind /sdcard/linux/rootfs /rfs
+    [ $? -eq 0 ] || fail "Failed to mount /rootfs"
 fi
 
 echo "Umount not needed filesystems ..."

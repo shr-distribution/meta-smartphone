@@ -11,19 +11,19 @@ inherit autotools
 acpaths = ""
 
 EXTRA_OECONF = "--with-readline=${STAGING_LIBDIR}/.. \
-		--without-lisp-files \
-		--without-tutorial \
+                --without-lisp-files \
+                --without-tutorial \
                 --disable-wxwidgets"
 
 do_compile_prepend() {
-	install -m 0644 ${WORKDIR}/qtplot-0.2/qtopia.trm ${S}/term/
+    install -m 0644 ${WORKDIR}/qtplot-0.2/qtopia.trm ${S}/term/
 }
 
 do_install_append() {
-	install -d ${D}${datadir}/applications/
-	install -m 0644 ${WORKDIR}/gnuplot.desktop ${D}${datadir}/applications/
-	install -d ${D}${datadir}/pixmaps/
-	install -m 0644 ${WORKDIR}/gnuplot.png ${D}${datadir}/pixmaps/
+    install -d ${D}${datadir}/applications/
+    install -m 0644 ${WORKDIR}/gnuplot.desktop ${D}${datadir}/applications/
+    install -d ${D}${datadir}/pixmaps/
+    install -m 0644 ${WORKDIR}/gnuplot.png ${D}${datadir}/pixmaps/
 }
 
 PACKAGES =+ "${PN}-x11-dbg ${PN}-x11"

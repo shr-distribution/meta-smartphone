@@ -7,9 +7,9 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=1c0b73db66884b6a925e727400315130"
 DEPENDS = "alsa-lib zlib jpeg libpng libxext libxft"
 
 SRC_URI = "ftp://ftp.rz.tu-bs.de/pub/mirror/ftp.easysw.com/ftp/pub/fltk/${PV}/fltk-${PV}-source.tar.bz2 \
-	   file://disable_test.patch \
-	   file://dso-fix.patch \
-	  "
+           file://disable_test.patch \
+           file://dso-fix.patch \
+          "
 
 S = "${WORKDIR}/fltk-${PV}"
 
@@ -18,17 +18,17 @@ inherit lib_package autotools binconfig
 TARGET_CC_ARCH += "${LDFLAGS} -DXFT_MAJOR=2"
 
 EXTRA_OECONF = "--enable-shared \
-		--enable-threads \
-		--enable-xdbe --enable-xft --enable-gl \
-		--x-includes=${STAGING_INCDIR} --x-libraries=${STAGING_LIBDIR}"
+                --enable-threads \
+                --enable-xdbe --enable-xft --enable-gl \
+                --x-includes=${STAGING_INCDIR} --x-libraries=${STAGING_LIBDIR}"
 
 do_configure() {
-        oe_runconf
+    oe_runconf
 }
 
 python populate_packages_prepend () {
-        if (bb.data.getVar('DEBIAN_NAMES', d, 1)):
-                bb.data.setVar('PKG_${PN}', 'libfltk${PV}', d)
+    if (bb.data.getVar('DEBIAN_NAMES', d, 1)):
+        bb.data.setVar('PKG_${PN}', 'libfltk${PV}', d)
 }
 
 LEAD_SONAME = "libfltk.so"

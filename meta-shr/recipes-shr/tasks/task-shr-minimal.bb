@@ -54,13 +54,13 @@ def get_rdepends(bb, d):
 
 
 PACKAGES += "\
-	${PN}-base \
-	${PN}-cli \
-	${PN}-fso \
-	${PN}-audio \
-	${PN}-x \
-	${PN}-apps \
-	${PN}-gtk \
+    ${PN}-base \
+    ${PN}-cli \
+    ${PN}-fso \
+    ${PN}-audio \
+    ${PN}-x \
+    ${PN}-apps \
+    ${PN}-gtk \
 "
 
 

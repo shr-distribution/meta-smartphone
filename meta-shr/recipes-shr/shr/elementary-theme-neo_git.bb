@@ -18,12 +18,12 @@ SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http;branch=ma
 S = "${WORKDIR}/git/elementary/${PN}"
 
 do_compile() {
-	${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/. -fd ${S}/. ${S}/neo.edc -o ${S}/neo.edj
+    ${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/. -fd ${S}/. ${S}/neo.edc -o ${S}/neo.edj
 }
 
 do_install() {
-        install -d ${D}${datadir}/elementary/themes/
-        install -m 0644 ${S}/neo.edj ${D}${datadir}/elementary/themes/
+    install -d ${D}${datadir}/elementary/themes/
+    install -m 0644 ${S}/neo.edj ${D}${datadir}/elementary/themes/
 }
 
 FILES_${PN} = "${datadir}/elementary/themes/"
