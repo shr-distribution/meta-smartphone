@@ -4,11 +4,12 @@ DEPENDS += " libphone-ui evas ecore edje edje-native elementary"
 SRCREV = "4bd6681e3a74bf2ea4dd140e23a2f8436575b07a"
 PE = "1"
 PV = "0.0.1+gitr${SRCPV}"
-PR = "r7"
+PR = "r8"
 LICENSE = "LGPLv2.1"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=4fbd65380cdd255951079008b364516c"
 
 SRC_URI = "git://git.shr-project.org/repo/libphone-ui-shr.git;protocol=http;branch=master \
+  file://0001-use-new-elm_image-API-instead-of-deprecated-elm_icon.patch \
 "
 
 S = "${WORKDIR}/git"

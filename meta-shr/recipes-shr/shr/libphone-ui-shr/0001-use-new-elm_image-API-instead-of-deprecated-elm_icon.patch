@@ -1,0 +1,192 @@
+From b95d5e742da43b52371f4d937be3b7c2d50eae6a Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Thu, 19 Jul 2012 16:32:46 +0200
+Subject: [PATCH] use new elm_image API instead of deprecated elm_icon
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ src/util/ui-utils-contacts.c   |    4 ++--
+ src/view/call-active-view.c    |    4 ++--
+ src/view/call-common.c         |    2 +-
+ src/view/call-incoming-view.c  |    4 ++--
+ src/view/contact-list-common.c |    2 +-
+ src/view/contact-view.c        |    2 +-
+ src/view/dialer-view.c         |    2 +-
+ src/view/message-new-view.c    |    4 ++--
+ src/view/message-show-view.c   |    8 ++++----
+ 9 files changed, 16 insertions(+), 16 deletions(-)
+
+diff --git a/src/util/ui-utils-contacts.c b/src/util/ui-utils-contacts.c
+index f35e61d..51ee62e 100644
+--- a/src/util/ui-utils-contacts.c
++++ b/src/util/ui-utils-contacts.c
+@@ -136,8 +136,8 @@ _add_number_to_list_real(struct _number_select_pack *pack,
+ 	entry->number = strdup(number);
+ 	g_debug("Adding %s=%s", entry->field, entry->number);
+ 	ico = elm_icon_add(ui_utils_view_window_get(pack->view));
+-	elm_icon_resizable_set(ico, EINA_TRUE, EINA_TRUE);
+-	elm_icon_file_set(ico, phoneui_theme, "icon/phone");
++	elm_image_resizable_set(ico, EINA_TRUE, EINA_TRUE);
++	elm_image_file_set(ico, phoneui_theme, "icon/phone");
+ 	it = (Elm_Object_Item *) elm_list_item_append(pack->list, entry->number, ico, NULL, NULL, entry);
+ 	if (!it) {
+ 		g_warning("Adding number to list failed!!!");
+diff --git a/src/view/call-active-view.c b/src/view/call-active-view.c
+index f8d4efd..4a56937 100644
+--- a/src/view/call-active-view.c
++++ b/src/view/call-active-view.c
+@@ -140,7 +140,7 @@ call_active_view_show(struct Window *win, GHashTable * options)
+ 	}
+ 	else {
+ 		window_text_set(win, "name", data->parent.name);
+-		elm_icon_file_set(data->parent.elmphoto, data->parent.photo, NULL);
++		elm_image_file_set(data->parent.elmphoto, data->parent.photo, NULL);
+ 	}
+ 
+ 	//g_debug("adding the hangup toggle...");
+@@ -152,7 +152,7 @@ call_active_view_show(struct Window *win, GHashTable * options)
+ 	//evas_object_show(data->hangup_toggle);
+ 
+ 	//Evas_Object *ico = elm_icon_add(window_evas_object_get(win));
+-	//elm_icon_file_set(ico, "speaker.png", "phoneui/images");
++	//elm_image_file_set(ico, "speaker.png", "phoneui/images");
+ 	//evas_object_show(ico);
+ 
+ 	g_debug("adding the speaker toggle...");
+diff --git a/src/view/call-common.c b/src/view/call-common.c
+index ac9482f..c2d3190 100644
+--- a/src/view/call-common.c
++++ b/src/view/call-common.c
+@@ -106,7 +106,7 @@ call_common_contact_callback(GError *error, GHashTable *contact, void *_data)
+ 		data->name = g_strdup(CONTACT_NAME_UNDEFINED_STRING);
+ 	}
+ 
+-	elm_icon_file_set(data->elmphoto, data->photo, NULL);
++	elm_image_file_set(data->elmphoto, data->photo, NULL);
+ 	window_text_set(data->win, "name", data->name);
+ 	data->number_state = CALL_NUMBER_CONTACT;
+ 	common_utils_object_unref_free(data);
+diff --git a/src/view/call-incoming-view.c b/src/view/call-incoming-view.c
+index 2a143fb..c686b3a 100644
+--- a/src/view/call-incoming-view.c
++++ b/src/view/call-incoming-view.c
+@@ -65,7 +65,7 @@ call_incoming_view_show(struct Window *win, GHashTable * options)
+ 						(struct CallViewData *) data));
+ 
+ 	Evas_Object *ic = elm_icon_add(win->win);
+-	elm_icon_file_set(ic, ICON_CALL_ACCEPT, NULL);
++	elm_image_file_set(ic, ICON_CALL_ACCEPT, NULL);
+ 	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+ 
+ 	data->bt_accept = elm_button_add(window_evas_object_get(win));
+@@ -78,7 +78,7 @@ call_incoming_view_show(struct Window *win, GHashTable * options)
+ 	evas_object_show(ic);
+ 
+ 	ic = elm_icon_add(win->win);
+-	elm_icon_file_set(ic, ICON_CALL_REJECT, NULL);
++	elm_image_file_set(ic, ICON_CALL_REJECT, NULL);
+ 	evas_object_size_hint_aspect_set(ic, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+ 	data->bt_reject = elm_button_add(window_evas_object_get(win));
+ 	elm_object_text_set(data->bt_reject, D_("Reject"));
+diff --git a/src/view/contact-list-common.c b/src/view/contact-list-common.c
+index 4d11fb1..3340c1a 100644
+--- a/src/view/contact-list-common.c
++++ b/src/view/contact-list-common.c
+@@ -77,7 +77,7 @@ gl_content_get(void *data, Evas_Object * obj, const char *part)
+ 			photo_file = CONTACT_DEFAULT_PHOTO;
+ 
+ 		Evas_Object *photo = elm_icon_add(obj);
+-		elm_icon_file_set(photo, photo_file, NULL);
++		elm_image_file_set(photo, photo_file, NULL);
+ 		evas_object_size_hint_aspect_set(photo,
+ 						 EVAS_ASPECT_CONTROL_VERTICAL,
+ 						 1, 1);
+diff --git a/src/view/contact-view.c b/src/view/contact-view.c
+index ef3811e..d199305 100644
+--- a/src/view/contact-view.c
++++ b/src/view/contact-view.c
+@@ -987,7 +987,7 @@ _load_photo(struct ContactViewData *view)
+ 		g_debug("No photo found");
+ 		s = CONTACT_DEFAULT_PHOTO;
+ 	}
+-	elm_icon_file_set(view->photo, s, NULL);
++	elm_image_file_set(view->photo, s, NULL);
+ }
+ 
+ static void
+diff --git a/src/view/dialer-view.c b/src/view/dialer-view.c
+index 2d7ba36..d96f938 100644
+--- a/src/view/dialer-view.c
++++ b/src/view/dialer-view.c
+@@ -110,7 +110,7 @@ dialer_view_init()
+ 	view.delete_text_icon = elm_icon_add(win);
+ 	evas_object_size_hint_aspect_set(view.delete_text_icon,
+ 					 EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+-	elm_icon_file_set(view.delete_text_icon, DELETE_TEXT_ICON, NULL);
++	elm_image_file_set(view.delete_text_icon, DELETE_TEXT_ICON, NULL);
+ 
+ 	view.delete_text_button = elm_button_add(win);
+ 	elm_object_content_set(view.delete_text_button, view.delete_text_icon);
+diff --git a/src/view/message-new-view.c b/src/view/message-new-view.c
+index 2794c86..2f9acc1 100644
+--- a/src/view/message-new-view.c
++++ b/src/view/message-new-view.c
+@@ -217,7 +217,7 @@ gl_content_get(void *data, Evas_Object * obj, const char *part)
+ 			photo_file = CONTACT_DEFAULT_PHOTO;
+ 
+ 		Evas_Object *photo = elm_icon_add(obj);
+-		elm_icon_file_set(photo, photo_file, NULL);
++		elm_image_file_set(photo, photo_file, NULL);
+ 		evas_object_size_hint_aspect_set(photo,
+ 						 EVAS_ASPECT_CONTROL_VERTICAL,
+ 						 1, 1);
+@@ -446,7 +446,7 @@ _init_number_page(struct MessageNewViewData *view)
+ 
+ 	ico = elm_icon_add(win);
+ 	evas_object_size_hint_aspect_set(ico, EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+-	elm_icon_file_set(ico, phoneui_theme, "icon/edit-undo");
++	elm_image_file_set(ico, phoneui_theme, "icon/edit-undo");
+ 	evas_object_show(ico);
+ 
+ 	btn = elm_button_add(win);
+diff --git a/src/view/message-show-view.c b/src/view/message-show-view.c
+index e5694b8..91267a5 100644
+--- a/src/view/message-show-view.c
++++ b/src/view/message-show-view.c
+@@ -150,7 +150,7 @@ message_show_view_init(char* path, GHashTable *properties)
+ 	view->photo = elm_icon_add(win);
+ 	evas_object_size_hint_aspect_set(view->photo,
+ 					 EVAS_ASPECT_CONTROL_VERTICAL, 1, 1);
+-	elm_icon_file_set(view->photo, phoneui_theme, "icon/contact");
++	elm_image_file_set(view->photo, phoneui_theme, "icon/contact");
+ 	ui_utils_view_swallow(VIEW_PTR(*view), "photo", view->photo);
+ 	evas_object_show(view->photo);
+ 
+@@ -161,13 +161,13 @@ message_show_view_init(char* path, GHashTable *properties)
+ 		if (strcmp(direction, "in") == 0) {
+ 			g_debug("Setting status icon for an incoming message");
+ 			in_msg = EINA_TRUE;
+-			elm_icon_file_set(ico, phoneui_theme,
++			elm_image_file_set(ico, phoneui_theme,
+ 					  "icon/phonelog-incoming");
+ 		}
+ 		else {
+ 			g_debug("Setting status icon for a sent message");
+ 			in_msg = EINA_FALSE;
+-			elm_icon_file_set(ico, phoneui_theme,
++			elm_image_file_set(ico, phoneui_theme,
+ 					  "icon/phonelog-outgoing");
+ 		}
+ 	}
+@@ -501,7 +501,7 @@ _common_name_callback(GError *error, GHashTable *contact, void *_data)
+ 	}
+ 	gtmp = g_hash_table_lookup(contact, "Photo");
+ 	if (gtmp) {
+-		elm_icon_file_set(view->photo,
++		elm_image_file_set(view->photo,
+ 				  g_variant_get_string(gtmp, NULL), NULL);
+ 	}
+ }
+-- 
+1.7.8.6
+
