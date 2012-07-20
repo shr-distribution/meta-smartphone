@@ -1,0 +1,25 @@
+From ba004d18ee86454953d9b019f72d8b7b304bcf3e Mon Sep 17 00:00:00 2001
+From: Simon Busch <morphis@gravedo.de>
+Date: Sun, 8 Jul 2012 21:11:53 +0200
+Subject: [PATCH] fsotdld: provider_location_cellidwifi: link against internal
+ library; fixes #682
+
+---
+ .../provider_location_cellidwifi/Makefile.am       |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/src/plugins/provider_location_cellidwifi/Makefile.am b/src/plugins/provider_location_cellidwifi/Makefile.am
+index 53d988d..2e736c8 100644
+--- a/src/plugins/provider_location_cellidwifi/Makefile.am
++++ b/src/plugins/provider_location_cellidwifi/Makefile.am
+@@ -40,6 +40,7 @@ provider_location_cellidwifi_la_LIBADD = \
+ 	$(GEE_LIBS) \
+ 	$(SOUP_LIBS) \
+ 	$(JSON_CFLAGS) \
++	$(top_builddir)/src/lib/libfsotdl.la \
+ 	$(NULL)
+ provider_location_cellidwifi_la_LDFLAGS = -no-undefined -module -avoid-version
+ # provider_location_cellidwifi_la_LIBTOOLFLAGS = --tag=disable-static
+-- 
+1.7.8.6
+
