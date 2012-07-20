@@ -3,9 +3,8 @@ SECTION = "e/utils"
 DEPENDS = "edje-native"
 LICENSE = "MIT BSD"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=f523ab5986cc79b52a90d2ac3d5454a2"
-SRCREV = "bbe2445c29cd65d0a8dddde7606434db489ee41b"
+SRCREV = "7498244a883ea21fe5835495dd54d565dad83d1d"
 PV = "0.2+gitr${SRCPV}"
-PR = "r3"
 inherit allarch
 
 SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http;branch=master"

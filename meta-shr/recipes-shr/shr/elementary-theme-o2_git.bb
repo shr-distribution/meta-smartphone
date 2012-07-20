@@ -7,9 +7,8 @@ RSUGGESTS_${PN} = "phoneui-shr-theme-o2"
 LICENSE = "MIT BSD"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=f523ab5986cc79b52a90d2ac3d5454a2"
 
-SRCREV = "bbe2445c29cd65d0a8dddde7606434db489ee41b"
+SRCREV = "9d12c3b5dd48bb3e9cd7c4375969142c9c7c6838"
 PV = "0.2+gitr${SRCPV}"
-PR = "r2"
 inherit allarch
 
 SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http;branch=master \
