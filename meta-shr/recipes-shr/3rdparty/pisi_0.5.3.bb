@@ -25,11 +25,11 @@ FILES_${PN} += "/opt/${PN} \
 CONFFILES_${PN} += "/usr/share/doc/${PN}/conf.example"
 
 do_compile() {
-	${STAGING_BINDIR_NATIVE}/python ${S}/setup.py build ${D}
+    ${STAGING_BINDIR_NATIVE}/python ${S}/setup.py build ${D}
 }
 
 do_install() {
-	${STAGING_BINDIR_NATIVE}/python ${S}/setup.py install ${D}
-	rm -rf ${D}/opt/pisi/build/
-	rm -rf ${D}/opt/pisi/patches/
+    ${STAGING_BINDIR_NATIVE}/python ${S}/setup.py install ${D}
+    rm -rf ${D}/opt/pisi/build/
+    rm -rf ${D}/opt/pisi/patches/
 }

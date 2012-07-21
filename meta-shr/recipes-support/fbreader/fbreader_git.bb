@@ -17,7 +17,7 @@ SRC_URI = "git://github.com/geometer/FBReader.git;protocol=http;branch=master \
 READER_RESOLUTION ?= "1024x600"
 READER_ARCH       ?= "desktop"
 READER_UI         ?= "gtk"
-READER_STATUS	  ?= "release"
+READER_STATUS     ?= "release"
 
 # because of defaults overriden in machine config
 PACKAGE_ARCH_om-gta01 = "${MACHINE_ARCH}"
@@ -33,13 +33,13 @@ inherit pkgconfig
 S = "${WORKDIR}/git"
 
 do_configure() {
-	cd "${S}"
+    cd "${S}"
 
-	echo "TARGET_ARCH = ${READER_ARCH}" > makefiles/target.mk
-	echo "UI_TYPE = ${READER_UI}" >> makefiles/target.mk
-	echo "TARGET_STATUS = ${READER_STATUS}" >> makefiles/target.mk
+    echo "TARGET_ARCH = ${READER_ARCH}" > makefiles/target.mk
+    echo "UI_TYPE = ${READER_UI}" >> makefiles/target.mk
+    echo "TARGET_STATUS = ${READER_STATUS}" >> makefiles/target.mk
 }
 
 do_install() {
-        oe_runmake install DESTDIR=${D} RESOLUTION=${READER_RESOLUTION}
+    oe_runmake install DESTDIR=${D} RESOLUTION=${READER_RESOLUTION}
 }

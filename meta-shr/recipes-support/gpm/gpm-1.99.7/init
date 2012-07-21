@@ -11,7 +11,7 @@ test -x /usr/sbin/gpm || exit 0
 case "$1" in
   start)
     if [ ! -p /dev/gpmdata ]; then
-    	mkfifo /dev/gpmdata
+        mkfifo /dev/gpmdata
     fi
 
     echo "Starting GPM:" 

@@ -1,5 +1,5 @@
 DESCRIPTION = "This project aims to provide an object-oriented Python WebDAV client-side library\
-	       based on Python`s standard httplib and Greg Stein`s davlib.\
+               based on Python`s standard httplib and Greg Stein`s davlib.\
                The client shall fully support RFCs 4918 (basic specification),\
                3744 (access control), and 3253 (versioning)."
 SECTION = "devel/python"

@@ -47,7 +47,7 @@ case "$1" in
   start)
         echo "Setting up GPIO lines for N900 modem"
         setup_gpio
-	start_phonet
+        start_phonet
         ;;
   stop)
         echo "Nothing to do..."

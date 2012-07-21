@@ -16,23 +16,23 @@ SRC_URI[tarball.sha256sum] = "42bba5f09875c8d3a8d4579a79ade86207a095b6d4741cc3a7
 S = "${WORKDIR}/babiloo"
 
 do_install() {
-	install -d "${D}${datadir}/babiloo"
-	install -d "${D}${datadir}/babiloo/dicts"
+    install -d "${D}${datadir}/babiloo"
+    install -d "${D}${datadir}/babiloo/dicts"
 
-	cp -a "${S}/core" "${D}${datadir}/babiloo/"
-	cp -a "${S}/efl" "${D}${datadir}/babiloo/"
-	cp -a "${S}/images" "${D}${datadir}/babiloo/"
-	install -m 0755 "${S}/run.py" "${D}${datadir}/babiloo/"
-	install -d "${D}${bindir}"
-	ln -s "${datadir}/babiloo/run.py" "${D}${bindir}/babiloo"
-	install -d "${D}${datadir}/pixmaps"
-	install -m 0644 "${S}/images/babiloo.png" "${D}${datadir}/pixmaps"
-	install -d "${D}${datadir}/applications"
-	install -m 0644 "${S}/babiloo.desktop" "${D}${datadir}/applications"
+    cp -a "${S}/core" "${D}${datadir}/babiloo/"
+    cp -a "${S}/efl" "${D}${datadir}/babiloo/"
+    cp -a "${S}/images" "${D}${datadir}/babiloo/"
+    install -m 0755 "${S}/run.py" "${D}${datadir}/babiloo/"
+    install -d "${D}${bindir}"
+    ln -s "${datadir}/babiloo/run.py" "${D}${bindir}/babiloo"
+    install -d "${D}${datadir}/pixmaps"
+    install -m 0644 "${S}/images/babiloo.png" "${D}${datadir}/pixmaps"
+    install -d "${D}${datadir}/applications"
+    install -m 0644 "${S}/babiloo.desktop" "${D}${datadir}/applications"
 
-	cp -a "${S}/locale" "${D}${datadir}/"
-	find ${D}${datadir}/locale -name *.po -exec rm {} \;
-	rm -f ${D}${datadir}/locale/babiloo.pot
+    cp -a "${S}/locale" "${D}${datadir}/"
+    find ${D}${datadir}/locale -name *.po -exec rm {} \;
+    rm -f ${D}${datadir}/locale/babiloo.pot
 }
 
 FILES_${PN} += "${datadir}/babiloo"

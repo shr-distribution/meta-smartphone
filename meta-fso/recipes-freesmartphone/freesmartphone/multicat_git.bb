@@ -9,8 +9,8 @@ PV = "0.0.0+gitr${SRCPV}"
 PR = "r2"
 
 do_install() {
-	install -d ${D}${bindir}
-	install -m 0755 multicat/multicat ${D}${bindir}
+    install -d ${D}${bindir}
+    install -m 0755 multicat/multicat ${D}${bindir}
 }
 
 RDEPENDS_${PN} = "\

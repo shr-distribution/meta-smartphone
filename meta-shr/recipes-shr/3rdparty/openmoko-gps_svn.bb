@@ -25,18 +25,18 @@ SRC_URI = "svn://forge.bearstech.com/forge/openmoko;module=gps"
 S = "${WORKDIR}/gps"
 
 do_compile() {
-        # fix hardcoded path
-        sed -i "s#/usr/bin/python#env python#g" gps_reader.py
-        # fix QA issues
-        sed -i "/^Encoding/d; /^SingleInstance/d; s/Categories=GTK;Application;Utilities;/Categories=Utility;/g" openmoko-gps.desktop
+    # fix hardcoded path
+    sed -i "s#/usr/bin/python#env python#g" gps_reader.py
+    # fix QA issues
+    sed -i "/^Encoding/d; /^SingleInstance/d; s/Categories=GTK;Application;Utilities;/Categories=Utility;/g" openmoko-gps.desktop
 }
 
 do_install() {
-	install -d ${D}${bindir}/
-	install -d ${D}${datadir}/applications/
-	install -d ${D}${datadir}/pixmaps/
-	
-	install -m 0755 ${S}/gps_reader.py ${D}${bindir}/
-	install -m 0644 ${S}/openmoko-gps.desktop ${D}${datadir}/applications/
-	install -m 0644 ${S}/*.png ${D}${datadir}/pixmaps/
+    install -d ${D}${bindir}/
+    install -d ${D}${datadir}/applications/
+    install -d ${D}${datadir}/pixmaps/
+    
+    install -m 0755 ${S}/gps_reader.py ${D}${bindir}/
+    install -m 0644 ${S}/openmoko-gps.desktop ${D}${datadir}/applications/
+    install -m 0644 ${S}/*.png ${D}${datadir}/pixmaps/
 }

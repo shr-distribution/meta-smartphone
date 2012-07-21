@@ -11,8 +11,8 @@ PV = "2.9.1+gitr${SRCPV}"
 PR = "r3"
 
 do_install() {
-	install -d ${D}${bindir}
-	install -m 0755 mickeyterm/mickeyterm ${D}${bindir}
+    install -d ${D}${bindir}
+    install -m 0755 mickeyterm/mickeyterm ${D}${bindir}
 }
 
 RDEPENDS_${PN} = "\

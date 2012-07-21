@@ -8,9 +8,9 @@ LIC_FILES_CHKSUM = "file://gpm2/core/main.c;endline=19;md5=66d3c205c4e7ee5704b2e
 DEPENDS = "ncurses"
 
 SRC_URI = "ftp://arcana.linux.it/pub/gpm/gpm-${PV}.tar.bz2 \
-	   file://no-docs.patch \
-	   file://processcreds.patch \
-	   file://init"
+           file://no-docs.patch \
+           file://processcreds.patch \
+           file://init"
 
 inherit autotools update-rc.d
 
@@ -32,11 +32,11 @@ INITSCRIPT_PARAMS = "defaults"
 CFLAGS += "-Wno-extra -Wno-error=unused-but-set-parameter -Wno-error=unused-but-set-variable"
 
 do_install () {
-	oe_runmake 'ROOT=${D}' install
-	install -m 0644 src/headers/gpm.h ${D}${includedir}
-	install -d ${D}/${sysconfdir}/init.d
-	install -m 0755 ${WORKDIR}/init ${D}/${sysconfdir}/init.d/gpm
-	cd ${D}${libdir} && ln -sf libgpm.so.1.19.0 libgpm.so.1
+    oe_runmake 'ROOT=${D}' install
+    install -m 0644 src/headers/gpm.h ${D}${includedir}
+    install -d ${D}/${sysconfdir}/init.d
+    install -m 0755 ${WORKDIR}/init ${D}/${sysconfdir}/init.d/gpm
+    cd ${D}${libdir} && ln -sf libgpm.so.1.19.0 libgpm.so.1
 }
 SRC_URI[md5sum] = "9fdddf5f53cb11d40bb2bb671d3ac544"
 SRC_URI[sha256sum] = "6071378b24494e36ca3ef6377606e7e565040413c86704753a162d2180af32ee"

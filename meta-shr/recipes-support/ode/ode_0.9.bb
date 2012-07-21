@@ -17,7 +17,7 @@ inherit autotools binconfig
 EXTRA_OECONF = "--disable-demos --enable-soname"
 
 do_configure_append() {
-	echo "#define dInfinity DBL_MAX" >>include/ode/config.h
+    echo "#define dInfinity DBL_MAX" >>include/ode/config.h
 }
 
 FILES_${PN} = "${libdir}/lib*${SOLIBS}"

@@ -16,7 +16,7 @@ SRC_URI = "git://git.shr-project.org/repo/shr.git;protocol=http;branch=master \
 S = "${WORKDIR}/git/${PN}"
 
 FILES_${PN} = "${datadir}/shr-splash \
-	       ${sysconfdir}/init.d/shr-splash.sh \
+               ${sysconfdir}/init.d/shr-splash.sh \
 "
 
 do_install() {

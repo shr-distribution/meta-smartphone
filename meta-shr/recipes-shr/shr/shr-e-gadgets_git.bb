@@ -8,22 +8,22 @@ SECTION = "x11/application"
 
 SRCREV = "27b6c17d73b8d07e24917ed22810aed6bb455684"
 PV = "0.0.0+gitr${SRCPV}"
-PR = "r4"
+PR = "r5"
 
 inherit autotools
 
 SRC_URI = "\
-	git://git.shr-project.org/repo/shr-e-gadgets.git;protocol=http;branch=master \
+    git://git.shr-project.org/repo/shr-e-gadgets.git;protocol=http;branch=master \
 "
 S = "${WORKDIR}/git"
 
 EXTRA_OECONF = "--with-edje-cc=${STAGING_BINDIR_NATIVE}/edje_cc"
 
 FILES_${PN} += "\
-	${datadir}/shr_elm_softkey \
-	${libdir}/enlightenment/modules/*/*.desktop \
-	${libdir}/enlightenment/modules/*/*.edj \
-	${libdir}/enlightenment/modules/*/*/*.so \
+    ${datadir}/shr_elm_softkey \
+    ${libdir}/enlightenment/modules/*/*.desktop \
+    ${libdir}/enlightenment/modules/*/*.edj \
+    ${libdir}/enlightenment/modules/*/*/*.so \
 "
 FILES_${PN}-staticdev += "${libdir}/enlightenment/modules/*/*/*.a"
 FILES_${PN}-dev += "${libdir}/enlightenment/modules/*/*/*.la"

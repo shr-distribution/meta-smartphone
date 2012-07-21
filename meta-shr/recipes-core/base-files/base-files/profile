@@ -1,13 +1,13 @@
 # /etc/profile: system-wide .profile file for the Bourne shell (sh(1))
 # and Bourne compatible shells (bash(1), ksh(1), ash(1), ...).
 
-EDITOR="/bin/vi"			# needed for packages like cron
-test -z "$TERM" && TERM="vt100"	# Basic terminal capab. For screen etc.
+EDITOR="/bin/vi"                # needed for packages like cron
+test -z "$TERM" && TERM="vt100" # Basic terminal capab. For screen etc.
 
 if [ ! -e /etc/localtime ]; then
-	TZ="UTC"		# Time Zone. Look at http://theory.uwinnipeg.ca/gnu/glibc/libc_303.html 
-				# for an explanation of how to set this to your local timezone.
-	export TZ
+        TZ="UTC"                # Time Zone. Look at http://theory.uwinnipeg.ca/gnu/glibc/libc_303.html 
+                                # for an explanation of how to set this to your local timezone.
+        export TZ
 fi
 
 if [ "$EUID" = "0" ] || [ "$USER" = "root" ] ; then

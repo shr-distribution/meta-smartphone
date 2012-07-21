@@ -2,7 +2,7 @@ DESCRIPTION = "Open Source multimedia player."
 SECTION = "multimedia"
 HOMEPAGE = "http://www.mplayerhq.hu/"
 DEPENDS = "libvpx live555 libdvdcss libtheora virtual/libsdl ffmpeg xsp zlib libpng jpeg liba52 freetype fontconfig alsa-lib lzo ncurses lame libxv virtual/libx11 virtual/kernel \
-	   ${@base_conditional('ENTERPRISE_DISTRO', '1', '', 'libmad liba52 lame', d)}"
+           ${@base_conditional('ENTERPRISE_DISTRO', '1', '', 'libmad liba52 lame', d)}"
 RDEPENDS_${PN} = "mplayer-common"
 RRECOMMENDS_${PN} = "libdvdcss"
 
@@ -31,7 +31,7 @@ SRC_URI_append_armv7a = " \
        file://vo_omapfb.c \
        file://yuv.S \
        file://0001-omapfb.patch;minrev=30166 \
-	  "
+      "
 
 # This is required for the collie machine only as all stacks in that
 # machine seem to be set to executable by the toolchain. If someone
@@ -69,121 +69,121 @@ inherit autotools pkgconfig
 STAGING_KERNEL_DIR = "${STAGING_DIR}/${MACHINE_ARCH}${TARGET_VENDOR}-${TARGET_OS}/kernel"
 
 EXTRA_OECONF = " \
-	--prefix=/usr \
-	--mandir=${mandir} \
-	--target=${SIMPLE_TARGET_SYS} \
-	\
-	--enable-mencoder \
-	--disable-gui \
-	--enable-largefiles \
-	--disable-lirc \
-	--disable-lircc \
-	--disable-joystick \
-	--disable-vm \
-	--disable-xf86keysym \
-	--enable-tv \
-	--disable-tv-v4l1 \
-	--enable-tv-v4l2 \
-	--disable-tv-bsdbt848 \
-	--enable-networking \
-	--enable-rtc \
-	--disable-smb \
-	--enable-live \
-	--disable-dvdnav \
-	--disable-dvdread \
-	--disable-dvdread-internal \
-	--enable-libdvdcss-internal \
-	--disable-cdparanoia \
-	--enable-freetype \
-	--enable-menu \
-	--enable-sortsub \
-	--disable-fribidi \
-	--disable-enca \
-	--disable-ftp \
-	--disable-vstream \
-	\
-	--disable-gif \
-	--enable-png \
-	--enable-jpeg \
-	--disable-libcdio \
-	--disable-liblzo \
-	--disable-qtx \
-	--disable-xanim \
-	--disable-real \
-	--disable-xvid \
-	--disable-x264 \
-	\
-	--disable-ffmpeg_so \
-	\
-	--enable-tremor-low \
-	\
-	--disable-speex \
-	--enable-theora \
-	--disable-faac \
-	--disable-ladspa \
-	--disable-libdv \
-	--enable-mad \
-	--disable-toolame \
-	--disable-twolame \
-	--disable-xmms \
-	--disable-mp3lib \
-	--enable-libmpeg2 \
-	--disable-musepack \
-	\
-	--disable-gl \
-	--disable-vesa \
-	--disable-svga \
-	--enable-sdl \
-	--disable-aa \
-	--disable-caca \
-	--disable-ggi \
-	--disable-ggiwmh \
-	--disable-directx \
-	--disable-dxr2 \
-	--disable-dxr3 \
-	--enable-dvb \
-	--disable-mga \
-	--disable-xmga \
-	--enable-xv \
-	--disable-xvmc \
-	--disable-vm \
-	--disable-xinerama \
-	--enable-x11 \
-	--enable-fbdev \
-	--disable-mlib \
-	--disable-3dfx \
-	--disable-tdfxfb \
-	--disable-s3fb \
-	--disable-directfb \
-	--disable-zr \
-	--disable-bl \
-	--disable-tdfxvid \
-	--disable-tga \
-	--disable-pnm \
-	--disable-md5sum \
-	--disable-xss \
-	--disable-dga1 \
-	--disable-dga2 \
-	\
-	--enable-alsa \
-	--enable-ossaudio \
-	--disable-arts \
-	--disable-esd \
-	--disable-pulse \
-	--disable-jack \
-	--disable-openal \
-	--disable-nas \
-	--disable-sgiaudio \
-	--disable-sunaudio \
-	--disable-win32waveout \
-	--enable-select \
-	--enable-libvpx-lavc \
-	\
-	--extra-libs=' -lvpx -lBasicUsageEnvironment -lUsageEnvironment -lgroupsock -lliveMedia -lstdc++' \
+    --prefix=/usr \
+    --mandir=${mandir} \
+    --target=${SIMPLE_TARGET_SYS} \
+    \
+    --enable-mencoder \
+    --disable-gui \
+    --enable-largefiles \
+    --disable-lirc \
+    --disable-lircc \
+    --disable-joystick \
+    --disable-vm \
+    --disable-xf86keysym \
+    --enable-tv \
+    --disable-tv-v4l1 \
+    --enable-tv-v4l2 \
+    --disable-tv-bsdbt848 \
+    --enable-networking \
+    --enable-rtc \
+    --disable-smb \
+    --enable-live \
+    --disable-dvdnav \
+    --disable-dvdread \
+    --disable-dvdread-internal \
+    --enable-libdvdcss-internal \
+    --disable-cdparanoia \
+    --enable-freetype \
+    --enable-menu \
+    --enable-sortsub \
+    --disable-fribidi \
+    --disable-enca \
+    --disable-ftp \
+    --disable-vstream \
+    \
+    --disable-gif \
+    --enable-png \
+    --enable-jpeg \
+    --disable-libcdio \
+    --disable-liblzo \
+    --disable-qtx \
+    --disable-xanim \
+    --disable-real \
+    --disable-xvid \
+    --disable-x264 \
+    \
+    --disable-ffmpeg_so \
+    \
+    --enable-tremor-low \
+    \
+    --disable-speex \
+    --enable-theora \
+    --disable-faac \
+    --disable-ladspa \
+    --disable-libdv \
+    --enable-mad \
+    --disable-toolame \
+    --disable-twolame \
+    --disable-xmms \
+    --disable-mp3lib \
+    --enable-libmpeg2 \
+    --disable-musepack \
+    \
+    --disable-gl \
+    --disable-vesa \
+    --disable-svga \
+    --enable-sdl \
+    --disable-aa \
+    --disable-caca \
+    --disable-ggi \
+    --disable-ggiwmh \
+    --disable-directx \
+    --disable-dxr2 \
+    --disable-dxr3 \
+    --enable-dvb \
+    --disable-mga \
+    --disable-xmga \
+    --enable-xv \
+    --disable-xvmc \
+    --disable-vm \
+    --disable-xinerama \
+    --enable-x11 \
+    --enable-fbdev \
+    --disable-mlib \
+    --disable-3dfx \
+    --disable-tdfxfb \
+    --disable-s3fb \
+    --disable-directfb \
+    --disable-zr \
+    --disable-bl \
+    --disable-tdfxvid \
+    --disable-tga \
+    --disable-pnm \
+    --disable-md5sum \
+    --disable-xss \
+    --disable-dga1 \
+    --disable-dga2 \
+    \
+    --enable-alsa \
+    --enable-ossaudio \
+    --disable-arts \
+    --disable-esd \
+    --disable-pulse \
+    --disable-jack \
+    --disable-openal \
+    --disable-nas \
+    --disable-sgiaudio \
+    --disable-sunaudio \
+    --disable-win32waveout \
+    --enable-select \
+    --enable-libvpx-lavc \
+    \
+    --extra-libs=' -lvpx -lBasicUsageEnvironment -lUsageEnvironment -lgroupsock -lliveMedia -lstdc++' \
     --enable-protocol='file_protocol pipe_protocol http_protocol rtmp_protocol tcp_protocol udp_protocol' \
 "
 EXTRA_OECONF_append_arm = " --disable-decoder=vorbis_decoder \
-				--disable-encoder=vorbis_encoder"
+                            --disable-encoder=vorbis_encoder"
 
 EXTRA_OECONF_append_armv6 = " --enable-armv6"
 EXTRA_OECONF_append_armv7a = " --enable-armv6 --enable-neon"
@@ -208,33 +208,33 @@ DEBUG_OPTIMIZATION_spitz = "-O -fomit-frame-pointer -g"
 DEBUG_OPTIMIZATION_akita = "-O -fomit-frame-pointer -g"
 
 do_configure_prepend_armv7a() {
-	if [ -e ${S}/libvo/yuv.S ] ; then
-		echo "files already present"
-	else
-		cp ${WORKDIR}/yuv.S ${S}/libvo
-		cp ${WORKDIR}/vo_omapfb.c ${S}/libvo
-	fi
-	cp ${STAGING_KERNEL_DIR}/arch/arm/plat-omap/include/mach/omapfb.h ${S}/libvo/omapfb.h || true
-	cp ${STAGING_KERNEL_DIR}/include/asm-arm/arch-omap/omapfb.h ${S}/libvo/omapfb.h || true
-	cp ${STAGING_KERNEL_DIR}/include/linux/omapfb.h ${S}/libvo/omapfb.h || true
-	sed -e 's/__user//g' -i ${S}/libvo/omapfb.h || true
+    if [ -e ${S}/libvo/yuv.S ] ; then
+        echo "files already present"
+    else
+        cp ${WORKDIR}/yuv.S ${S}/libvo
+        cp ${WORKDIR}/vo_omapfb.c ${S}/libvo
+    fi
+    cp ${STAGING_KERNEL_DIR}/arch/arm/plat-omap/include/mach/omapfb.h ${S}/libvo/omapfb.h || true
+    cp ${STAGING_KERNEL_DIR}/include/asm-arm/arch-omap/omapfb.h ${S}/libvo/omapfb.h || true
+    cp ${STAGING_KERNEL_DIR}/include/linux/omapfb.h ${S}/libvo/omapfb.h || true
+    sed -e 's/__user//g' -i ${S}/libvo/omapfb.h || true
 
-	# Don't use hardfp args when using softfp
-	sed -i -e 's:if HAVE_VFP_ARGS:ifdef __ARM_PCS_VFP:' ${S}/ffmpeg/libavcodec/arm/asm.S
+    # Don't use hardfp args when using softfp
+    sed -i -e 's:if HAVE_VFP_ARGS:ifdef __ARM_PCS_VFP:' ${S}/ffmpeg/libavcodec/arm/asm.S
 }
 
 do_configure() {
-	sed -i 's|/usr/include|${STAGING_INCDIR}|g' ${S}/configure
-	sed -i 's|/usr/lib|${STAGING_LIBDIR}|g' ${S}/configure
-	sed -i 's|/usr/\S*include[\w/]*||g' ${S}/configure
-	sed -i 's|/usr/\S*lib[\w/]*||g' ${S}/configure
-	sed -i 's|HOST_CC|BUILD_CC|' ${S}/Makefile
+    sed -i 's|/usr/include|${STAGING_INCDIR}|g' ${S}/configure
+    sed -i 's|/usr/lib|${STAGING_LIBDIR}|g' ${S}/configure
+    sed -i 's|/usr/\S*include[\w/]*||g' ${S}/configure
+    sed -i 's|/usr/\S*lib[\w/]*||g' ${S}/configure
+    sed -i 's|HOST_CC|BUILD_CC|' ${S}/Makefile
 
-	export SIMPLE_TARGET_SYS="$(echo ${TARGET_SYS} | sed s:${TARGET_VENDOR}::g)"
-	./configure ${EXTRA_OECONF}
+    export SIMPLE_TARGET_SYS="$(echo ${TARGET_SYS} | sed s:${TARGET_VENDOR}::g)"
+    ./configure ${EXTRA_OECONF}
 }
 
 do_compile () {
-	oe_runmake
+    oe_runmake
 }
 

@@ -18,5 +18,5 @@ FILES_${PN} += "${datadir}/chroneo ${datadir}/applications/chroneo.desktop ${dat
 RDEPENDS_${PN} += "python-audio python-pyalsaaudio python-elementary python-sqlite3"
 
 do_compile_prepend() {
-	${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/data ${S}/data/chroneo.edc
+    ${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/data ${S}/data/chroneo.edc
 }

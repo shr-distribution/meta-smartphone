@@ -42,14 +42,14 @@ OBJDUMP=${OBJDUMP}
 HOSTCC=${BUILD_CC}
 
 export HOSTCC BUILD_HOST BUILD_VERSION BUILD_DATE CROSS_COMPILE AD LD CC OBJCOPY OBJDUMP MKUDFU
-EOF	
+EOF
 }
 
 do_compile() {
-	make clean && \
-	make CPU=s3c2442 && \
-	make CPU=s3c2410 && \
-	make CPU=s3c6410
+    make clean && \
+    make CPU=s3c2442 && \
+    make CPU=s3c2410 && \
+    make CPU=s3c6410
 }
 
 do_compile_om-gta01() {
@@ -62,13 +62,13 @@ do_compile_om-gta02() {
 inherit deploy
 
 do_deploy () {
-	cd image
-	for IMG in qi-*.udfu; do
-		IMG_LINK=`echo ${IMG} | sed s:-${PV}.*udfu:.udfu:g`
-		ln -sf ${IMG} ${IMG_LINK}
-	done
-	install -d ${DEPLOY_DIR_IMAGE}
-	cp -fa qi-*.udfu ${DEPLOY_DIR_IMAGE}
+    cd image
+    for IMG in qi-*.udfu; do
+        IMG_LINK=`echo ${IMG} | sed s:-${PV}.*udfu:.udfu:g`
+        ln -sf ${IMG} ${IMG_LINK}
+    done
+    install -d ${DEPLOY_DIR_IMAGE}
+    cp -fa qi-*.udfu ${DEPLOY_DIR_IMAGE}
 }
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"

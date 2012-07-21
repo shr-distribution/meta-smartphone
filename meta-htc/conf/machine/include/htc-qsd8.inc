@@ -5,14 +5,14 @@ PREFERRED_PROVIDER_virtual/kernel = "linux-qsd8"
 PREFERRED_PROVIDER_virtual/xserver = "xserver-xorg"
 
 XSERVER = " \
-	xserver-xorg \
-	xserver-xorg-extension-glx \
-	xserver-xorg-extension-dri \
-	xf86-input-tslib \
-	xf86-input-evdev \
-	xf86-input-mouse \
-	xf86-input-keyboard \
-	xf86-video-fbdev \
+    xserver-xorg \
+    xserver-xorg-extension-glx \
+    xserver-xorg-extension-dri \
+    xf86-input-tslib \
+    xf86-input-evdev \
+    xf86-input-mouse \
+    xf86-input-keyboard \
+    xf86-video-fbdev \
 "
 
 # capability database
@@ -23,7 +23,7 @@ MACHINE_DISPLAY_HEIGHT_PIXELS = "640"
 MACHINE_CLASS = "htc-qsd8"
 
 # use uncompressed kernel image
-KERNEL_IMAGETYPE = Image
+KERNEL_IMAGETYPE = "Image"
 
 # features
 MACHINE_FEATURES = "kernel26 touchscreen screen phone gps usb keyboard"

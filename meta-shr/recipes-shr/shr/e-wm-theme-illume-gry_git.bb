@@ -8,9 +8,8 @@ inherit allarch
 LICENSE = "MIT BSD"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=f523ab5986cc79b52a90d2ac3d5454a2"
 
-SRCREV = "849397eca17f950567d3bf879cbba5dbdaaffcde"
+SRCREV = "7498244a883ea21fe5835495dd54d565dad83d1d"
 PV = "0.4+gitr${SRCPV}"
-PR = "r2"
 
 SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http;branch=master \
 "
@@ -18,12 +17,12 @@ SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http;branch=ma
 S = "${WORKDIR}/git/e-wm/${PN}"
 
 do_compile() {
-	${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/. -fd ${S}/. ${S}/gry.edc -o ${S}/gry.edj
+    ${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/. -fd ${S}/. ${S}/gry.edc -o ${S}/gry.edj
 }
 
 do_install() {
-        install -d ${D}${datadir}/enlightenment/data/themes/
-        install -m 0644 ${S}/gry.edj ${D}${datadir}/enlightenment/data/themes/
+    install -d ${D}${datadir}/enlightenment/data/themes/
+    install -m 0644 ${S}/gry.edj ${D}${datadir}/enlightenment/data/themes/
 }
 
 FILES_${PN} = "${datadir}/enlightenment/data/themes/"

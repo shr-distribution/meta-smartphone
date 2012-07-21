@@ -26,8 +26,8 @@ mount -at nonfs,nosmbfs,noncpfs 2>/dev/null
 #
 if test ! -p /dev/initctl
 then
-	rm -f /dev/initctl
-	mknod -m 600 /dev/initctl p
+    rm -f /dev/initctl
+    mknod -m 600 /dev/initctl p
 fi
 kill -USR1 1
 
@@ -38,7 +38,7 @@ kill -USR1 1
 doswap=yes
 if test $doswap = yes
 then
-	swapon -a 2> /dev/null
+    swapon -a 2> /dev/null
 fi
 
 # A missing homedirectory for root can cause all sorts of problems.
@@ -46,12 +46,12 @@ fi
 
 if test -e /etc/passwd
 then
-	ROOT_HOME="`grep \"^root:\" /etc/passwd | cut -d: -f6`"
+    ROOT_HOME="`grep \"^root:\" /etc/passwd | cut -d: -f6`"
 
-	if test -n "$ROOT_HOME"
-	then
-		! test -d "$ROOT_HOME" && mkdir -p "$ROOT_HOME"
-	fi
+    if test -n "$ROOT_HOME"
+    then
+        ! test -d "$ROOT_HOME" && mkdir -p "$ROOT_HOME"
+    fi
 fi
 : exit 0
 

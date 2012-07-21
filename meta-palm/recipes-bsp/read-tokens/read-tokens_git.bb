@@ -23,7 +23,7 @@ INITSCRIPT_NAME = "read_tokens"
 INITSCRIPT_PARAMS = "defaults 23"
 
 do_install_append() {
-	install -d ${D}${sysconfdir}/init.d/
-	install -m 0755 ${WORKDIR}/read_tokens ${D}${sysconfdir}/init.d/
+    install -d ${D}${sysconfdir}/init.d/
+    install -m 0755 ${WORKDIR}/read_tokens ${D}${sysconfdir}/init.d/
 }
 

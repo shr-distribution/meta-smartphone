@@ -5,6 +5,7 @@ LICENSE = "GPLv3"
 LIC_FILES_CHKSUM = "file://COPYING;md5=8f0e2cd40e05189ec81232da84bd6e1a"
 SECTION = "e/apps"
 DEPENDS = "elementary"
+PR = "r1"
 
 SRC_URI = "http://www.vaudano.eu/projects/${PN}/latest/${P}.tar.gz"
 SRC_URI[md5sum] = "5b2e1e4f0578250068d8711612d0288e"
