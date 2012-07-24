@@ -14,7 +14,8 @@ SRC_URI = "http://github.com/downloads/kichkasch/pisi/pisi-src-${PV}.tar.gz"
 SRC_URI[md5sum] = "c416b316668575f8506dc54e19475795"
 SRC_URI[sha256sum] = "a27603662747aee9a0440acc6472fe274c0724fcc66ad05849eb186bfb24868e"
 
-PR = "r1"
+PR = "r2"
+inherit pythonnative
 
 # we want conf.example in $PN
 FILES_${PN}-doc = ""
@@ -25,11 +26,11 @@ FILES_${PN} += "/opt/${PN} \
 CONFFILES_${PN} += "/usr/share/doc/${PN}/conf.example"
 
 do_compile() {
-    ${STAGING_BINDIR_NATIVE}/python ${S}/setup.py build ${D}
+    ${PYTHON} ${S}/setup.py build ${D}
 }
 
 do_install() {
-    ${STAGING_BINDIR_NATIVE}/python ${S}/setup.py install ${D}
+    ${PYTHON} ${S}/setup.py install ${D}
     rm -rf ${D}/opt/pisi/build/
     rm -rf ${D}/opt/pisi/patches/
 }
