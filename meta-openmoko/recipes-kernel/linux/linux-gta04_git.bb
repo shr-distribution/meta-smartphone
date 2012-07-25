@@ -5,7 +5,7 @@ PV = "${KERNEL_RELEASE}+gitr${SRCPV}"
 PE = "3"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 
-SRCREV_kernel = "0b99e040da6632ecaa1224d72efcfb0f009f6a47"
+SRCREV_kernel = "971f544002a1de5bf29dc215763e60dbb515850b"
 SRCREV_init = "47dd9fd631f1908f3fcbabaf8fd48ba1503c2ea2"
 SRCREV_FORMAT = "kernel_init"
 
