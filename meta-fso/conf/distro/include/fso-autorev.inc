@@ -1,6 +1,8 @@
 # FSO
 # there is no support for palm pre* devices with this version of components!
-FSO_CORNUCOPIA_SRCREV = "${AUTOREV}"
+#FSO_CORNUCOPIA_SRCREV = "${AUTOREV}"
+# use this rev until recipes are updated to cope with new unified fsoframework tree (see jansa/fso branch)
+FSO_CORNUCOPIA_SRCREV = "2602366d8db95be55f3389bcfefaec6c96aa641a"
 FSO_PYTHONHELPERS_SRCREV = "${AUTOREV}"
 
 SRCREV_pn-android-image-utils-native = "${AUTOREV}"
