@@ -32,7 +32,7 @@ do_install_prepend() {
   install -d ${D}/lib/firmware
 }
 
-pkg_postinst_kernel-image () {
+pkg_postinst_kernel-image_append () {
 
 # Get the lastest root file system value of boot args
 boot_arg=`cat /proc/cmdline |tr " " "\n"|grep "root=" |tail -n 1`
