@@ -2,7 +2,7 @@ require cornucopia-base.inc
 
 inherit fso-plugin
 
-DEPENDS += "libfsotransport libfsoresource json-glib libsoup-2.4 gpsd"
+DEPENDS += "json-glib libsoup-2.4 gpsd"
 EXTRA_OECONF  = "--enable-provider-libgps"
 
 inherit update-rc.d
