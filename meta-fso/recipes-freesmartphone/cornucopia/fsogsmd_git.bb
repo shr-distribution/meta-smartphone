@@ -6,5 +6,5 @@ SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
 # use libsamsung-ipc-0.1 instead of AUTOREV or disable modem-samsung as temporary fix
 # EXTRA_OECONF_append = " --disable-modem-samsung "
 
-PV = "0.11.99+gitr${SRCPV}"
-PR = "${INC_PR}.2"
+PV = "0.12.99+gitr${SRCPV}"
+PR = "${INC_PR}.0"
