@@ -64,12 +64,12 @@ PREFERRED_VERSION_msmcommd-specs = "0.10.0+git%"
 PREFERRED_VERSION_msmcommd = "0.10.0+git%"
 
 PREFERRED_VERSION_libgsm0710 = "1.2.2+git%"
-PREFERRED_VERSION_fso-specs = "2012.05.24.1+git%"
+PREFERRED_VERSION_fso-specs = "2012.07.27.1+git%"
 # change of this needs at least 3 recipes to be rebuild/PR bumped
 # meta-smartphone/meta-shr/recipes-shr/shr/libphone-ui-shr_git.bb
 # meta-smartphone/meta-shr/recipes-shr/shr/libphone-ui_git.bb
 # meta-smartphone/meta-shr/recipes-shr/shr/phonefsod_git.bb
-PREFERRED_VERSION_libfso-glib = "2012.05.24.1+git%"
+PREFERRED_VERSION_libfso-glib = "2012.07.27.1+git%"
 PREFERRED_VERSION_libgisi = "0.1.99+git%"
 # this breaks current fsogsmd HEAD
 #PREFERRED_VERSION_libsamsung-ipc = "0.1.0+git%"
