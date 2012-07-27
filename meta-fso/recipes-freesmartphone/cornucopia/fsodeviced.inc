@@ -72,25 +72,10 @@ FILES_${PN}-module-openmoko-powercontrol = "${CORNUCOPIA_MODULE_DIR}/openmoko_po
 FILES_${PN}-module-openmoko-powercontrol-dev = "${CORNUCOPIA_MODULE_DIR}/openmoko_powercontrol.la"
 FILES_${PN}-module-openmoko-powercontrol-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/openmoko_powercontrol*"
 
-PACKAGES =+ "${PN}-module-ambientlight-n900 ${PN}-module-ambientlight-n900-dev ${PN}-module-ambientlight-n900-dbg"
-FILES_${PN}-module-ambientlight-n900 = "${CORNUCOPIA_MODULE_DIR}/ambientlight_n900.so"
-FILES_${PN}-module-ambientlight-n900-dev = "${CORNUCOPIA_MODULE_DIR}/ambientlight_n900.la"
-FILES_${PN}-module-ambientlight-n900-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/ambientlight_n900*"
-
-PACKAGES =+ "${PN}-module-powersupply-n900 ${PN}-module-powersupply-n900-dev ${PN}-module-powersupply-n900-dbg"
-FILES_${PN}-module-powersupply-n900 = "${CORNUCOPIA_MODULE_DIR}/powersupply_n900.so"
-FILES_${PN}-module-powersupply-n900-dev = "${CORNUCOPIA_MODULE_DIR}/powersupply_n900.la"
-FILES_${PN}-module-powersupply-n900-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/powersupply_n900*"
-
-PACKAGES =+ "${PN}-module-proximity-n900 ${PN}-module-proximity-n900-dev ${PN}-module-proximity-n900-dbg"
-FILES_${PN}-module-proximity-n900 = "${CORNUCOPIA_MODULE_DIR}/proximity_n900.so"
-FILES_${PN}-module-proximity-n900-dev = "${CORNUCOPIA_MODULE_DIR}/proximity_n900.la"
-FILES_${PN}-module-proximity-n900-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/proximity_n900*"
-
-PACKAGES =+ "${PN}-module-n900-powercontrol ${PN}-module-n900-powercontrol-dev ${PN}-module-n900-powercontrol-dbg"
-FILES_${PN}-module-n900-powercontrol = "${CORNUCOPIA_MODULE_DIR}/n900_powercontrol.so"
-FILES_${PN}-module-n900-powercontrol-dev = "${CORNUCOPIA_MODULE_DIR}/n900_powercontrol.la"
-FILES_${PN}-module-n900-powercontrol-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/n900_powercontrol*"
+PACKAGES =+ "${PN}-module-n900-quirks ${PN}-module-n900-quirks-dev ${PN}-module-n900-quirks-dbg"
+FILES_${PN}-module-n900-quirks = "${CORNUCOPIA_MODULE_DIR}/n900_quirks.so"
+FILES_${PN}-module-n900-quirks-dev = "${CORNUCOPIA_MODULE_DIR}/n900_quirks.la"
+FILES_${PN}-module-n900-quirks-dbg = "${CORNUCOPIA_MODULE_DIR}/.debug/n900_quirks*"
 
 PACKAGES =+ "${PN}-module-router-qdsp5 ${PN}-module-router-qdsp5-dev ${PN}-module-router-qdsp5-dbg"
 FILES_${PN}-module-router-qdsp5 = "${CORNUCOPIA_MODULE_DIR}/router_qdsp5.so"
