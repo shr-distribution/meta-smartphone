@@ -70,6 +70,8 @@ PREFERRED_VERSION_libgisi = "0.1.99+git%"
 #PREFERRED_VERSION_libsamsung-ipc = "0.1.0+git%"
 
 PREFERRED_VERSION_mdbus2 = "2.3.0+git%"
+PREFERRED_VERSION_vala-dbus-binding-tool-native = "0.4.0+git%"
+PREFERRED_VERSION_vala-dbus-binding-tool = "0.4.0+git%"
 
 # this switch of P_V needs at least 3 recipes to be rebuild/PR bumped
 # meta-smartphone/meta-shr/recipes-shr/shr/libphone-ui-shr_git.bb
