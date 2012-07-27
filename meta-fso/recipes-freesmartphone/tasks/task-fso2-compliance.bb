@@ -4,7 +4,7 @@ SECTION = "fso/base"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 PV = "1.9.0"
-PR = "r18"
+PR = "r19"
 
 inherit task allarch
 
@@ -16,7 +16,6 @@ RDEPENDS_${PN} = "\
   fsotdld \
   fsonetworkd \
   fsousaged \
-  fsosystemd \
   \
   fso-apm \
 "
