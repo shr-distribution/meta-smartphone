@@ -4,10 +4,10 @@ HOMEPAGE = "http://www.freesmartphone.org"
 SECTION = "x11"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=59530bdf33659b29e73d4adb9f9f6552"
-DEPENDS = "edje-native evas ecore edje libeflvala libfsobasics libfsoframework libfso-glib"
+DEPENDS = "edje-native evas ecore edje libeflvala libfsoframework libfso-glib"
 SRCREV = "fd8c57d835d0ce6db12dae18c3d2fdda0b254de8"
 PV = "2.0.0+gitr${SRCPV}"
-PR = "r3"
+PR = "r4"
 PE = "1"
 
 SRC_URI = "\
