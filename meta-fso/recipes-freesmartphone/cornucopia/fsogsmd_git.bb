@@ -3,8 +3,8 @@ require cornucopia-from-git.inc
 
 SRCREV = "${FSO_CORNUCOPIA_SRCREV}"
 
-# Should be moved to fsogsmd.inc when switching to 0.12
-DEPENDS += "libfsotest"
+# use libsamsung-ipc-0.1 instead of AUTOREV or disable modem-samsung as temporary fix
+# EXTRA_OECONF_append = " --disable-modem-samsung "
 
-PV = "0.11.99+gitr${SRCPV}"
-PR = "${INC_PR}.2"
+PV = "0.12.99+gitr${SRCPV}"
+PR = "${INC_PR}.0"

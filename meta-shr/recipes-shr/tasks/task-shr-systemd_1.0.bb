@@ -6,7 +6,7 @@ inherit task
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-PR = "r7"
+PR = "r8"
 
 GPSD_PROVIDER = "gpsd-systemd"
 GPSD_PROVIDER_om-gta02 = "fso-gpsd-systemd"
@@ -23,6 +23,5 @@ RDEPENDS_${PN} = "\
   fsodeviced-systemd \
   fsotdld-systemd \
   fsoaudiod-systemd \
-  fsosystemd-systemd \
   ${GPSD_PROVIDER} \
 "

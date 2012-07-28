@@ -4,8 +4,7 @@ inherit fso-plugin
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=751419260aa954499f7abaabaa882bbe"
 
-DEPENDS += "libfsosystem libfsotransport libfsoresource libgsm0710mux \
-  libgisi ppp connman libsamsung-ipc"
+DEPENDS += "libgisi ppp connman libsamsung-ipc"
 
 EXTRA_OECONF_append = "\
   --enable-libgsm0710mux \
