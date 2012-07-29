@@ -1,7 +1,7 @@
 require cornucopia-base.inc
 DESCRIPTION = "freesmartphone.org support library"
 
-DEPENDS += "alsa-lib"
+DEPENDS += "alsa-lib libgsm0710"
 
 PACKAGES =. " \
   libfsobasics libfsobasics-dev libfsobasics-dbg \
