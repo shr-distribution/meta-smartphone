@@ -5,6 +5,7 @@ LICENSE = "GPLv3+"
 LIC_FILES_CHKSUM = "file://misc/license_template_christian;md5=d99c9b3bafdde80adee296762376348d"
 
 DEPENDS = "qt-mobility-x11"
+PR = "r1"
 
 SRC_URI = "http://monav.googlecode.com/files/${BPN}-${PV}.tar.gz \
            file://monav.png \
@@ -15,10 +16,8 @@ SRC_URI[sha256sum] = "5a3bf9e9f7368b81ba8e2f755960082fc42a2e2c78f9de645f99ba293c
 
 inherit qmake2 qt4x11
 
-do_configure_prepend() {
-    export QMAKE_PROFILES="monavclient.pro"
-    export CONFIG+="release"
-}
+EXTRA_QMAKEVARS_PRE="CONFIG+="release""
+QMAKE_PROFILES="monavclient.pro"
 
 do_install_append() {
     install -d ${D}${datadir}/monav
