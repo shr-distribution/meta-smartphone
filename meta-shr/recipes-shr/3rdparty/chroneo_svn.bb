@@ -5,6 +5,8 @@ LIC_FILES_CHKSUM = "file://chroneo/chroneo.py;endline=21;md5=f5b4b0084ac20093c13
 AUTHOR = "Valéry Febvre <vfebvre@easter-eggs.com>"
 SECTION = "x11/applications"
 
+DEPENDS = "python-native edje-native"
+
 SRCREV = "9"
 PV = "1.0.2+svnr${SRCPV}"
 

@@ -5,6 +5,8 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=f27defe1e96c2e1ecd4e0c9be8967949"
 AUTHOR = "Valéry Febvre <vfebvre@easter-eggs.com>"
 SECTION = "x11/applications"
 
+DEPENDS = "python-native edje-native"
+
 SRCREV = "6"
 PV = "1.0.2+svnr${SRCPV}"
 PR = "r2"
@@ -18,7 +20,6 @@ inherit distutils
 FILES_${PN} += "${datadir}/minneo ${datadir}/applications/minneo.desktop ${datadir}/pixmaps/minneo.png"
 
 RDEPENDS_${PN} += "python-audio python-pyalsaaudio python-elementary"
-DEPENDS = "edje-native"
 
 do_compile_append() {
         cd ${S}/data/themes
