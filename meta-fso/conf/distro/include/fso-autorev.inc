@@ -64,6 +64,7 @@ PREFERRED_VERSION_fso-specs = "2012.07.27.1+git%"
 # meta-smartphone/meta-shr/recipes-shr/shr/libphone-ui-shr_git.bb
 # meta-smartphone/meta-shr/recipes-shr/shr/libphone-ui_git.bb
 # meta-smartphone/meta-shr/recipes-shr/shr/phonefsod_git.bb
+# meta-smartphone/meta-aurora/recipes-aurora/aurora/aurora-systemmanager_git.bb
 PREFERRED_VERSION_libfso-glib = "2012.07.27.1+git%"
 PREFERRED_VERSION_libgisi = "0.1.99+git%"
 # this breaks current fsogsmd HEAD

@@ -5,7 +5,7 @@ SRCREV = "${AURORA_SRCREV}"
 DEPENDS = "libfsoframework libfso-glib"
 
 PV = "0.1.0+gitr${SRCPV}"
-PR = "${INC_PR}.2"
+PR = "${INC_PR}.3"
 
 SRC_URI = " \
   ${FREESMARTPHONE_GIT}/aurora.git;protocol=git;branch=master \
