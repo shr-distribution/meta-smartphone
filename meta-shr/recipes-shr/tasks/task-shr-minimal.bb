@@ -1,5 +1,5 @@
 DESCRIPTION = "SHR Lite Image Feed"
-PR = "r53"
+PR = "r54"
 PV = "2.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -7,51 +7,6 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384
 inherit task
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
-
-def get_rdepends(bb, d):
-    enabled = bb.data.getVar("ENABLE_BINARY_LOCALE_GENERATION", d, 1)
-
-    # If locale is disabled, bail out
-    if not enabled or not int(enabled):
-        return ""
-
-    locales = bb.data.getVar("GLIBC_GENERATE_LOCALES", d, 1)
-    if not locales or locales == "all":
-        locales = bb.data.getVar("IMAGE_LINGUAS", d, 1);
-
-    libc = bb.data.getVar('TCLIBC', d, 1)
-    import re
-
-    rdepends = ""
-    if not locales or locales == "all":
-        # if locales aren't specified, or user has written "all"
-        import os
-        ipkdir = bb.data.getVar('DEPLOY_DIR_IPK', d, 1)
-
-        regexp1 = re.compile(libc+"-binary-localedata-.*") # search pattern
-        regexp2 = re.compile("_.*") # we want to remove all version info and file extension
-
-        for root, subFolders, files in os.walk(ipkdir):
-            for file in files:
-                if regexp1.search(file):
-                    file = regexp2.sub("", file)
-                    rdepends = "%s %s" % (rdepends, file)
-
-    else:
-        # if locales are specified
-        regexp1 = re.compile("\\..*") # We want to turn en_US.UTF-8 into en_US
-        regexp2 = re.compile("_")     # We want to turn en_US into en-US
-
-
-        for locale in locales.split(" "):
-            locale = regexp1.sub("", locale)
-            locale = regexp2.sub("-", locale)
-            locale = str.lower(locale)
-            rdepends = "%s %s-binary-localedata-%s" % (rdepends, libc, locale)
-    return rdepends
-
-
-
 
 PACKAGES += "\
     ${PN}-base \
@@ -62,8 +17,6 @@ PACKAGES += "\
     ${PN}-apps \
     ${PN}-gtk \
 "
-
-
 
 RDEPENDS_${PN}-base = "\
   ${MACHINE_TASK_PROVIDER} \
@@ -96,10 +49,6 @@ RDEPENDS_${PN}-fso = "\
   python-gst \
 "
 
-
-#FIXME: libcanberra-alsa should be pulled in by fsodeviced but isn't
-#  libcanberra-alsa
-
 RDEPENDS_${PN}-audio = "\
   alsa-utils-alsactl \
   alsa-utils-alsamixer \
@@ -115,7 +64,6 @@ RDEPENDS_${PN}-x = "\
   xcursor-transparent-theme \
   xinput-calibrator \
   libx11-locale \
-  ${@get_rdepends(bb, d)} \
 "
 
 RDEPENDS_${PN}-apps = "\
@@ -146,4 +94,3 @@ RDEPENDS_${PN}-gtk = "\
   matchbox-keyboard-im \
   gtk-immodule-xim \
 "
-
