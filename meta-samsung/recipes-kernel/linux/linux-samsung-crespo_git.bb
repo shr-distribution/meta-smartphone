@@ -12,9 +12,9 @@ SRC_URI = " \
 
 S = "${WORKDIR}/git/"
 
-SRCREV = "94d2a0a01dac53b5756dddbd5ef887dda3329c8f"
+SRCREV = "9be08d217cca084ba0c408a14031c40a55b7c682"
 
-KV = "3.0.8"
+KV = "3.0.31"
 PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 
