@@ -4,7 +4,7 @@ DEPENDS = "eet"
 LICENSE = "MIT BSD"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=f523ab5986cc79b52a90d2ac3d5454a2"
 RDEPENDS_${PN} = "shr-e-gadgets elfe"
-SRCREV = "1e5ab90f971e0b3cba5b848b13e89dc201b87a23"
+SRCREV = "97c94207298b6ff83db1c362467ced7cdd2c6da6"
 PV = "1.2+gitr${SRCPV}"
 
 inherit e
