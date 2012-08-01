@@ -1,5 +1,5 @@
 DESCRIPTION = "SHR Feed"
-PR = "r109"
+PR = "r110"
 PV = "1.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -37,7 +37,6 @@ MISSING = "\
         pyefl-sudoku \
         python-pyid3lib \
         vpnc \
-        emacs-x11 \
         mg \
         mcabber \
         callrec \
@@ -160,6 +159,7 @@ MISSING = "\
 "
 
 RDEPENDS_${PN} += "\
+        emacs \
         grep \
         xchat \
         monav \

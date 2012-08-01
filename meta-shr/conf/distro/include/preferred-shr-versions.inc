@@ -6,34 +6,12 @@ PREFERRED_VERSION_openssl = "1.0.0%"
 PREFERRED_VERSION_openssl-native = "1.0.0%"
 PREFERRED_VERSION_subversion = "1.7.%"
 PREFERRED_VERSION_subversion-native = "1.7.%"
-PREFERRED_VERSION_udev = "182"
 PREFERRED_VERSION_dbus = "1.5%"
 PREFERRED_VERSION_dbus-native = "1.5%"
 
 # we need new headers for libc, now OLDEST_KERNEL_linux-gnueabi = "2.6.24"
 # and 2.6.31 for fsodeviced
 OLDEST_KERNEL = "2.6.24"
-LINUX_LIBC_HEADERS_VERSION ?= "2.6.32"
-
-# git version fails to build
-PREFERRED_VERSION_mupdf = "0.6"
-
-PREFERRED_QT_VERSION ?= "4.8.1"
-PREFERRED_VERSION_qt4-tools-native = "${PREFERRED_QT_VERSION}"
-PREFERRED_VERSION_qt4-native = "${PREFERRED_QT_VERSION}"
-PREFERRED_VERSION_qt4-nativesdk = "${PREFERRED_QT_VERSION}"
-PREFERRED_VERSION_qt4-tools-sdk = "${PREFERRED_QT_VERSION}"
-PREFERRED_VERSION_qt4-tools-nativesdk = "${PREFERRED_QT_VERSION}"
-PREFERRED_VERSION_qt4-embedded = "${PREFERRED_QT_VERSION}"
-PREFERRED_VERSION_qt4-embedded-gles = "${PREFERRED_QT_VERSION}"
-PREFERRED_VERSION_qt4-x11-free = "${PREFERRED_QT_VERSION}"
-PREFERRED_VERSION_qt4-x11-free-gles = "${PREFERRED_QT_VERSION}"
-
-# Prefer gcc from meta-oe
-GCCVERSION ?= "4.7%"
-SDKGCCVERSION ?= "4.7%"
-# and newer eglibc
-EGLIBCVERSION ?= "2.16"
 
 # We need git version of tslib as the old 1.0 release does not the support the features we
 # need for some mobile handset devices
