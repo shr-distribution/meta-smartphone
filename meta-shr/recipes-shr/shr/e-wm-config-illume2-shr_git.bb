@@ -3,9 +3,10 @@ SECTION = "e/utils"
 DEPENDS = "eet"
 LICENSE = "MIT BSD"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=f523ab5986cc79b52a90d2ac3d5454a2"
-RDEPENDS_${PN} = "shr-e-gadgets elfe"
-SRCREV = "fc67d2308fb3789e61f299e5b27716b7077809ce"
+RDEPENDS_${PN} = "shr-e-gadgets"
+SRCREV = "849397eca17f950567d3bf879cbba5dbdaaffcde"
 PV = "1.2+gitr${SRCPV}"
+PR = "r11"
 
 inherit e
 
