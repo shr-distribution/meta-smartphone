@@ -1,4 +1,4 @@
-From dff01fc9346e6f4e3386536df309d2e78f03f3ee Mon Sep 17 00:00:00 2001
+From a8dc33253472328f2af04973575f26e9106db1c3 Mon Sep 17 00:00:00 2001
 From: Khem Raj <raj.khem@gmail.com>
 Date: Wed, 21 Dec 2011 08:53:02 -0800
 Subject: [PATCH] config: Always use GNU ld
@@ -20,14 +20,14 @@ Signed-off-by: Khem Raj <raj.khem@gmail.com>
  1 files changed, 3 insertions(+), 1 deletions(-)
 
 diff --git a/config.mk b/config.mk
-index ddaa477..59b3e71 100644
+index ddaa477..139dfa0 100644
 --- a/config.mk
 +++ b/config.mk
 @@ -126,11 +126,13 @@ cc-option = $(strip $(if $(findstring $1,$(CC_OPTIONS)),$1,\
  		$(if $(call cc-option-sys,$1),$1,$2)))
  endif
  
-+exists_bfd_ld = $(shell if $(CROSS_COMPILE)ld.bfd -v >& /dev/null; \
++exists_bfd_ld = $(shell if $(CROSS_COMPILE)ld.bfd -v > /dev/null 2>&1; \
 +		then echo "$(1)"; else echo "$(2)"; fi; )
  #
  # Include the make variables (CC, etc...)
@@ -39,5 +39,5 @@ index ddaa477..59b3e71 100644
  CPP	= $(CC) -E
  AR	= $(CROSS_COMPILE)ar
 -- 
-1.7.5.4
+1.7.9.1
 
