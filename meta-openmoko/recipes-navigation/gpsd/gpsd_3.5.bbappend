@@ -4,6 +4,9 @@ EXTRA_DEPS_om-gta04 = "gta04-gps-handler"
 EXTRA_DEPS_om-gta02 = "omhacks"
 RDEPENDS_${PN} += "${EXTRA_DEPS}"
 
+PACKAGE_ARCH_om-gta04 = "${MACHINE_ARCH}"
+PACKAGE_ARCH_om-gta02 = "${MACHINE_ARCH}"
+
 SRC_URI_append_om-gta02 = " \
     file://device-hook \
 "
@@ -15,4 +18,4 @@ do_install_append() {
     fi
 }
 
-PRINC := "${@int(PRINC) + 4}"
+PRINC := "${@int(PRINC) + 5}"
