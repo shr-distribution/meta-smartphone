@@ -6,7 +6,7 @@ DEPENDS = "dbus-glib"
 SRCREV = "39e810899110a9bb302cf2064e1c0f73541fb4e6"
 PV = "0.8+gitr${SRCPV}"
 PE = "1"
-PR = "r6"
+PR = "r7"
 
 SRC_URI = "\
   ${FREESMARTPHONE_GIT}/fso-gpsd.git;protocol=git;branch=master \

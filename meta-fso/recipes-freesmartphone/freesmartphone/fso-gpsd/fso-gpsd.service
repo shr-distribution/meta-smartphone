@@ -3,7 +3,7 @@ Description=FSO daemon implementing GPSd on om-gta02
 After=dbus.socket
 
 [Service]
-ExecStart=/usr/sbin/fso-gpsd -- -S localhost:gpsd
+ExecStart=/usr/sbin/fso-gpsd -N -- -S localhost:gpsd
 
 [Install]
 WantedBy=basic.target
