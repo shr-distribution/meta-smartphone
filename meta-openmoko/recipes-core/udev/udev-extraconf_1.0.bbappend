@@ -1,6 +1,11 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
+PACKAGE_ARCH_om-gta02 = "${MACHINE_ARCH}"
 PACKAGE_ARCH_om-gta04 = "${MACHINE_ARCH}"
+
+SRC_URI_append_om-gta02 = " \
+    file://gps.rules \
+"
 
 SRC_URI_append_om-gta04 = " \
     file://charger.rules \
@@ -14,4 +19,10 @@ do_install_append() {
         install -m 0644 ${WORKDIR}/hso.rules         ${D}${sysconfdir}/udev/rules.d/hso.rules
         install -m 0644 ${WORKDIR}/input.rules       ${D}${sysconfdir}/udev/rules.d/input.rules
     fi
+
+    if [ "${MACHINE}" = "om-gta02" ]; then
+        install -m 0644 ${WORKDIR}/gps.rules ${D}${sysconfdir}/udev/rules.d/gps.rules
+    fi
 }
+
+PRINC := "${@int(PRINC) + 1}"
