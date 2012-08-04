@@ -2,6 +2,9 @@ require recipes-kernel/linux/linux.inc
 
 SECTION = "kernel"
 
+# Mark archs/machines that this kernel supports
+COMPATIBLE_MACHINE = "crespo"
+
 do_compile[depends] += "chroot-image:do_deploy"
 DEPENDS += "android-image-utils-native chroot-image"
 DESCRIPTION = "Linux kernel for the Samsung Crespo device based on the offical \
