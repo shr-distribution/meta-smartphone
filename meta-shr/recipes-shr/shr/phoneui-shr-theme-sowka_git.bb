@@ -16,7 +16,7 @@ SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http;branch=ma
 S = "${WORKDIR}/git/phoneui-shr/${PN}"
 
 do_compile() {
-        ${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/. -fd ${S}/. ${S}/sowka.edc -o ${S}/sowka.edj
+        ${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/images -fd ${S}/images ${S}/sowka.edc -o ${S}/sowka.edj
 }
 do_install() {
         install -d ${D}${datadir}/libphone-ui-shr/
