@@ -21,7 +21,6 @@ do_compile() {
 do_install() {
         install -d ${D}${datadir}/libphone-ui-shr/
         install -m 0644 ${S}/niebiee.edj ${D}${datadir}/libphone-ui-shr/
-        install -m 0644 ${S}/number-icon.png ${D}${datadir}/libphone-ui-shr/
         install -m 0644 ${S}/config ${D}${datadir}/libphone-ui-shr/
 }
 
