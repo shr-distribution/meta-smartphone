@@ -9,8 +9,8 @@ RDEPENDS_${PN} = "libphone-ui-shr"
 RSUGGESTS_${PN} = "elementary-theme-o2"
 SRCREV = "f8a79804e8e58631809765eb364a767e15dad5ec"
 PV = "0.1+gitr${SRCPV}"
-PR = "r2"
-inherit allarch
+PR = "r3"
+inherit allarch update-alternatives
 
 SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http;branch=master"
 
@@ -25,5 +25,8 @@ do_install() {
         install -m 0644 ${S}/config ${D}${datadir}/libphone-ui-shr/
 }
 
+ALTERNATIVE_${PN} = "libphone-ui-shr-config"
+ALTERNATIVE_LINK_NAME[libphone-ui-shr-config] = "${datadir}/libphone-ui-shr/config"
+ALTERNATIVE_PRIORITY[libphone-ui-shr-config] = "3"
+
 FILES_${PN} = "${datadir}/libphone-ui-shr/"
-CONFFILES_${PN} = "${datadir}/libphone-ui-shr/config"
