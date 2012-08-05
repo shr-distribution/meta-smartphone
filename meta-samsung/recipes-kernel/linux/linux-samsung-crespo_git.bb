@@ -5,7 +5,7 @@ SECTION = "kernel"
 # Mark archs/machines that this kernel supports
 COMPATIBLE_MACHINE = "crespo"
 
-do_compile[depends] += "chroot-image:do_build"
+do_deploy[depends] += "chroot-image:do_build"
 DEPENDS += "android-image-utils-native chroot-image"
 DESCRIPTION = "Linux kernel for the Samsung Crespo device based on the offical \
 source from Samsung"
