@@ -8,15 +8,15 @@ RDEPENDS_${PN} = "libphone-ui-shr"
 RSUGGESTS_${PN} = "elementary-theme-sowka"
 SRCREV = "f8a79804e8e58631809765eb364a767e15dad5ec"
 PV = "0.1+gitr${SRCPV}"
-PR = "r1"
-inherit allarch
+PR = "r2"
+inherit allarch update-alternatives
 
 SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http;branch=master"
 
 S = "${WORKDIR}/git/phoneui-shr/${PN}"
 
 do_compile() {
-        ${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/. -fd ${S}/. ${S}/sowka.edc -o ${S}/sowka.edj
+        ${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/images -fd ${S}/images ${S}/sowka.edc -o ${S}/sowka.edj
 }
 do_install() {
         install -d ${D}${datadir}/libphone-ui-shr/
@@ -24,5 +24,8 @@ do_install() {
         install -m 0644 ${S}/config ${D}${datadir}/libphone-ui-shr/
 }
 
+ALTERNATIVE_${PN} = "libphone-ui-shr-config"
+ALTERNATIVE_LINK_NAME[libphone-ui-shr-config] = "${datadir}/libphone-ui-shr/config"
+ALTERNATIVE_PRIORITY[libphone-ui-shr-config] = "1"
+
 FILES_${PN} = "${datadir}/libphone-ui-shr/"
-CONFFILES_${PN} = "${datadir}/libphone-ui-shr/config"

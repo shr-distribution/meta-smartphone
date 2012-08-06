@@ -9,7 +9,8 @@ IMAGE_FEATURES = ""
 IMAGE_ROOTFS_SIZE = "8192"
 export IMAGE_BASENAME = "chroot-image"
 IMAGE_LINGUAS = ""
-IMAGE_FSTYPES = "cpio.gz"
+# used only by linux-samsung-*:do_deploy and it doesn't work with anything else
+IMAGE_FSTYPES_forcevariable = "cpio.gz"
 
 LICENSE = "MIT"
 

@@ -1,5 +1,5 @@
 DESCRIPTION = "SHR Feed"
-PR = "r110"
+PR = "r112"
 PV = "1.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -159,6 +159,7 @@ MISSING = "\
 "
 
 RDEPENDS_${PN} += "\
+        anki \
         emacs \
         grep \
         xchat \
@@ -176,7 +177,6 @@ RDEPENDS_${PN} += "\
         podboy \
         orrery \
         gpm \
-        links \
         links-x11 \
         gnuplot \
         omgps \
