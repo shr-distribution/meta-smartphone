@@ -9,6 +9,7 @@ KV = "2.6.24"
 PE = "1"
 PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
+inherit machine_kernel_pr
 
 SRC_URI = " \
   git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=palmpre/master \

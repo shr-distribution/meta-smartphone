@@ -6,6 +6,9 @@ DEFAULT_PREFERENCE = "-1"
 DEFAULT_PREFERENCE_om-gta02 = "1"
 DEFAULT_PREFERENCE_om-gta01 = "1"
 
+# for bumping PR bump MACHINE_KERNEL_PR in the machine config
+inherit machine_kernel_pr
+
 SRC_URI = "${KERNELORG_MIRROR}/linux/kernel/v2.6/linux-${PV}.tar.bz2;name=kernel \
            ${KERNELORG_MIRROR}/linux/kernel/v2.6/patch-${PV}.4.bz2;apply=yes;name=stablepatch \
            file://defconfig "

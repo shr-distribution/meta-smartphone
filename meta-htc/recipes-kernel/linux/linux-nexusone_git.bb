@@ -3,6 +3,7 @@ DEPENDS += "android-image-utils-native"
 
 PV = "2.6.37+${PR}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
+inherit machine_kernel_pr
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=d7810fab7487fb0aad327b76f1be7cd7"
 

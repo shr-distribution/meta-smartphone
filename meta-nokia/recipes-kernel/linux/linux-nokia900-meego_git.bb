@@ -3,6 +3,7 @@ require recipes-kernel/linux/linux.inc
 KERNEL_RELEASE = "2.6.37"
 PV = "${KERNEL_RELEASE}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
+inherit machine_kernel_pr
 
 SRCREV = "78ffc81db8911acdabd026ad3fdefa20b4e34e52"
 
