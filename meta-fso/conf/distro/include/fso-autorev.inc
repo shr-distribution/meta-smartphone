@@ -3,8 +3,6 @@
 FSO_CORNUCOPIA_SRCREV = "${AUTOREV}"
 FSO_PYTHONHELPERS_SRCREV = "${AUTOREV}"
 
-SRCREV_pn-android-image-utils-native = "${AUTOREV}"
-SRCREV_pn-android-rpc = "${AUTOREV}"
 SRCREV_pn-cmtspeechtest = "${AUTOREV}"
 SRCREV_pn-dbus-hlid = "${AUTOREV}"
 SRCREV_pn-frameworkd = "${AUTOREV}"
