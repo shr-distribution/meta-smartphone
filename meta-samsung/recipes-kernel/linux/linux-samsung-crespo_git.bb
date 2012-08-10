@@ -22,6 +22,7 @@ SRCREV = "9be08d217cca084ba0c408a14031c40a55b7c682"
 KV = "3.0.31"
 PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
+inherit machine_kernel_pr
 
 # Workaround default -Werror setting and some warnings in kernel compilation
 TARGET_CC_KERNEL_ARCH += " -Wno-error=unused-but-set-variable -Wno-error=array-bounds"
