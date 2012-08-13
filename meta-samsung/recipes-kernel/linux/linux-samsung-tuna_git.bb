@@ -30,8 +30,8 @@ TARGET_CC_KERNEL_ARCH += " -Wno-error=unused-but-set-variable -Wno-error=array-b
 do_deploy_append() {
     mkbootimg --kernel ${S}/${KERNEL_OUTPUT} \
               --ramdisk ${DEPLOY_DIR_IMAGE}/chroot-image-tuna.cpio.gz \
-              --base 0x30000000 \
-              --pagesize 4096 \
+              --base 0x80000000 \
+              --pagesize 2048 \
               --output ${DEPLOY_DIR_IMAGE}/${KERNEL_IMAGE_BASE_NAME}.fastboot
 
     cd ${DEPLOYDIR}
