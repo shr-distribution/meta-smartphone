@@ -92,3 +92,6 @@ modprobe s3c2410_udc 2>/dev/null || true
 modprobe g_ether 2>/dev/null || true
 
 fi
+
+# power up interface
+ifup -f usb0
