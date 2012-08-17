@@ -28,7 +28,7 @@ do_configure_append() {
   kernel_conf_variable_fixup USB_G_ANDROID y
 }
 
-SRCREV = "aec2f3dea0df2985b824b165543437a98d202af0"
+SRCREV = "e2a62ab5031ea44dfd1997a4320b3697cab69882"
 
 KV = "3.0.38"
 PV = "${KV}+gitr${SRCPV}"
