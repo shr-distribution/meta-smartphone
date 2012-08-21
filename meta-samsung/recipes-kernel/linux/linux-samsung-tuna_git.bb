@@ -17,9 +17,20 @@ SRC_URI = " \
 
 S = "${WORKDIR}/git/"
 
-SRCREV = "0dceae86aba8e3ae8ef0fec329ad5353fa7a6d82"
+do_configure_append() {
+  kernel_conf_variable_fixup() {
+      sed -i "/CONFIG_$1[ =]/d" ${S}/.config
+      kernel_conf_variable $1 $2 ${S}/.config
+  }
 
-KV = "3.0.31"
+  # fixup some options which get changes from Y to M in oldconfig :/
+  kernel_conf_variable_fixup USB_MUSB_OMAP2PLUS y
+  kernel_conf_variable_fixup USB_G_ANDROID y
+}
+
+SRCREV = "e2a62ab5031ea44dfd1997a4320b3697cab69882"
+
+KV = "3.0.38"
 PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
@@ -27,11 +38,13 @@ inherit machine_kernel_pr
 # Workaround default -Werror setting and some warnings in kernel compilation
 TARGET_CC_KERNEL_ARCH += " -Wno-error=unused-but-set-variable -Wno-error=array-bounds"
 
+CMDLINE = "mem=1G vmalloc=768M omap_wdt.timer_margin=30 no_console_suspend=1 fbcon=rotate:1 panic=1"
+
 do_deploy_append() {
     mkbootimg --kernel ${S}/${KERNEL_OUTPUT} \
               --ramdisk ${DEPLOY_DIR_IMAGE}/chroot-image-tuna.cpio.gz \
-              --base 0x30000000 \
-              --pagesize 4096 \
+              --cmdline "${CMDLINE}" \
+              --base 0x80000000 \
               --output ${DEPLOY_DIR_IMAGE}/${KERNEL_IMAGE_BASE_NAME}.fastboot
 
     cd ${DEPLOYDIR}

@@ -6,10 +6,9 @@ inherit task
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-PR = "r8"
+PR = "r9"
 
 GPSD_PROVIDER = "gpsd-systemd"
-GPSD_PROVIDER_om-gta02 = "fso-gpsd-systemd"
 
 CALIBRATOR_PROVIDER = "xinput-calibrator-systemd"
 CALIBRATOR_PROVIDER_crespo = ""

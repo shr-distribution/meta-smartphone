@@ -27,4 +27,4 @@ do_install_append() {
     fi
 }
 
-PRINC := "${@int(PRINC) + 2}"
+PRINC := "${@int(PRINC) + 3}"

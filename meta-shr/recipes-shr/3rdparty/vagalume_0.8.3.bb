@@ -2,12 +2,12 @@ DESCRIPTION = "Last.fm client"
 AUTHOR = "agarcia@igalia.com"
 HOMEPAGE = "http://vagalume.igalia.com/"
 SECTION = "x11"
-DEPENDS = "gtk+ gstreamer curl gst-plugins-good gst-plugins-base ${@base_conditional('ENTERPRISE_DISTRO', '1', '', 'gst-plugins-ugly', d)}"
+DEPENDS = "gtk+ gstreamer curl gst-plugins-good gst-plugins-base ${@base_conditional('ENTERPRISE_DISTRO', '1', '', 'gst-plugins-ugly', d)} libnotify"
 RDEPENDS_${PN} = "curl gst-plugins-good-autodetect gst-plugins-base-audioconvert gst-plugins-base-alsa gst-plugins-good-gconfelements librsvg-gtk ${@base_conditional('ENTERPRISE_DISTRO', '1', '', 'gst-plugins-ugly-mad', d)}"
 RRECOMMENDS_${PN} = "dbus-x11 hicolor-icon-theme"
 LICENSE = "GPLv3"
 LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
-PR = "r2"
+PR = "r3"
 
 SRC_URI = "http://vagalume.igalia.com/files/source/vagalume_${PV}.orig.tar.gz\
            file://index.theme \

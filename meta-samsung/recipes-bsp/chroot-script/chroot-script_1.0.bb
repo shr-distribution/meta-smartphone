@@ -2,9 +2,10 @@ DESCRIPTION = "Simple init script to chroot into an exisiting rootfs somewhere w
 boot into directly"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
-PR = "r2"
+PR = "r3"
 
-inherit allarch
+COMPATIBLE_MACHINE = "(crespo|tuna)"
+PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 SRC_URI = "file://init.sh"
 
