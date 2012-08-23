@@ -1,8 +1,8 @@
 #!/bin/sh
 ### BEGIN INIT INFO
 # Provides: rndissetup
-# Required-Start:    mountkernfs
-# Required-Stop:     mountkernfs
+# Required-Start:    mountvirtfs
+# Required-Stop:
 # Default-Start:     S
 # Default-Stop:
 ### END INIT INFO
