@@ -13,6 +13,6 @@ SRC_URI = "http://downloads.freesmartphone.org/sources/${SRCNAME}/${SRCNAME}-${P
 
 S = "${WORKDIR}/${SRCNAME}-${PV}"
 
-inherit autotools pkgconfig
+inherit autotools pkgconfig pythonnative
 
 FILES_${PN}-dev += "${datadir}/freesmartphone/xml"
