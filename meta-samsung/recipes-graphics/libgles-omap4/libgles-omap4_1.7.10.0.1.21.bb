@@ -11,8 +11,8 @@ SRC_URI[sha256sum] = "c65b6af74d186bffedc9750c65db8f525df932e5df23836cf58cd4d02e
 COMPATIBLE_MACHINE = "tuna"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-PR = "r0"
-PROVIDES += "virtual/egl"
+PR = "r1"
+PROVIDES += "virtual/libgl virtual/libgles1 virtual/libgles2 virtual/egl"
 RDEPENDS = "libdrm"
 
 do_install() {
