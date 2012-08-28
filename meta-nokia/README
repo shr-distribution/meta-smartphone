@@ -1,7 +1,7 @@
 The OpenEmbedded BSP layer for nokia devices
 This layer depends on:
 
-URI: git://git.openembedded.org/openembedded-core-contrib
+URI: git://github.com/shr-distribution/oe-core.git
 layers: meta
 branch: shr
 

@@ -1,12 +1,12 @@
 The SHR OpenEmbedded layer
 This layer depends on:
 
-URI: git://git.openembedded.org/openembedded-core-contrib
+URI: git://github.com/shr-distribution/oe-core.git
 layers: meta
 branch: shr
 revision: HEAD
 
-URI: git://git.openembedded.org/meta-openembedded-contrib
+URI: git://github.com/shr-distribution/meta-oe.git
 layers: meta-oe, meta-efl, meta-gnome, meta-gpe, meta-systemd
 branch: shr
 revision: HEAD
