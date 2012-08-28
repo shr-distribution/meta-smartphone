@@ -2,9 +2,10 @@ The OpenEmbedded layer for android specific software.
 
 This layer depends on:
 
-URI: git://git.openembedded.org/openembedded-core
+URI: git://github.com/shr-distribution/oe-core.git
 layers: meta
-branch: master
+branch: shr
+revision: HEAD
 
 If you want to contribute changes, please follow
 http://www.shr-project.org/trac/wiki/Howto%20get%20my%20application%20in%20the%20SHR%20feed
