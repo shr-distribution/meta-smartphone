@@ -20,7 +20,7 @@ do_install_append() {
         fi
         if [ "${MACHINE}" = "crespo" ]; then
                 install -m 0755 ${WORKDIR}/disablefbcon.sh ${D}${bindir}
-                install -d ${D}${sysconfdir}
+                install -d ${D}${sysconfdir}/systemd
                 install -m 0655 ${WORKDIR}/logind.conf ${D}${sysconfdir}/systemd/
         fi
 }
