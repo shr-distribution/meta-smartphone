@@ -8,9 +8,9 @@ LIC_FILES_CHKSUM = " \
   file://COPYING;md5=2c195aa863d9e4c30a30752d48fe8f51 \
 "
 
-PR = "${INC_PR}.16"
+PR = "${INC_PR}.17"
 
-DEPENDS = "qt4-x11-free libfsoframework dconf-qt libfso-qt"
+DEPENDS = "qt4-x11-free libfsoframework dconf-qt libfso-qt libfakekey"
 RDEPENDS_${PN} = "qt4-plugin-imageformat-svg"
 
 PV = "0.1+gitr${SRCPV}"

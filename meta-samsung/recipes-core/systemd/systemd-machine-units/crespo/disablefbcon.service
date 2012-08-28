@@ -1,0 +1,8 @@
+[Unit]
+Description=Disable framebuffer console on android phones.
+Before=xserver-nodm.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+ExecStart=/usr/bin/disablefbcon.sh

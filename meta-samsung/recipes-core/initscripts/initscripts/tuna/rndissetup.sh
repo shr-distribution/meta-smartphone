@@ -27,3 +27,8 @@ echo "6863" > /sys/class/android_usb/android0/idProduct
 echo "rndis" > /sys/class/android_usb/android0/functions
 echo "224" > /sys/class/android_usb/android0/bDeviceClass
 echo "1" >  /sys/class/android_usb/android0/enable 1
+
+# wait a little bit until the configuration has accepted; in cases where we're using
+# upstart together with sysvinit scripts processing might be to fast and network
+# configuration can't be populated as interface is not available
+sleep 1
