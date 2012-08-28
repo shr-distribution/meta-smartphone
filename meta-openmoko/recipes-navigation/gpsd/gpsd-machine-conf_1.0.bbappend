@@ -1,6 +1,4 @@
-DESCRIPTION = "Machine specific gpsd config"
-LICENSE = "BSD"
-LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/BSD;md5=3775480a712fc46a69647678acb234cb"
+FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 EXTRA_DEPS = ""
 EXTRA_DEPS_om-gta04 = "gta04-gps-handler"
@@ -8,8 +6,6 @@ EXTRA_DEPS_om-gta02 = "omhacks"
 RDEPENDS_${PN} += "${EXTRA_DEPS}"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
-
-COMPATIBLE_MACHINE = "(om-gta02|om-gta04)"
 
 SRC_URI_om-gta04 = " \
     file://gpsd-machine \
@@ -21,7 +17,8 @@ SRC_URI_om-gta02 = " \
 
 inherit update-alternatives
 
-ALTERNATIVE_${PN} = "gspd-defaults"
+ALTERNATIVE_${PN}_om-gta02 = "gspd-defaults"
+ALTERNATIVE_${PN}_om-gta04 = "gspd-defaults"
 ALTERNATIVE_LINK_NAME[gspd-defaults] = "${sysconfdir}/default/gpsd"
 ALTERNATIVE_TARGET[gspd-defaults] = "${sysconfdir}/default/gpsd.machine"
 ALTERNATIVE_PRIORITY[gspd-defaults] = "15"
