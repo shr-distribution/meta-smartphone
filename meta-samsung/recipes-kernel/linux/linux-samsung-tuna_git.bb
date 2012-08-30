@@ -11,7 +11,7 @@ DESCRIPTION = "Linux kernel for the Samsung Tuna device based on the offical \
 source from Samsung"
 
 SRC_URI = " \
-  git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=samsung-tuna/master \
+  git://github.com/shr-distribution/linux.git;protocol=git;branch=tuna/3.0/master \
   file://defconfig \
 "
 
@@ -30,6 +30,7 @@ do_configure_append() {
 
 SRCREV = "86afcdcf49a62e438196c850aa1ced1d81725d78"
 
+PE = "2"
 KV = "3.0.38"
 PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config

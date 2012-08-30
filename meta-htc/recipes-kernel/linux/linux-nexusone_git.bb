@@ -1,6 +1,7 @@
 require recipes-kernel/linux/linux.inc
 DEPENDS += "android-image-utils-native"
 
+PE = "2"
 PV = "2.6.37+${PR}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
@@ -13,7 +14,7 @@ CMDLINE = "root=/dev/mmcblk0p1 rw rootwait noinitrd fbcon=rotate:1"
 SRCREV = "666efa5a22aed7bf001ea20822b0b63828df7859"
 
 SRC_URI = "\
-  git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=nexusone/master \
+  git://github.com/shr-distribution/linux.git;protocol=git;branch=nexusone/2.6.37/master \
   file://defconfig \
 "
 S = "${WORKDIR}/git"
