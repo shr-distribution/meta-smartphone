@@ -2,7 +2,7 @@ DESCRIPTION = "Firmware for various chips in the Samsung Tuna device"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
-PR = "r0"
+PR = "r1"
 
 COMPATIBLE_MACHINES = "tuna"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
@@ -23,6 +23,8 @@ pkg_postinst_${PN}() {
     for f in ${FIRMWARE_FILES}; do
       cp /tmp/android-rootfs/vendor/firmware/$f /lib/firmware
     done
+    # Wireless NVRAM data
+    cp /tmp/android-rootfs/etc/wifi/bcmdhd.cal /lib/firmware
     umount /tmp/android-rootfs
   else
     exit 1
