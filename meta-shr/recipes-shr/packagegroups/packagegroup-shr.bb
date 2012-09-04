@@ -4,7 +4,7 @@ PV = "2.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 
-inherit task allarch
+inherit packagegroup allarch
 
 PACKAGES = "\
   ${PN}-gtk \
@@ -22,15 +22,15 @@ RDEPENDS_${PN}-gtk = "\
 "
 
 RDEPENDS_${PN}-apps += "\
-  task-shr-minimal-apps \
+  packagegroup-shr-minimal-apps \
   opimd-utils-notes \
   eve \
   intone \
 "
 RDEPENDS_${PN}-cli += "\
-  task-shr-minimal-cli \
-  task-cli-tools-debug \
-  task-cli-tools \
+  packagegroup-shr-minimal-cli \
+  packagegroup-cli-tools-debug \
+  packagegroup-cli-tools \
   rsync \
   openssh-sftp-server \
 "

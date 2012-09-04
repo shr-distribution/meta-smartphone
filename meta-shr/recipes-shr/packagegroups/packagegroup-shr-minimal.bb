@@ -4,7 +4,7 @@ PV = "2.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 
-inherit task
+inherit packagegroup
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
@@ -20,8 +20,8 @@ PACKAGES += "\
 
 RDEPENDS_${PN}-base = "\
   ${MACHINE_TASK_PROVIDER} \
-  task-base \
-  task-boot \
+  packagegroup-base \
+  packagegroup-boot \
   glibc-utils \
   glibc-charmap-utf-8 \
   netbase \
@@ -34,7 +34,7 @@ RDEPENDS_${PN}-base = "\
   logrotate\
   util-linux-fdisk \
   shr-splash \
-  task-shr-systemd \
+  packagegroup-shr-systemd \
 "
 
 RDEPENDS_${PN}-cli = "\
@@ -57,8 +57,8 @@ RDEPENDS_${PN}-audio = "\
 "
 
 RDEPENDS_${PN}-x = "\
-  task-x11-illume \
-  task-fonts-truetype-core \
+  packagegroup-x11-illume \
+  packagegroup-fonts-truetype-core \
   shr-wizard \
   shr-theme-gry \
   xcursor-transparent-theme \
@@ -67,7 +67,7 @@ RDEPENDS_${PN}-x = "\
 "
 
 RDEPENDS_${PN}-apps = "\
-  task-fso2-compliance \
+  packagegroup-fso2-compliance \
   phoneui-apps-messages \
   phoneui-apps-contacts \
   phoneui-apps-dialer \
