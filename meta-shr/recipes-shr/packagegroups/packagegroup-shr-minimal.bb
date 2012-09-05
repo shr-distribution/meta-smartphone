@@ -82,7 +82,7 @@ RDEPENDS_${PN}-audio = "\
 "
 
 RDEPENDS_${PN}-x = "\
-  packagegroup-x11-illume \
+  task-x11-illume \
   packagegroup-fonts-truetype-core \
   shr-wizard \
   shr-theme-gry \
