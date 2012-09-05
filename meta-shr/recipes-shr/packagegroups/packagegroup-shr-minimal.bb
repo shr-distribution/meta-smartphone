@@ -1,5 +1,5 @@
 DESCRIPTION = "SHR Lite Image Feed"
-PR = "r55"
+PR = "r56"
 PV = "2.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -82,7 +82,7 @@ RDEPENDS_${PN}-audio = "\
 "
 
 RDEPENDS_${PN}-x = "\
-  task-x11-illume \
+  packagegroup-x11-illume \
   packagegroup-fonts-truetype-core \
   shr-wizard \
   shr-theme-gry \
