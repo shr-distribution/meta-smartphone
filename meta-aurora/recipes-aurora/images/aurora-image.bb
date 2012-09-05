@@ -34,7 +34,7 @@ IMAGE_INSTALL += " \
   aurora-daemon \
   aurora-systemmanager \
   \
-  packagegroup-core-x11-server \
+  packagegroup-core-x11-xserver \
   packagegroup-core-x11-utils \
   ${XSERVER} \
   packagegroup-fonts-truetype-core \
