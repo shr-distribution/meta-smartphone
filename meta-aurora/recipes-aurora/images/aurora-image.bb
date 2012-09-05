@@ -3,7 +3,7 @@
 #------------------------------------------------------
 
 PV = "1.0"
-PR = "r6"
+PR = "r7"
 
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -34,8 +34,8 @@ IMAGE_INSTALL += " \
   aurora-daemon \
   aurora-systemmanager \
   \
-  packagegroup-x11-server \
-  packagegroup-x11-utils \
+  packagegroup-core-x11-server \
+  packagegroup-core-x11-utils \
   ${XSERVER} \
   packagegroup-fonts-truetype-core \
   xcursor-transparent-theme \
