@@ -3,6 +3,7 @@ DEPENDS += "android-image-utils-native"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=d7810fab7487fb0aad327b76f1be7cd7"
 
+PE = "2"
 PV = "2.6.32+${PR}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
@@ -13,7 +14,7 @@ CMDLINE = "console=tty1 root=/dev/mmcblk0p1 rootdelay=8 fbcon=rotate:1 panic=30 
 SRCREV = "bf7221ba95f418269dd573c9ff3e7f00452221a1"
 
 SRC_URI = "\
-  git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=htcdream/master \
+  git://github.com/shr-distribution/linux.git;protocol=git;branch=htcdream/2.6.32/master \
   file://defconfig \
 "
 S = "${WORKDIR}/git"

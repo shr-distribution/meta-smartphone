@@ -1,16 +1,16 @@
 require shr-image.inc
 
-DEPENDS += "task-shr "
+DEPENDS += "packagegroup-shr "
 RDEPENDS_${PN} += "\
-    task-shr-apps \
-    task-shr-games \
-    task-shr-gtk \
-    task-shr-cli \
+    packagegroup-shr-apps \
+    packagegroup-shr-games \
+    packagegroup-shr-gtk \
+    packagegroup-shr-cli \
 "
 
 IMAGE_INSTALL += "\
-  task-shr-apps \
-  task-shr-games \
-  task-shr-gtk \
-  task-shr-cli \
+  packagegroup-shr-apps \
+  packagegroup-shr-games \
+  packagegroup-shr-gtk \
+  packagegroup-shr-cli \
 "

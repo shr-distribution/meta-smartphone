@@ -11,7 +11,7 @@ DESCRIPTION = "Linux kernel for the Samsung Crespo device based on the offical \
 source from Samsung"
 
 SRC_URI = " \
-  git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=samsung-crespo/master \
+  git://github.com/shr-distribution/linux.git;protocol=git;branch=crespo/3.0/master \
   file://defconfig \
 "
 
@@ -19,6 +19,7 @@ S = "${WORKDIR}/git/"
 
 SRCREV = "9be08d217cca084ba0c408a14031c40a55b7c682"
 
+PE = "2"
 KV = "3.0.31"
 PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config

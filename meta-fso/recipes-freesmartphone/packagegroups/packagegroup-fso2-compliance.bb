@@ -4,9 +4,13 @@ SECTION = "fso/base"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 PV = "1.9.0"
-PR = "r19"
+PR = "r20"
 
-inherit task allarch
+inherit packagegroup allarch
+
+RPROVIDES_${PN} += "task-fso2-compliance"
+RREPLACES_${PN} += "task-fso2-compliance"
+RCONFLICTS_${PN} += "task-fso2-compliance"
 
 RDEPENDS_${PN} = "\
   fsoaudiod-config \

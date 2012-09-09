@@ -8,9 +8,9 @@ PR = "r20"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 
-DEPENDS += "task-shr-minimal"
+DEPENDS += "packagegroup-shr-minimal"
 
-# NOTE: we expect task-shr-systemd to pull in openssh-sshd-systemd 
+# NOTE: we expect packagegroup-shr-systemd to pull in openssh-sshd-systemd 
 # here as that is not (yet hopefully) done via IMAGE_FEATURES
 IMAGE_FEATURES += "debug-tweaks package-management ssh-server-openssh"
 
@@ -24,23 +24,23 @@ SPLASH ?= ""
 IMAGE_LINGUAS ?= "en-us"
 
 RDEPENDS_${PN} += "\
-  task-shr-minimal-base \
-  task-shr-minimal-cli \
-  task-shr-minimal-fso \
-  task-shr-minimal-apps \
-  task-shr-minimal-audio \
-  task-shr-minimal-gtk \
-  task-shr-minimal-x \
+  packagegroup-shr-minimal-base \
+  packagegroup-shr-minimal-cli \
+  packagegroup-shr-minimal-fso \
+  packagegroup-shr-minimal-apps \
+  packagegroup-shr-minimal-audio \
+  packagegroup-shr-minimal-gtk \
+  packagegroup-shr-minimal-x \
 "
 
 IMAGE_INSTALL += "\
-  task-shr-minimal-base \
-  task-shr-minimal-cli \
-  task-shr-minimal-fso \
-  task-shr-minimal-apps \
-  task-shr-minimal-audio \
-  task-shr-minimal-gtk \
-  task-shr-minimal-x \
+  packagegroup-shr-minimal-base \
+  packagegroup-shr-minimal-cli \
+  packagegroup-shr-minimal-fso \
+  packagegroup-shr-minimal-apps \
+  packagegroup-shr-minimal-audio \
+  packagegroup-shr-minimal-gtk \
+  packagegroup-shr-minimal-x \
 "
 
 

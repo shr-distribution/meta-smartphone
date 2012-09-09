@@ -3,7 +3,7 @@
 #------------------------------------------------------
 
 PV = "1.0"
-PR = "r6"
+PR = "r7"
 
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -20,24 +20,24 @@ SPLASH ?= ""
 
 RDEPENDS_${PN} += " \
   opkg \
-  task-fso2-compliance \
+  packagegroup-fso2-compliance \
 "
 
 TOUCH = ' ${@base_contains("MACHINE_FEATURES", "touchscreen", "tslib tslib-calibrate tslib-tests", "",d)}'
 
 # FIXME: We need to separate the things below into a task later
 IMAGE_INSTALL += " \
-  task-core-boot \
+  packagegroup-core-boot \
   \
   opkg \
-  task-fso2-compliance \
+  packagegroup-fso2-compliance \
   aurora-daemon \
   aurora-systemmanager \
   \
-  task-x11-server \
-  task-x11-utils \
+  packagegroup-core-x11-xserver \
+  packagegroup-core-x11-utils \
   ${XSERVER} \
-  task-fonts-truetype-core \
+  packagegroup-fonts-truetype-core \
   xcursor-transparent-theme \
   xinput-calibrator \
   libx11-locale \
@@ -48,7 +48,7 @@ IMAGE_INSTALL += " \
   alsa-utils-amixer \
 "
 
-# We're including fsoaudiod here as it is removed from task-fso2-compliance until SHR
+# We're including fsoaudiod here as it is removed from packagegroup-fso2-compliance until SHR
 # 2012.01 is released.
 IMAGE_INSTALL += " fsoaudiod"
 

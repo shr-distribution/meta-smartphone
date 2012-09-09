@@ -1,5 +1,6 @@
 require recipes-kernel/linux/linux.inc
 
+PE = "2"
 KERNEL_RELEASE = "2.6.37"
 PV = "${KERNEL_RELEASE}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
@@ -8,7 +9,7 @@ inherit machine_kernel_pr
 SRCREV = "e465ff7527fb085b4854b0e68aa6bc592229bf43"
 
 SRC_URI = "\
-  git://git.freesmartphone.org/linux-2.6.git;protocol=git;branch=nokia900/kernel-adaptation-n900-2.6.37-57.1 \
+  git://github.com/shr-distribution/linux.git;protocol=git;branch=nokia900/2.6.37/57.1 \
   file://defconfig \
 "
 S = "${WORKDIR}/git"

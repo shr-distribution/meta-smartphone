@@ -20,13 +20,13 @@ SPLASH ?= ""
 
 RDEPENDS_${PN} += " \
   opkg \
-  task-fso2-compliance \
+  packagegroup-fso2-compliance \
 "
 
 IMAGE_INSTALL += "\
-  task-core-boot \
+  packagegroup-core-boot \
   opkg \
-  task-fso2-compliance \
+  packagegroup-fso2-compliance \
   mdbus2 \
   serial-forward \
 "

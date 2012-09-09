@@ -15,7 +15,7 @@ inherit machine_kernel_pr
 SRCREV = "7089727d63b17615fb0a652374d79cb7df0835ad"
 
 SRC_URI = "\
-  git://gitorious.org/shr/linux.git;protocol=git;branch=shr-master \
+  git://github.com/shr-distribution/linux.git;protocol=git;branch=om-gta02/master/master \
   file://defconfig \
 "
 S = "${WORKDIR}/git"
