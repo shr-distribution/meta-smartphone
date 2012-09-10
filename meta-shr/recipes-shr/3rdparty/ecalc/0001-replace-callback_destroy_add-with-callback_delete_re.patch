@@ -1,0 +1,29 @@
+From 1d1ac7e696ddd2e0a1b0072b0c3d9491dba57672 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Tue, 11 Sep 2012 00:44:14 +0200
+Subject: [PATCH] replace callback_destroy_add with
+ callback_delete_request_add
+
+* changed in r71083
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ ecalc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ecalc b/ecalc
+index 050f167..8f6b825 100755
+--- a/ecalc
++++ b/ecalc
+@@ -92,7 +92,7 @@ class MainGUI_E:
+     self.win.title_set("Calculator")
+     self.win.size_hint_align_set(-1.0, -1.0)
+     self.win.size_hint_weight_set(0.0, 0.0)
+-    self.win.callback_destroy_add(self.quit)
++    self.win.callback_delete_request_add(self.quit)
+ 
+     # add background
+     bg = e.Background(self.win)
+-- 
+1.7.12
+
