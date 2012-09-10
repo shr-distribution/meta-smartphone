@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = "file://setup.py;beginline=21;endline=21;md5=7fdad70bdcd4f6b5
 "
 RDEPENDS_${PN} = "python-elementary python-dbus python-codecs python-shell python python-core python-edbus frameworkd"
 SECTION = "x11/application"
-SRCREV = "91757286c29e9cb3f674fbd5fa9b76bbe437c5c3"
+SRCREV = "c77597eb72474c41359195a3f17f73a63fb13ea0"
 PV = "0.0.3+gitr${SRCPV}"
 PE = "1"
 
