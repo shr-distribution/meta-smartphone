@@ -7,6 +7,7 @@ RDEPENDS_${PN} = "python-elementary python python-edbus"
 SECTION = "x11/application"
 RPROVIDES_${PN} = "calc"
 
+PV = "0.0.4+gitr${SRCPV}"
 SRCREV = "7ac9b7638b5e55171f270d5bd4d826db77a7720f"
 SRC_URI = "git://github.com/spaetz/calc.git;protocol=http;branch=master \
 "
