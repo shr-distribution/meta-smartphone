@@ -10,7 +10,7 @@ SRC_URI = " \
   file://samsung-modem-mgr.init"
 S = "${WORKDIR}/git"
 
-SRCREV = "307d749937a2a408f43e53720e2f3fda0b48fb15"
+SRCREV = "4cf06005d676855285c88774b4ce96ed22abac0d"
 
 inherit autotools update-rc.d
 
