@@ -1,4 +1,5 @@
 require qi_git.bb
+
 RDEPENDS_${PN} = "bootchart"
 
 do_configure_prepend() {
