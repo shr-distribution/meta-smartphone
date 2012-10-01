@@ -10,13 +10,14 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 # NOTE: This needs to be a build time dependency as libhybris provides the so and header
 # files to build against.
 DEPENDS = "libhybris"
-PR = "r2"
+PR = "r3"
 PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/egl"
 
 SRC_URI = " \
   http://oss.reflected.net/jenkins/9090/cm-10-20120930-NIGHTLY-maguro.zip;name=cm \
   https://dl.google.com/dl/android/aosp/imgtec-maguro-jro03r-c7f638f1.tgz;name=imgtec \
-  git://github.com/webOS-ports/android-binaries.git;protocol=git;tag=4.1.1_r6"
+  git://github.com/webOS-ports/android-binaries.git;protocol=git;tag=4.1.1_r6 \
+  file://pvrinit.sh"
 S = "${WORKDIR}"
 
 SRC_URI[cm.md5sum] = "df73b7121a958f60fad74ed257eb4a83"
@@ -60,7 +61,12 @@ do_install() {
     for f in libglslcompiler.so libIMGegl.so libpvr2d.so libpvrANDROID_WSEGL.so libPVRScopeServices.so libsrv_init.so libsrv_um.so libusc.so; do
         cp ${WORKDIR}/vendor/imgtec/maguro/proprietary/$f ${D}/system/lib/
     done
+
+    install -d ${D}${sysconfdir}/init.d
+    install -d ${D}${sysconfdir}/rcS.d
+    install -m 0755 ${WORKDIR}/pvrinit.sh ${D}${sysconfdir}/init.d
+    ln -sf ../init.d/pvrinit.sh ${D}${sysconfdir}/rcS.d/S60pvrinit.sh
 }
 
 PACKAGES = "${PN}"
-FILES_${PN} = "/system"
+FILES_${PN} = "/system ${sysconfdir}"
