@@ -9,8 +9,8 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 # NOTE: This needs to be a build time dependency as libhybris provides the so and header
 # files to build against.
-DEPENDS_${PN} = "libhybris"
-PR = "r0"
+DEPENDS = "libhybris"
+PR = "r1"
 PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/egl"
 
 SRC_URI = " \
