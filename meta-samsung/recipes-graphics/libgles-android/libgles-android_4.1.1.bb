@@ -10,7 +10,7 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 # NOTE: This needs to be a build time dependency as libhybris provides the so and header
 # files to build against.
 DEPENDS = "libhybris"
-PR = "r1"
+PR = "r2"
 PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/egl"
 
 SRC_URI = " \
@@ -32,29 +32,33 @@ do_compile() {
 do_install() {
     install -d ${D}/system/lib
     install -d ${D}/system/lib/hw
+    install -d ${D}/system/lib/egl
     install -d ${D}/system/bin
 
     cp ${WORKDIR}/git/binaries/libc.so ${D}/system/lib/
+
+    cp ${WORKDIR}/system/build.prop ${D}/system/
+    install -m 0755 ${WORKDIR}/system/bin/linker ${D}/system/bin/
 
     for lib in libcorkscrew.so libcrypto.so libcutils.so libgccdemangle.so libhardware.so liblog.so libm.so libstdc++.so libstlport.so libui.so libutils.so libz.so libEGL.so libGLESv2.so libGLES_trace.so libGLESv1_CM.so ; do
         cp ${WORKDIR}/system/lib/$lib ${D}/system/lib/
     done
 
-    cp -r ${WORKDIR}/system/lib/egl ${D}/system/lib/
-    cp ${WORKDIR}/system/lib/hw/gralloc.default.so ${D}/system/lib/hw/
+    cp -r ${WORKDIR}/system/lib/egl/* ${D}/system/lib/egl/
 
     install -d ${D}/system/vendor/lib
-    install -d ${D}/system/vendor/lib/hw
     install -d ${D}/system/vendor/lib/egl
 
-    cp ${WORKDIR}/vendor/imgtec/maguro/proprietary/pvrsrvctl ${D}/system/bin
-    cp ${WORKDIR}/vendor/imgtec/maguro/proprietary/libEGL_POWERVR_SGX540_120.so ${D}/system/vendor/lib/egl/
-    cp ${WORKDIR}/vendor/imgtec/maguro/proprietary/libGLESv1_CM_POWERVR_SGX540_120.so ${D}/system/vendor/lib/egl/
-    cp ${WORKDIR}/vendor/imgtec/maguro/proprietary/libGLESv2_POWERVR_SGX540_120.so ${D}/system/vendor/lib/egl/
-    cp ${WORKDIR}/vendor/imgtec/maguro/proprietary/gralloc.omap4.so ${D}/system/vendor/lib/hw/
+    install -m 0755 ${WORKDIR}/vendor/imgtec/maguro/proprietary/pvrsrvctl ${D}/system/bin
+    cp ${WORKDIR}/vendor/imgtec/maguro/proprietary/gralloc.omap4.so ${D}/system/lib/hw/
+
+    for f in libEGL_POWERVR_SGX540_120.so libGLESv1_CM_POWERVR_SGX540_120.so libGLESv2_POWERVR_SGX540_120.so ; do
+        cp ${WORKDIR}/vendor/imgtec/maguro/proprietary/$f ${D}/system/vendor/lib/egl/
+        cp ${WORKDIR}/vendor/imgtec/maguro/proprietary/$f ${D}/system/lib/egl/
+    done
 
     for f in libglslcompiler.so libIMGegl.so libpvr2d.so libpvrANDROID_WSEGL.so libPVRScopeServices.so libsrv_init.so libsrv_um.so libusc.so; do
-        cp ${WORKDIR}/vendor/imgtec/maguro/proprietary/$f ${D}/system/vendor/lib/
+        cp ${WORKDIR}/vendor/imgtec/maguro/proprietary/$f ${D}/system/lib/
     done
 }
 
