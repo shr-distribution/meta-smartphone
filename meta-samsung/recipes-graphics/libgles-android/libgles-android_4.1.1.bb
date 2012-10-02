@@ -7,8 +7,11 @@ LIC_FILES_CHKSUM = " \
 COMPATIBLE_MACHINE = "tuna"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-PR = "r3"
+PR = "r4"
 PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/egl"
+
+RREPLACES_${PN} = "libhybris"
+RREPLACES_${PN}-dev = "libhybris-dev"
 
 SRC_URI = " \
   http://oss.reflected.net/jenkins/9090/cm-10-20120930-NIGHTLY-maguro.zip;name=cm \
