@@ -5,6 +5,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=4fbd65380cdd255951079008b364516c"
 SECTION = "libs"
 SRCREV = "c806456494b4e4bd63ad295080a7de5e9ba52c35"
 PV = "0.0.1+gitr${SRCPV}"
+PR = "r1"
 
 DEPENDS="glib-2.0 libshr-glib libfso-glib libfsoframework libphone-utils alsa-lib"
 

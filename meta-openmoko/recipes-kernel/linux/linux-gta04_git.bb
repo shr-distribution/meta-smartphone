@@ -7,7 +7,7 @@ PE = "4"
 inherit machine_kernel_pr
 
 SRCREV_kernel = "37b0bacc00e81811dc113265a9ef826fe9aab788"
-SRCREV_init = "47dd9fd631f1908f3fcbabaf8fd48ba1503c2ea2"
+SRCREV_init = "1d32eb87b4d520aec9150811b5b4b24e969d3e16"
 SRCREV_FORMAT = "kernel_init"
 
 SRC_URI = "\

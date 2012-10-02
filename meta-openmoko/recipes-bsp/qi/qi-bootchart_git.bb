@@ -1,4 +1,5 @@
-require qi_git.bb
+require qi.inc
+
 RDEPENDS_${PN} = "bootchart"
 
 do_configure_prepend() {
@@ -7,5 +8,6 @@ do_configure_prepend() {
 }
 
 SRC_URI_append = "\
+  file://0003-Revert-gta02-gta01-change-kernel-parameters-to-boot-.patch \
   file://0007-use-bootchart-as-init.patch \
 "

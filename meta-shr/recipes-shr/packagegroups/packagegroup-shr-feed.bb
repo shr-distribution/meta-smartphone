@@ -1,5 +1,5 @@
 DESCRIPTION = "SHR Feed"
-PR = "r113"
+PR = "r114"
 PV = "1.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -13,7 +13,6 @@ RREPLACES_${PN} += "task-shr-feed"
 RCONFLICTS_${PN} += "task-shr-feed"
 
 MISSING = "\
-        bootchart-lite \
         di \
         dictator \
         dosbox \
@@ -153,16 +152,15 @@ MISSING = "\
         gpe-timesheet \
         gpe-contacts \
         shr-theme-neo \
-        jefliks \
-        evopedia \
         intone-video \
         mupdf \
         omnewrotate \
-        vagalume \
-        elmdentica \
 "
 
 RDEPENDS_${PN} += "\
+        vagalume \
+        elmdentica \
+        bootchart \
         anki \
         emacs \
         grep \
