@@ -12,4 +12,4 @@ do_rm_old_works() {
     fi
 }
 
-addtask rm_old_works before do_unpack
+addtask rm_old_works before do_configure
