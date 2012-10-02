@@ -7,18 +7,18 @@ LIC_FILES_CHKSUM = " \
 COMPATIBLE_MACHINE = "tuna"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-# NOTE: This needs to be a build time dependency as libhybris provides the so and header
-# files to build against.
-DEPENDS = "libhybris"
 PR = "r3"
 PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/egl"
 
 SRC_URI = " \
   http://oss.reflected.net/jenkins/9090/cm-10-20120930-NIGHTLY-maguro.zip;name=cm \
   https://dl.google.com/dl/android/aosp/imgtec-maguro-jro03r-c7f638f1.tgz;name=imgtec \
-  git://github.com/webOS-ports/android-binaries.git;protocol=git;tag=4.1.1_r6 \
+  git://github.com/webOS-ports/android-binaries.git;protocol=git;tag=4.1.1_r6;destsuffix=android-binaries \
+  git://github.com/morphis/libhybris;branch=master;protocol=git;branch=master;destsuffix=libhybris;name=libhybris \
   file://pvrinit.sh"
 S = "${WORKDIR}"
+
+SRCREV_libhybris = "fd3797991ff4dba37b530269c5524c013a6fbaf5"
 
 SRC_URI[cm.md5sum] = "df73b7121a958f60fad74ed257eb4a83"
 SRC_URI[cm.sha256sum] = "8d651f3d5408cb52954413db56355384e86816b75508593c940b668636ff1171"
@@ -28,15 +28,32 @@ SRC_URI[imgtec.sha256sum] = "3dc31ab2bd34e090d3b2244a67f9199760426ac7e354062d7c2
 
 do_compile() {
     tail -n +269 extract-imgtec-maguro.sh | tar zxv
+
+    cd ${WORKDIR}/libhybris
+    export PARALLEL_MAKE=""
+    oe_runmake ARCH=arm
 }
 
 do_install() {
+    install -d ${D}${bindir}
+    install -m 0755 ${WORKDIR}/libhybris/test_egl ${D}${bindir}
+    install -m 0755 ${WORKDIR}/libhybris/test_glesv2 ${D}${bindir}
+    install -m 0755 ${WORKDIR}/libhybris/test_gingerbread ${D}${bindir}
+
+    install -d ${D}${libdir}
+    oe_libinstall -C ${WORKDIR}/libhybris -so libEGL ${D}${libdir}
+    oe_libinstall -C ${WORKDIR}/libhybris -so libGLESv2 ${D}${libdir}
+    oe_libinstall -C ${WORKDIR}/libhybris -so libhybris_gingerbread ${D}${libdir}
+
+    install -d ${D}${includedir}
+    cp -ra ${WORKDIR}/libhybris/include/* ${D}${includedir}/
+
     install -d ${D}/system/lib
     install -d ${D}/system/lib/hw
     install -d ${D}/system/lib/egl
     install -d ${D}/system/bin
 
-    cp ${WORKDIR}/git/binaries/libc.so ${D}/system/lib/
+    cp ${WORKDIR}/android-binaries/binaries/libc.so ${D}/system/lib/
 
     cp ${WORKDIR}/system/build.prop ${D}/system/
     install -m 0755 ${WORKDIR}/system/bin/linker ${D}/system/bin/
@@ -68,5 +85,4 @@ do_install() {
     ln -sf ../init.d/pvrinit.sh ${D}${sysconfdir}/rcS.d/S60pvrinit.sh
 }
 
-PACKAGES = "${PN}"
-FILES_${PN} = "/system ${sysconfdir}"
+FILES_${PN} += "/system"
