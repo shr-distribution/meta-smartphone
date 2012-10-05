@@ -7,7 +7,7 @@ LIC_FILES_CHKSUM = " \
 COMPATIBLE_MACHINE = "tuna"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-PR = "r4"
+PR = "r5"
 PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/egl"
 
 RREPLACES_${PN} = "libhybris"
@@ -21,7 +21,7 @@ SRC_URI = " \
   file://pvrinit.sh"
 S = "${WORKDIR}"
 
-SRCREV_libhybris = "fd3797991ff4dba37b530269c5524c013a6fbaf5"
+SRCREV_libhybris = "a5c99f375bd9c10674b897efe2fabeded199a376"
 
 SRC_URI[cm.md5sum] = "df73b7121a958f60fad74ed257eb4a83"
 SRC_URI[cm.sha256sum] = "8d651f3d5408cb52954413db56355384e86816b75508593c940b668636ff1171"
