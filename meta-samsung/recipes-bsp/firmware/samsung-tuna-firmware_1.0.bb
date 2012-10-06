@@ -2,7 +2,7 @@ DESCRIPTION = "Firmware for various chips in the Samsung Tuna device"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302"
 
-PR = "r1"
+PR = "r2"
 
 COMPATIBLE_MACHINES = "tuna"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
@@ -12,7 +12,7 @@ ALLOW_EMPTY_${PN} = "1"
 FILES_${PN} = "/lib/firmware"
 
 FIRMWARE_FILES = "bcm4330.hcd fw_bcmdhd.bin fw_bcmdhd_p2p.bin mms144_ts_rev32.fw ducati-m3.bin"
-FIRMWARE_FILES += "fw_bcmdhd_apsta.bin hdcp.keys mms144_ts_rev31.fw smc_pa_wvdrm.ift"
+FIRMWARE_FILES += "fw_bcmdhd_apsta.bin hdcp.keys mms144_ts_rev31.fw"
 
 pkg_postinst_${PN}() {
   #!/bin/sh -e

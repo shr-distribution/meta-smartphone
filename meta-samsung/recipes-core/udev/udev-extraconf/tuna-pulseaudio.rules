@@ -1,0 +1,2 @@
+# Ignore HDMI audio device as it causes kernel to segfault
+SUBSYSTEMS=="platform", DRIVERS=="omap4-hdmi-audio", ENV{PULSE_IGNORE}="1"
