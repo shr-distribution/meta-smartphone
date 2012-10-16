@@ -28,10 +28,10 @@ do_configure_append() {
   kernel_conf_variable_fixup USB_G_ANDROID y
 }
 
-SRCREV = "86afcdcf49a62e438196c850aa1ced1d81725d78"
+SRCREV = "bba553ddb643dd9b51f7c7842fc3ae1f1ccc5c16"
 
 PE = "2"
-KV = "3.0.38"
+KV = "3.0.46"
 PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
