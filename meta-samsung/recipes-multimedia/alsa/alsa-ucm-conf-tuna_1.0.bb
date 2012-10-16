@@ -6,7 +6,7 @@ PR = "r0"
 COMPATIBLE_MACHINE = "tuna"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-SRC_URI = "git://git@github.com/openwebos-ports/alsa-ucm-conf.git;branch=master;protocol=ssh"
+SRC_URI = "git://github.com/morphis/alsa-ucm-conf.git;branch=master;protocol=git"
 S = "${WORKDIR}/git"
 SRCREV = "9c188f0f423f95f8dbba7f662b659ef1b7bf65ff"
 
