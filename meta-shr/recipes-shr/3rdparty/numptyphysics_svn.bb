@@ -8,7 +8,7 @@ HOMEPAGE = "http://numptyphysics.garage.maemo.org/"
 SECTION = "x11/games"
 SRCREV = "109"
 PV = "0.2+svnr${SRCPV}"
-PR = "r5"
+PR = "r6"
 
 inherit autotools
 
@@ -29,8 +29,8 @@ S = "${WORKDIR}/trunk"
 EXTRA_S = "${WORKDIR}/local/packages/numptyphysics"
 
 do_configure_append() {
-  mv ../next.png data
-  mv ../keyb.png data
+  cp -a ../next.png data
+  cp -a ../keyb.png data
 }
 
 do_install_append() {
