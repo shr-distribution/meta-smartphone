@@ -3,12 +3,12 @@ This layer depends on:
 
 URI: git://github.com/shr-distribution/oe-core.git
 layers: meta
-branch: shr
+branch: danny
 revision: HEAD
 
 URI: git://github.com/shr-distribution/meta-oe.git
 layers: meta-oe, meta-systemd
-branch: shr
+branch: danny
 revision: HEAD
 
 If you want to contribute changes to metadata, please follow

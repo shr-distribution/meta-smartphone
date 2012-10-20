@@ -3,22 +3,22 @@ This layer depends on:
 
 URI: git://github.com/shr-distribution/oe-core.git
 layers: meta
-branch: shr
+branch: danny
 revision: HEAD
 
 URI: git://github.com/shr-distribution/meta-oe.git
 layers: meta-oe
-branch: shr
+branch: danny
 revision: HEAD
 
 URI: http://git.shr-project.org/repo/meta-smartphone.git
 layers: meta-fso
-branch: master
+branch: danny
 revision: HEAD
 
 URI: http://git.shr-project.org/repo/meta-smartphone.git
 layers: meta-shr
-branch: master
+branch: danny
 revision: HEAD
 
 If you want to contribute changes, please follow

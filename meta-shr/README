@@ -3,17 +3,17 @@ This layer depends on:
 
 URI: git://github.com/shr-distribution/oe-core.git
 layers: meta
-branch: shr
+branch: danny
 revision: HEAD
 
 URI: git://github.com/shr-distribution/meta-oe.git
 layers: meta-oe, meta-efl, meta-gnome, meta-gpe, meta-systemd
-branch: shr
+branch: danny
 revision: HEAD
 
 URI: http://git.shr-project.org/repo/meta-smartphone.git
 layers: meta-fso, meta-aurora
-branch: master
+branch: danny
 revision: HEAD
 
 It is recommended to follow the instruction at 
