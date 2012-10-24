@@ -9,8 +9,12 @@ DEPENDS = "python-native edje-native ${@base_conditional('ENTERPRISE_DISTRO', '1
 
 SRCREV = "218"
 PV = "1.7.4+svnr${SRCPV}"
+PR = "r1"
 
-SRC_URI = "svn://podboy.googlecode.com/svn;module=trunk;protocol=http"
+SRC_URI = "svn://podboy.googlecode.com/svn;module=trunk;protocol=http \
+  file://api_changes.patch \
+  file://audio_looping.patch \
+"
 S = "${WORKDIR}/trunk"
 
 inherit distutils
