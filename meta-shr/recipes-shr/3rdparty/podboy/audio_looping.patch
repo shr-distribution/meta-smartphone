@@ -1,0 +1,14 @@
+Index: podboy/gui.py
+===================================================================
+--- podboy/gui.py	(revision 221)
++++ podboy/gui.py	(working copy)
+@@ -1430,6 +1430,9 @@
+ 
+         slider_position = self.slider_position.value
+ 
++        if slider_position - self.last_pos  < 1.0 and self.last_pos - slider_position  < 1.0:
++            self.slider_position_timer_lock = False
++            return
+         try:
+             self.gst.seek(slider_position)
+         except Exception, e:
