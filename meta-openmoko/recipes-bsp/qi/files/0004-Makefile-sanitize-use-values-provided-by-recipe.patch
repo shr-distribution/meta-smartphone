@@ -1,18 +1,18 @@
-From 6fa361044f8cbc5f646ce20d1a3719f93a29fef1 Mon Sep 17 00:00:00 2001
+From 4797cef5566ff9b505928834174a213c1218f85b Mon Sep 17 00:00:00 2001
 From: Martin Jansa <Martin.Jansa@gmail.com>
 Date: Wed, 16 Nov 2011 20:08:00 +0100
-Subject: [PATCH 4/7] Makefile: sanitize, use values provided by recipe
+Subject: [PATCH 4/8] Makefile: sanitize, use values provided by recipe
 
 Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
 ---
- Makefile |    8 +-------
- 1 files changed, 1 insertions(+), 7 deletions(-)
+ Makefile | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index c254b83..e3515bf 100644
+index c254b83..2ec619b 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -16,12 +16,6 @@
+@@ -16,17 +16,11 @@
  
  include config.mk
  
@@ -25,6 +25,12 @@ index c254b83..e3515bf 100644
  LDS	= src/cpu/$(CPU)/qi.lds
  INCLUDE	= include
  IMAGE_DIR	= image
+ TOOLS	= tools
+-CFLAGS	= -Wall -Werror -I $(INCLUDE) -g -c -Os -fno-strict-aliasing -mlong-calls \
++CFLAGS	= -Wall -Werror -I $(INCLUDE) $(EXTRA_CFLAGS) -g -c -Os -fno-strict-aliasing -mlong-calls \
+ 	  -fno-common -ffixed-r8 -msoft-float -fno-builtin -ffreestanding \
+ 	  -march=armv4t -mno-thumb-interwork -Wstrict-prototypes \
+ 	  -DBUILD_HOST="${BUILD_HOST}" -DBUILD_VERSION="${BUILD_VERSION}" \
 @@ -73,7 +67,7 @@ all:${UDFU_IMAGE}
  ${OBJS}:${SRCS} ${INCLUDE}/*.h
  
@@ -35,5 +41,5 @@ index c254b83..e3515bf 100644
  ${UDFU_IMAGE}:${OBJS} ${MKUDFU}
  	mkdir -p image
 -- 
-1.7.8.6
+1.7.12.4
 

@@ -3,12 +3,13 @@ LICENSE = "GPLv2+"
 LIC_FILES_CHKSUM = "file://Makefile;endline=15;md5=a6394710a271493a533a3724a1bce25d"
 SECTION = "bootloader"
 PV = "1.0.2"
-PR = "r10"
+PR = "r11"
 PR_append = "+gitr${SRCPV}"
 
 EXTRA_OEMAKE = ""
 PARALLEL_MAKE = ""
 
+COMPATIBLE_MACHINE = "(om-gta01|om-gta02|om-gta03)"
 SRCREV = "aa934abb5e8771100240e344411ddebacca33ece"
 SRC_URI = "\
   git://git.openmoko.org/git/qi.git;protocol=git;branch=master \
@@ -22,6 +23,7 @@ S = "${WORKDIR}/git"
 do_configure() {
 cat >config.mk <<EOF
 
+EXTRA_CFLAGS=-I${STAGING_INCDIR}
 BUILD_HOST=\$(shell hostname)
 BUILD_VERSION=${PV}-${PR}
 BUILD_DATE=\$(shell date --iso-8601=seconds)
@@ -35,7 +37,7 @@ COMPILER_LIB_PATH=\$(COMPILER_LIB_PATH_PRE)/\$(shell ls \$(COMPILER_LIB_PATH_PRE
 
 AS=${AS}
 LD=${LD}
-CC=${HOST_PREFIX}gcc
+CC=${CC}
 OBJCOPY=${OBJCOPY}
 OBJDUMP=${OBJDUMP}
 HOSTCC=${BUILD_CC}
