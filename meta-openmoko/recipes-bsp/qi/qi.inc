@@ -3,7 +3,7 @@ LICENSE = "GPLv2+"
 LIC_FILES_CHKSUM = "file://Makefile;endline=15;md5=a6394710a271493a533a3724a1bce25d"
 SECTION = "bootloader"
 PV = "1.0.2"
-PR = "r10"
+PR = "r11"
 PR_append = "+gitr${SRCPV}"
 
 EXTRA_OEMAKE = ""
@@ -22,6 +22,7 @@ S = "${WORKDIR}/git"
 do_configure() {
 cat >config.mk <<EOF
 
+EXTRA_CFLAGS=-I${STAGING_INCDIR}
 BUILD_HOST=\$(shell hostname)
 BUILD_VERSION=${PV}-${PR}
 BUILD_DATE=\$(shell date --iso-8601=seconds)
