@@ -9,6 +9,7 @@ PR_append = "+gitr${SRCPV}"
 EXTRA_OEMAKE = ""
 PARALLEL_MAKE = ""
 
+COMPATIBLE_MACHINE = "(om-gta01|om-gta02|om-gta03)"
 SRCREV = "aa934abb5e8771100240e344411ddebacca33ece"
 SRC_URI = "\
   git://git.openmoko.org/git/qi.git;protocol=git;branch=master \
