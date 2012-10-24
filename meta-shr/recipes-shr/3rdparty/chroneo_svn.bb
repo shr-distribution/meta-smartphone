@@ -9,8 +9,11 @@ DEPENDS = "python-native edje-native"
 
 SRCREV = "9"
 PV = "1.0.2+svnr${SRCPV}"
+PR = "r1"
 
-SRC_URI = "svn://chroneo.googlecode.com/svn;module=trunk;protocol=http"
+SRC_URI = "svn://chroneo.googlecode.com/svn;module=trunk;protocol=http \
+  file://api_changes.patch \
+"
 S = "${WORKDIR}/trunk"
 
 inherit distutils
