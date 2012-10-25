@@ -1,7 +1,7 @@
-Index: podboy/gui.py
+Index: a/podboy/gui.py
 ===================================================================
---- podboy/gui.py	(revision 221)
-+++ podboy/gui.py	(working copy)
+--- a/podboy/gui.py	(revision 221)
++++ a/podboy/gui.py	(working copy)
 @@ -70,7 +70,7 @@
          self.list.size_hint_align_set(-1, -1)
          self.box.pack_end(self.list)
