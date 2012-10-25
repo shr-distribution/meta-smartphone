@@ -1,7 +1,7 @@
-Index: podboy/gui.py
+Index: a/podboy/gui.py
 ===================================================================
---- podboy/gui.py	(revision 221)
-+++ podboy/gui.py	(working copy)
+--- a/podboy/gui.py	(revision 221)
++++ a/podboy/gui.py	(working copy)
 @@ -1430,6 +1430,9 @@
  
          slider_position = self.slider_position.value
