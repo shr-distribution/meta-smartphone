@@ -2,17 +2,14 @@ require recipes-kernel/linux/linux.inc
 
 KERNEL_RELEASE = "3.4.9"
 PV = "${KERNEL_RELEASE}+gitr${SRCPV}"
-PE = "4"
+PE = "5"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 
-SRCREV_kernel = "948000934725eca4ed2da6a604ac3c1fb7ac0438"
-SRCREV_init = "1d32eb87b4d520aec9150811b5b4b24e969d3e16"
-SRCREV_FORMAT = "kernel_init"
+SRCREV = "948000934725eca4ed2da6a604ac3c1fb7ac0438"
 
 SRC_URI = "\
   git://github.com/shr-distribution/linux.git;protocol=git;branch=om-gta04/3.4/master;name=kernel \
-  git://github.com/radekp/gta04-init.git;protocol=git;branch=master;name=init;destsuffix=git/gta04-init \
   file://defconfig \
 "
 S = "${WORKDIR}/git"
@@ -36,9 +33,3 @@ COMPATIBLE_MACHINE = "om-gta04"
 
 DEFAULT_PREFERENCE = "-2"
 DEFAULT_PREFERENCE_om-gta04 = "1"
-
-# after last kernel.bbclass changes whole KERNEL_SRC_PATH is pulled to kernel-dev including files from gta04-init, causing:
-# ERROR: QA Issue: non debug package contains .debug directory: kernel-dev path
-# /work/om_gta04-oe-linux-gnueabi/linux-gta04/linux-gta04-3_3.4.5+gitr3+315314d3ad42ce468f6eb7b58fabc5ddf4137267_1+47dd9fd631f1908f3fcbabaf8fd48ba1503c2ea2-r7/packages-split/kernel-dev/usr/src/kernel/gta04-init/bin/.debug/ubiattach
-PACKAGES =. "kernel-gta04-init-dbg "
-FILES_kernel-gta04-init-dbg = "${KERNEL_SRC_PATH}/gta04-init/bin/.debug ${KERNEL_SRC_PATH}/gta04-init/.debug"
