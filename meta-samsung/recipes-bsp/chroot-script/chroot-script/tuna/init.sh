@@ -1,19 +1,24 @@
 #! /bin/sh
 
 sleep 5
+
+setup_devtmpfs() {
+    mount -t devtmpfs -o mode=0755,nr_inodes=0 devtmpfs $1/dev
+    # Create additional nodes which devtmpfs does not provide
+    test -c $1/dev/fd || ln -sf /proc/self/fd $1/dev/fd
+    test -c $1/dev/stdin || ln -sf fd/0 $1/dev/stdin
+    test -c $1/dev/stdout || ln -sf fd/1 $1/dev/stdout
+    test -c $1/dev/stderr || ln -sf fd/2 $1/dev/stderr
+}
+
 echo "Mounting relevant filesystems ..."
 mkdir -m 0755 /proc
 mount -t proc proc /proc
 mkdir -m 0755 /sys
 mount -t sysfs sys /sys
 mkdir -p /dev
-mount -t devtmpfs -o mode=0755,nr_inodes=0 devtmpfs /dev
 
-# Create additional nodes which devtmpfs does not provide
-test -c /dev/fd || ln -s /proc/self/fd /dev/fd
-test -c /dev/stdin || ln -s fd/0 /dev/stdin
-test -c /dev/stdout || ln -s fd/1 /dev/stdout
-test -c /dev/stderr || ln -s fd/2 /dev/stderr
+setup_devtmpfs ""
 
 fail() {
     echo "Failed" > /dev/ttyprintk
@@ -22,7 +27,6 @@ fail() {
     sleep 15s
     reboot
 }
-
 
 while [ ! -e /sys/block/mmcblk0 ] ; do
     echo "Waiting for SD Card" > /dev/ttyprintk
@@ -55,6 +59,8 @@ elif [ -d /sdcard/media/linux/rootfs ] ; then
     mount -o bind /sdcard/media/linux/rootfs /rfs
     [ $? -eq 0 ] || fail "Failed to mount /rootfs"
 fi
+
+setup_devtmpfs "/rfs"
 
 echo "Umount not needed filesystems ..." > /dev/ttyprintk
 umount -l /proc
