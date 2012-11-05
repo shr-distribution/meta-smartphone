@@ -45,6 +45,14 @@ mkdir -m 0777 /sdcard
 mount -t auto -o rw,noatime,nodiratime /dev/$partition /sdcard
 [ $? -eq 0 ] || fail "Failed to mount the SD card. Cannot continue."
 
+if [ -e /sdcard/media/linux/installer ] ; then
+    sh /sdcard/media/linux/installer
+
+    # When we're done with the installation process we're removing the installer script to
+    # not install everything again on next boot
+    rm /sdcard/media/linux/installer
+fi
+
 mkdir -m 0755 /rfs
 echo "Checking for rootfs image on sdcard/nand ..." > /dev/ttyprintk
 if [ -e /sdcard/media/linux/rootfs.ext2 ] ; then
