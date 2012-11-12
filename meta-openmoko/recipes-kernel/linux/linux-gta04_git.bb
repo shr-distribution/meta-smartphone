@@ -11,6 +11,7 @@ SRCREV = "948000934725eca4ed2da6a604ac3c1fb7ac0438"
 SRC_URI = "\
   git://github.com/shr-distribution/linux.git;protocol=git;branch=om-gta04/3.4/master;name=kernel \
   file://defconfig \
+  file://hwrouting_add_voice_route.patch \
 "
 S = "${WORKDIR}/git"
 
