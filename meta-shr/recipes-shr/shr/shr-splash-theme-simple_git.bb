@@ -10,5 +10,6 @@ S = "${WORKDIR}/git/shr-splash/${PN}"
 
 ALTERNATIVE_PRIORITY = "2"
 
-require shr-splash-theme.inc
+inherit allarch
 
+require shr-splash-theme.inc
