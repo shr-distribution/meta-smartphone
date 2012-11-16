@@ -8,12 +8,12 @@ FILES_${PN} += "/boot"
 LICENSE = "MIT BSD"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=f523ab5986cc79b52a90d2ac3d5454a2"
 
-INC_PR = "r8"
+INC_PR = "r9"
 
-ALTERNATIVE_NAME = "shr-splash-theme"
-ALTERNATIVE_LINK = "${datadir}/shr-splash/theme"
-ALTERNATIVE_PATH = "${datadir}/shr-splash/themes/${PN}"
-ALTERNATIVE_PRIORITY ?= "1"
+ALTERNATIVE_${PN} = "shr-splash-theme"
+ALTERNATIVE_TARGET[shr-splash-theme] = "${datadir}/shr-splash/themes/${PN}"
+ALTERNATIVE_LINK_NAME[shr-splash-theme] = "${datadir}/shr-splash/theme"
+ALTERNATIVE_PRIORITY[shr-splash-theme] ?= "1"
 
 SS ?= "${S}"
 
