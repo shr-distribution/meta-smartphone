@@ -17,6 +17,8 @@ IMAGE_FSTYPES_forcevariable = "cpio.gz"
 rootfs_ipk_do_rootfs[vardepsexclude] += "BUILDNAME"
 rootfs_deb_do_rootfs[vardepsexclude] += "BUILDNAME"
 rootfs_rpm_do_rootfs[vardepsexclude] += "BUILDNAME"
+# http://patchwork.openembedded.org/patch/37455/
+IMAGE_NAME[vardepsexclude] += "DATETIME"
 
 LICENSE = "MIT"
 
