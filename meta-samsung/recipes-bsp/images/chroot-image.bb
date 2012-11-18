@@ -12,6 +12,14 @@ IMAGE_LINGUAS = ""
 # used only by linux-samsung-*:do_deploy and it doesn't work with anything else
 IMAGE_FSTYPES_forcevariable = "cpio.gz"
 
+# temporary before it's fixed in oe-core
+# http://patchwork.openembedded.org/patch/37453/
+rootfs_ipk_do_rootfs[vardepsexclude] += "BUILDNAME"
+rootfs_deb_do_rootfs[vardepsexclude] += "BUILDNAME"
+rootfs_rpm_do_rootfs[vardepsexclude] += "BUILDNAME"
+# http://patchwork.openembedded.org/patch/37455/
+IMAGE_NAME[vardepsexclude] += "DATETIME"
+
 LICENSE = "MIT"
 
 inherit core-image

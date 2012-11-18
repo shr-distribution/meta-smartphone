@@ -8,7 +8,8 @@ PR = "${INC_PR}.0"
 SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http;branch=master"
 S = "${WORKDIR}/git/shr-splash/${PN}"
 
-ALTERNATIVE_PRIORITY = "4"
+ALTERNATIVE_PRIORITY[shr-splash-theme] ?= "4"
+
+inherit allarch
 
 require shr-splash-theme.inc
-
