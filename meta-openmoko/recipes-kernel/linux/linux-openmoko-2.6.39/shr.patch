@@ -1,8 +1,14 @@
 All patches from shr kernel repository
-rebased on top of openmoko kernel repository (om-2.6.39-stable)
+rebased on top of openmoko kernel repository (om-gta02/2.6.39/om-stable)
 
-https://gitorious.org/shr/linux/commits/shr-2.6.39-nodrm
+http://git.shr-project.org/git/?p=linux.git;a=shortlog;h=refs/heads/om-gta02/2.6.39/master
 
+e63c609: shr-create-patch.sh: update with new repository information.
+f73d166: ARM - rework c fiq handler
+6d3a745: gta02: remove duplicate assign to hdq priv platform data
+7424da1: gpio2: use gpio_set_value directly instead of the platform gpio_set
+85d20ea: ARM: SAMSUNG: hack: let s3c_gpio_cfgpin get called in interrupt context
+bf52a4f: ARM: SAMSUNG: s3c_gpiolib_set is gpio_set_value which ought not to spinlock
 338d257: Fix a freeze on change to external power supply
 31bdfe1: ASOC: samsung: neo1973_wm8753.c: fix openmoko bug #2478
 b851f9f: glamo-mci: disable glamo_mci_pre_request & glamo_mci_post_request
@@ -26,6 +32,83 @@ b17f8db: Enable powering off after 8s POWER press
 41b0e17: Openmoko resume reason sysfs node ported from 2.6.29
 463b91b: nand/s3c2410: add mising badblocksbits value
 
+diff --git a/arch/arm/kernel/fiq.c b/arch/arm/kernel/fiq.c
+index 0dd0fc0..5de9cf1 100644
+--- a/arch/arm/kernel/fiq.c
++++ b/arch/arm/kernel/fiq.c
+@@ -172,39 +172,52 @@ void __naked get_fiq_regs(struct pt_regs *regs)
+ static void (*current_fiq_c_isr)(void);
+ #define FIQ_C_ISR_STACK_SIZE 	256
+ 
+-static void __attribute__((naked)) __jump_to_isr(void)
+-{
+-	asm __volatile__ ("mov pc, r8");
+-}
++#ifndef __ASSEMBLER__
++extern unsigned char fiq_start, fiq_end;
+ 
++#endif
+ 
+-static void __attribute__((naked)) __actual_isr(void)
++/* define of constant are not available to asm
++ * Thus FIQ_C_ISR_STACK_SIZE current value is
++ * directly written for the .space and sp (256)
++ */
++void __naked __fiq_c_handler(void)
+ {
+-	asm __volatile__ (
+-		"stmdb	sp!, {r0-r12, lr};"
+-		"mov     fp, sp;"
+-	);
+-
+-	current_fiq_c_isr();
+-
+-	asm __volatile__ (
+-		"ldmia	sp!, {r0-r12, lr};"
+-		"subs	pc, lr, #4;"
+-	);
++        asm volatile (
++	".global fiq_start\n\
++fiq_start:\n\
++        ldr     r11, =current_fiq_c_isr\n\
++        ldr     r11, [r11]\n\
++        adr     r9, regpool\n\
++        stmia   r9, {r0-r8, fp, sp, lr}\n\
++        adr     sp, fiq_sp\n\
++        ldr     sp, [sp]\n\
++        add     lr, pc, #4\n\
++        bx      r11\n\
++        adr     r9, regpool\n\
++        ldmia   r9, {r0-r8, fp, sp, lr}\n\
++        subs   pc, lr, #4;\n\
++fiq_sp: .long fiq_stack + 256 - 4\n\
++fiq_stack:      .space 256\n\
++regpool:        .space 48\n\
++                .pool\n\
++                .align 5\n\
++	.global fiq_end\n\
++fiq_end:");
+ }
+ 
+ void set_fiq_c_handler(void (*isr)(void))
+ {
+ 	struct pt_regs regs;
++	void *fiqhandler_start = &fiq_start;
++	unsigned int fiqhandler_length = &fiq_end - &fiq_start;
+ 
+ 	memset(&regs, 0, sizeof(regs));
+-	regs.ARM_r8 = (unsigned long) __actual_isr;
+-	regs.ARM_sp = 0xffff001c + FIQ_C_ISR_STACK_SIZE;
+-
+-	set_fiq_handler(__jump_to_isr, 4);
+ 
+ 	current_fiq_c_isr = isr;
+ 
++	set_fiq_handler(fiqhandler_start, fiqhandler_length);
++
+ 	set_fiq_regs(&regs);
+ }
+ /* -------- FIQ handler in C ---------*/
 diff --git a/arch/arm/mach-s3c2440/Makefile b/arch/arm/mach-s3c2440/Makefile
 index 035d116..16d9855 100644
 --- a/arch/arm/mach-s3c2440/Makefile
@@ -38,6 +121,66 @@ index 035d116..16d9855 100644
  	gta02-pm-wlan.o \
  	gta02-fiq.o \
  	gta02-hdq.o \
+diff --git a/arch/arm/mach-s3c2440/gta02-hdq.c b/arch/arm/mach-s3c2440/gta02-hdq.c
+index a1dadc2..c128748 100644
+--- a/arch/arm/mach-s3c2440/gta02-hdq.c
++++ b/arch/arm/mach-s3c2440/gta02-hdq.c
+@@ -16,6 +16,8 @@
+ #include <linux/delay.h>
+ #include <linux/platform_device.h>
+ #include <mach/gta02-hdq.h>
++#include <linux/gpio.h>
++#include <mach/gta02.h>
+ 
+ #define HDQ_READ 0
+ 
+@@ -77,7 +79,8 @@ int hdq_fiq_handler(void)
+ 		if (hdq_priv.hdq_request_ctr == hdq_priv.hdq_transaction_ctr)
+ 			break;
+ 		hdq_priv.hdq_ctr = 250 / HDQ_SAMPLE_PERIOD_US;
+-		hdq_priv.pdata->gpio_set(0);
++		gpio_set_value(GTA02v5_GPIO_HDQ, 0);
++		//hdq_priv.pdata->gpio_set(0);
+ 		hdq_priv.pdata->gpio_dir_out();
+ 		hdq_priv.hdq_tx_data_done = 0;
+ 		hdq_priv.hdq_state = HDQB_TX_BREAK;
+@@ -87,7 +90,8 @@ int hdq_fiq_handler(void)
+ 		if (--hdq_priv.hdq_ctr == 0) {
+ 			hdq_priv.hdq_ctr = 60 / HDQ_SAMPLE_PERIOD_US;
+ 			hdq_priv.hdq_state = HDQB_TX_BREAK_RECOVERY;
+-			hdq_priv.pdata->gpio_set(1);
++			gpio_set_value(GTA02v5_GPIO_HDQ, 1);
++			//hdq_priv.pdata->gpio_set(1);
+ 		}
+ 		break;
+ 
+@@ -109,13 +113,15 @@ int hdq_fiq_handler(void)
+ 		hdq_priv.hdq_state = HDQB_ADS_LOW;
+ 		hdq_priv.hdq_shifter >>= 1;
+ 		hdq_priv.hdq_bit--;
+-		hdq_priv.pdata->gpio_set(0);
++		gpio_set_value(GTA02v5_GPIO_HDQ, 0);
++		//hdq_priv.pdata->gpio_set(0);
+ 		break;
+ 
+ 	case HDQB_ADS_LOW:
+ 		if (--hdq_priv.hdq_ctr)
+ 			break;
+-		hdq_priv.pdata->gpio_set(1);
++		gpio_set_value(GTA02v5_GPIO_HDQ, 1);
++		//hdq_priv.pdata->gpio_set(1);
+ 		hdq_priv.hdq_state = HDQB_ADS_HIGH;
+ 		break;
+ 
+@@ -375,8 +381,6 @@ static int __devinit hdq_probe(struct platform_device *pdev)
+ 
+ 	hdq_priv.hdq_probed = 1; /* we are ready to do stuff now */
+ 
+-	hdq_priv.pdata = pdata;
+-
+ 	return 0;
+ }
+ 
 diff --git a/arch/arm/mach-s3c2440/gta02-pm-gps.c b/arch/arm/mach-s3c2440/gta02-pm-gps.c
 index 4ca3ac6..7501978 100644
 --- a/arch/arm/mach-s3c2440/gta02-pm-gps.c
@@ -716,6 +859,51 @@ index aa31b8d..34b7a8d 100644
  #ifdef CONFIG_CHARGER_PCF50633
  	INIT_DELAYED_WORK(&gta02_charger_work, gta02_charger_worker);
  #endif
+diff --git a/arch/arm/plat-samsung/gpio-config.c b/arch/arm/plat-samsung/gpio-config.c
+index 1c0b040..2cb5c12 100644
+--- a/arch/arm/plat-samsung/gpio-config.c
++++ b/arch/arm/plat-samsung/gpio-config.c
+@@ -24,7 +24,6 @@
+ int s3c_gpio_cfgpin(unsigned int pin, unsigned int config)
+ {
+ 	struct s3c_gpio_chip *chip = s3c_gpiolib_getchip(pin);
+-	unsigned long flags;
+ 	int offset;
+ 	int ret;
+ 
+@@ -33,9 +32,7 @@ int s3c_gpio_cfgpin(unsigned int pin, unsigned int config)
+ 
+ 	offset = pin - chip->chip.base;
+ 
+-	s3c_gpio_lock(chip, flags);
+ 	ret = s3c_gpio_do_setcfg(chip, offset, config);
+-	s3c_gpio_unlock(chip, flags);
+ 
+ 	return ret;
+ }
+diff --git a/arch/arm/plat-samsung/gpio.c b/arch/arm/plat-samsung/gpio.c
+index 7743c4b..0221a51 100644
+--- a/arch/arm/plat-samsung/gpio.c
++++ b/arch/arm/plat-samsung/gpio.c
+@@ -97,18 +97,13 @@ static void s3c_gpiolib_set(struct gpio_chip *chip,
+ {
+ 	struct s3c_gpio_chip *ourchip = to_s3c_gpio(chip);
+ 	void __iomem *base = ourchip->base;
+-	unsigned long flags;
+ 	unsigned long dat;
+ 
+-	s3c_gpio_lock(ourchip, flags);
+-
+ 	dat = __raw_readl(base + 0x04);
+ 	dat &= ~(1 << offset);
+ 	if (value)
+ 		dat |= 1 << offset;
+ 	__raw_writel(dat, base + 0x04);
+-
+-	s3c_gpio_unlock(ourchip, flags);
+ }
+ 
+ static int s3c_gpiolib_get(struct gpio_chip *chip, unsigned offset)
 diff --git a/arch/arm/plat-samsung/include/plat/ts.h b/arch/arm/plat-samsung/include/plat/ts.h
 index 26fdb22..f475349 100644
 --- a/arch/arm/plat-samsung/include/plat/ts.h
@@ -2418,7 +2606,7 @@ index 8275a2f..8e3e56e 100644
  #endif /* __GLAMO_CORE_H */
 diff --git a/shr-create-patch.sh b/shr-create-patch.sh
 new file mode 100755
-index 0000000..b251946
+index 0000000..fadea03
 --- /dev/null
 +++ b/shr-create-patch.sh
 @@ -0,0 +1,12 @@
@@ -2426,13 +2614,13 @@ index 0000000..b251946
 +
 +cat <<EOF > shr.patch
 +All patches from shr kernel repository
-+rebased on top of openmoko kernel repository (om-2.6.39-stable)
++rebased on top of openmoko kernel repository (om-gta02/2.6.39/om-stable)
 +
-+https://gitorious.org/shr/linux/commits/shr-2.6.39-nodrm
++http://git.shr-project.org/git/?p=linux.git;a=shortlog;h=refs/heads/om-gta02/2.6.39/master
 +
-+$(git log --pretty=format:"%h: %s" gitorious/om-2.6.39-stable..)
++$(git log --pretty=format:"%h: %s" shr/om-gta02/2.6.39/om-stable..)
 +
-+$(git diff om-2.6.39-stable)
++$(git diff shr/om-gta02/2.6.39/om-stable)
 +EOF
 diff --git a/sound/soc/codecs/wm8753.c b/sound/soc/codecs/wm8753.c
 index ffa2ffe..69c499a 100644
