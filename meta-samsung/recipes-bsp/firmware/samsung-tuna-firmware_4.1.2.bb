@@ -6,20 +6,20 @@ DEVICE_TUNA_NAME = "android_device_samsung_tuna-android-${ANDROID_VERSION}"
 HARDWARE_BROADCOM_NAME = "android_hardware_broadcom_wlan-android-${ANDROID_VERSION}"
 
 LIC_FILES_CHKSUM = " \
-    file://${WORKDIR}/extract-broadcom-maguro.sh;beginline=16;endline=233;md5=38f6effa6031a775065b10f8943a6efb \
+    file://${WORKDIR}/LICENSE.broadcom;md5=38f6effa6031a775065b10f8943a6efb \
     file://${WORKDIR}/${DEVICE_TUNA_NAME}/README.mms144_ts;md5=dbe38b2af8d17a91e28d0a8f3363a8ad \
     file://${WORKDIR}/${HARDWARE_BROADCOM_NAME}/bcmdhd/firmware/LICENSE.TXT;md5=bafc4300ca5bbd85b704c45969d15e03 \
 "
 
-PR = "r2"
+PR = "r3"
 
 COMPATIBLE_MACHINES = "tuna"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 SRC_URI = " \
   https://dl.google.com/dl/android/aosp/broadcom-maguro-jzo54k-8b0d7637.tgz;name=brcm \
-  https://github.com/morphis/android_device_samsung_tuna/archive/android-${ANDROID_VERSION}.zip;name=device_tuna;downloadfilename=${DEVICE_TUNA_NAME}.zip \
-  https://github.com/morphis/android_hardware_broadcom_wlan/archive/android-${ANDROID_VERSION}.zip;name=hardware_broadcom;downloadfilename=${HARDWARE_BROADCOM_NAME}.zip \
+  https://github.com/webOS-ports/android_device_samsung_tuna/archive/android-${ANDROID_VERSION}.zip;name=device_tuna;downloadfilename=${DEVICE_TUNA_NAME}.zip \
+  https://github.com/webOS-ports/android_hardware_broadcom_wlan/archive/android-${ANDROID_VERSION}.zip;name=hardware_broadcom;downloadfilename=${HARDWARE_BROADCOM_NAME}.zip \
 "
 S = "${WORKDIR}"
 
@@ -29,6 +29,15 @@ SRC_URI[device_tuna.md5sum] = "5ffe5a52a4fd9b79b5f29ec2696dc354"
 SRC_URI[device_tuna.sha256sum] = "5d5d179d5f20ef02bc0426ce59f2320214921cd1bd6a65bc46c95fa9866fd37b"
 SRC_URI[hardware_broadcom.md5sum] = "0734ed070b0d0fcc46af47053839b699"
 SRC_URI[hardware_broadcom.sha256sum] = "7cd068f48bad939067aa65622bca4416cd7bc28fdd31c6dd3486bef1761b4b10"
+
+unpack_broadcom_license() {
+    head -n 233 extract-broadcom-maguro.sh | tail -n 218 > LICENSE.broadcom
+}
+
+python do_unpack() {
+    bb.build.exec_func('base_do_unpack', d)
+    bb.build.exec_func('unpack_broadcom_license', d)
+}
 
 FIRMARE_PATH = "/lib/firmware"
 
