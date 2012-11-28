@@ -3,7 +3,7 @@ HOMEPAGE = "http://shr-project.org/"
 LICENSE = "LGPLv2.1"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=4fbd65380cdd255951079008b364516c"
 SECTION = "libs"
-SRCREV = "c806456494b4e4bd63ad295080a7de5e9ba52c35"
+SRCREV = "7b8fb8ec1a1e80342b5e6e62e9db49568a0405aa"
 PV = "0.0.1+gitr${SRCPV}"
 PR = "r1"
 
