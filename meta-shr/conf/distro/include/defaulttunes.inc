@@ -5,11 +5,11 @@
 
 DEFAULTTUNE_om-gta01 = "arm920t"
 DEFAULTTUNE_om-gta02 = "arm920t"
-DEFAULTTUNE_om-gta04 = "cortexa8-neon"
-DEFAULTTUNE_nokia900 = "cortexa8-neon"
-DEFAULTTUNE_crespo = "cortexa8-neon"
-DEFAULTTUNE_tuna = "cortexa8-neon"
+DEFAULTTUNE_om-gta04 = "cortexa8t-neon"
+DEFAULTTUNE_nokia900 = "cortexa8t-neon"
+DEFAULTTUNE_crespo = "cortexa8t-neon"
+DEFAULTTUNE_tuna = "cortexa8t-neon"
 
 # or if you don't care about sharing binary feed between armv7a machines, 
 # add this to local.conf after that require line
-# DEFAULTTUNE_tuna = "cortexa9-neon"
+# DEFAULTTUNE_tuna = "cortexa9t-neon"
