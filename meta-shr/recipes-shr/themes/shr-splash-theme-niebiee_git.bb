@@ -1,7 +1,7 @@
 DESCRIPTION = "SHR splash screen - extremely blue Niebiee theme"
 SECTION = "x11/data"
 
-SRCREV = "de6a366bf753d691f80a45e2f103c8a7b3d94b8c"
+SRCREV = "4e6035ef5452b2f0a128dff91ddeb8335a3aafec"
 PV = "1.2+gitr${SRCPV}"
 PR = "${INC_PR}.0"
 

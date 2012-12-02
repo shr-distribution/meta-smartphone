@@ -5,7 +5,7 @@ RSUGGESTS_${PN} = "gpe-filemanager gpe-sketchbook elementary-theme-neo e-wm-them
 LICENSE = "CC-BY-SA-2.5"
 LIC_FILES_CHKSUM = "file://../COPYING;md5=d4e4f10748f3146a089aaa23c9ade59b"
 
-SRCREV = "1cc80e26a4558dfc2268b349d9a1f468e515bcfb"
+SRCREV = "4e6035ef5452b2f0a128dff91ddeb8335a3aafec"
 PV = "0.3+gitr${SRCPV}"
 PR = "${INC_PR}.4"
 

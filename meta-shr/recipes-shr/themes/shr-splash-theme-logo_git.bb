@@ -1,7 +1,7 @@
 DESCRIPTION = "SHR splash screen - SHR logo theme"
 SECTION = "x11/data"
 
-SRCREV = "a746d723fb791b2befeadae0a2bc80afe6f27159"
+SRCREV = "4e6035ef5452b2f0a128dff91ddeb8335a3aafec"
 PV = "0.1+gitr${SRCPV}"
 PR = "${INC_PR}.1"
 
