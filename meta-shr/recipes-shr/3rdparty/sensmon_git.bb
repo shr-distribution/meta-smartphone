@@ -1,7 +1,8 @@
 DESCRIPTION = "Vala application for monitoring raw sensor values on the handheld"
 AUTHOR = "Michele Brocco <ssj2micvm@gmail.com>"
-LICENSE = "GPLv3"
-LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
+LICENSE = "GPL-3.0"
+# COPYING is symlink to /usr/share/automake-1.11/COPYING and wont work on host with different automake version
+LIC_FILES_CHKSUM = "file://src/main.vala;endline=20;md5=219b04c881db0b80d198021b04d17c8a"
 DEPENDS = "glib-2.0 gtk+ libgee cairo libsensmon"
 RDEPENDS_${PN} = "glib-2.0 gtk+ libgee cairo"
 RSUGGESTS_${PN} = ""
