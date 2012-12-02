@@ -4,7 +4,7 @@ SECTION = "fso/base"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 PV = "1.9.0"
-PR = "r20"
+PR = "r21"
 
 inherit packagegroup allarch
 
@@ -43,4 +43,8 @@ RRECOMMENDS_${PN} = "\
   tzdata-asia \
   tzdata-australia \
   tzdata-europe \
+  mdbus2 \
+  mterm2 \
+  mkdump \
+  mioctl \
 "
