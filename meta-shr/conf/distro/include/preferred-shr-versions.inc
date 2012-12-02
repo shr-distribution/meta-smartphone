@@ -1,11 +1,7 @@
 # Upgraded
 # use newer version then preferred by default
-PREFERRED_VERSION_libmikmod = "3.2.0-beta2"
-PREFERRED_VERSION_emacs-x11 = "23.1"
 PREFERRED_VERSION_openssl = "1.0.0%"
 PREFERRED_VERSION_openssl-native = "1.0.0%"
-PREFERRED_VERSION_subversion = "1.7.%"
-PREFERRED_VERSION_subversion-native = "1.7.%"
 PREFERRED_VERSION_dbus = "1.5%"
 PREFERRED_VERSION_dbus-native = "1.5%"
 
