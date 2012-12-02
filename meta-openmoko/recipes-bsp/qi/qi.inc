@@ -3,7 +3,7 @@ LICENSE = "GPLv2+"
 LIC_FILES_CHKSUM = "file://Makefile;endline=15;md5=a6394710a271493a533a3724a1bce25d"
 SECTION = "bootloader"
 PV = "1.0.2"
-PR = "r11"
+PR = "r12"
 PR_append = "+gitr${SRCPV}"
 
 EXTRA_OEMAKE = ""
@@ -17,6 +17,7 @@ SRC_URI = "\
   file://0002-Glamo-242-timings.patch \
   file://0004-Makefile-sanitize-use-values-provided-by-recipe.patch \
   file://0001-start_qi-add-include-for-stddef.h-with-gcc-4.7.1-it-.patch \
+  file://0009-Fix-build-with-GCC-4.6-Werror-unused-but.patch \
 "
 S = "${WORKDIR}/git"
 
