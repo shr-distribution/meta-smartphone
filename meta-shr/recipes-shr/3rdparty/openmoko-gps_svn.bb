@@ -10,7 +10,8 @@
 DESCRIPTION = "A tiny GPS output parser for the Openmoko platform."
 HOMEPAGE = "http://forge.bearstech.com/trac/wiki/OpenmokoGPS"
 SECTION = "base"
-LICENSE = "GPL"
+LICENSE = "GPL-2.0+"
+LIC_FILES_CHKSUM = "file://gps_reader.py;endline=7;md5=ecdafa461a157727dbc18b5cd12adbdd"
 
 RDEPENDS_${PN} = "python-pygtk"
 
