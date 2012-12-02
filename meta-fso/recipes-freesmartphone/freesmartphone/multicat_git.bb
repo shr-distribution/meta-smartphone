@@ -4,6 +4,9 @@ SECTION = "console"
 
 require python-helpers.inc
 
+LICENSE = "GPL-2.0+"
+LIC_FILES_CHKSUM = "file://multicat;endline=8;md5=edbb42725a55aa6f91dfc070c43907c9"
+
 SRCREV = "${FSO_PYTHONHELPERS_SRCREV}"
 PV = "0.0.0+gitr${SRCPV}"
 PR = "r2"
