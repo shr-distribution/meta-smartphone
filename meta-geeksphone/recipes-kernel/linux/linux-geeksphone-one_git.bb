@@ -9,7 +9,7 @@ PV = "2.6.35+${PR}+gitr${SRCREV}"
 COMPATIBLE_MACHINE = "geeksphone-one"
 CMDLINE = "\
 mem=32M@0x1A000000 mem=21M@0x1C000000 mem=32M@0x20000000 mem=32M@0x22000000 mem=32M@0x24000000 mem=32M@0x26000000 \
-console=ttyMSM2,115200n8 androidboot.hardware=qcom \
+console=ttyMSM2,115200n8 root=/dev/mmcblk0p2 rootdelay=8 \
 "
 BASE = "1A000000"
 
