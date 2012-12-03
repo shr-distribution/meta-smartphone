@@ -325,6 +325,8 @@ RDEPENDS_${PN} += "\
         openmoocow \
         mokomaze \
         mokoeightball \
+        valacompass \
+        sensmon \
 "
 
 # armv4 is not goog enough for firefox ASM optimalizations
@@ -335,5 +337,4 @@ RDEPENDS_${PN} += "${EXTRA_MOZILLA}"
 
 # this is only usefull on gta02 and on other devices it's trying to pull mesa-dri (not respecting DEFAULT_PROVIDER for virtual/libgl)
 #RDEPENDS_${PN}_append_om-gta02 = "glamo-dri-tests \
-#        valacompass \
 #"
