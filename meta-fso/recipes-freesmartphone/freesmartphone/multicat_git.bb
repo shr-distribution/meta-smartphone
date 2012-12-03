@@ -11,9 +11,11 @@ SRCREV = "${FSO_PYTHONHELPERS_SRCREV}"
 PV = "0.0.0+gitr${SRCPV}"
 PR = "r2"
 
+S = "${WORKDIR}/git/${PN}"
+
 do_install() {
     install -d ${D}${bindir}
-    install -m 0755 multicat/multicat ${D}${bindir}
+    install -m 0755 multicat ${D}${bindir}
 }
 
 RDEPENDS_${PN} = "\
