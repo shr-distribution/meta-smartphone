@@ -4,6 +4,9 @@ SECTION = "console/network"
 
 require python-helpers.inc
 
+LICENSE = "GPL-2.0+"
+LIC_FILES_CHKSUM = "file://pyc.c;endline=19;md5=483dcff64d8ab106070a0498e4d0c446"
+
 SRCREV = "${FSO_PYTHONHELPERS_SRCREV}"
 PV = "0.1+gitr${SRCPV}"
 PR = "r0"

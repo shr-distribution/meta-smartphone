@@ -1,5 +1,6 @@
 DESCRIPTION = "XDG menu file for the freesmartphone.org project"
 LICENSE = "PD"
+LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/PD;md5=b3597d12946881e13cb3b548d1173851"
 PV = "0.1"
 PR = "r2"
 

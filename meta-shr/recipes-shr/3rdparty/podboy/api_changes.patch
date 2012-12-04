@@ -190,3 +190,25 @@ Index: a/podboy/gui.py
          box_actions.size_hint_weight_set(1, 0)
          box_actions.size_hint_align_set(-1, -1)
          box.pack_end(box_actions)
+Index: a/podboy/podboy.py
+===================================================================
+--- a/podboy/podboy.py	(revision 221)
++++ a/podboy/podboy.py	(working copy)
+@@ -40,7 +40,7 @@
+ 
+         self.win = elementary.Window(APP_NAME, elementary.ELM_WIN_BASIC)
+         self.win.title_set(APP_NAME)
+-        self.win.callback_destroy_add(self.quit)
++        self.win.callback_delete_request_add(self.quit) 
+ 
+         if db.get_setting('display_finger_size') is not None:
+             elementary.config_finger_size_set(db.get_setting('display_finger_size'))
+@@ -66,7 +66,7 @@
+ 
+         toolbar = elementary.Toolbar(self.win)
+         toolbar.menu_parent_set(self.win)
+-        toolbar.homogenous_set(False)
++        toolbar.homogeneous_set(False)
+         toolbar.size_hint_align_set(-1.0, 0)
+ 
+         self.toolbar_item_podcasts = toolbar.item_append('podcasts', "Podcasts", self.show_podcasts)

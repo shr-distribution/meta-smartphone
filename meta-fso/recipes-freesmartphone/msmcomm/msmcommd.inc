@@ -4,7 +4,7 @@ DEPENDS = " \
  vala-native \
  glib-2.0 \
  libfso-glib \
- libfsotransport \
+ libfsoframework \
  libgee \
  libmsmcomm \
  libmsmhll \

@@ -28,7 +28,7 @@ do_configure_append() {
   kernel_conf_variable_fixup USB_G_ANDROID y
 }
 
-SRCREV = "8caef848be125c11d1be7da53c0e1969546ea062"
+SRCREV = "501c12d761da520a6acb9565f49c5b5caece1a67"
 
 PE = "2"
 KV = "3.0.49"
@@ -39,7 +39,7 @@ inherit machine_kernel_pr
 # Workaround default -Werror setting and some warnings in kernel compilation
 TARGET_CC_KERNEL_ARCH += " -Wno-error=unused-but-set-variable -Wno-error=array-bounds"
 
-CMDLINE = "mem=1G vmalloc=768M omap_wdt.timer_margin=30 no_console_suspend=1 fbcon=rotate:1 panic=1"
+CMDLINE = "mem=1G vmalloc=768M omap_wdt.timer_margin=30 no_console_suspend=1 fbcon=rotate:1 panic=20"
 
 do_deploy_append() {
     mkbootimg --kernel ${S}/${KERNEL_OUTPUT} \
