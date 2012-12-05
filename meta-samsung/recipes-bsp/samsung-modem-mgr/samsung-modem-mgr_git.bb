@@ -5,6 +5,8 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=eb723b61539feef013de476e68b5c50a"
 PV = "0.1.0+gitr${SRCPV}"
 PR = "r1"
 
+DEPENDS = "dbus glib-2.0"
+
 SRC_URI = " \
   git://github.com/morphis/samsung-modem-mgr.git;protocol=git;branch=master \
   file://samsung-modem-mgr.init"

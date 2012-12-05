@@ -9,22 +9,24 @@ DEPENDS = "python python-elementary"
 RDEPENDS_${PN} = "python-core pyrtm"
 RSUGGESTS_${PN} = "python-simplejson"
 
-PR = "r2"
+PR = "r4"
 
 SRC_URI = "http://cloud.github.com/downloads/kichkasch/rtmom/rtmom-src-${PV}.tar.gz"
 
+# intentionally empty, so that rtmom.conf.example goes to PN
+FILES_${PN}-doc = ""
 FILES_${PN} += "/opt/rtmom \
                 ${datadir}/pixmaps \
                 ${datadir}/applications \
                 ${datadir}/doc/rtmom"
-CONFFILES_${PN} += "/usr/share/doc/${PN}/rtmom.conf.example"
+CONFFILES_${PN} += "${datadir}/doc/${PN}/rtmom.conf.example"
 
 do_compile() {
-    ${STAGING_BINDIR_NATIVE}/python ${S}/setup.py build ${D}
+    python ${S}/setup.py build ${D}
 }
 
 do_install() {
-    ${STAGING_BINDIR_NATIVE}/python ${S}/setup.py install ${D}
+    python ${S}/setup.py install ${D}
     rm -rf ${D}/opt/rtmom/build/
     rm -rf ${D}/opt/rtmom/patches/
 }
