@@ -8,7 +8,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
 
 DEPENDS = "tslib"
 
-PR = "r0"
+PR = "r1"
 PV = "1.0.0+gitr${SRCPV}"
 
 SRCREV = "25729581e06241a5fb41b2b4f6c80e7067ae4a28"
@@ -30,6 +30,6 @@ INITSCRIPT_PARAMS = "defaults 10"
 do_install_append() {
     install -d 0644 ${D}${sysconfdir}/init.d/
     install -m 0755 ${WORKDIR}/${INITSCRIPT_NAME} ${D}${sysconfdir}/init.d/
-    install -d 0644 ${D}${base_bindir}/
-    install -m 0755 ${WORKDIR}/tsmd_control ${D}${exec_prefix}/bin/tsmd_control
+    install -d 0644 ${D}${bindir}/
+    install -m 0755 ${WORKDIR}/tsmd_control ${D}${bindir}/tsmd_control
 }
