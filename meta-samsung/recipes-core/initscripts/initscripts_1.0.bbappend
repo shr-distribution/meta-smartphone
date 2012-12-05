@@ -1,5 +1,5 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
-PRINC := "${@int(PRINC) + 6}"
+PRINC := "${@int(PRINC) + 7}"
 
 # NOTE: As we're using android usb composite driver we need to enable rndis support manually on startup.
 do_install_append() {
