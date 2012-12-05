@@ -9,7 +9,7 @@ DEPENDS = "python-native edje-native"
 
 SRCREV = "16"
 PV = "1.4.0+svnr${SRCPV}"
-PR = "r4"
+PR = "r5"
 
 SRC_URI = "svn://neolight.googlecode.com/svn;module=trunk;protocol=http"
 S = "${WORKDIR}/trunk"
@@ -22,8 +22,4 @@ RDEPENDS_${PN} += "python-edbus python-elementary"
 
 do_compile_prepend() {
     ${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/data ${S}/data/neolight.edc
-}
-
-do_install_append() {
-    rmdir ${D}${datadir}/share
 }
