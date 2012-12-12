@@ -1,8 +1,6 @@
 DESCRIPTION = "A library implemented the modem IPC protocol from Samsung"
 SECTION = "libs/network"
 AUTHOR = " Joerie de Gram, PaulK, Simon Busch"
-LICENSE = "GPLv3"
-LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
 DEPENDS = "openssl mtd-utils"
 PE = "1"
 
