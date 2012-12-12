@@ -4,7 +4,6 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 PR = "r6"
 
-COMPATIBLE_MACHINE = "(crespo|tuna)"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 SRC_URI = "file://init.sh"
