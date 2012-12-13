@@ -44,7 +44,6 @@ CMDLINE = "mem=1G vmalloc=768M omap_wdt.timer_margin=30 no_console_suspend=1 pan
 do_deploy_append() {
     mkbootimg --kernel ${S}/${KERNEL_OUTPUT} \
               --ramdisk ${DEPLOY_DIR_IMAGE}/chroot-image-tuna.cpio.gz \
-              --cmdline "${CMDLINE}" \
               --base 0x80000000 \
               --output ${DEPLOY_DIR_IMAGE}/${KERNEL_IMAGE_BASE_NAME}.fastboot
 
