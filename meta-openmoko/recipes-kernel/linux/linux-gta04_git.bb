@@ -6,12 +6,11 @@ PE = "5"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 
-SRCREV = "948000934725eca4ed2da6a604ac3c1fb7ac0438"
+SRCREV = "5c4603590af40cccce1d75396d4cb3fdffe0fdef"
 
 SRC_URI = "\
   git://github.com/shr-distribution/linux.git;protocol=git;branch=om-gta04/3.4/master;name=kernel \
   file://defconfig \
-  file://hwrouting_add_voice_route.patch \
 "
 S = "${WORKDIR}/git"
 
