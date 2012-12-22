@@ -9,10 +9,11 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=9836c6a6315b77f2a3c270058e6d96a9"
 
 SRC_URI = "\
   http://www.delorie.com/store/ace/ace-${PV}.tar.gz\
-  file://fix-crosscompile.patch\
+  file://fix-crosscompile.patch \
+  file://libpng15.patch \
 "
-SRC_URI[md5sum] = "1bd11ed270342ad78ff4822c06c6a762"
-SRC_URI[sha256sum] = "4fb6ca9e1ff34e42d9498f06e2bccaa61f5650daf48774015468d5f75c5347d3"
+SRC_URI[md5sum] = "b80169fa59d69758bb9686f31a84ad2b"
+SRC_URI[sha256sum] = "1fee3b0533921a42873c0623f33d873a067b1eec58f2c70c01449146e79a4cce"
 
 S = "${WORKDIR}/ace-${PV}"
 
