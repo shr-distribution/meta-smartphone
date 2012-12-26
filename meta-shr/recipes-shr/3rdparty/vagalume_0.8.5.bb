@@ -7,12 +7,13 @@ RDEPENDS_${PN} = "curl gst-plugins-good-autodetect gst-plugins-base-audioconvert
 RRECOMMENDS_${PN} = "dbus-x11 hicolor-icon-theme"
 LICENSE = "GPLv3"
 LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
-PR = "r3"
 
-SRC_URI = "http://vagalume.igalia.com/files/source/vagalume_${PV}.orig.tar.gz\
+SRC_URI = "http://vagalume.igalia.com/files/source/${P}.tar.gz\
            file://index.theme \
           "
-S = "${WORKDIR}/${P}.orig"
+SRC_URI[md5sum] = "fba804c44ecb441bca92f499be9377e1"
+SRC_URI[sha256sum] = "05210d308c686f62bb0c7a2a52b13489cb7701459d9b5b219540edb1cc27c062"
+
 inherit autotools
 
 FILES_${PN} += "${datadir}/icons ${datadir}/dbus-1"
@@ -20,6 +21,3 @@ FILES_${PN} += "${datadir}/icons ${datadir}/dbus-1"
 do_install_append() {
     install -m 0644 ${WORKDIR}/index.theme ${D}${datadir}/vagalume/icons/hicolor
 }
-
-SRC_URI[md5sum] = "f6cb301fe4eec68877484b258045d0df"
-SRC_URI[sha256sum] = "aedf9efef06cd542168c0316d7696d6ba64e78d689212693264f4c5d17663f4d"
