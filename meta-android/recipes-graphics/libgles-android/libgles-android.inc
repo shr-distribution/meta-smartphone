@@ -16,7 +16,7 @@ SRC_URI = "git://github.com/morphis/libhybris;protocol=git;branch=master;name=hy
 S = "${WORKDIR}/git"
 
 INC_PR = "r0"
-SRCREV_hybris = "d0c1e518a63103815b615436c7d3868e49a14714"
+SRCREV_hybris = "f38749d213522115b5a74267ff7e7748fa5590e9"
 
 inherit autotools
 
