@@ -1,12 +1,14 @@
 DESCRIPTION = "Properitary firmware binaries needed for the BCM4330 wifi/bt chip"
 LICENSE = "Properitary"
 LIC_FILES_CHKSUM = "file://${WORKDIR}/${HARDWARE_BROADCOM_NAME}/bcmdhd/firmware/LICENSE.TXT;md5=bafc4300ca5bbd85b704c45969d15e03"
-PR = "r1"
+PR = "r2"
 
 ANDROID_VERSION = "4.1.2_r1"
 HARDWARE_BROADCOM_NAME = "android_hardware_broadcom_wlan-android-${ANDROID_VERSION}"
 
 COMPATIBLE_MACHINES = "tuna|grouper"
+
+PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 SRC_URI = "https://github.com/webOS-ports/android_hardware_broadcom_wlan/archive/android-${ANDROID_VERSION}.zip;name=hardware_broadcom;downloadfilename=${HARDWARE_BROADCOM_NAME}.zip"
 
