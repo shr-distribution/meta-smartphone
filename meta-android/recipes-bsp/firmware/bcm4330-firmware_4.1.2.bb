@@ -1,7 +1,7 @@
 DESCRIPTION = "Properitary firmware binaries needed for the BCM4330 wifi/bt chip"
 LICENSE = "Properitary"
 LIC_FILES_CHKSUM = "file://${WORKDIR}/${HARDWARE_BROADCOM_NAME}/bcmdhd/firmware/LICENSE.TXT;md5=bafc4300ca5bbd85b704c45969d15e03"
-PR = "r0"
+PR = "r1"
 
 ANDROID_VERSION = "4.1.2_r1"
 HARDWARE_BROADCOM_NAME = "android_hardware_broadcom_wlan-android-${ANDROID_VERSION}"
@@ -21,9 +21,9 @@ BCM4330_BASE_PATH = "${WORKDIR}/${HARDWARE_BROADCOM_NAME}/bcmdhd/firmware/bcm433
 
 do_install_append() {
     install -d ${D}${FIRMARE_PATH}
-    install -m 0644 ${BCM4330_BASE_PATH}/fw_bcm4330_abg.bin ${D}${FIRMARE_PATH}/fw_bcmdhd.bin
-    install -m 0644 ${BCM4330_BASE_PATH}/fw_bcm4330_p2p_abg.bin ${D}${FIRMARE_PATH}/fw_bcmdhd_p2p.bin
-    install -m 0644 ${BCM4330_BASE_PATH}/fw_bcm4330_apsta_abg.bin ${D}${FIRMARE_PATH}/fw_bcmdhd_apsta.bin
+    install -m 0644 ${BCM4330_BASE_PATH}/fw_bcm4330_bg.bin ${D}${FIRMARE_PATH}/fw_bcmdhd.bin
+    install -m 0644 ${BCM4330_BASE_PATH}/fw_bcm4330_p2p_bg.bin ${D}${FIRMARE_PATH}/fw_bcmdhd_p2p.bin
+    install -m 0644 ${BCM4330_BASE_PATH}/fw_bcm4330_apsta_bg.bin ${D}${FIRMARE_PATH}/fw_bcmdhd_apsta.bin
 }
 
 PACKAGES = "${PN}"
