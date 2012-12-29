@@ -1,0 +1,35 @@
+#! /bin/sh
+# samsung-rfs-mgr -- This shell script starts and stops the adb daemon
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin
+NAME=samsung-rfs-mgr
+
+[ -f /etc/default/rcS ] && . /etc/default/rcS
+
+case "$1" in
+    start)
+        echo -n "Starting samsung-rfs-mgr: "
+        start-stop-daemon --start --pidfile /var/run/${NAME}.pid --make-pidfile --background -x /usr/sbin/${NAME}
+        if [ $? = 0 ]; then
+            echo "(ok)"
+        else
+            echo "(failed)"
+        fi
+        ;;
+    stop)
+        echo -n "Stopping samsung-rfs-mgr: "
+        start-stop-daemon --stop --pidfile /var/run/${NAME}.pid --oknodo
+        rm -f /var/run/${NAME}.pid
+        echo "(done)"
+        ;;
+    restart|force-reload)
+        $0 stop
+        $0 start
+        ;;
+    *)
+        echo "Usage: /etc/init.d/samsung-rfs-mgr {start|stop|restart|force-reload}"
+        exit 1
+        ;;
+esac
+
+exit 0
