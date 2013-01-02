@@ -7,17 +7,17 @@ COMPATIBLE_MACHINE = "tuna"
 PV = "4.1.2+gitr${SRCPV}"
 PR = "${INC_PR}.0"
 
-ANDROID_VERSION = "4.1.2_r1"
+ANDROID_VERSION = "tuna-4.1.2_r1"
 
 SRC_URI += " \
   https://dl.google.com/dl/android/aosp/imgtec-maguro-jzo54k-0911a9b5.tgz;name=imgtec \
-  https://github.com/webOS-ports/android-binaries/archive/${ANDROID_VERSION}.zip;name=binaries;downloadfilename=android-binaries-${ANDROID_VERSION}.zip \
+  git://github.com/webOS-ports/android-binaries;tag=${ANDROID_VERSION};protocol=git;destsuffix=android-binaries \
   file://pvrinit.sh"
+
+SRCREV_FORMAT = "hybris"
 
 SRC_URI[imgtec.md5sum] = "bb6a93e9839da21d3687f87edb84635e"
 SRC_URI[imgtec.sha256sum] = "e297f1756121fdf417305108772c435167e9e652eb49242431c9213f236f2092"
-SRC_URI[binaries.md5sum] = "3cf9606cbb472a001bbeefe7edbe02fe"
-SRC_URI[binaries.sha256sum] = "0db1f57d5d82523492606057567efe1c16fd08c82144d6ede1e55ec966c28f14"
 
 unpack_imgtec_license() {
     cd ${WORKDIR}
@@ -46,7 +46,7 @@ do_install_append() {
     install -m 0755 ${WORKDIR}/pvrinit.sh ${D}${sysconfdir}/init.d
     ln -sf ../init.d/pvrinit.sh ${D}${sysconfdir}/rcS.d/S90pvrinit.sh
 
-    cp -rav ${WORKDIR}/android-binaries-${ANDROID_VERSION}/binaries/system ${D}
+    cp -rav ${WORKDIR}/android-binaries/binaries/${MACHINE}/system ${D}
 
     mkdir -p ${D}/system/lib/egl
     mkdir -p ${D}/system/lib/hw
