@@ -11,12 +11,12 @@ ANDROID_VERSION = "grouper-4.1.2_r1"
 
 SRC_URI += " \
   https://dl.google.com/dl/android/aosp/nvidia-grouper-jzo54k-56de148f.tgz;name=nvidia \
-  https://github.com/webOS-ports/android-binaries/archive/${ANDROID_VERSION}.zip;name=binaries;downloadfilename=android-binaries-${ANDROID_VERSION}.zip"
+  git://github.com/webOS-ports/android-binaries;tag=${ANDROID_VERSION};protocol=git;destsuffix=android-binaries"
+
+SRCREV_FORMAT = "hybris"
 
 SRC_URI[nvidia.md5sum] = "c2fc0baa77ee1f9a71096459950651ba"
 SRC_URI[nvidia.sha256sum] = "41c2fc49bbdd8956710fd451984403ca61bef41e2b3e80bce46e8a640ecd3957"
-SRC_URI[binaries.md5sum] = "3c3fe10e7cbf761f173b356a38741473"
-SRC_URI[binaries.sha256sum] = "c48f8fcafc6760422333fde74eb75c7a9cfae01c2e2dd616c40212fd840836dd"
 
 unpack_nvidia_license() {
     cd ${WORKDIR}
@@ -60,7 +60,7 @@ do_install_append() {
     install -d ${D}/system/lib/egl
     install -d ${D}/system/etc/firmware
 
-    cp -rav ${WORKDIR}/android-binaries-${ANDROID_VERSION}/binaries/${MACHINE}/system ${D}
+    cp -rav ${WORKDIR}/android-binaries/binaries/${MACHINE}/system ${D}
 
     for f in ${BINARIES_SYSTEM_LIB} ; do
         cp ${VENDOR_BINARY_PATH}/$f ${D}/system/lib/
