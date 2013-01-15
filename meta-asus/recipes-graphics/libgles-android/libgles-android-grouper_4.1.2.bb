@@ -1,8 +1,5 @@
 require recipes-graphics/libgles-android/libgles-android.inc
 
-# we temporary need this until libhybris bug is resolved
-DEPENDS += "virtual/libx11"
-
 LIC_FILES_CHKSUM += "file://${WORKDIR}/LICENSE.nvidia;md5=a7760e2d42bec19a59a14fa084df0d39"
 
 COMPATIBLE_MACHINE = "grouper"
