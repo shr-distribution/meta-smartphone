@@ -12,7 +12,7 @@ SRC_URI = " \
   file://samsung-rfs-mgr.init"
 S = "${WORKDIR}/git"
 
-SRCREV = "6c72b4d082213b8f84ea5da5932d3aab1db36d11"
+SRCREV = "db81eaaed9b8c1c7e4e1998837d10282bb59b5b6"
 
 inherit autotools update-rc.d
 
