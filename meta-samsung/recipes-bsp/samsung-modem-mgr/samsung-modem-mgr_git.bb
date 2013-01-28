@@ -3,9 +3,13 @@ SECTION = "console"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=eb723b61539feef013de476e68b5c50a"
 PV = "0.1.0+gitr${SRCPV}"
-PR = "r1"
+PR = "r2"
 
-DEPENDS = "dbus glib-2.0"
+DEPENDS = "dbus glib-2.0 libsamsung-ipc"
+
+# needs newer samsung-ipc which has negative D_P, 
+# Requested 'samsung-ipc-1.0 >= 0.2' but version of libsamsung-ipc is 0.1.0
+EXCLUDE_FROM_WORLD = "1"
 
 SRC_URI = " \
   git://github.com/morphis/samsung-modem-mgr.git;protocol=git;branch=master \
