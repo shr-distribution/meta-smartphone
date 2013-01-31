@@ -7,7 +7,7 @@ DEPENDS = "glib-2.0"
 PE = "1"
 
 SHRT_VER = "${@bb.data.getVar('PV',d,1).split('.')[0]}.${@bb.data.getVar('PV',d,1).split('.')[1]}"
-SRC_URI = "http://downloads.freesmartphone.org/sources/${BPN}/${SHRT_VER}/${P}.tar.bz2"
+SRC_URI = "http://downloads.freesmartphone.org/sources/cornucopia/0.12/${P}.tar.bz2"
 
 inherit vala autotools
 
