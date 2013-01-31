@@ -22,7 +22,7 @@ def get_shrt_ver(bb, d):
 
 SHRT_VER = "${@get_shrt_ver(bb, d)}"
 
-SRC_URI = "http://downloads.freesmartphone.org/sources/cornucopia/${SHRT_VER}/${PN}-${SRC_VER}.tar.bz2"
+SRC_URI = "http://downloads.freesmartphone.org/sources/cornucopia/${SHRT_VER}/${PN}-${PV}.tar.bz2"
 
 S = "${WORKDIR}/${PN}-${SRC_VER}"
 
