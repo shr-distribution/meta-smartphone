@@ -1,0 +1,61 @@
+From c089fee36b74a9aa50fcba72fb5bd4ac2ceb4105 Mon Sep 17 00:00:00 2001
+From: Simon Busch <morphis@gravedo.de>
+Date: Fri, 1 Feb 2013 12:53:20 +0100
+Subject: [PATCH] Implement cmake based build script for builds outside of
+ Android
+
+Signed-off-by: Simon Busch <morphis@gravedo.de>
+---
+ CMakeLists.txt       |    4 ++++
+ mlsdk/CMakeLists.txt |   28 ++++++++++++++++++++++++++++
+ 2 files changed, 32 insertions(+)
+ create mode 100644 CMakeLists.txt
+ create mode 100644 mlsdk/CMakeLists.txt
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+new file mode 100644
+index 0000000..c946c27
+--- /dev/null
++++ b/CMakeLists.txt
+@@ -0,0 +1,4 @@
++project(invensense)
++cmake_minimum_required(VERSION 2.6)
++
++add_subdirectory(mlsdk)
+diff --git a/mlsdk/CMakeLists.txt b/mlsdk/CMakeLists.txt
+new file mode 100644
+index 0000000..92b326e
+--- /dev/null
++++ b/mlsdk/CMakeLists.txt
+@@ -0,0 +1,28 @@
++include_directories(platform/include platform/include/linux platform
++                    platform/linux/kernel mllite mlutils)
++
++add_definitions(-DLINUX -D_REENTRANT -DCONFIG_MPU_SENSORS_MPU3050 -DUNICODE)
++add_definitions(-D_UNICODE -DSK_RELEASE -DI2CDEV=\"/dev/mpu\")
++
++set(mlplatform_SRCS platform/linux/mlos_linux.c
++                    platform/linux/mlsl_linux_mpu.c)
++add_library(mlplatform SHARED ${mlplatform_SRCS})
++target_link_libraries(mlplatform m)
++
++set(mllite_SRCS mllite/accel.c mllite/compass.c
++                    mllite/pressure.c mllite/mldl_cfg_mpu.c
++                    mllite/dmpDefault.c mllite/ml.c
++                    mllite/mlarray.c mllite/mlarray_legacy.c
++                    mllite/mlFIFO.c mllite/mlFIFOHW.c
++                    mllite/mlMathFunc.c mllite/ml_stored_data.c
++                    mllite/mlcontrol.c mllite/mldl.c
++                    mllite/mldmp.c mllite/mlstates.c
++                    mllite/mlsupervisor.c mllite/mlBiasNoMotion.c
++                    mllite/mlSetGyroBias.c mllite/ml_mputest.c
++                    mlutils/mputest.c mlutils/checksum.c)
++
++add_library(mllite SHARED ${mllite_SRCS})
++target_link_libraries(mllite mlplatform m)
++
++install(TARGETS mlplatform LIBRARY DESTINATION lib)
++install(TARGETS mllite LIBRARY DESTINATION lib)
+-- 
+1.7.10.4
+
