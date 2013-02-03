@@ -2,7 +2,7 @@ require cornucopia-base.inc
 
 inherit fso-plugin
 
-DEPENDS += "alsa-lib android-rpc"
+DEPENDS += "alsa-lib android-rpc libnl"
 RPROVIDES_${PN} = "openmoko-alsa-scenarios virtual/alsa-scenarios"
 
 EXTRA_OECONF = "\
