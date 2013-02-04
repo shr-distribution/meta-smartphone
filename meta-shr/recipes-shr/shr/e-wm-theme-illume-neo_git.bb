@@ -27,7 +27,7 @@ do_install() {
 
 FILES_${PN} = "${datadir}/enlightenment/data/themes/"
 
-pkg_postinst() {
+pkg_postinst_${PN} () {
     echo "To activate this theme make sure to set your enlightenment rendering engine to SOFTWARE or enlightenment will segfault."
     echo "This theme also ships with an enlightenment bootscreen which can be activated by selecting it under STARTUP in the LOOK tab of enlightenment settings"
     echo "After activating this theme be sure to switch to SOFTWARE_16 engine in enlightenment advanced settings to unleash the theme's full power ;-)"
