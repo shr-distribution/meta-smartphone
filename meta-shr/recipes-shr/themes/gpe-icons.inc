@@ -18,7 +18,7 @@ ALTERNATIVE_PRIORITY ?= "1"
 # inherit update-alternatives is not used, because not all distributions want to use it
 # and conditional inherit is a bit difficult to use (inherit ${GPE_INHERIT} works, but only if we always want at least 1 bbclass)
 
-pkg_postinst_shr() {
+pkg_postinst_${PN} () {
         if [[ -e ${ALTERNATIVE_LINK} && ! -h ${ALTERNATIVE_LINK} ]] ; then
                 echo "warn: ${ALTERNATIVE_LINK} exists and it's not a link!"
                 echo "warn: It will be replaced with link managed by update-alternatives"
@@ -44,6 +44,6 @@ pkg_postinst_shr() {
         update-alternatives --install ${ALTERNATIVE_LINK} ${ALTERNATIVE_NAME} ${ALTERNATIVE_PATH} ${ALTERNATIVE_PRIORITY}
 }
 
-pkg_postrm_shr() {
+pkg_postrm_${PN} () {
         update-alternatives --remove ${ALTERNATIVE_NAME} ${ALTERNATIVE_PATH}
 }

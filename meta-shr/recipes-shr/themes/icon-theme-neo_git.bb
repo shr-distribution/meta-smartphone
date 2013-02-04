@@ -23,7 +23,7 @@ do_install() {
 
 FILES_${PN} = "${datadir}/icons/nEo/"
 
-pkg_postinst() {
+pkg_postinst_${PN} () {
         echo "To activate this theme select it under ICON THEME in the LOOK tab of enlightenment settings"
         echo "Restart enlightenment for the changes to take affect"
 }
