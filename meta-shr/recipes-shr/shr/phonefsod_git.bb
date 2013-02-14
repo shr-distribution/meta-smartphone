@@ -15,10 +15,16 @@ S = "${WORKDIR}/git"
 
 inherit autotools update-rc.d systemd
 
-SYSTEMD_PACKAGES = "${PN}-systemd"
-SYSTEMD_SERVICE = "${PN}.service"
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "${PN}.service"
+RPROVIDES_${PN} += "${PN}-systemd"
 
 INITSCRIPT_NAME = "phonefsod"
 INITSCRIPT_PARAMS = "defaults 75"
 
 CONFFILES_${PN} = "${sysconfdir}/phonefsod.conf"
+
+do_install_append() {
+    install -d ${D}${systemd_unitdir}/system
+    install -m 0644 ${WORKDIR}/${PN}.service ${D}${systemd_unitdir}/system
+}

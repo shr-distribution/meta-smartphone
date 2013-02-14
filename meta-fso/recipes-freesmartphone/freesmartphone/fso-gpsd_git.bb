@@ -20,12 +20,16 @@ inherit autotools update-rc.d systemd
 INITSCRIPT_NAME = "fso-gpsd-sysv"
 INITSCRIPT_PARAMS = "defaults 35"
 
-SYSTEMD_PACKAGES = "${PN}-systemd"
-SYSTEMD_SERVICE = "${PN}.service"
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "${PN}.service"
+RPROVIDES_${PN} += "${PN}-systemd"
 
 do_install_append() {
     install -d ${D}${sysconfdir}/init.d/
     install -m 0755 ${WORKDIR}/fso-gpsd ${D}${sysconfdir}/init.d/fso-gpsd-sysv
+    
+    install -d ${D}${systemd_unitdir}/system
+    install -m 0644 ${WORKDIR}/${PN}.service ${D}${systemd_unitdir}/system
 }
 
 FILES_${PN} += "${sysconfdir}"

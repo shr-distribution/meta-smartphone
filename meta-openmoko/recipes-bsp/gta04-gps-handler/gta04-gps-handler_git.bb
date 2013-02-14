@@ -28,8 +28,9 @@ inherit distutils update-rc.d systemd
 INITSCRIPT_NAME = "gps-handler"
 INITSCRIPT_PARAMS = "defaults 36 34"
 
-SYSTEMD_PACKAGES = "${PN}-systemd"
-SYSTEMD_SERVICE = "gps-handler.service"
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "gps-handler.service"
+RPROVIDES_${PN} += "${PN}-systemd"
 
 FILES_${PN} += "${sysconfdir}"
 

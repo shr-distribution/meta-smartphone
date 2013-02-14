@@ -23,8 +23,9 @@ INITSCRIPT_NAME = "${PN}"
 INITSCRIPT_PARAMS = "defaults 30"
 
 inherit systemd
-SYSTEMD_PACKAGES = "${PN}-systemd"
-SYSTEMD_SERVICE = "${PN}.service"
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "${PN}.service"
+RPROVIDES_${PN} += "${PN}-systemd"
 
 RDEPENDS_${PN} += "${PN}-config"
 

@@ -12,8 +12,9 @@ inherit distutils update-rc.d python-dir systemd
 INITSCRIPT_NAME = "frameworkd"
 INITSCRIPT_PARAMS = "defaults 29"
 
-SYSTEMD_PACKAGES = "${PN}-systemd"
-SYSTEMD_SERVICE = "${PN}.service"
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "${PN}.service"
+RPROVIDES_${PN} += "${PN}-systemd"
 
 SHRT_VER = "${@bb.data.getVar('PV',d,1).split('.')[0]}.${@bb.data.getVar('PV',d,1).split('.')[1]}"
 SRC_URI = "http://downloads.freesmartphone.org/sources/frameworkd/${SHRT_VER}/${P}.tar.bz2"
