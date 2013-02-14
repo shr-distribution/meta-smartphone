@@ -6,11 +6,11 @@ inherit packagegroup
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-PR = "r10"
+PR = "r11"
 
 GPSD_PROVIDER = "gpsd-systemd"
 
-CALIBRATOR_PROVIDER = "xinput-calibrator-systemd"
+CALIBRATOR_PROVIDER = "xinput-calibrator"
 CALIBRATOR_PROVIDER_crespo = ""
 
 RPROVIDES_${PN} += "task-shr-systemd"
@@ -19,7 +19,6 @@ RCONFLICTS_${PN} += "task-shr-systemd"
 RDEPENDS_${PN} = "\
   keymaps-systemd \
   ${CALIBRATOR_PROVIDER} \
-  openssh-sshd-systemd \
   phonefsod-systemd \
   frameworkd-systemd \
   fsodeviced-systemd \
