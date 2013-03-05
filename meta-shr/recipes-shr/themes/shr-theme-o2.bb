@@ -11,4 +11,4 @@ inherit allarch
 
 PV = "0.1"
 
-ALLOW_EMPTY = "1"
+ALLOW_EMPTY_${PN} = "1"
