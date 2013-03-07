@@ -6,7 +6,7 @@ SECTION = "devel"
 DEPENDS = "vala-dbus-binding-tool-native vala-dbus-binding-tool glib-2.0 fso-specs"
 PE = "1"
 
-SRC_URI = "http://downloads.freesmartphone.org/sources/${BPN}/${P}.tar.bz2"
+SRC_URI = "http://downloads.freesmartphone.org/sources/cornucopia/0.12/${P}.tar.bz2"
 
 inherit autotools vala
 

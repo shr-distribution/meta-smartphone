@@ -9,4 +9,4 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384
 PV = "0.0"
 inherit allarch
 
-ALLOW_EMPTY = "1"
+ALLOW_EMPTY_${PN} = "1"

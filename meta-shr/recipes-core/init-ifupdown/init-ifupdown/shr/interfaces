@@ -1,0 +1,27 @@
+# /etc/network/interfaces -- configuration file for ifup(8), ifdown(8)
+
+# The loopback interface
+auto lo
+iface lo inet loopback
+
+# Ethernet/RNDIS gadget (g_ether)
+# ... or on host side, usbnet and random hwaddr
+auto usb0
+iface usb0 inet static
+        pre-up depmod
+        pre-up modprobe g_ether
+    address 192.168.7.2
+    netmask 255.255.255.0
+    network 192.168.7.0
+    gateway 192.168.7.1
+        post-down rmmod g_ether
+    up echo nameserver 208.67.222.222 > /etc/resolv.conf
+    up echo nameserver 208.67.220.220 >> /etc/resolv.conf
+
+# USB gadget driver (f_rndis)
+auto rndis0
+iface rndis0 inet static
+    address 192.168.7.2
+    netmask 255.255.255.0
+    network 192.168.7.0
+    gateway 192.168.7.1

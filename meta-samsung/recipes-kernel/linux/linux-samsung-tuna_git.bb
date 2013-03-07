@@ -39,12 +39,11 @@ inherit machine_kernel_pr
 # Workaround default -Werror setting and some warnings in kernel compilation
 TARGET_CC_KERNEL_ARCH += " -Wno-error=unused-but-set-variable -Wno-error=array-bounds"
 
-CMDLINE = "mem=1G vmalloc=768M omap_wdt.timer_margin=30 no_console_suspend=1 fbcon=rotate:1 panic=20"
+CMDLINE = "mem=1G vmalloc=768M omap_wdt.timer_margin=30 no_console_suspend=1 panic=20 fbcon=map:3"
 
 do_deploy_append() {
     mkbootimg --kernel ${S}/${KERNEL_OUTPUT} \
               --ramdisk ${DEPLOY_DIR_IMAGE}/chroot-image-tuna.cpio.gz \
-              --cmdline "${CMDLINE}" \
               --base 0x80000000 \
               --output ${DEPLOY_DIR_IMAGE}/${KERNEL_IMAGE_BASE_NAME}.fastboot
 

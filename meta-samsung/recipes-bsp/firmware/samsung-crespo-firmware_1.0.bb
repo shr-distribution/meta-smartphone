@@ -9,6 +9,9 @@ PR = "r2"
 PACKAGES = "${PN}"
 ALLOW_EMPTY_${PN} = "1"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
+# maybe other devices too, but it has crespo in name and 
+# we don't want to build it e.g. as part of qemuarm world build
+COMPATIBLE_MACHINE = "crespo"
 
 pkg_postinst_${PN}() {
   #!/bin/sh -e

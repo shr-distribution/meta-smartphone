@@ -1,0 +1,11 @@
+diff -rupN fsotdld-0.12.0/configure.ac fsotdld-0.12.0.new/configure.ac
+--- fsotdld-0.12.0/configure.ac	2013-01-25 10:30:35.000000000 +0100
++++ fsotdld-0.12.0.new/configure.ac	2013-01-31 22:23:14.361276641 +0100
+@@ -194,7 +194,6 @@ AC_CONFIG_FILES([
+   src/plugins/source_ntp/Makefile
+   src/plugins/source_gpsddbus/Makefile
+   src/plugins/sync_time/Makefile
+-  tests/Makefile
+   vapi/Makefile
+ ])
+ 

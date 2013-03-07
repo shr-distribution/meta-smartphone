@@ -10,4 +10,4 @@ PV = "0.2"
 PR = "r5"
 inherit allarch
 
-ALLOW_EMPTY = "1"
+ALLOW_EMPTY_${PN} = "1"

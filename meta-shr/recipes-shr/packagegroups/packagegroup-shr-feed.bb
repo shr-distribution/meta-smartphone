@@ -1,5 +1,5 @@
 DESCRIPTION = "SHR Feed"
-PR = "r114"
+PR = "r116"
 PV = "1.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
@@ -192,7 +192,6 @@ RDEPENDS_${PN} += "\
         babiloo-efl \
         ffalarms \
         foxtrotgps \
-        tangogps \
         gpe-scap \
         gtkmm \
         guitartune \
@@ -327,6 +326,7 @@ RDEPENDS_${PN} += "\
         mokoeightball \
         valacompass \
         sensmon \
+        confclerk \
 "
 
 # armv4 is not goog enough for firefox ASM optimalizations

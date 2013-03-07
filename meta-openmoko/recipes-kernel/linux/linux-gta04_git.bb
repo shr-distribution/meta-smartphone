@@ -6,12 +6,11 @@ PE = "5"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 
-SRCREV = "948000934725eca4ed2da6a604ac3c1fb7ac0438"
+SRCREV = "5c4603590af40cccce1d75396d4cb3fdffe0fdef"
 
 SRC_URI = "\
   git://github.com/shr-distribution/linux.git;protocol=git;branch=om-gta04/3.4/master;name=kernel \
   file://defconfig \
-  file://hwrouting_add_voice_route.patch \
 "
 S = "${WORKDIR}/git"
 
@@ -27,7 +26,7 @@ do_configure_append() {
   kernel_conf_variable_fixup USB_GADGET_MUSB_HDRC y
 }
 
-CMDLINE_om-gta04 = "console=ttyO2,115200n8 mpurate=800 vram=12M omapfb.rotate_type=0 omapdss.def_disp=lcd rootfstype=ext4,ext3,btrfs,ubifs,jffs2 rootwait twl4030_charger.allow_usb=1 twl4030_charger.charge_backup=1 musb_hdrc.preserve_vbus=1 log_buf_len=8M omapfb.vram=1:1200k,2:1200k"
+CMDLINE_om-gta04 = "console=ttyO2,115200n8 mpurate=800 vram=12M omapfb.rotate_type=0 omapdss.def_disp=lcd rootfstype=ext4,ext3,btrfs,ubifs,jffs2 rootwait twl4030_charger.allow_usb=1 twl4030_charger.charge_backup=1 musb_hdrc.preserve_vbus=1 log_buf_len=8M omapfb.vram=1:1200k,2:1200k omapfb.vrfb=y"
 
 # Mark archs/machines that this kernel supports
 COMPATIBLE_MACHINE = "om-gta04"

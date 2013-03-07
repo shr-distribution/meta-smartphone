@@ -28,7 +28,7 @@ do_install() {
 
 }
 
-pkg_postinst() {
+pkg_postinst_${PN} () {
     [ -e ${datadir}/pixmaps/xsplash-vga.ppm ] || ln -s ${datadir}/shr-splash/theme/xsplash-vga.ppm ${datadir}/pixmaps/xsplash-vga.ppm
 }
 

@@ -7,9 +7,8 @@ SECTION = "x11/applications"
 
 DEPENDS = "python-native edje-native"
 
-SRCREV = "16"
-PV = "1.4.0+svnr${SRCPV}"
-PR = "r5"
+SRCREV = "18"
+PV = "1.4.1+svnr${SRCPV}"
 
 SRC_URI = "svn://neolight.googlecode.com/svn;module=trunk;protocol=http"
 S = "${WORKDIR}/trunk"

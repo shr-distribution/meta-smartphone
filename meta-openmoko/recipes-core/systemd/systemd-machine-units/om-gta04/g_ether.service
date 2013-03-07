@@ -1,0 +1,8 @@
+[Unit]
+Description=Set up hwaddr for g_ether and power up usb0 interface on GTA04
+
+[Service]
+ExecStart=/usr/bin/g_ether.sh
+
+[Install]
+WantedBy=basic.target

@@ -1,6 +1,6 @@
 require ${BPN}.inc
 
-PR = "r1"
+PR = "r2"
 
-SRC_URI[md5sum] = "5eae8b8ef3668077550d7e65c313ed7f"
-SRC_URI[sha256sum] = "4f9ead3e400b910c9bd5ca1e9f7691c96bcb2210a5ffd44321d6e14554bf0777"
+SRC_URI[md5sum] = "4aa35c7ec47014bdb001823eb4e083b9"
+SRC_URI[sha256sum] = "786b7a30eeaa87062ce51d3dd49d7d12f36842f3f30471cc4c8f09de40e244bb"

@@ -1,6 +1,0 @@
-require ${BPN}.inc
-
-PR = "${INC_PR}.0"
-
-SRC_URI[md5sum] = "6e8fb8e16676c17fcbf92851a8c0704c"
-SRC_URI[sha256sum] = "080c4929917e660600a8eeb4164e80b881521f31c626577bda53ae86288a2e60"

@@ -15,7 +15,9 @@ LIC_FILES_CHKSUM = " \
 
 PR = "r4"
 
-COMPATIBLE_MACHINES = "tuna"
+# maybe other devices too, but it has tuna in name and 
+# we don't want to build it e.g. as part of qemuarm world build
+COMPATIBLE_MACHINE = "tuna"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 SRC_URI = " \

@@ -12,7 +12,7 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384
 
 PACKAGES = "${PN}"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
-ALLOW_EMPTY = "1"
+ALLOW_EMPTY_${PN} = "1"
 
 ## htcdream
 #  modem_qualcomm_htc.so
