@@ -6,6 +6,8 @@ SRCREV = "de05935d27f652f247d806f6f8a290455a546b47"
 PV = "1.2+gitr${SRCPV}"
 inherit allarch
 
+# build only one e-wm-sysactions provider
+EXCLUDE_FROM_WORLD = "1"
 RCONFLICTS_${PN} = "e-wm-sysactions"
 RPROVIDES_${PN} = "e-wm-sysactions"
 RREPLACES_${PN} = "e-wm-sysactions"

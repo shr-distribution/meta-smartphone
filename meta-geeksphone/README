@@ -3,7 +3,13 @@ This layer depends on:
 
 URI: git://github.com/shr-distribution/oe-core.git
 layers: meta
-branch: shr
+branch: master
+revision: HEAD
+
+URI: git://github.com/shr-distribution/meta-oe.git
+layers: meta-oe
+branch: master
+revision: HEAD
 
 If you want to contribute changes, please follow
 http://www.shr-project.org/trac/wiki/Howto%20get%20my%20application%20in%20the%20SHR%20feed
