@@ -2,7 +2,7 @@ The OpenEmbedded layer for android specific software.
 
 This layer depends on:
 
-URI: git://git.openembedded.org/openembedded-core
+URI: git://github.com/openembedded/oe-core.git
 layers: meta
 branch: master
 revision: HEAD
