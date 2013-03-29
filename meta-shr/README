@@ -11,7 +11,7 @@ layers: meta-oe, meta-efl, meta-gnome, meta-gpe, meta-systemd
 branch: master
 revision: HEAD
 
-URI: http://git.shr-project.org/repo/meta-smartphone.git
+URI: git://github.com/shr-distribution/meta-smartphone.git
 layers: meta-fso, meta-aurora
 branch: master
 revision: HEAD
