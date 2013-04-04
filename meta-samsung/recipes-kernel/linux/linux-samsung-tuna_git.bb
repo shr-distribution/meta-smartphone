@@ -5,10 +5,11 @@ SECTION = "kernel"
 # Mark archs/machines that this kernel supports
 COMPATIBLE_MACHINE = "tuna"
 
-do_deploy[depends] += "chroot-image:do_build"
-DEPENDS += "android-image-utils-native chroot-image"
 DESCRIPTION = "Linux kernel for the Samsung Tuna device based on the offical \
 source from Samsung"
+
+KERNEL_RAM_BASE = "0x80000000"
+inherit kernel_android
 
 SRC_URI = " \
   git://github.com/shr-distribution/linux.git;protocol=git;branch=tuna/3.0/master \
@@ -40,14 +41,3 @@ inherit machine_kernel_pr
 TARGET_CC_KERNEL_ARCH += " -Wno-error=unused-but-set-variable -Wno-error=array-bounds"
 
 CMDLINE = "mem=1G vmalloc=768M omap_wdt.timer_margin=30 no_console_suspend=1 panic=20 fbcon=map:3"
-
-do_deploy_append() {
-    mkbootimg --kernel ${S}/${KERNEL_OUTPUT} \
-              --ramdisk ${DEPLOY_DIR_IMAGE}/chroot-image-tuna.cpio.gz \
-              --base 0x80000000 \
-              --output ${DEPLOY_DIR_IMAGE}/${KERNEL_IMAGE_BASE_NAME}.fastboot
-
-    cd ${DEPLOYDIR}
-    rm -f ${KERNEL_IMAGE_SYMLINK_NAME}.fastboot
-    ln -sf ${KERNEL_IMAGE_BASE_NAME}.fastboot ${KERNEL_IMAGE_SYMLINK_NAME}.fastboot
-}
