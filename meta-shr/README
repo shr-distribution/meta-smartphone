@@ -13,7 +13,7 @@ revision: HEAD
 
 URI: git://github.com/shr-distribution/meta-smartphone.git
 layers: meta-fso, meta-aurora
-branch: master
+branch: shr
 revision: HEAD
 
 It is recommended to follow the instruction at 
