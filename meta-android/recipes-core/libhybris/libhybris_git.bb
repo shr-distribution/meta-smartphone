@@ -14,6 +14,10 @@ S = "${WORKDIR}/git/hybris"
 PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/egl"
 
 # We don't ship any android binaries but depend on someone else doing this
-RDEPENDS_${PN} += "${VIRTUAL-RUNTIME_android-system-image}"
+# Your image needs to pull right MACHINE specific implementation
+# use VIRTUAL-RUNTIME_android-system-image in some packagegroup
+# RDEPENDS cannot be used because this is TUNE_PKGARCH recipe and 
+# android-system-image is MACHINE_ARCH
+# RDEPENDS_${PN} += "${VIRTUAL-RUNTIME_android-system-image}"
 
 inherit autotools
