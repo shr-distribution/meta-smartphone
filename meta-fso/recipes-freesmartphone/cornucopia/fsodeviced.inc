@@ -17,9 +17,10 @@ INITSCRIPT_NAME = "${PN}"
 INITSCRIPT_PARAMS = "defaults 27"
 
 inherit systemd
-SYSTEMD_PACKAGES = "${PN}"
 SYSTEMD_SERVICE_${PN} = "${PN}.service"
 RPROVIDES_${PN} += "${PN}-systemd"
+RREPLACES_${PN} += "${PN}-systemd"
+RCONFLICTS_${PN} += "${PN}-systemd"
 
 SRC_URI_append = " file://${PN}"
 SRC_URI_append = " file://0001-fsodeviced-add-config-for-qemux86-and-qemux86-64-Aut.patch"
