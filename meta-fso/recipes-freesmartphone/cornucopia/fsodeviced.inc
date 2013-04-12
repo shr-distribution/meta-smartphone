@@ -22,6 +22,7 @@ SYSTEMD_SERVICE_${PN} = "${PN}.service"
 RPROVIDES_${PN} += "${PN}-systemd"
 
 SRC_URI_append = " file://${PN}"
+SRC_URI_append = " file://0001-fsodeviced-add-config-for-qemux86-and-qemux86-64-Aut.patch"
 
 do_install_append() {
     install -d ${D}${sysconfdir}/init.d/
