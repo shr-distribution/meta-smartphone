@@ -9,7 +9,9 @@ PE = "1"
 inherit distutils python-dir
 
 SHRT_VER = "${@bb.data.getVar('PV',d,1).split('.')[0]}.${@bb.data.getVar('PV',d,1).split('.')[1]}"
-SRC_URI = "http://downloads.freesmartphone.org/sources/frameworkd/${SHRT_VER}/frameworkd-${PV}.tar.bz2"
+SRC_URI = "http://downloads.freesmartphone.org/sources/frameworkd/${SHRT_VER}/frameworkd-${PV}.tar.bz2 \
+  file://0001-Add-config-for-some-qemu-machines.patch \
+"
 
 S = "${WORKDIR}/frameworkd-${PV}"
 
