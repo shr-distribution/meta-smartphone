@@ -17,6 +17,8 @@ do_install_append() {
         if [ "${MACHINE}" = "crespo" -o "${MACHINE}" = "tuna" ]; then
                 install -d ${D}${bindir}
                 install -m 0755 ${WORKDIR}/rndissetup.sh ${D}${bindir}
+                install -d ${D}${systemd_unitdir}/system
+                install -m 0644 ${WORKDIR}/rndissetup.service ${D}${systemd_unitdir}/system
         fi
         if [ "${MACHINE}" = "crespo" ]; then
                 install -m 0755 ${WORKDIR}/disablefbcon.sh ${D}${bindir}

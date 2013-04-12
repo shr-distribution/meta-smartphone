@@ -13,6 +13,8 @@ do_install_append() {
         if [ "${MACHINE}" = "nokia900" ]; then
                 install -d ${D}${bindir}
                 install -m 0755 ${WORKDIR}/nokia-n900-cmt-gpio.sh ${D}${bindir}
+                install -d ${D}${systemd_unitdir}/system
+                install -m 0644 ${WORKDIR}/nokia-n900-cmt-gpio.service ${D}${systemd_unitdir}/system
         fi
 }
 

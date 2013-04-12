@@ -8,7 +8,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
 
 RDEPENDS_${PN} += "python-pygps python-pygobject python-core"
 
-PR = "r2"
+PR = "r3"
 PV = "0.0.0+gitr${SRCPV}"
 
 SRCREV = "0920464d6d8caa74abcb3dfacafd846ae5d0620b"
@@ -28,8 +28,10 @@ inherit distutils update-rc.d systemd
 INITSCRIPT_NAME = "gps-handler"
 INITSCRIPT_PARAMS = "defaults 36 34"
 
-SYSTEMD_PACKAGES = "${PN}-systemd"
-SYSTEMD_SERVICE = "gps-handler.service"
+SYSTEMD_SERVICE_${PN} = "gps-handler.service"
+RPROVIDES_${PN} += "${PN}-systemd"
+RREPLACES_${PN} += "${PN}-systemd"
+RCONFLICTS_${PN} += "${PN}-systemd"
 
 FILES_${PN} += "${sysconfdir}"
 

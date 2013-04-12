@@ -1,6 +1,6 @@
 require ${BPN}.inc
 
-PR = "r1"
+PR = "r2"
 
 SRC_URI += " \
            file://oeventsd-use-opimd-signals.patch \

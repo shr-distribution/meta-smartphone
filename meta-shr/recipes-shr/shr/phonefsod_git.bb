@@ -6,7 +6,7 @@ SECTION = "x11/applications"
 DEPENDS += " libfso-glib libshr-glib sqlite3 shr-specs libfsoframework"
 SRCREV = "42dd49e95660ca1237b244bb45fe6474d9241bd1"
 PV = "0.0.0+gitr${SRCPV}"
-PR = "r11"
+PR = "r12"
 
 SRC_URI = "git://git.shr-project.org/repo/phonefsod.git;protocol=http;branch=master \
   file://${PN}.service \
@@ -15,10 +15,17 @@ S = "${WORKDIR}/git"
 
 inherit autotools update-rc.d systemd
 
-SYSTEMD_PACKAGES = "${PN}-systemd"
-SYSTEMD_SERVICE = "${PN}.service"
+SYSTEMD_SERVICE_${PN} = "${PN}.service"
+RPROVIDES_${PN} += "${PN}-systemd"
+RREPLACES_${PN} += "${PN}-systemd"
+RCONFLICTS_${PN} += "${PN}-systemd"
 
 INITSCRIPT_NAME = "phonefsod"
 INITSCRIPT_PARAMS = "defaults 75"
 
 CONFFILES_${PN} = "${sysconfdir}/phonefsod.conf"
+
+do_install_append() {
+    install -d ${D}${systemd_unitdir}/system
+    install -m 0644 ${WORKDIR}/${PN}.service ${D}${systemd_unitdir}/system
+}

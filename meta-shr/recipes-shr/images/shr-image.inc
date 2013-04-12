@@ -10,8 +10,6 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384
 
 DEPENDS += "packagegroup-shr-minimal"
 
-# NOTE: we expect packagegroup-shr-systemd to pull in openssh-sshd-systemd 
-# here as that is not (yet hopefully) done via IMAGE_FEATURES
 IMAGE_FEATURES += "debug-tweaks package-management ssh-server-openssh"
 
 inherit core-image

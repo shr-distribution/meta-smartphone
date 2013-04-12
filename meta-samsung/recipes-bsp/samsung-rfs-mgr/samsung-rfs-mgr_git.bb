@@ -3,7 +3,7 @@ SECTION = "console"
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=eb723b61539feef013de476e68b5c50a"
 PV = "0.1.0+gitr${SRCPV}"
-PR = "r1"
+PR = "r2"
 
 DEPENDS = "glib-2.0"
 
@@ -14,7 +14,7 @@ S = "${WORKDIR}/git"
 
 SRCREV = "db81eaaed9b8c1c7e4e1998837d10282bb59b5b6"
 
-inherit autotools update-rc.d
+inherit autotools update-rc.d systemd
 
 INITSCRIPT_NAME = "samsung-rfs-mgr"
 INITSCRIPT_PARAMS = "defaults 20"
@@ -24,5 +24,7 @@ do_install_append() {
     install -m 0755 ${WORKDIR}/samsung-rfs-mgr.init ${D}${sysconfdir}/init.d/samsung-rfs-mgr
 }
 
-PACKAGES += "${PN}-systemd"
-FILES_${PN}-systemd = "${systemd_unitdir}/"
+SYSTEMD_SERVICE_${PN} = "samsung-rfs-mgr.service"
+RPROVIDES_${PN} += "${PN}-systemd"
+RREPLACES_${PN} += "${PN}-systemd"
+RCONFLICTS_${PN} += "${PN}-systemd"

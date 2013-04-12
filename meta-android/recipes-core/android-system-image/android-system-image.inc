@@ -6,7 +6,7 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 RPROVIDES_${PN} += "virtual/android-system-image"
 
-INC_PR = "r0"
+INC_PR = "r1"
 
 do_install() {
     cp -rv ${WORKDIR}/system ${D}
@@ -18,5 +18,9 @@ do_install() {
     chmod -R 0755 ${D}/system/vendor/bin || true
 }
 
+# 400+ elf binaries without GNU_HASH and we cannot fix it
+INSANE_SKIP_${PN} = "ldflags"
+# Already stripped and we cannot fix it, this will hide a lot of warnings about files already stripped
+INHIBIT_PACKAGE_STRIP = "1"
 PACKAGES = "${PN}"
 FILES_${PN} = "/system /vendor"
