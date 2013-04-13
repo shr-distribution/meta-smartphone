@@ -6,7 +6,7 @@ PR = "r2"
 ANDROID_VERSION = "4.1.2_r1"
 HARDWARE_BROADCOM_NAME = "android_hardware_broadcom_wlan-android-${ANDROID_VERSION}"
 
-COMPATIBLE_MACHINES = "tuna|grouper"
+COMPATIBLE_MACHINE = "tuna|grouper"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
