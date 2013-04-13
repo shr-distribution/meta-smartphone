@@ -9,9 +9,9 @@ LIC_FILES_CHKSUM = " \
     file://${WORKDIR}/LICENSE.nvidia;md5=a7760e2d42bec19a59a14fa084df0d39 \
 "
 
-PR = "r0"
+PR = "r1"
 
-COMPATIBLE_MACHINES = "grouper"
+COMPATIBLE_MACHINE = "grouper"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 RDEPENDS_${PN} = "bcm4330-firmware"
