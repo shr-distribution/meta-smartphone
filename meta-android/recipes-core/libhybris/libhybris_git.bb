@@ -13,6 +13,10 @@ S = "${WORKDIR}/git/hybris"
 
 PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/egl"
 
+# most MACHINEs don't use libhybris and depend on mesa to provide *gl*
+# Multiple .bb files are due to be built which each provide virtual/libgles1 (virtual/libgles2, virtual/egl)
+EXCLUDE_FROM_WORLD = "1"
+
 # We don't ship any android binaries but depend on someone else doing this
 # Your image needs to pull right MACHINE specific implementation
 # use VIRTUAL-RUNTIME_android-system-image in some packagegroup
