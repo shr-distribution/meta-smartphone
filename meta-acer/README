@@ -1,0 +1,17 @@
+The OpenEmbedded BSP layer for acer devices
+This layer depends on:
+
+URI: git://github.com/shr-distribution/oe-core.git
+layers: meta
+branch: danny
+
+URI: git://github.com/shr-distribution/meta-oe.git
+layers: meta-oe
+branch: danny
+
+URI: git://github.com/shr-distribution/meta-smartphone.git
+layers: meta-android
+branch: danny
+
+Main layer maintainers: Christophe 'Tofe' Chapuis <chris.chapuis@gmail.com>
+
