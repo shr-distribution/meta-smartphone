@@ -11,12 +11,12 @@ layers: meta-oe
 branch: danny
 revision: HEAD
 
-URI: http://git.shr-project.org/repo/meta-smartphone.git
+URI: git://github.com/shr-distribution/meta-smartphone.git
 layers: meta-fso
 branch: danny
 revision: HEAD
 
-URI: http://git.shr-project.org/repo/meta-smartphone.git
+URI: git://github.com/shr-distribution/meta-smartphone.git
 layers: meta-shr
 branch: danny
 revision: HEAD
