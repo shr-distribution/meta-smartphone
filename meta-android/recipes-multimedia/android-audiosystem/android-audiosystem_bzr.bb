@@ -16,6 +16,10 @@ SRC_URI = "bzr://bazaar.launchpad.net/~phablet-team/android-audiosystem/trunk;pr
 SRCREV = "43"
 S = "${WORKDIR}/trunk"
 
+# temporary fix for issues described in
+# http://lists.linuxtogo.org/pipermail/openembedded-core/2013-April/038746.html
+INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
+
 do_compile() {
     sed -i -e s:^TOOLS_PREFIX=$:TOOLS_PREFIX=${TARGET_PREFIX}:g ${S}/target_lib
 
