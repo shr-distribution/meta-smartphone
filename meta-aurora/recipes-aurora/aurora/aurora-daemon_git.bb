@@ -15,6 +15,10 @@ RDEPENDS_${PN} = "qt4-plugin-imageformat-svg"
 
 PV = "0.1+gitr${SRCPV}"
 
+# temporary fix for issues described in
+# http://lists.linuxtogo.org/pipermail/openembedded-core/2013-April/038746.html
+INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
+
 SRC_URI = "${FREESMARTPHONE_GIT}/aurora.git;protocol=git;branch=master"
 SRCREV = "${AURORA_SRCREV}"
 S = "${WORKDIR}/git/aurora-daemon"
