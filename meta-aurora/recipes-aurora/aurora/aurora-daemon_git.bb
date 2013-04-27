@@ -32,7 +32,6 @@ FILES_${PN} += " ${datadir}/aurora ${libdir}/qt4/imports/Aurora ${datadir}/auror
   ${datadir}/glib-2.0/schemas/org.aurora.gschema.xml"
 FILES_${PN}-dbg += "${libdir}/qt4/imports/Aurora/*/.debug ${datadir}/aurora/applications/*/.debug"
 
-ALTERNATIVE_PATH = "${bindir}/aurora-daemon"
-ALTERNATIVE_NAME = "x-window-manager"
-ALTERNATIVE_LINK = "${bindir}/x-window-manager"
-ALTERNATIVE_PRIORITY = "16"
+ALTERNATIVE_${PN} = "x-window-manager"
+ALTERNATIVE_TARGET[x-window-manager] = "${bindir}/aurora-daemon"
+ALTERNATIVE_PRIORITY[x-window-manager] = "16"
