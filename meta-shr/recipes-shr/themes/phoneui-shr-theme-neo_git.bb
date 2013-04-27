@@ -24,7 +24,7 @@ do_install() {
         install -d ${D}${datadir}/libphone-ui-shr/
         install -m 0644 ${S}/neo.edj ${D}${datadir}/libphone-ui-shr/
         install -m 0644 ${S}/idle_screen.edj.neo ${D}${datadir}/libphone-ui-shr/
-        install -m 0644 ${S}/config ${D}${datadir}/libphone-ui-shr/
+        install -m 0644 ${S}/config ${D}${datadir}/libphone-ui-shr/config.${PN}
 }
 
 ALTERNATIVE_${PN} = "libphone-ui-shr-config"

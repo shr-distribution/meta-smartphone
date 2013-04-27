@@ -22,7 +22,7 @@ do_compile() {
 do_install() {
         install -d ${D}${datadir}/libphone-ui-shr/
         install -m 0644 ${S}/o2.edj ${D}${datadir}/libphone-ui-shr/
-        install -m 0644 ${S}/config ${D}${datadir}/libphone-ui-shr/
+        install -m 0644 ${S}/config ${D}${datadir}/libphone-ui-shr/config.${PN}
 }
 
 ALTERNATIVE_${PN} = "libphone-ui-shr-config"

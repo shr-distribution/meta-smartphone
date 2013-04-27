@@ -17,6 +17,9 @@ PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/egl"
 # Multiple .bb files are due to be built which each provide virtual/libgles1 (virtual/libgles2, virtual/egl)
 EXCLUDE_FROM_WORLD = "1"
 
+# current version is known to fail on x86-64
+COMPATIBLE_MACHINE_x86-64 = "(-)"
+
 # We don't ship any android binaries but depend on someone else doing this
 # Your image needs to pull right MACHINE specific implementation
 # use VIRTUAL-RUNTIME_android-system-image in some packagegroup

@@ -15,6 +15,10 @@ RDEPENDS_${PN} = "qt4-plugin-imageformat-svg"
 
 PV = "0.1+gitr${SRCPV}"
 
+# temporary fix for issues described in
+# http://lists.linuxtogo.org/pipermail/openembedded-core/2013-April/038746.html
+INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
+
 SRC_URI = "${FREESMARTPHONE_GIT}/aurora.git;protocol=git;branch=master"
 SRCREV = "${AURORA_SRCREV}"
 S = "${WORKDIR}/git/aurora-daemon"
@@ -28,7 +32,6 @@ FILES_${PN} += " ${datadir}/aurora ${libdir}/qt4/imports/Aurora ${datadir}/auror
   ${datadir}/glib-2.0/schemas/org.aurora.gschema.xml"
 FILES_${PN}-dbg += "${libdir}/qt4/imports/Aurora/*/.debug ${datadir}/aurora/applications/*/.debug"
 
-ALTERNATIVE_PATH = "${bindir}/aurora-daemon"
-ALTERNATIVE_NAME = "x-window-manager"
-ALTERNATIVE_LINK = "${bindir}/x-window-manager"
-ALTERNATIVE_PRIORITY = "16"
+ALTERNATIVE_${PN} = "x-window-manager"
+ALTERNATIVE_TARGET[x-window-manager] = "${bindir}/aurora-daemon"
+ALTERNATIVE_PRIORITY[x-window-manager] = "16"
