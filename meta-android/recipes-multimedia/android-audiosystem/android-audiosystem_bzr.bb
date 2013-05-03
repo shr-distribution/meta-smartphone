@@ -9,7 +9,7 @@ LIC_FILES_CHKSUM = " \
   file://lib/utils/NOTICE;md5=9645f39e9db895a4aa6e02cb57294595"
 
 PV = "1.8+bzr${SRCPV}"
-PR = "r0"
+PR = "r1"
 
 SRC_URI = "bzr://bazaar.launchpad.net/~phablet-team/android-audiosystem/trunk;protocol=http \
   file://dont-use-specific-sysroot.patch;striplevel=0"
@@ -43,9 +43,13 @@ do_install() {
     oe_libinstall -C ${S}/lib/wctlplugin -so libasound_module_ctl_android ${D}${libdir}/alsa-lib
     oe_libinstall -C ${S}/lib/wpcmplugin -so libasound_module_pcm_android ${D}${libdir}/alsa-lib
 
-    mkdir -p ${D}${includedir}
+    install -d ${D}${includedir}
     install -m 0644 ${S}/lib/include/waudio.h ${D}${includedir}
+
+    install -d ${D}${sysconfdir}
+    install -m 0644 ${S}/etc/asound.conf ${D}${sysconfdir}
 }
 
-FILES_${PN} += "${libdir}/alsa-lib"
+FILES_${PN} += "${libdir}/alsa-lib ${sysconfdir}/asound.conf"
+CONFFILES_${PN} += "${sysconfdir}/asound.conf"
 FILES_${PN}-dbg += "${libdir}/alsa-lib/.debug"
