@@ -1,0 +1,2 @@
+ACTION=="add", SUBSYSTEM=="misc", DEVPATH=="/devices/virtual/misc/binder", MODE="0666"
+ACTION=="add", SUBSYSTEM=="misc", DEVPATH=="/devices/virtual/misc/ashmem", MODE="0666"
