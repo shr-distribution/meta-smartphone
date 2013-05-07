@@ -9,7 +9,7 @@ LIC_FILES_CHKSUM = " \
   file://lib/utils/NOTICE;md5=9645f39e9db895a4aa6e02cb57294595"
 
 PV = "1.8+bzr${SRCPV}"
-PR = "r1"
+PR = "r2"
 
 SRC_URI = "bzr://bazaar.launchpad.net/~phablet-team/android-audiosystem/trunk;protocol=http \
   file://dont-use-specific-sysroot.patch;striplevel=0"
@@ -26,15 +26,18 @@ INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 
 do_compile() {
     sed -i -e s:^TOOLS_PREFIX=$:TOOLS_PREFIX=${TARGET_PREFIX}:g ${S}/target_lib
+    sed -i '1s/^/TOOLS_PREFIX=${TARGET_PREFIX}\n/' ${S}/target_app
 
     # Workaround for needed directories by libcutils
     mkdir -p ${S}/lib/libcutils/.dep/arch-arm/
     mkdir -p ${S}/lib/libcutils/.obj/arch-arm/
+    mkdir -p ${S}/app/.dep/test.d
+    mkdir -p ${S}/app/.obj
 
-    for d in liblog utils libcutils binder audio_utils libmedia waudio wctlplugin wpcmplugin ; do
-      mkdir -p ${S}/lib/$d/.obj
-      mkdir -p ${S}/lib/$d/.dep
-      make ARCH=arm -C ${S}/lib/$d all
+    for d in lib/liblog lib/utils lib/libcutils lib/binder lib/audio_utils lib/libmedia lib/waudio lib/wctlplugin lib/wpcmplugin app ; do
+      mkdir -p ${S}/$d/.obj
+      mkdir -p ${S}/$d/.dep
+      make ARCH=arm -C ${S}/$d all
     done
 }
 
@@ -48,6 +51,9 @@ do_install() {
 
     install -d ${D}${sysconfdir}
     install -m 0644 ${S}/etc/asound.conf ${D}${sysconfdir}
+
+    install -d ${D}${bindir}
+    install -m 0755 ${S}/app/audiotest ${D}${bindir}/
 }
 
 FILES_${PN} += "${libdir}/alsa-lib ${sysconfdir}/asound.conf"
