@@ -9,7 +9,7 @@ DESCRIPTION = "Linux kernel for the Acer IconiaTab A500 device based on the offi
 source from Acer, modified to boot on the SDCard"
 
 KERNEL_RAM_BASE = "0x10000000"
-CMDLINE = "tegraid=20.1.3.0.0 mem=1024M@0M androidboot.serialno=0428000342bfe117 video=tegrafb debug_uartport=hsport usbcore.old_scheme_first=1 lp0_vec=8192@0x3d805000 tegra_fbmem=8197120@0x3d81c000 brand=acer target_product=a500_ww_gen1 tegraboot=sdmmc gpt gpt_sector=62320639 androidboot.carrier=wifi-only bootloader_ver=0.03.14-MUL root=/dev/mmcblk1p2 rootwait"
+CMDLINE = "tegraid=20.1.3.0.0 mem=1024M@0M video=tegrafb debug_uartport=hsport usbcore.old_scheme_first=1 lp0_vec=8192@0x3d805000 tegra_fbmem=8197120@0x3d81c000 brand=acer target_product=a500_ww_gen1 tegraboot=sdmmc gpt gpt_sector=62320639 androidboot.carrier=wifi-only bootloader_ver=0.03.14-MUL root=/dev/mmcblk1p2 rootwait"
 
 inherit kernel_android
 
@@ -19,7 +19,7 @@ SRC_URI = " \
   git://github.com/Tofee/picasso-kernel.git;protocol=git;branch=master \
   file://defconfig \
 "
-SRCREV = "5e4bbed972c4bb65d0d24a4bb6ae9fefde202820"
+SRCREV = "5ff650c7145a834cccf5110125ab06c252265eaa"
 
 S = "${WORKDIR}/git/"
 
