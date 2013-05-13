@@ -1,18 +1,30 @@
-Index: xorg-server-1.11.1/hw/xfree86/common/xf86Xinput.c
-===================================================================
---- xorg-server-1.11.1.orig/hw/xfree86/common/xf86Xinput.c	2011-11-20 21:27:28.948713049 +0100
-+++ xorg-server-1.11.1/hw/xfree86/common/xf86Xinput.c	2011-11-20 21:30:30.458713082 +0100
-@@ -99,6 +99,8 @@
+From 76ee5f816e91dedd398ae93369940f8b95b5138c Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Fri, 10 May 2013 12:04:49 +0200
+Subject: [PATCH] xf86Crtc: rotate input when screen is rotated
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ hw/xfree86/common/xf86Xinput.c | 71 ++++++++++++++++++++++++++++++++++++++++++
+ hw/xfree86/modes/xf86Crtc.c    |  6 ++++
+ hw/xfree86/modes/xf86RandR12.h |  1 +
+ 3 files changed, 78 insertions(+)
+
+diff --git a/hw/xfree86/common/xf86Xinput.c b/hw/xfree86/common/xf86Xinput.c
+index bee407b..eb192eb 100644
+--- a/hw/xfree86/common/xf86Xinput.c
++++ b/hw/xfree86/common/xf86Xinput.c
+@@ -100,6 +100,8 @@
  		return;								\
  	}
  
 +#define RR_Rotate_All    (RR_Rotate_0|RR_Rotate_90|RR_Rotate_180|RR_Rotate_270)
 +
  static int
- xf86InputDevicePostInit(DeviceIntPtr dev);
+  xf86InputDevicePostInit(DeviceIntPtr dev);
  
-@@ -1398,4 +1400,73 @@
-     EnableDevice(dev, TRUE);
+@@ -1469,4 +1471,73 @@ xf86PostTouchEvent(DeviceIntPtr dev, uint32_t touchid, uint16_t type,
+     QueueTouchEvents(dev, type, touchid, flags, mask);
  }
  
 +/* Taken from evdev-properties.h. */
@@ -85,13 +97,13 @@ Index: xorg-server-1.11.1/hw/xfree86/common/xf86Xinput.c
 +
 +
  /* end of xf86Xinput.c */
-Index: xorg-server-1.11.1/hw/xfree86/modes/xf86Crtc.c
-===================================================================
---- xorg-server-1.11.1.orig/hw/xfree86/modes/xf86Crtc.c	2011-11-20 21:30:51.818713086 +0100
-+++ xorg-server-1.11.1/hw/xfree86/modes/xf86Crtc.c	2011-11-20 21:31:54.718713097 +0100
-@@ -389,6 +389,12 @@
+diff --git a/hw/xfree86/modes/xf86Crtc.c b/hw/xfree86/modes/xf86Crtc.c
+index f9ae465..5e73fa0 100644
+--- a/hw/xfree86/modes/xf86Crtc.c
++++ b/hw/xfree86/modes/xf86Crtc.c
+@@ -385,6 +385,12 @@ xf86CrtcSetModeTransform(xf86CrtcPtr crtc, DisplayModePtr mode,
      if (didLock)
- 	crtc->funcs->unlock (crtc);
+         crtc->funcs->unlock(crtc);
  
 +    /*
 +     * Rotate Touchscreen
@@ -102,3 +114,17 @@ Index: xorg-server-1.11.1/hw/xfree86/modes/xf86Crtc.c
      return ret;
  }
  
+diff --git a/hw/xfree86/modes/xf86RandR12.h b/hw/xfree86/modes/xf86RandR12.h
+index 9ad695c..3f89e9d 100644
+--- a/hw/xfree86/modes/xf86RandR12.h
++++ b/hw/xfree86/modes/xf86RandR12.h
+@@ -42,5 +42,6 @@ extern _X_EXPORT void xf86RandR12GetOriginalVirtualSize(ScrnInfoPtr pScrn,
+                                                         int *x, int *y);
+ extern _X_EXPORT Bool xf86RandR12PreInit(ScrnInfoPtr pScrn);
+ extern _X_EXPORT void xf86RandR12TellChanged(ScreenPtr pScreen);
++extern _X_EXPORT void xf86InputRotationNotify(Rotation rotation);
+ 
+ #endif                          /* _XF86_RANDR_H_ */
+-- 
+1.8.2.1
+
