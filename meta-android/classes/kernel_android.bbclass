@@ -15,7 +15,5 @@ do_deploy_append() {
               --output ${DEPLOYDIR}/${KERNEL_IMAGE_BASE_NAME}.fastboot \
               ${EXTRA_MKBOOTIMG_ARGS}
 
-    cd ${DEPLOYDIR}
-    rm -f ${KERNEL_IMAGE_SYMLINK_NAME}.fastboot
-    ln -sf ${KERNEL_IMAGE_BASE_NAME}.fastboot ${KERNEL_IMAGE_SYMLINK_NAME}.fastboot
+    ln -sf ${KERNEL_IMAGE_BASE_NAME}.fastboot ${DEPLOYDIR}/${KERNEL_IMAGE_SYMLINK_NAME}.fastboot
 }
