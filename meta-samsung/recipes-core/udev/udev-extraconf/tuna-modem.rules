@@ -1,1 +1,4 @@
 KERNEL=="umts_ipc0", ENV{OFONO_DRIVER}="samsungipc"
+
+# Create symlink for modem firmware partition to let rild find it where it is expected
+ACTION=="add", SUBSYSTEM=="block", DEVPATH=="/devices/platform/omap/omap_hsmmc.0/mmc_host/mmc0/mmc0:0001/block/mmcblk0/mmcblk0p9", SYMLINK+="block/platform/omap/omap_hsmmc.0/by-name/radio"

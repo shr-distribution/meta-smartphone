@@ -6,7 +6,7 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 RPROVIDES_${PN} += "virtual/android-system-image"
 
-INC_PR = "r2"
+INC_PR = "r3"
 
 do_install() {
     cp -rv ${WORKDIR}/system ${D}
@@ -16,6 +16,14 @@ do_install() {
     chmod -R 0755 ${D}/system/bin || true
     chmod -R 0755 ${D}/system/xbin || true
     chmod -R 0755 ${D}/system/vendor/bin || true
+
+    install -d ${D}/system/symbols
+    cp -rv ${WORKDIR}/symbols ${D}/system
+
+    install -d ${D}${base_sbindir}
+    install -m 0755 ${WORKDIR}/root/init ${D}${base_sbindir}/init.android
+    install -m 0755 ${WORKDIR}/root/sbin/adbd ${D}${base_sbindir}
+    install -m 0755 ${WORKDIR}/root/default.prop ${D}
 }
 
 # 400+ elf binaries without GNU_HASH and we cannot fix it
@@ -25,4 +33,4 @@ INSANE_SKIP_${PN}-dbg = "ldflags"
 INHIBIT_PACKAGE_STRIP = "1"
 PACKAGES = "${PN}-dbg ${PN}"
 FILES_${PN}-dbg = "/system/symbols"
-FILES_${PN} = "/system /vendor"
+FILES_${PN} = "/system /vendor /sbin /default.prop"
