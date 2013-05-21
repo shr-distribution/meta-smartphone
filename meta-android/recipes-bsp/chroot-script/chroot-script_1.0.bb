@@ -6,12 +6,15 @@ PR = "r6"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-SRC_URI = "file://init.sh"
+SRC_URI = " \
+  file://init.sh \
+  file://machine.conf"
 
 PACKAGES = "${PN}"
-FILES_${PN} = "/init"
+FILES_${PN} = "/init /machine.conf"
 
 do_install() {
-  cp ${WORKDIR}/init.sh ${D}/init
-  chmod +x ${D}/init
+    cp ${WORKDIR}/init.sh ${D}/init
+    install -m 0755 ${WORKDIR}/init.sh ${D}/init
+    install -m 0644 ${WORKDIR}/machine.conf ${D}/machine.conf
 }
