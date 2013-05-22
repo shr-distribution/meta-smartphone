@@ -2,11 +2,15 @@ DESCRIPTION = "Tiny Android system to leverage android hardware drivers through 
 LICENSE = "Apache-2.0 & Properietary"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
+# don't run package_do_shlibs on our packages as this will add a RDEPENDS from ${PN} to
+# ${PN}-dbg
+EXCLUDE_FROM_SHLIBS = "1"
+
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 RPROVIDES_${PN} += "virtual/android-system-image"
 
-INC_PR = "r3"
+INC_PR = "r4"
 
 do_install() {
     cp -rv ${WORKDIR}/system ${D}
