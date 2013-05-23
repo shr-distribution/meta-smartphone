@@ -49,13 +49,9 @@ do_install() {
     install -d ${D}${includedir}
     install -m 0644 ${S}/lib/include/waudio.h ${D}${includedir}
 
-    install -d ${D}${sysconfdir}
-    install -m 0644 ${S}/etc/asound.conf ${D}${sysconfdir}
-
     install -d ${D}${bindir}
     install -m 0755 ${S}/app/audiotest ${D}${bindir}/
 }
 
-FILES_${PN} += "${libdir}/alsa-lib ${sysconfdir}/asound.conf"
-CONFFILES_${PN} += "${sysconfdir}/asound.conf"
+FILES_${PN} += "${libdir}/alsa-lib"
 FILES_${PN}-dbg += "${libdir}/alsa-lib/.debug"
