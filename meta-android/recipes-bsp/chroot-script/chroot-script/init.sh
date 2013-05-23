@@ -34,54 +34,59 @@ fail() {
     reboot
 }
 
-setup_from_sdcard() {
-    while [ ! -e /sys/block/mmcblk0 ] ; do
-        info "Waiting for SD Card"
-        sleep 1
-    done
-
-    # Try unpartitioned card
-    if [ ! -e /sys/block/mmcblk0/$partition ] ; then
-        partition=mmcblk0
-    fi
-
-    info "Mounting sdcard/nand ..."
-    mkdir -m 0777 /sdcard
-    mount -t auto -o rw,noatime,nodiratime /dev/$partition /sdcard
-    [ $? -eq 0 ] || fail "Failed to mount the SD card. Cannot continue."
-
-    BASE_ANDROID_DIR="/sdcard/media/"
-
-    # Workaround for multi-user functionality in Android 4.2
-    if [ -d /sdcard/media/0 ] ; then
-        BASE_ANDROID_DIR="/sdcard/media/0"
-    fi
-
-    if [ -e $BASE_ANDROID_DIR/linux/installer ] ; then
-        sh $BASE_ANDROID_DIR/linux/installer
-
-        # When we're done with the installation process we're removing the installer script to
-        # not install everything again on next boot
-        rm $BASE_ANDROID_DIR/linux/installer
-    fi
-
-    info "Checking for rootfs image on sdcard/nand ..."
-    if [ -e $BASE_ANDROID_DIR/linux/rootfs.ext2 ] ; then
-        info "Rootfs image found; mounting it now ..."
-        losetup /dev/loop2 $BASE_ANDROID_DIR/linux/rootfs.ext2
-        [ $? -eq 0 ] || fail "Failed to find rootfs.img on SD Card!"
-        e2fsck -y /dev/loop2
-        mount -t ext2 -o noatime,nodiratime,sync,rw /dev/loop2 /rfs
-        [ $? -eq 0 ] || fail "Failed to mount /rootfs"
-    elif [ -d $BASE_ANDROID_DIR/linux/rootfs ] ; then
-        info "Rootfs folder found; chrooting into ..."
-        mount -o bind $BASE_ANDROID_DIR/linux/rootfs /rfs
-        [ $? -eq 0 ] || fail "Failed to mount /rootfs"
-    fi
-}
-
 mkdir -m 0755 /rfs
-setup_from_sdcard
+
+while [ ! -e /sys/block/mmcblk0 ] ; do
+    info "Waiting for sdcard/nand ..."
+    sleep 1
+done
+
+# Try unpartitioned card
+if [ ! -e /sys/block/mmcblk0/$sdcard_partition ] ; then
+    sdcard_partition=mmcblk0
+fi
+
+info "Mounting sdcard/nand ..."
+mkdir -m 0777 /sdcard
+mount -t auto -o rw,noatime,nodiratime /dev/$sdcard_partition /sdcard
+[ $? -eq 0 ] || fail "Failed to mount the sdcard/nan. Cannot continue."
+
+BASE_ANDROID_DIR="/sdcard/media/"
+
+# Workaround for multi-user functionality in Android 4.2
+if [ -d /sdcard/media/0 ] ; then
+    BASE_ANDROID_DIR="/sdcard/media/0"
+fi
+
+if [ -e $BASE_ANDROID_DIR/linux/installer ] ; then
+    sh $BASE_ANDROID_DIR/linux/installer
+
+    # When we're done with the installation process we're removing the installer script to
+    # not install everything again on next boot
+    rm $BASE_ANDROID_DIR/linux/installer
+fi
+
+info "Checking for rootfs image on sdcard/nand ..."
+if [ -e $BASE_ANDROID_DIR/linux/rootfs.ext2 ] ; then
+    info "Rootfs image found; mounting it now ..."
+    losetup /dev/loop2 $BASE_ANDROID_DIR/linux/rootfs.ext2
+    [ $? -eq 0 ] || fail "Failed to find rootfs.img on SD Card!"
+    e2fsck -y /dev/loop2
+    mount -t ext2 -o noatime,nodiratime,sync,rw /dev/loop2 /rfs
+    [ $? -eq 0 ] || fail "Failed to mount /rootfs"
+elif [ -d $BASE_ANDROID_DIR/linux/rootfs ] ; then
+    info "Rootfs folder found; chrooting into ..."
+    mount -o bind $BASE_ANDROID_DIR/linux/rootfs /rfs
+    [ $? -eq 0 ] || fail "Failed to mount /rootfs"
+else
+    # We don't have anything to boot from sdcard. Cleanup and boot
+    # from system partition.
+    umount /sdcard
+
+    mount -t auto -o rw,noatime,nodiratime /dev/$system_partition /rfs
+    [ $? -eq 0 ] || fail "Failed to mount /rootfs"
+fi
+
 setup_devtmpfs "/rfs"
 
 info "Umount not needed filesystems ..."
