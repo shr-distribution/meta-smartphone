@@ -1,0 +1,17 @@
+description "Setting up the Android environment"
+
+start on stopped finish
+
+script
+    # Android has the log device nodes in /dev/log (ubuntu uses /dev/alog for
+    # compatibiltiy reasons) so we have to move the automatically generated nodes to the
+    # right place.
+    mkdir /dev/alog
+    ln -sf /dev/log_main /dev/alog/main
+    ln -sf /dev/log_system /dev/alog/system
+    ln -sf /dev/log_radio /dev/alog/radio
+    ln -sf /dev/log_events /dev/alog/events
+
+    # Start android init system
+    /sbin/init.android
+end script
