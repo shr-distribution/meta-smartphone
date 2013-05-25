@@ -24,8 +24,8 @@ do_install_append() {
         fi
 }
 
-SYSTEMD_SERVICE_om-gta02 = "g_ether.service"
-SYSTEMD_SERVICE_om-gta04 = "g_ether.service"
+SYSTEMD_SERVICE_${PN}_om-gta02 = "g_ether.service"
+SYSTEMD_SERVICE_${PN}_om-gta04 = "g_ether.service"
 
 #Add GPS for gta04
 RDEPENDS_${PN}_om-gta04 = "gta04-gps-handler-systemd"

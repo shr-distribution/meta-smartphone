@@ -27,7 +27,7 @@ do_install_append() {
         fi
 }
 
-SYSTEMD_SERVICE_crespo = "rndissetup.service disablefbcon.service"
-SYSTEMD_SERVICE_tuna = "rndissetup.service"
+SYSTEMD_SERVICE_${PN}_crespo = "rndissetup.service disablefbcon.service"
+SYSTEMD_SERVICE_${PN}_tuna = "rndissetup.service"
 
 PRINC := "${@int(PRINC) + 9}"
