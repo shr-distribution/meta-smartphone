@@ -6,6 +6,9 @@
 
 TARGET_ARCH = "arm"
 
+# use this for overrides
+MACHINE_CLASS = "tuna"
+
 PREFERRED_PROVIDER_virtual/kernel ?= "linux-samsung-tuna"
 MACHINE_KERNEL_PR = "r12"
 
@@ -22,7 +25,6 @@ MACHINE_EXTRA_RDEPENDS = " \
 
 PREFERRED_PROVIDER_virtual/egl ?= "libhybris"
 PREFERRED_PROVIDER_virtual/libgles2 ?= "libhybris"
-VIRTUAL-RUNTIME_android-system-image ?= "android-system-image-tuna"
 
 PREFERRED_PROVIDER_virtual/xserver = "xserver-xorg"
 XSERVER = " \
