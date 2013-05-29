@@ -17,7 +17,7 @@ SRC_URI = " \
 
 S = "${WORKDIR}/git/"
 
-SRCREV = "2ea36a3c874c1e805ca4be83d0f83eac29486db7"
+SRCREV = "d7ebfdbb462d6c793aaca7ae3c4f41dc4fa5e14e"
 
 KV = "3.1.10"
 PV = "${KV}+gitr${SRCPV}"
