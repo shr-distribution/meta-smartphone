@@ -7,11 +7,9 @@ SRC_URI_append_tuna = " \
     file://tuna-modem.rules \
 "
 
-do_install_append() {
-    if [ "${MACHINE}" = "tuna" ]; then
-        install -m 0644 ${WORKDIR}/tuna-pulseaudio.rules ${D}${sysconfdir}/udev/rules.d/tuna-pulseaudio.rules
-        install -m 0644 ${WORKDIR}/tuna-modem.rules ${D}${sysconfdir}/udev/rules.d/tuna-modem.rules
-    fi
+do_install_append_tuna() {
+    install -m 0644 ${WORKDIR}/tuna-pulseaudio.rules ${D}${sysconfdir}/udev/rules.d/tuna-pulseaudio.rules
+    install -m 0644 ${WORKDIR}/tuna-modem.rules ${D}${sysconfdir}/udev/rules.d/tuna-modem.rules
 }
 
-PRINC := "${@int(PRINC) + 3}"
+PRINC := "${@int(PRINC) + 4}"
