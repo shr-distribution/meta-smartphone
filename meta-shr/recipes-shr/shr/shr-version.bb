@@ -1,6 +1,9 @@
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 
+# in case this recipe is built with DISTRO-less config or different DISTRO
+DISTRO_RELEASE ?= "not-SHR"
+
 PV = "${DISTRO_RELEASE}"
 
 PACKAGES = "${PN}"
