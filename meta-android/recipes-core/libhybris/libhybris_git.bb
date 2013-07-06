@@ -27,4 +27,6 @@ COMPATIBLE_MACHINE_x86-64 = "(-)"
 # android-system-image is MACHINE_ARCH
 # RDEPENDS_${PN} += "${VIRTUAL-RUNTIME_android-system-image}"
 
+EXTRA_OECONFG = "--enable-alinker=jb"
+
 inherit autotools
