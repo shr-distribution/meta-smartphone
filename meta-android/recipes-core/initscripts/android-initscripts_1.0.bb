@@ -13,7 +13,7 @@ SRC_URI = " \
 do_install() {
     mkdir -p ${D}${webos_upstartconfdir}
     install -m 0644 ${WORKDIR}/android_finish.upstart \
-        ${D}${webos_upstartconfdir}/android_finish
+        ${D}${sysconfdir}/event.d/android_finish
 
     install -m 0644 ${WORKDIR}/init.rc ${D}/init.rc
 }
