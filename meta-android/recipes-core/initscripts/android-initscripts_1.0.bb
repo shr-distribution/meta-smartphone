@@ -11,11 +11,11 @@ SRC_URI = " \
     file://init.rc"
 
 do_install() {
-    mkdir -p ${D}${webos_upstartconfdir}
+    install -d ${D}${sysconfdir}/event.d
     install -m 0644 ${WORKDIR}/android_finish.upstart \
         ${D}${sysconfdir}/event.d/android_finish
 
-    install -m 0644 ${WORKDIR}/init.rc ${D}/init.rc
+    install -m 0644 ${WORKDIR}/init.rc ${D}init.rc
 }
 
 PACKAGES = "${PN}-sysvinit ${PN}-upstart ${PN}"
