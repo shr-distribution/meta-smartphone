@@ -3,13 +3,18 @@ bionic-based HW adaptations in glibc systems"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://COPYING;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
-SRCREV = "de2537becfae5c6481833a4fc69ab1bec3a2e8dd"
+SRCREV = "1ad019848ee5a3c159803c3ae1d56838bbc35589"
 PV = "0.1.0+gitr${SRCPV}"
 PR = "r1"
 PE = "1"
 
 SRC_URI = "git://github.com/libhybris/libhybris;branch=master;protocol=git"
 S = "${WORKDIR}/git/hybris"
+
+# We need the android headers which are now provided for compatiblity reasons as external
+# component. Each distro has to add it's own set of headers of the Android version it
+# targets.
+DEPENDS += "virtual/android-headers"
 
 PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/egl"
 
@@ -27,6 +32,9 @@ COMPATIBLE_MACHINE_x86-64 = "(-)"
 # android-system-image is MACHINE_ARCH
 # RDEPENDS_${PN} += "${VIRTUAL-RUNTIME_android-system-image}"
 
-EXTRA_OECONFG = "--enable-alinker=jb"
+EXTRA_OECONF = " \
+    --enable-alinker=jb \
+    --with-android-headers=${STAGING_INCDIR}/android \
+"
 
 inherit autotools
