@@ -1,0 +1,11 @@
+[Unit]
+Description=Android System startup
+
+[Service]
+Type=simple
+Restart=on-failure
+ExecStartPre=/usr/bin/android_system_setup
+ExecStart=/sbin/init.android
+
+[Install]
+WantedBy=basic.target
