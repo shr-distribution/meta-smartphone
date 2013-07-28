@@ -26,7 +26,6 @@ do_install() {
 
     install -d ${D}${base_sbindir}
     install -m 0755 ${WORKDIR}/root/init ${D}${base_sbindir}/init.android
-    install -m 0755 ${WORKDIR}/root/sbin/adbd ${D}${base_sbindir}
     install -m 0755 ${WORKDIR}/root/default.prop ${D}
 }
 
