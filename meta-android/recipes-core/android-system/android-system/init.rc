@@ -46,7 +46,7 @@ service media /system/bin/mediaserver
     user root
     ioprio rt 4
 
-service finished /sbin/initctl emit android-finished
-    class finish
-    user root
-    oneshot
+# service finished /sbin/initctl emit android-finished
+#    class finish
+#    user root
+#    oneshot
