@@ -1,0 +1,10 @@
+[Unit]
+Description=Set up device PVR graphics chip
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+ExecStart=/vendor/bin/pvrsrvctl --no-module --start
+
+[Install]
+WantedBy=basic.target
