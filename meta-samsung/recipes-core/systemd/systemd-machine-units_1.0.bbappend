@@ -11,6 +11,7 @@ SRC_URI_append_crespo = " \
 SRC_URI_append_tuna = " \
   file://rndissetup.sh \
   file://rndissetup.service \
+  file://pvrinit.service \
 "
 
 install_common() {
@@ -22,6 +23,8 @@ install_common() {
 
 do_install_append_tuna() {
     install_common
+    install -d ${D}${systemd_unitdir}/system
+    install -m 0644 ${WORKDIR}/pvrinit.service ${D}${systemd_unitdir}/system
 }
 
 do_install_append_crespo() {
@@ -32,6 +35,6 @@ do_install_append_crespo() {
 }
 
 SYSTEMD_SERVICE_${PN}_crespo = "rndissetup.service disablefbcon.service"
-SYSTEMD_SERVICE_${PN}_tuna = "rndissetup.service"
+SYSTEMD_SERVICE_${PN}_tuna = "rndissetup.service pvrinit.service"
 
 PRINC := "${@int(PRINC) + 10}"
