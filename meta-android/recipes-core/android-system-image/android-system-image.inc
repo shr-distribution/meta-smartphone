@@ -13,20 +13,15 @@ RPROVIDES_${PN} += "virtual/android-system-image"
 INC_PR = "r4"
 
 do_install() {
-    cp -rv ${WORKDIR}/system ${D}
+    cp -rpv ${WORKDIR}/system ${D}
     ln -sf /system/vendor ${D}/vendor
-
-    # The binaries are without any permission set so we have to restore them here
-    chmod -R 0755 ${D}/system/bin || true
-    chmod -R 0755 ${D}/system/xbin || true
-    chmod -R 0755 ${D}/system/vendor/bin || true
 
     install -d ${D}/system/symbols
     cp -rv ${WORKDIR}/symbols ${D}/system
 
-    install -d ${D}${base_sbindir}
-    install -m 0755 ${WORKDIR}/root/init ${D}${base_sbindir}/init.android
-    install -m 0755 ${WORKDIR}/root/default.prop ${D}
+    # Copy android ramdisk so we can use it
+    install -d ${D}/boot
+    install -m 0644 ${WORKDIR}/ramdisk.img ${D}/boot/android-ramdisk.img
 }
 
 # 400+ elf binaries without GNU_HASH and we cannot fix it
@@ -36,4 +31,4 @@ INSANE_SKIP_${PN}-dbg = "ldflags"
 INHIBIT_PACKAGE_STRIP = "1"
 PACKAGES = "${PN}-dbg ${PN}"
 FILES_${PN}-dbg = "/system/symbols"
-FILES_${PN} = "/system /vendor /sbin /default.prop"
+FILES_${PN} = "/system /vendor /android /default.prop /boot/android-ramdisk.img"
