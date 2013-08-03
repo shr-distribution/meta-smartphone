@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Make sure the ubuntu_chroot init service does not get started
+sed -i '/ubuntu_chroot init$/,+2d' $LXC_ROOTFS_PATH/init.rc
+
+# Remove some services we don't want to have running inside the container
+sed -i '/ubuntu_chroot init$/,+2d' $LXC_ROOTFS_PATH/init.rc
+sed -i '/^service ubuntuappmanager/,+1d' $LXC_ROOTFS_PATH/init.rc
+sed -i '/^service surfaceflinger/,+4d' $LXC_ROOTFS_PATH/init.rc
+sed -i '/^service adbd/,+4d' $LXC_ROOTFS_PATH/init.rc
+sed -i '/^service sensorservice/,+3d' $LXC_ROOTFS_PATH/init.rc
+sed -i '/^service installd/,+2d' $LXC_ROOTFS_PATH/init.rc
