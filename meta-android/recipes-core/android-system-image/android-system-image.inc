@@ -22,6 +22,32 @@ do_install() {
     # Copy android ramdisk so we can use it
     install -d ${D}/boot
     install -m 0644 ${WORKDIR}/ramdisk.img ${D}/boot/android-ramdisk.img
+
+    if [ -e ${WORKDIR}/filesystem_config.txt ] ; then
+        install -d ${D}${sysconfdir}
+        install -m 0644 ${WORKDIR}/filesystem_config.txt ${D}${sysconfdir}
+    else
+        bbwarn "image doesn't contain a filesystem_config.txt; may cause runtime errors with android system"
+    fi
+}
+
+pkg_postinst_${PN} () {
+    if test -n "$D"; then
+        exit 1
+    fi
+
+    if [ -e ${sysconfdir}/filesystem_config.txt ] ; then
+        # Fixup permissions of the android binaries in /system
+        while read line
+        do
+            file=`echo $line | cut -d' ' -f 1`
+            user=`echo $line | cut -d' ' -f 2`
+            group=`echo $line | cut -d' ' -f 3`
+            mode=`echo $line | cut -d' ' -f 4`
+            chown $user:$group /$file
+            chmod $mode /$fiile
+        done < "${sysconfdir}/filesystem_config.txt"
+    fi
 }
 
 # 400+ elf binaries without GNU_HASH and we cannot fix it
@@ -31,4 +57,4 @@ INSANE_SKIP_${PN}-dbg = "ldflags"
 INHIBIT_PACKAGE_STRIP = "1"
 PACKAGES = "${PN}-dbg ${PN}"
 FILES_${PN}-dbg = "/system/symbols"
-FILES_${PN} = "/system /vendor /android /default.prop /boot/android-ramdisk.img"
+FILES_${PN} = "/system /vendor /android /default.prop /boot/android-ramdisk.img ${sysconfdir}"
