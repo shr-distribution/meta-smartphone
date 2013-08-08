@@ -45,7 +45,7 @@ pkg_postinst_${PN} () {
             group=`echo $line | cut -d' ' -f 3`
             mode=`echo $line | cut -d' ' -f 4`
             chown $user:$group /$file
-            chmod $mode /$fiile
+            chmod $mode /$file
         done < "${sysconfdir}/filesystem_config.txt"
     fi
 }
