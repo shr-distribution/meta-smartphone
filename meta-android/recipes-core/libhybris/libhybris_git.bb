@@ -3,7 +3,7 @@ bionic-based HW adaptations in glibc systems"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://COPYING;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
-SRCREV = "1ad019848ee5a3c159803c3ae1d56838bbc35589"
+SRCREV = "1d8f3d905394de038ad0dd5c7b8f21acc0ae51cb"
 PV = "0.1.0+gitr${SRCPV}"
 PR = "r1"
 PE = "1"
@@ -32,9 +32,6 @@ COMPATIBLE_MACHINE_x86-64 = "(-)"
 # android-system-image is MACHINE_ARCH
 # RDEPENDS_${PN} += "${VIRTUAL-RUNTIME_android-system-image}"
 
-EXTRA_OECONF = " \
-    --enable-alinker=jb \
-    --with-android-headers=${STAGING_INCDIR}/android \
-"
+EXTRA_OECONF = "--with-android-headers=${STAGING_INCDIR}/android"
 
 inherit autotools
