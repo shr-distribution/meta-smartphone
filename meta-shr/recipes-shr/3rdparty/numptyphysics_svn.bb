@@ -1,6 +1,6 @@
 DESCRIPTION = "Numpty Physics is a drawing puzzle game in the spirit (and style?) \
 of Crayon Physics using the same excellent Box2D engine."
-DEPENDS = "virtual/libsdl libsdl-image libpng"
+DEPENDS = "virtual/libsdl libsdl-image libpng glib-2.0"
 RDEPENDS_${PN} += "libpng"
 LICENSE = "GPLv3"
 LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
