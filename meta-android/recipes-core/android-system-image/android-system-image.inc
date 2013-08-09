@@ -24,19 +24,6 @@ do_install() {
     install -m 0644 ${WORKDIR}/ramdisk.img ${D}/boot/android-ramdisk.img
 
     if [ -e ${WORKDIR}/filesystem_config.txt ] ; then
-        install -d ${D}${sysconfdir}
-        install -m 0644 ${WORKDIR}/filesystem_config.txt ${D}${sysconfdir}
-    else
-        bbwarn "image doesn't contain a filesystem_config.txt; may cause runtime errors with android system"
-    fi
-}
-
-pkg_postinst_${PN} () {
-    if test -n "$D"; then
-        exit 1
-    fi
-
-    if [ -e ${sysconfdir}/filesystem_config.txt ] ; then
         # Fixup permissions of the android binaries in /system
         while read line
         do
@@ -44,9 +31,14 @@ pkg_postinst_${PN} () {
             user=`echo $line | cut -d' ' -f 2`
             group=`echo $line | cut -d' ' -f 3`
             mode=`echo $line | cut -d' ' -f 4`
-            chown $user:$group /$file
-            chmod $mode /$file
-        done < "${sysconfdir}/filesystem_config.txt"
+            chown -h $user:$group ${D}/$file
+            # Avoid changing symlinks
+            if [ ! -h ${D}/$file ] ; then
+                chmod $mode ${D}/$file
+            fi
+        done < "${WORKDIR}/filesystem_config.txt"
+    else
+        bbwarn "image doesn't contain a filesystem_config.txt; may cause runtime errors with android system"
     fi
 }
 
