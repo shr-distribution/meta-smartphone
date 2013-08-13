@@ -2,7 +2,7 @@ DESCRIPTION = "Openmoko extensionhandler"
 LICENSE = "LGPL-2.1"
 LIC_FILES_CHKSUM = "file://COPYING;md5=a6f89e2100d9b6cdffcea4f398e37343"
 
-DEPENDS = "dbus-glib"
+DEPENDS = "dbus-glib gconf"
 
 SRC_URI = "http://www.devzero.net/openmoko/dist/omext-${PV}.tar.gz"
 

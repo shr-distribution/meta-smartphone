@@ -8,6 +8,8 @@ LIC_FILES_CHKSUM = " \
   file://lib/libmedia/NOTICE;md5=9645f39e9db895a4aa6e02cb57294595 \
   file://lib/utils/NOTICE;md5=9645f39e9db895a4aa6e02cb57294595"
 
+DEPENDS = "zlib alsa-lib"
+
 PV = "1.8+bzr${SRCPV}"
 PR = "r2"
 
