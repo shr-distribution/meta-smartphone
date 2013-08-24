@@ -1,5 +1,4 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
-PRINC := "${@int(PRINC) + 8}"
 
 PACKAGE_ARCH_palmpre = "${MACHINE_ARCH}"
 

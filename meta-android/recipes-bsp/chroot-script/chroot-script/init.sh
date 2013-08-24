@@ -1,7 +1,5 @@
 #! /bin/sh
 
-sleep 5
-
 . /machine.conf
 
 setup_devtmpfs() {
