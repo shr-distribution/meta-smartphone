@@ -32,6 +32,14 @@ fail() {
     reboot
 }
 
+# Check wether we need to start adbd for interactive debugging
+cat /proc/cmdline | grep enable_adb
+if [ $? -ne 1 ] ; then
+    /usr/bin/android-gadget-setup adb
+    /usr/bin/adbd
+fi
+
+
 mkdir -m 0755 /rfs
 
 while [ ! -e /sys/block/mmcblk0 ] ; do

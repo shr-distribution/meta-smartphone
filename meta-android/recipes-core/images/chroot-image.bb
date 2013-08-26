@@ -4,7 +4,7 @@
 # flash disk.
 #
 
-IMAGE_INSTALL = "busybox base-passwd chroot-script"
+IMAGE_INSTALL = "busybox base-passwd chroot-script android-tools"
 IMAGE_FEATURES = ""
 IMAGE_ROOTFS_SIZE = "8192"
 export IMAGE_BASENAME = "chroot-image"
