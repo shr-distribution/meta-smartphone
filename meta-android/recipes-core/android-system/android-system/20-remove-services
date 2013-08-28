@@ -10,3 +10,4 @@ sed -i '/^service surfaceflinger/,+4d' $LXC_ROOTFS_PATH/init.rc
 sed -i '/^service adbd/,+4d' $LXC_ROOTFS_PATH/init.rc
 sed -i '/^service sensorservice/,+3d' $LXC_ROOTFS_PATH/init.rc
 sed -i '/^service installd/,+2d' $LXC_ROOTFS_PATH/init.rc
+sed -i '/^service media*/a \    disabled' $LXC_ROOTFS_PATH/init.rc
