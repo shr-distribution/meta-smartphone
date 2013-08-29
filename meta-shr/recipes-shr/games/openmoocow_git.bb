@@ -5,7 +5,7 @@ LICENSE = "GPLv3+"
 LIC_FILES_CHKSUM = "file://COPYING;md5=44cce59bacf0a45692ad23d04b9d2b22"
 SECTION = "applications/games"
 
-DEPENDS = "gtk+"
+DEPENDS = "gtk+ libsdl"
 
 PV = "0.0.3+gitr${SRCPV}"
 
