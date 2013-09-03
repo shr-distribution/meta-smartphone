@@ -16,6 +16,9 @@ SRC_URI[sha256sum] = "05210d308c686f62bb0c7a2a52b13489cb7701459d9b5b219540edb1cc
 
 inherit autotools
 
+PACKAGECONFIG ??= ""
+PACKAGECONFIG[notify] = "--enable-tray-icon,--disable-tray-icon,libnotify"
+
 FILES_${PN} += "${datadir}/icons ${datadir}/dbus-1"
 
 do_install_append() {
