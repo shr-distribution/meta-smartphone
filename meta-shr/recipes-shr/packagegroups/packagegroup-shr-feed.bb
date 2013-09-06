@@ -184,7 +184,7 @@ RDEPENDS_${PN} += "\
         omgps \
         php \
         intone \
-        mysql5 \
+        mariadb \
         fbreader \
         mplayer \
         enjoy \
