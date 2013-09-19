@@ -3,17 +3,17 @@
 #
 
 KERNEL_RAM_BASE ?= "Please set to right value!"
-EXTRA_MKBOOTIMG_ARGS ?= ""
+EXTRA_ABOOTIMG_ARGS ?= ""
 
 do_deploy[depends] += "chroot-image:do_build"
-DEPENDS += "android-image-utils-native chroot-image"
+DEPENDS += "abootimg-native chroot-image"
 
 do_deploy_append() {
-    mkbootimg --kernel ${S}/${KERNEL_OUTPUT} \
-              --ramdisk ${DEPLOY_DIR_IMAGE}/chroot-image-${MACHINE}.cpio.gz \
-              --base ${KERNEL_RAM_BASE} \
-              --output ${DEPLOYDIR}/${KERNEL_IMAGE_BASE_NAME}.fastboot \
-              ${EXTRA_MKBOOTIMG_ARGS}
+    abootimg --create ${DEPLOYDIR}/${KERNEL_IMAGE_BASE_NAME}.fastboot \
+             -k ${S}/${KERNEL_OUTPUT} \
+             -r ${DEPLOY_DIR_IMAGE}/chroot-image-${MACHINE}.cpio.gz \
+             -c "kerneladdr=${KERNEL_RAM_BASE}" \
+             ${EXTRA_ABOOTIMG_ARGS}
 
     ln -sf ${KERNEL_IMAGE_BASE_NAME}.fastboot ${DEPLOYDIR}/${KERNEL_IMAGE_SYMLINK_NAME}.fastboot
 }
