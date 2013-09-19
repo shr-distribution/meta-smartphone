@@ -15,7 +15,7 @@ SRC_URI_append_tuna = " \
 "
 
 install_common() {
-    if [ -e ${WORKDIR}/rndissetup.sh ] && [ -e ${WORKDIR}/rndissetup.service] ; then
+    if [ -e ${WORKDIR}/rndissetup.sh ] && [ -e ${WORKDIR}/rndissetup.service ] ; then
         install -d ${D}${bindir}
         install -m 0755 ${WORKDIR}/rndissetup.sh ${D}${bindir}
         install -d ${D}${systemd_unitdir}/system

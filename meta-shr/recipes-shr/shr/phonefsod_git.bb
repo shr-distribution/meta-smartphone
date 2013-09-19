@@ -4,9 +4,9 @@ LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 SECTION = "x11/applications"
 DEPENDS += " libfso-glib libshr-glib sqlite3 shr-specs libfsoframework"
-SRCREV = "42dd49e95660ca1237b244bb45fe6474d9241bd1"
+SRCREV = "19f0f1cee865b721b58c93ab51bba02ed517cf4d"
 PV = "0.0.0+gitr${SRCPV}"
-PR = "r12"
+PR = "r0"
 
 SRC_URI = "git://git.shr-project.org/repo/phonefsod.git;protocol=http;branch=master \
   file://${PN}.service \
