@@ -4,8 +4,7 @@ AUTHOR = " Joerie de Gram, PaulK, Simon Busch"
 DEPENDS = "openssl mtd-utils"
 PE = "1"
 
-SHRT_VER = "${@bb.data.getVar('PV',d,1).split('.')[0]}.${@bb.data.getVar('PV',d,1).split('.')[1]}"
-SRC_URI = "http://downloads.freesmartphone.org/sources/${BPN}/${SHRT_VER}/${P}.tar.bz2"
+SRC_URI = "http://downloads.freesmartphone.org/sources/${BPN}/${P}.tar.bz2"
 
 inherit autotools
 
