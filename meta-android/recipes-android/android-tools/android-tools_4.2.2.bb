@@ -45,6 +45,8 @@ do_compile() {
     unset CFLAGS
     unset CPPFLAGS
 
+    sed -i "s%^CPPFLAGS+= -I/usr/include%# we don't want to include headers from host CPPFLAGS+= -I/usr/include%g" ${WORKDIR}/debian/makefiles/ext4_utils.mk
+
     oe_runmake -f ${WORKDIR}/debian/makefiles/adbd.mk -C ${S}/core/adbd clean
     oe_runmake -f ${WORKDIR}/debian/makefiles/adbd.mk -C ${S}/core/adbd
 
