@@ -6,13 +6,14 @@ LIC_FILES_CHKSUM = "file://setup.py;beginline=21;endline=21;md5=7fdad70bdcd4f6b5
 "
 RDEPENDS_${PN} = "python-elementary python-dbus python-codecs python-shell python python-core python-edbus frameworkd"
 SECTION = "x11/application"
-SRCREV = "b9693e1dac778929d345cbb2be8fae6d2fa79888"
+SRCREV = "ffd5ba1e15c8af33e093340c318998c48bd88b82"
 PV = "0.0.3+gitr${SRCPV}"
 PE = "1"
 
 inherit setuptools
 
 PACKAGES =+ "\
+  ${PN}-gui \
   ${PN}-cli \
   ${PN}-notes \
   ${PN}-data \
@@ -20,13 +21,16 @@ PACKAGES =+ "\
 
 RDEPENDS_${PN} = "\
   ${PN}-data \
-  shr-settings \
   ffphonelog \
   shr-theme \
 "
 
 RDEPENDS_${PN}-notes = "\
   ${PN}-data \
+"
+
+RDEPENDS_${PN}-gui = "\
+  ${PN} \
 "
 
 RRECOMMENDS_${PN} = "\
@@ -45,3 +49,6 @@ FILES_${PN}-cli += "${prefix}/bin/opimd-cli"
 FILES_${PN}-notes += "${prefix}/bin/opimd-notes"
 FILES_${PN}-notes += "${prefix}/share/pixmaps/opimd-notes.png"
 FILES_${PN}-notes += "${prefix}/share/applications/opimd-notes.desktop"
+FILES_${PN}-gui += "${prefix}/share/applications/opimd-messages.desktop"
+FILES_${PN}-gui += "${prefix}/share/applications/opimd-contacts.desktop"
+FILES_${PN}-gui += "${prefix}/share/applications/opimd-dates.desktop"
