@@ -3,7 +3,7 @@ bionic-based HW adaptations in glibc systems"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://COPYING;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
-SRCREV = "2d86cdcba3941ba9d20e4071b750cf0d9547e89a"
+SRCREV = "23d188f8cd653cad09bfd04cdf1b30eb812f6209"
 PV = "0.1.0+gitr${SRCPV}"
 PR = "r1"
 PE = "1"
