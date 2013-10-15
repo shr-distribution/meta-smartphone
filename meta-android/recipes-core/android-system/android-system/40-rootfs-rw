@@ -1,4 +1,4 @@
 #!/bin/sh
 
 # We're on the same partition so don't mount it as read-only
-sed -i "/mount rootfs rootfs / ro remount/d" $LXC_ROOTFS_PATH/init.rc
+sed -i "/mount rootfs rootfs \/ ro remount/d" $LXC_ROOTFS_PATH/init.rc
