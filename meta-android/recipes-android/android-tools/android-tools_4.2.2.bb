@@ -10,6 +10,8 @@ LIC_FILES_CHKSUM = " \
   file://${WORKDIR}/debian/copyright;md5=141efd1050596168ca05ced04e4f498b \
 "
 
+DEPENDS = "zlib openssl"
+
 # Use same version than ubuntu does here
 BASE_PV = "4.2.2+git20130218"
 PV = "${BASE_PV}-3ubuntu13"
