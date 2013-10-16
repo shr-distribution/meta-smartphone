@@ -3,15 +3,15 @@ This layer depends on:
 
 URI: git://github.com/openembedded/oe-core.git
 layers: meta
-branch: master
+branch: dora
 
 URI: git://github.com/openembedded/meta-oe.git
 layers: meta-oe
-branch: master
+branch: dora
 
 URI: git://github.com/shr-distribution/meta-smartphone.git
 layers: meta-android
-branch: master
+branch: dora
 
 Main layer maintainers: Christophe 'Tofe' Chapuis <chris.chapuis@gmail.com>
 
