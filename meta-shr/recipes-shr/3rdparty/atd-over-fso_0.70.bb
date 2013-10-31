@@ -45,9 +45,21 @@ do_install() {
 }
 
 updatercd_postinst_prepend() {
-/etc/init.d/dbus-1 reload
+    if [ -z "$D" ]; then
+        if type update-rc.d >/dev/null 2>/dev/null; then
+            if [ -f /etc/init.d/dbus-1 ]; then
+                /etc/init.d/dbus-1 reload || true
+            fi
+        fi
+    fi
 }
 
 updatercd_postrm_append() {
-/etc/init.d/dbus-1 reload
+    if [ -z "$D" ]; then
+        if type update-rc.d >/dev/null 2>/dev/null; then
+            if [ -f /etc/init.d/dbus-1 ]; then
+                /etc/init.d/dbus-1 reload || true
+            fi
+        fi
+    fi
 }

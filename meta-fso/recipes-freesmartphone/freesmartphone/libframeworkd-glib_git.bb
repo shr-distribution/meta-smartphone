@@ -6,7 +6,6 @@ DEPENDS = "dbus-glib"
 SRCREV = "d71036545435ea2e72a48fb93fd1d38fc6d6c0a7"
 PV = "0.0.1+gitr${SRCPV}"
 PE = "1"
-PR = "r0"
 
 SRC_URI = "${FREESMARTPHONE_GIT}/libframeworkd-glib.git;protocol=git;branch=master"
 S = "${WORKDIR}/git"

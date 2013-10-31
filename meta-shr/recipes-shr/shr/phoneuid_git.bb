@@ -6,7 +6,6 @@ SECTION = "x11/applications"
 DEPENDS += " libfso-glib libshr-glib libphone-ui sqlite3 shr-specs"
 SRCREV = "90a7afdf4358a63015b48dacdf6b1fadf03a31a1"
 PV = "0.0.0+gitr${SRCPV}"
-PR = "r0"
 
 RREPLACES_${PN} = "shr-today"
 RCONFLICTS_${PN} = "shr-today"
