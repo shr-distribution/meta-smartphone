@@ -6,7 +6,6 @@ LIC_FILES_CHKSUM = "file://mlsdk/mllite/accel.c;beginline=1;endline=17;md5=cb1d6
 
 SRCREV = "33ce91b37062fa63af192f5643de93f3beebe854"
 PV = "4.2+gitr${SRCPV}"
-PR = "r0"
 
 SRC_URI = " \
   git://android.googlesource.com/platform/hardware/invensense;branch=master;protocol=https \
