@@ -15,7 +15,6 @@ DEPENDS = "zlib openssl"
 # Use same version than ubuntu does here
 BASE_PV = "4.2.2+git20130218"
 PV = "${BASE_PV}-3ubuntu13"
-PR ="r0"
 
 BBCLASSEXTEND += "native"
 
