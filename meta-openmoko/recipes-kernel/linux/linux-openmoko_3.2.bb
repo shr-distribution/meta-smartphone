@@ -3,6 +3,7 @@ require linux-openmoko.inc
 
 # Mark archs/machines that this kernel supports
 DEFAULT_PREFERENCE = "-2"
+DEFAULT_PREFERENCE_om-gta02 = "1"
 
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
