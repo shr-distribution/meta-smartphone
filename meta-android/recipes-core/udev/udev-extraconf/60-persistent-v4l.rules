@@ -1,0 +1,4 @@
+# NOTE: we need to override /lib/udev/rules.d/60-persistent-v4l.rules here as even if we
+# have firmware loading inside udevd disabled v4l tries to probe available video devices
+# which leads to a kernel panic on some devices
+# (see https://bugs.launchpad.net/ubuntu/+source/linux-mako/+bug/1187189 for more details)
