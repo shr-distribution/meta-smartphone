@@ -1,0 +1,3 @@
+# NOTE: We need to override /lib/udev/rules.d/50-firmware.rules here to prevent udev from
+# being responsible for loading firmware files. This job is only meant to be done by
+# ueventd on the android side.
