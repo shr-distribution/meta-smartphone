@@ -8,7 +8,11 @@ COMPATIBLE_MACHINE = "tuna"
 DESCRIPTION = "Linux kernel for the Samsung Tuna device based on the offical \
 source from Samsung"
 
-KERNEL_RAM_BASE = "0x80000000"
+CMDLINE = "console=ttyFIQ0 androidboot.console=ttyFIQ0 mem=1G vmalloc=768M omap_wdt.timer_margin=30 no_console_suspend"
+KERNEL_RAM_BASE = "0x80008000"
+RAMDISK_RAM_BASE = "0x81000000"
+TAGS_RAM_BASE = "0x80000100"
+
 inherit kernel_android
 
 SRC_URI = " \
@@ -29,7 +33,7 @@ do_configure_append() {
   kernel_conf_variable_fixup USB_G_ANDROID y
 }
 
-SRCREV = "35f512728f97280f93e95ea4e53a62aa6bf8d584"
+SRCREV = "307425decdd5e274dc6d926035f63c6cbfd3bea2"
 
 PE = "3"
 KV = "3.0.72"
@@ -39,5 +43,3 @@ inherit machine_kernel_pr
 
 # Workaround default -Werror setting and some warnings in kernel compilation
 TARGET_CC_KERNEL_ARCH += " -Wno-error=unused-but-set-variable -Wno-error=array-bounds"
-
-CMDLINE = "mem=1G vmalloc=768M omap_wdt.timer_margin=30 no_console_suspend=1 panic=20 fbcon=map:3"
