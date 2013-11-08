@@ -19,7 +19,6 @@ MACHINE_DISPLAY_ORIENTATION = "0"
 MACHINE_DISPLAY_PPI = "233"
 
 MACHINE_EXTRA_RDEPENDS = " \
-    kernel-module-autofs4 \
     samsung-tuna-firmware \
 "
 
