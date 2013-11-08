@@ -25,7 +25,6 @@ SRC_URI = " \
     file://pre-start.sh \
     file://post-stop.sh \
     file://android-chroot \
-    file://10-no-adbd \
     file://20-remove-services \
     file://30-mount-nothing \
     file://40-rootfs-rw \
@@ -48,7 +47,6 @@ do_install() {
     install -m 0755 ${WORKDIR}/post-stop.sh ${D}${localstatedir}/lib/lxc/android/
 
     install -d ${D}${localstatedir}/lib/lxc/android/pre-start.d
-    install -m 0755 ${WORKDIR}/10-no-adbd ${D}${localstatedir}/lib/lxc/android/pre-start.d/
     install -m 0755 ${WORKDIR}/20-remove-services ${D}${localstatedir}/lib/lxc/android/pre-start.d/
     install -m 0755 ${WORKDIR}/30-mount-nothing ${D}${localstatedir}/lib/lxc/android/pre-start.d/
     install -m 0755 ${WORKDIR}/40-rootfs-rw ${D}${localstatedir}/lib/lxc/android/pre-start.d/

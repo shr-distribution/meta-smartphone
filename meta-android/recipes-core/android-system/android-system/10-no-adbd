@@ -1,5 +1,0 @@
-#!/bin/sh
-
-# Make sure adbd is not started automatically
-sed -i 's/setprop persist.sys.usb.config adb$/setprop persist.sys.usb.config ""/' $LXC_ROOTFS_PATH/init.rc
-
