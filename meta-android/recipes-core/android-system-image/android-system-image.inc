@@ -21,7 +21,12 @@ do_install() {
 
     # Copy android ramdisk so we can use it
     install -d ${D}/boot
-    install -m 0644 ${WORKDIR}/ramdisk.img ${D}/boot/android-ramdisk.img
+    # Support packages with both ramdisk names
+    if [ -e ${WORKDIR}/android-ramdisk.img ] ; then
+        install -m 0644 ${WORKDIR}/android-ramdisk.img ${D}/boot/android-ramdisk.img
+    else
+        install -m 0644 ${WORKDIR}/ramdisk.img ${D}/boot/android-ramdisk.img
+    fi
 
     if [ -e ${WORKDIR}/filesystem_config.txt ] ; then
         # Fixup permissions of the android binaries in /system
