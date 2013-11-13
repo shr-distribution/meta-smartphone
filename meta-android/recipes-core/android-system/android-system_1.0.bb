@@ -21,6 +21,7 @@ inherit systemd useradd
 
 SRC_URI = " \
     file://android-system.service \
+    file://wait-for-android.sh \
     file://lxc-config \
     file://pre-start.sh \
     file://post-stop.sh \
@@ -40,6 +41,7 @@ do_install() {
 
     install -d ${D}${bindir}
     install -m 0755 ${WORKDIR}/android-chroot ${D}${bindir}
+    install -m 0755 ${WORKDIR}/wait-for-android.sh ${D}${bindir}
 
     install -d ${D}${localstatedir}/lib/lxc/android
     install -m 0644 ${WORKDIR}/lxc-config ${D}${localstatedir}/lib/lxc/android/config
