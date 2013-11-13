@@ -1,0 +1,9 @@
+rootfs               /                    auto       defaults              1  1
+proc                 /proc                proc       defaults              0  0
+devpts               /dev/pts             devpts     mode=0620,gid=5       0  0
+usbdevfs             /proc/bus/usb        usbdevfs   noauto                0  0
+tmpfs                /run                 tmpfs      mode=0755,nodev,nosuid,strictatime 0  0
+tmpfs                /var/volatile        tmpfs      defaults              0  0
+
+/dev/mmcblk0p1       /firmware            vfat       ro,uid=1000,gid=1000,dmask=227,fmask=337 1 1
+/dev/mmcblk0p20      /persist             ext4       nosuid,nodev,barrier=1,data=ordered,nodelalloc 1 1
