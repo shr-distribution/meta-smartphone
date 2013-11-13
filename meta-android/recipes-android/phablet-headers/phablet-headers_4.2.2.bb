@@ -6,6 +6,8 @@ SRC_URI = "git://github.com/webOS-ports/phablet-headers.git;branch=master;protoc
 SRCREV = "cfbcae588a1c90fa57fbe4ad44af791c665fafd4"
 S = "${WORKDIR}/git"
 
+PV = "4.2.2+gitr${SRCPV}"
+
 PROVIDES += "virtual/android-headers"
 
 do_install() {
