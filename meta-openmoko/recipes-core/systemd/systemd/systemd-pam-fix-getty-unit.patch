@@ -1,0 +1,35 @@
+Prefer getty to agetty in console setup systemd units
+
+Upstream-Status: Inappropriate [configuration specific]
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+---
+ units/getty@.service.m4        |    2 +-
+ units/serial-getty@.service.m4 |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+Index: systemd-196/units/getty@.service.m4
+===================================================================
+--- systemd-196.orig/units/getty@.service.m4	2012-11-20 12:39:16.000000000 -0800
++++ systemd-196/units/getty@.service.m4	2013-01-21 16:08:03.707533381 -0800
+@@ -45,7 +45,7 @@
+ 
+ [Service]
+ # the VT is cleared by TTYVTDisallocate
+-ExecStart=-/sbin/agetty --noclear %I 38400 linux
++ExecStart=-/sbin/getty -L %I 115200 linux
+ Type=idle
+ Restart=always
+ RestartSec=0
+Index: systemd-196/units/serial-getty@.service.m4
+===================================================================
+--- systemd-196.orig/units/serial-getty@.service.m4	2012-11-20 12:39:16.000000000 -0800
++++ systemd-196/units/serial-getty@.service.m4	2013-01-21 16:09:01.763535039 -0800
+@@ -40,7 +40,7 @@
+ IgnoreOnIsolate=yes
+ 
+ [Service]
+-ExecStart=-/sbin/agetty -s %I 115200,38400,9600 vt102
++ExecStart=-/sbin/getty -L %I 115200 vt102
+ Type=idle
+ Restart=always
+ RestartSec=0
