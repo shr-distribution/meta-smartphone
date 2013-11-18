@@ -7,7 +7,12 @@ COMPATIBLE_MACHINE = "grouper"
 
 DESCRIPTION = "Linux kernel for the Asus Grouper device"
 
-KERNEL_RAM_BASE = "0x10000000"
+CMDLINE = "console=tty1"
+KERNEL_RAM_BASE = "0x10008000"
+RAMDISK_RAM_BASE = "0x11000000"
+SECOND_RAM_BASE = "0x10f00000"
+TAGS_RAM_BASE = "0x10000100"
+
 inherit kernel_android
 
 SRC_URI = " \

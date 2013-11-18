@@ -21,11 +21,11 @@ inherit systemd useradd
 
 SRC_URI = " \
     file://android-system.service \
+    file://wait-for-android.sh \
     file://lxc-config \
     file://pre-start.sh \
     file://post-stop.sh \
     file://android-chroot \
-    file://10-no-adbd \
     file://20-remove-services \
     file://30-mount-nothing \
     file://40-rootfs-rw \
@@ -41,6 +41,7 @@ do_install() {
 
     install -d ${D}${bindir}
     install -m 0755 ${WORKDIR}/android-chroot ${D}${bindir}
+    install -m 0755 ${WORKDIR}/wait-for-android.sh ${D}${bindir}
 
     install -d ${D}${localstatedir}/lib/lxc/android
     install -m 0644 ${WORKDIR}/lxc-config ${D}${localstatedir}/lib/lxc/android/config
@@ -48,7 +49,6 @@ do_install() {
     install -m 0755 ${WORKDIR}/post-stop.sh ${D}${localstatedir}/lib/lxc/android/
 
     install -d ${D}${localstatedir}/lib/lxc/android/pre-start.d
-    install -m 0755 ${WORKDIR}/10-no-adbd ${D}${localstatedir}/lib/lxc/android/pre-start.d/
     install -m 0755 ${WORKDIR}/20-remove-services ${D}${localstatedir}/lib/lxc/android/pre-start.d/
     install -m 0755 ${WORKDIR}/30-mount-nothing ${D}${localstatedir}/lib/lxc/android/pre-start.d/
     install -m 0755 ${WORKDIR}/40-rootfs-rw ${D}${localstatedir}/lib/lxc/android/pre-start.d/

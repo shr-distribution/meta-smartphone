@@ -3,7 +3,7 @@ bionic-based HW adaptations in glibc systems"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://COPYING;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
-SRCREV = "23d188f8cd653cad09bfd04cdf1b30eb812f6209"
+SRCREV = "1a91af8c07de8fa59dcbc45c1cab77adc601f0d6"
 PV = "0.1.0+gitr${SRCPV}"
 PR = "r1"
 PE = "1"
@@ -33,5 +33,8 @@ COMPATIBLE_MACHINE_x86-64 = "(-)"
 # RDEPENDS_${PN} += "${VIRTUAL-RUNTIME_android-system-image}"
 
 EXTRA_OECONF = "--with-android-headers=${STAGING_INCDIR}/android"
+
+# If you want to enable debugging/tracing functionality add the following to a bbappend
+# EXTRA_OECONF += "--enable-debug --enable-trace"
 
 inherit autotools
