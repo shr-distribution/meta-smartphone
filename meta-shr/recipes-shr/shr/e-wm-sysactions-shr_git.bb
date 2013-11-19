@@ -9,7 +9,6 @@ inherit allarch
 # build only one e-wm-sysactions provider
 EXCLUDE_FROM_WORLD = "1"
 RCONFLICTS_${PN} = "e-wm-sysactions"
-RPROVIDES_${PN} = "e-wm-sysactions"
 RREPLACES_${PN} = "e-wm-sysactions"
 
 SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http \
