@@ -1,5 +1,8 @@
 require ${BPN}.inc
 
+# isn't compatible with current default libsamsung-ipc_0.2.0, let fsogsmd_git to be used by default
+DEFAULT_PREFERENCE = "-2"
+
 PR = "${INC_PR}.0"
 
 SRC_URI[md5sum] = "49fbda557d08c838ce60f8dd4d117ec8"
