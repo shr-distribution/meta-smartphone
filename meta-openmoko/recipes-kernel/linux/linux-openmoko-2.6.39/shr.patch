@@ -3,6 +3,8 @@ rebased on top of openmoko kernel repository (om-gta02/2.6.39/om-stable)
 
 http://git.shr-project.org/git/?p=linux.git;a=shortlog;h=refs/heads/om-gta02/2.6.39/master
 
+f7345ab: s3c24xx: ACK the external interrupt source when no handler is available
+708ae69: ar6000: add netif_carrier handling
 e63c609: shr-create-patch.sh: update with new repository information.
 f73d166: ARM - rework c fiq handler
 6d3a745: gta02: remove duplicate assign to hdq priv platform data
@@ -859,6 +861,22 @@ index aa31b8d..34b7a8d 100644
  #ifdef CONFIG_CHARGER_PCF50633
  	INIT_DELAYED_WORK(&gta02_charger_work, gta02_charger_worker);
  #endif
+diff --git a/arch/arm/plat-s3c24xx/irq.c b/arch/arm/plat-s3c24xx/irq.c
+index 1317f04..0bcaccb 100644
+--- a/arch/arm/plat-s3c24xx/irq.c
++++ b/arch/arm/plat-s3c24xx/irq.c
+@@ -484,6 +484,11 @@ s3c_irq_demux_extint8(unsigned int irq,
+ 	eintpnd &= ~eintmsk;
+ 	eintpnd &= ~0xff;	/* ignore lower irqs */
+ 
++	/* in case no IRQ is pending but we got here we still
++	   must ack the parent or else we get an irq storm */
++	if (!eintpnd)
++		s3c_irq_ack(irq_get_irq_data(IRQ_EINT8t23));
++	
+ 	/* we may as well handle all the pending IRQs here */
+ 
+ 	while (eintpnd) {
 diff --git a/arch/arm/plat-samsung/gpio-config.c b/arch/arm/plat-samsung/gpio-config.c
 index 1c0b040..2cb5c12 100644
 --- a/arch/arm/plat-samsung/gpio-config.c
@@ -917,6 +935,35 @@ index 26fdb22..f475349 100644
  };
  
  extern void s3c24xx_ts_set_platdata(struct s3c2410_ts_mach_info *);
+diff --git a/drivers/ar6000/ar6000/ar6000_drv.c b/drivers/ar6000/ar6000/ar6000_drv.c
+index 90533ab..721c422 100644
+--- a/drivers/ar6000/ar6000/ar6000_drv.c
++++ b/drivers/ar6000/ar6000/ar6000_drv.c
+@@ -883,6 +883,7 @@ ar6000_avail_ev(HTC_HANDLE HTCHandle)
+         ar6000_destroy(dev, 0);
+         return;
+     }
++    netif_carrier_off(dev);
+ 
+     HTCSetInstance(ar->arHtcTarget, ar);
+ 
+@@ -2318,6 +2319,7 @@ ar6000_connect_event(AR_SOFTC_T *ar, A_UINT16 channel, A_UINT8 *bssid,
+     ar6000_TxDataCleanup(ar);
+ 
+     netif_start_queue(ar->arNetDev);
++    netif_carrier_on(ar->arNetDev);
+ 
+     if ((OPEN_AUTH == ar->arDot11AuthMode) &&
+         (NONE_AUTH == ar->arAuthMode)      &&
+@@ -2407,6 +2409,8 @@ ar6000_disconnect_event(AR_SOFTC_T *ar, A_UINT8 reason, A_UINT8 *bssid,
+ #endif /* USER_KEYS */
+ 
+     netif_stop_queue(ar->arNetDev);
++    netif_carrier_off(ar->arNetDev);
++
+     A_MEMZERO(ar->arBssid, sizeof(ar->arBssid));
+     ar->arBssChannel = 0;
+     ar->arBeaconInterval = 0;
 diff --git a/drivers/ar6000/hif/hif2.c b/drivers/ar6000/hif/hif2.c
 index 386d96e..90178d0 100644
 --- a/drivers/ar6000/hif/hif2.c

@@ -1,6 +1,7 @@
 DESCRIPTION = "SHR Lite Image Feed"
-PR = "r58"
-PV = "2.0"
+
+PV = "2.1"
+
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 
@@ -50,6 +51,7 @@ RDEPENDS_${PN}-base = "\
   glibc-utils \
   glibc-charmap-utf-8 \
   netbase \
+  init-ifupdown \
   sysfsutils \
   modutils-initscripts \
   module-init-tools-depmod \

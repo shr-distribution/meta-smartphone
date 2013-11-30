@@ -6,11 +6,11 @@ LIC_FILES_CHKSUM = "file://setup.py;beginline=21;endline=21;md5=7fdad70bdcd4f6b5
 "
 RDEPENDS_${PN} = "python-elementary python-dbus python-codecs python-shell python python-core python-edbus frameworkd"
 SECTION = "x11/application"
-SRCREV = "ffd5ba1e15c8af33e093340c318998c48bd88b82"
+SRCREV = "c8c5656fc5b6d455936b9e099a8e89a0f7d3b0b8"
 PV = "0.0.3+gitr${SRCPV}"
 PE = "1"
 
-inherit setuptools
+inherit distutils
 
 PACKAGES =+ "\
   ${PN}-gui \
@@ -41,7 +41,7 @@ RRECOMMENDS_${PN} = "\
 SRC_URI = "git://git.shr-project.org/repo/opimd-utils.git;protocol=http"
 S = "${WORKDIR}/git"
 
-FILES_${PN} += "${sysconfdir}/X11/Xsession.d/89opimd-notifier"
+FILES_${PN} += "${sysconfdir}/X11/Xsession.d/89opimd-notifier.sh"
 FILES_${PN} += "${prefix}/share/applications/"
 FILES_${PN} += "${prefix}/share/pixmaps/"
 FILES_${PN}-data += "${prefix}/share/pixmaps/opimd-utils/"
