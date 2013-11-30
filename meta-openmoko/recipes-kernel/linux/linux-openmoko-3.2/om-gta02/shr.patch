@@ -1,64 +1,134 @@
 All patches from shr kernel repository
-rebased on top latest stable patch (linux-stable tag v3.2.15 now)
+rebased on top latest stable patch (linux-stable tag v3.2.52 now)
 
 https://gitorious.org/shr/linux/commits/shr-3.2-nodrm
 
-22300b6: shr-create-patch.sh: update for 3.2.15
-132754a: Fix a freeze on change to external power supply
-217fdb0: shr-create-patch: update for 3.2.12
-3f69922: shr-create-patch: update for 3.2 release
-c641b12: Revert "ARM: SAMSUNG: use regulator VDD for ADC"
-5a3a719: shr-create-patch.sh: utility used to generate shr.patch for meta-smartphone
-b8e0314: glamo-mci: disable glamo_mci_pre_request & glamo_mci_post_request
-c6014a8: wm8753: Workaround toolchain bug: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=48783
-c86a683: wm8753: allow setting DAI mode even while pcm is active
-48f51e4: s3c2410_ts: jitter less touchscreen for glamo, version 4
-85bbec3: touchscreen: ignore unexpected interrupts
-0077878: tslib relies on ts pressures events so this hack is needed to get tslib stuff working
-eadcf02: Fix compile error for gta02 accelerometer.
-2ec97dc: lis302dl: use ABS events rather then REL events
-97f3fc7: input: lis302dl: fix the resume path
-614dd5a: lis302dl accelerometer driver
-5ca03eb: Force GPS power up on resume if it were powered up on suspend
-033e68a: Fix high power consumption in suspend
-2573096: wm8753: use snd_soc_jack on neo1973
-1d9647f: ar6000_delay.patch
-0a39f1e: gta02: add support for usb host mode
-9d87d7f: Enable powering off after 8s POWER press
-ba43994: glamo-display: fix WSOD for 242 timming
-50e6a61: Openmoko resume reason sysfs node ported from 2.6.29
-974faaf: nand/s3c2410: add mising badblocksbits value
-201c49b: Define machine_is_neo1973_gta01()
-ede0fe3: power: implement platform battery driver
-cd93c71: MFD: pcf50633: Use the genirq for irq handling
-92dfdc7: MFD: pcf50633: Use mfd cells to register child devices
-b392624: pcf50633: Move pcf50633-gpio driver to the gpio drivers folder
-c098430: pcf50633-gpio: Add gpiolib support.
-944a5e9: LEDS: leds-pwm: Add init, notfiy and exit callbacks
-41a16d7: Add jbt6k74 display driver.
-49f24ff: Add ar6000 wireless driver.
-9d732ea: Add atheros sdio ids.
-b4aad94: gta02: add support for platform_battery
-53ca4dc: gta02: Add battery driver
-66e654c: gta02: Add fiq handler
-9389ffb: Add jbt device.
-d53f42a: gta02: Add glamo device
-e705829: gta02: Add wlan power management device
-c0b69f2: gta02: Add gsm power management device
-d026615e: gta02: Add gps power management device
-0b75f80: gta02: Add bt power management device
-fc1d1f4: gta02: Add notify handler to probe device children
-b092bf2: ARM: s3c2440: GTA02: Select SPARSE_IRQ
-1b4b4c3: s3c2440: gta02: Configure pcf50633 gpios.
-095d6ae: gta02: Remove usage of pcf50633 gpio api
-a414826: gta02: Disable hardware ECC unless we get instructed to enable it
-581d1da: ARM: gta02: Add LED support
-c718a96: Add glamo driver.
-8c77922: Add c fiq handler.
-a7f36b6: Add s3c24xx_serial_console_set_silence
-35660ff: mtd: s3c2410_nand: Add config option to disable hw ecc at runtime
-4e0f214: s3c24xx: Fix level irqs on external interrupts.
+696bb70: shr-create-patch: update stable version
+dc77c99: s3c24xx: ACK the external interrupt source when no handler is available
+9c276af: ar6000: add netif_carrier handling
+3f0ea65: fix build errors using gcc-4.7
+9b2e268: shr-create-patch.sh: update for 3.2.15
+4adfd35: Fix a freeze on change to external power supply
+5bc08c3: shr-create-patch: update for 3.2.12
+127aaa0: shr-create-patch: update for 3.2 release
+3f08068: Revert "ARM: SAMSUNG: use regulator VDD for ADC"
+8e384ba: shr-create-patch.sh: utility used to generate shr.patch for meta-smartphone
+302773c: glamo-mci: disable glamo_mci_pre_request & glamo_mci_post_request
+e27e993: wm8753: Workaround toolchain bug: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=48783
+65bc191: wm8753: allow setting DAI mode even while pcm is active
+a0584c5: s3c2410_ts: jitter less touchscreen for glamo, version 4
+0e3c583: touchscreen: ignore unexpected interrupts
+251289a: tslib relies on ts pressures events so this hack is needed to get tslib stuff working
+74d6972: Fix compile error for gta02 accelerometer.
+9673652: lis302dl: use ABS events rather then REL events
+f21817e: input: lis302dl: fix the resume path
+cbe22bd: lis302dl accelerometer driver
+a19126b: Force GPS power up on resume if it were powered up on suspend
+6900238: Fix high power consumption in suspend
+96cb6dc: wm8753: use snd_soc_jack on neo1973
+31ff35a: ar6000_delay.patch
+3a2a004: gta02: add support for usb host mode
+821e014: Enable powering off after 8s POWER press
+6c2dcad: glamo-display: fix WSOD for 242 timming
+b1a8de3: Openmoko resume reason sysfs node ported from 2.6.29
+20f083f: nand/s3c2410: add mising badblocksbits value
+2f65c0604: Define machine_is_neo1973_gta01()
+f11670f: power: implement platform battery driver
+1d5f968: MFD: pcf50633: Use the genirq for irq handling
+42c7bd6: MFD: pcf50633: Use mfd cells to register child devices
+3bc5c07: pcf50633: Move pcf50633-gpio driver to the gpio drivers folder
+c0ae423: pcf50633-gpio: Add gpiolib support.
+df60057: LEDS: leds-pwm: Add init, notfiy and exit callbacks
+413ddcb: Add jbt6k74 display driver.
+cdf07fa: Add ar6000 wireless driver.
+9339b40: Add atheros sdio ids.
+e3a28a1: gta02: add support for platform_battery
+a8c7617: gta02: Add battery driver
+96531d7: gta02: Add fiq handler
+95060c8: Add jbt device.
+ac6231f: gta02: Add glamo device
+66eaf98: gta02: Add wlan power management device
+8c2b38c: gta02: Add gsm power management device
+0af70d2: gta02: Add gps power management device
+4ebb236: gta02: Add bt power management device
+715111b: gta02: Add notify handler to probe device children
+abdbf9f: ARM: s3c2440: GTA02: Select SPARSE_IRQ
+3402d5e: s3c2440: gta02: Configure pcf50633 gpios.
+a2c5462: gta02: Remove usage of pcf50633 gpio api
+06d32b2: gta02: Disable hardware ECC unless we get instructed to enable it
+2835551: ARM: gta02: Add LED support
+5a98990: Add glamo driver.
+913ca5c: Add c fiq handler.
+07d70bb: Add s3c24xx_serial_console_set_silence
+9253110: mtd: s3c2410_nand: Add config option to disable hw ecc at runtime
+1ae0e15: s3c24xx: Fix level irqs on external interrupts.
 
+diff --git a/arch/arm/boot/compressed/Makefile b/arch/arm/boot/compressed/Makefile
+index 5954a1a..ebb87c5 100644
+--- a/arch/arm/boot/compressed/Makefile
++++ b/arch/arm/boot/compressed/Makefile
+@@ -5,6 +5,7 @@
+ #
+ 
+ OBJS		=
++plus_sec := $(call as-instr,.arch_extension sec,+sec)
+ 
+ # Ensure that MMCIF loader code appears early in the image
+ # to minimise that number of bocks that have to be read in
+@@ -21,9 +22,16 @@ OBJS		+= sdhi-shmobile.o
+ OBJS		+= sdhi-sh7372.o
+ endif
+ 
+-AFLAGS_head.o += -DTEXT_OFFSET=$(TEXT_OFFSET)
+-HEAD	= head.o
+-OBJS	+= misc.o decompress.o
++AFLAGS_head.o := -DTEXT_OFFSET=$(TEXT_OFFSET)
++AFLAGS_head.o += -Wa,-march=armv7-a$(plus_sec)
++HEAD = head.o
++
++AFLAGS_misc.o +=-Wa,-march=armv7-a$(plus_sec)
++MISC = misc.o
++
++AFLAGS_decompress.o += -Wa,-march=armv7-a$(plus_sec)
++DECOMPRESS = decompress.o
++
+ FONTC	= $(srctree)/drivers/video/console/font_acorn_8x8.c
+ 
+ # string library code (-Os is enforced to keep it much smaller)
+@@ -112,7 +120,7 @@ endif
+ 
+ targets       := vmlinux vmlinux.lds \
+ 		 piggy.$(suffix_y) piggy.$(suffix_y).o \
+-		 lib1funcs.o lib1funcs.S font.o font.c head.o misc.o $(OBJS)
++		 lib1funcs.o lib1funcs.S font.o font.c head.o misc.o decompress.o $(OBJS)
+ 
+ # Make sure files are removed during clean
+ extra-y       += piggy.gzip piggy.lzo piggy.lzma lib1funcs.S $(libfdt) $(libfdt_hdrs)
+@@ -144,6 +152,7 @@ LDFLAGS_vmlinux += -X
+ LDFLAGS_vmlinux += -T
+ 
+ # For __aeabi_uidivmod
++AFLAGS_lib1funcs.o +=-Wa,-march=armv7-a$(plus_sec)
+ lib1funcs = $(obj)/lib1funcs.o
+ 
+ $(obj)/lib1funcs.S: $(srctree)/arch/$(SRCARCH)/lib/lib1funcs.S
+@@ -169,7 +178,7 @@ if [ $(words $(ZRELADDR)) -gt 1 -a "$(CONFIG_AUTO_ZRELADDR)" = "" ]; then \
+ 	false; \
+ fi
+ 
+-$(obj)/vmlinux: $(obj)/vmlinux.lds $(obj)/$(HEAD) $(obj)/piggy.$(suffix_y).o \
++$(obj)/vmlinux: $(obj)/vmlinux.lds $(obj)/$(HEAD) $(obj)/$(MISC) $(obj)/$(DECOMPRESS) $(obj)/piggy.$(suffix_y).o \
+ 	 	$(addprefix $(obj)/, $(OBJS)) $(lib1funcs) FORCE
+ 	@$(check_for_multiple_zreladdr)
+ 	$(call if_changed,ld)
+@@ -178,6 +187,7 @@ $(obj)/vmlinux: $(obj)/vmlinux.lds $(obj)/$(HEAD) $(obj)/piggy.$(suffix_y).o \
+ $(obj)/piggy.$(suffix_y): $(obj)/../Image FORCE
+ 	$(call if_changed,$(suffix_y))
+ 
++AFLAGS_piggy.$(suffix_y).o += -Wa,-march=armv7-a$(plus_sec)
+ $(obj)/piggy.$(suffix_y).o:  $(obj)/piggy.$(suffix_y) FORCE
+ 
+ CFLAGS_font.o := -Dstatic=
 diff --git a/arch/arm/include/asm/fiq.h b/arch/arm/include/asm/fiq.h
 index d493d0b..6902e6c 100644
 --- a/arch/arm/include/asm/fiq.h
@@ -3315,7 +3385,7 @@ index de1e0ff..7b45b1e 100644
  
  	regulator_has_full_constraints();
 diff --git a/arch/arm/plat-s3c24xx/irq.c b/arch/arm/plat-s3c24xx/irq.c
-index fc8c5f8..1392325 100644
+index fc8c5f8..f9682b8 100644
 --- a/arch/arm/plat-s3c24xx/irq.c
 +++ b/arch/arm/plat-s3c24xx/irq.c
 @@ -29,6 +29,8 @@
@@ -3394,7 +3464,19 @@ index fc8c5f8..1392325 100644
  }
  
  struct irq_chip s3c_irq_level_chip = {
-@@ -554,26 +587,26 @@ void __init s3c24xx_init_irq(void)
+@@ -452,6 +485,11 @@ s3c_irq_demux_extint8(unsigned int irq,
+ 	eintpnd &= ~eintmsk;
+ 	eintpnd &= ~0xff;	/* ignore lower irqs */
+ 
++	/* in case no IRQ is pending but we got here we still
++	   must ack the parent or else we get an irq storm */
++	if (!eintpnd)
++		s3c_irq_ack(irq_get_irq_data(IRQ_EINT8t23));
++	
+ 	/* we may as well handle all the pending IRQs here */
+ 
+ 	while (eintpnd) {
+@@ -554,26 +592,26 @@ void __init s3c24xx_init_irq(void)
  
  	last = 0;
  	for (i = 0; i < 4; i++) {
@@ -3428,7 +3510,7 @@ index fc8c5f8..1392325 100644
  		last = pend;
  	}
  
-@@ -625,14 +658,14 @@ void __init s3c24xx_init_irq(void)
+@@ -625,14 +663,14 @@ void __init s3c24xx_init_irq(void)
  	for (irqno = IRQ_EINT0; irqno <= IRQ_EINT3; irqno++) {
  		irqdbf("registering irq %d (ext int)\n", irqno);
  		irq_set_chip_and_handler(irqno, &s3c_irq_eint0t4,
@@ -3446,7 +3528,7 @@ index fc8c5f8..1392325 100644
  	}
  
 diff --git a/arch/arm/plat-samsung/adc.c b/arch/arm/plat-samsung/adc.c
-index 33ecd0c..2c3862b 100644
+index b1e05cc..b0c1f54 100644
 --- a/arch/arm/plat-samsung/adc.c
 +++ b/arch/arm/plat-samsung/adc.c
 @@ -21,7 +21,6 @@
@@ -3465,7 +3547,7 @@ index 33ecd0c..2c3862b 100644
  };
  
  static struct adc_device *adc_dev;
-@@ -353,24 +351,17 @@ static int s3c_adc_probe(struct platform_device *pdev)
+@@ -355,24 +353,17 @@ static int s3c_adc_probe(struct platform_device *pdev)
  	adc->pdev = pdev;
  	adc->prescale = S3C2410_ADCCON_PRSCVL(49);
  
@@ -3492,7 +3574,7 @@ index 33ecd0c..2c3862b 100644
  	}
  
  	adc->clk = clk_get(dev, "adc");
-@@ -394,10 +385,6 @@ static int s3c_adc_probe(struct platform_device *pdev)
+@@ -396,10 +387,6 @@ static int s3c_adc_probe(struct platform_device *pdev)
  		goto err_clk;
  	}
  
@@ -3503,7 +3585,7 @@ index 33ecd0c..2c3862b 100644
  	clk_enable(adc->clk);
  
  	tmp = adc->prescale | S3C2410_ADCCON_PRSCEN;
-@@ -417,15 +404,12 @@ static int s3c_adc_probe(struct platform_device *pdev)
+@@ -419,15 +406,12 @@ static int s3c_adc_probe(struct platform_device *pdev)
  
  	return 0;
  
@@ -3520,7 +3602,7 @@ index 33ecd0c..2c3862b 100644
   err_alloc:
  	kfree(adc);
  	return ret;
-@@ -438,8 +422,6 @@ static int __devexit s3c_adc_remove(struct platform_device *pdev)
+@@ -440,8 +424,6 @@ static int __devexit s3c_adc_remove(struct platform_device *pdev)
  	iounmap(adc->regs);
  	free_irq(adc->irq, adc);
  	clk_disable(adc->clk);
@@ -3529,7 +3611,7 @@ index 33ecd0c..2c3862b 100644
  	clk_put(adc->clk);
  	kfree(adc);
  
-@@ -464,7 +446,6 @@ static int s3c_adc_suspend(struct device *dev)
+@@ -466,7 +448,6 @@ static int s3c_adc_suspend(struct device *dev)
  	disable_irq(adc->irq);
  	spin_unlock_irqrestore(&adc->lock, flags);
  	clk_disable(adc->clk);
@@ -3537,7 +3619,7 @@ index 33ecd0c..2c3862b 100644
  
  	return 0;
  }
-@@ -478,9 +459,6 @@ static int s3c_adc_resume(struct device *dev)
+@@ -480,9 +461,6 @@ static int s3c_adc_resume(struct device *dev)
  	int ret;
  	unsigned long tmp;
  
@@ -3547,7 +3629,7 @@ index 33ecd0c..2c3862b 100644
  	clk_enable(adc->clk);
  	enable_irq(adc->irq);
  
-@@ -550,4 +528,4 @@ static int __init adc_init(void)
+@@ -552,4 +530,4 @@ static int __init adc_init(void)
  	return ret;
  }
  
@@ -3751,10 +3833,10 @@ index 0000000..f8f4431
 +
 diff --git a/drivers/ar6000/ar6000/ar6000_drv.c b/drivers/ar6000/ar6000/ar6000_drv.c
 new file mode 100644
-index 0000000..525638f
+index 0000000..250d594
 --- /dev/null
 +++ b/drivers/ar6000/ar6000/ar6000_drv.c
-@@ -0,0 +1,3130 @@
+@@ -0,0 +1,3134 @@
 +/*
 + *
 + * Copyright (c) 2004-2007 Atheros Communications Inc.
@@ -4641,6 +4723,7 @@ index 0000000..525638f
 +        ar6000_destroy(dev, 0);
 +        return;
 +    }
++    netif_carrier_off(dev);
 +
 +    HTCSetInstance(ar->arHtcTarget, ar);
 +
@@ -6076,6 +6159,7 @@ index 0000000..525638f
 +    ar6000_TxDataCleanup(ar);
 +
 +    netif_start_queue(ar->arNetDev);
++    netif_carrier_on(ar->arNetDev);
 +
 +    if ((OPEN_AUTH == ar->arDot11AuthMode) &&
 +        (NONE_AUTH == ar->arAuthMode)      &&
@@ -6165,6 +6249,8 @@ index 0000000..525638f
 +#endif /* USER_KEYS */
 +
 +    netif_stop_queue(ar->arNetDev);
++    netif_carrier_off(ar->arNetDev);
++
 +    A_MEMZERO(ar->arBssid, sizeof(ar->arBssid));
 +    ar->arBssChannel = 0;
 +    ar->arBeaconInterval = 0;
@@ -37646,7 +37732,7 @@ index 0000000..57844bc
 +
 +#endif /* _WMI_HOST_H_ */
 diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index 8482a23..59fda1b 100644
+index 4e04157..2b8b1b1 100644
 --- a/drivers/gpio/Kconfig
 +++ b/drivers/gpio/Kconfig
 @@ -85,6 +85,12 @@ config GPIO_GENERIC_PLATFORM
@@ -41866,10 +41952,10 @@ index 0000000..5bcc818
 +MODULE_AUTHOR("Andy Green <andy@openmoko.com>");
 +MODULE_DESCRIPTION("Neo1973 resume_reason");
 diff --git a/drivers/mmc/host/Kconfig b/drivers/mmc/host/Kconfig
-index cf444b0..756f2af 100644
+index 90233ad..7805d2d 100644
 --- a/drivers/mmc/host/Kconfig
 +++ b/drivers/mmc/host/Kconfig
-@@ -445,6 +445,17 @@ config MMC_S3C_PIODMA
+@@ -435,6 +435,17 @@ config MMC_S3C_PIODMA
  
  endchoice
  
@@ -45671,7 +45757,7 @@ index 0000000..896579b
 +#endif
 diff --git a/include/linux/jbt6k74.h b/include/linux/jbt6k74.h
 new file mode 100644
-index 0000000..3f0735d
+index 0000000..3f0735d8
 --- /dev/null
 +++ b/include/linux/jbt6k74.h
 @@ -0,0 +1,18 @@
@@ -46830,7 +46916,7 @@ index 0000000..00f7651
 +#endif
 diff --git a/shr-create-patch.sh b/shr-create-patch.sh
 new file mode 100755
-index 0000000..97d9f82
+index 0000000..a8347ae
 --- /dev/null
 +++ b/shr-create-patch.sh
 @@ -0,0 +1,12 @@
@@ -46838,13 +46924,13 @@ index 0000000..97d9f82
 +
 +cat <<EOF > shr.patch
 +All patches from shr kernel repository
-+rebased on top latest stable patch (linux-stable tag v3.2.15 now)
++rebased on top latest stable patch (linux-stable tag v3.2.52 now)
 +
 +https://gitorious.org/shr/linux/commits/shr-3.2-nodrm
 +
-+$(git log --pretty=format:"%h: %s" v3.2.15..)
++$(git log --pretty=format:"%h: %s" v3.2.52..)
 +
-+$(git diff v3.2.15)
++$(git diff v3.2.52)
 +EOF
 diff --git a/sound/soc/codecs/wm8753.c b/sound/soc/codecs/wm8753.c
 index 3a629d0..5d25bb0 100644
