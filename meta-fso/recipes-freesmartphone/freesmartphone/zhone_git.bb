@@ -9,14 +9,14 @@ PE = "1"
 PR = "r17"
 
 SRC_URI = "${FREESMARTPHONE_GIT}/zhone.git;protocol=git;branch=master \
-           file://80zhone"
+           file://80zhone.sh"
 S = "${WORKDIR}/git"
 
 inherit distutils
 
 do_install_append() {
     install -d ${D}${sysconfdir}/X11/Xsession.d/
-    install -m 0755 ${WORKDIR}/80zhone ${D}${sysconfdir}/X11/Xsession.d/
+    install -m 0755 ${WORKDIR}/80zhone.sh ${D}${sysconfdir}/X11/Xsession.d/
 }
 
 FILES_${PN} += "${datadir} ${sysconfdir}"
