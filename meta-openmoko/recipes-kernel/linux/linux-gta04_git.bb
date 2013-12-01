@@ -7,6 +7,7 @@ PE = "5"
 inherit machine_kernel_pr
 
 SRCREV = "c44404cbeb1b78707ec2a2f7dd7516facc2c8310"
+DEPENDS += "bc-native"
 
 SRC_URI = "\
   git://github.com/shr-distribution/linux.git;protocol=git;branch=om-gta04/3.12/master;name=kernel \
