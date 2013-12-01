@@ -6,11 +6,11 @@ LIC_FILES_CHKSUM = "file://setup.py;beginline=21;endline=21;md5=7fdad70bdcd4f6b5
 "
 RDEPENDS_${PN} = "python-elementary python-dbus python-codecs python-shell python python-core python-edbus frameworkd"
 SECTION = "x11/application"
-SRCREV = "c8c5656fc5b6d455936b9e099a8e89a0f7d3b0b8"
+SRCREV = "13f82d8d9b2a0f37134ebf2c5e3d02e144c7db16"
 PV = "0.0.3+gitr${SRCPV}"
 PE = "1"
 
-inherit distutils
+inherit setuptools
 
 PACKAGES =+ "\
   ${PN}-gui \
