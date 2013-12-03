@@ -8,7 +8,7 @@ SECOND_RAM_BASE ?= "0x00000000"
 TAGS_RAM_BASE ?= "0x00000000"
 EXTRA_ABOOTIMG_ARGS ?= ""
 
-do_deploy[depends] += "initramfs-android-image:do_build"
+do_deploy[depends] += "initramfs-android-image:do_rootfs"
 DEPENDS += "abootimg-native initramfs-android-image"
 
 do_deploy_append() {
