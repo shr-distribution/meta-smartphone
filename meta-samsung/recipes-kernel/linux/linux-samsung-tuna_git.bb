@@ -11,6 +11,7 @@ source from Samsung"
 CMDLINE = "console=ttyFIQ0 androidboot.console=ttyFIQ0 mem=1G vmalloc=768M omap_wdt.timer_margin=30 no_console_suspend"
 KERNEL_RAM_BASE = "0x80008000"
 RAMDISK_RAM_BASE = "0x81000000"
+SECOND_RAM_BASE = "0x80f00000"
 TAGS_RAM_BASE = "0x80000100"
 
 inherit kernel_android
