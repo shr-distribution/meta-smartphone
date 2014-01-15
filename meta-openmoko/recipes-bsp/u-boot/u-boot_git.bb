@@ -1,6 +1,6 @@
 require recipes-bsp/u-boot/u-boot.inc
 
-SRC_URI = "git://git.goldelico.com/gta04-uboot.git \
+SRC_URI = "git://git.goldelico.com/gta04-uboot.git;branch=gta04 \
   file://0001-config-Always-use-GNU-ld.patch \
 "
 SRCREV = "9e2ea9f36fc1d914d68a112643ba90fc037c3b27"
