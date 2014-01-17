@@ -7,12 +7,13 @@ RAMDISK_RAM_BASE ?= "0x00000000"
 SECOND_RAM_BASE ?= "0x00000000"
 TAGS_RAM_BASE ?= "0x00000000"
 EXTRA_ABOOTIMG_ARGS ?= ""
+BOOT_PARTITION ?= "/dev/null"
 
-do_deploy[depends] += "initramfs-android-image:do_build"
+do_compile[depends] += "initramfs-android-image:do_build"
 DEPENDS += "abootimg-native initramfs-android-image"
 
-do_deploy_append() {
-    abootimg --create ${DEPLOYDIR}/${KERNEL_IMAGE_BASE_NAME}.fastboot \
+do_compile_append() {
+    abootimg --create ${S}/boot.img \
              -k ${S}/${KERNEL_OUTPUT} \
              -r ${DEPLOY_DIR_IMAGE}/initramfs-android-image-${MACHINE}.cpio.gz \
              -c "cmdline=${CMDLINE}" \
@@ -21,6 +22,38 @@ do_deploy_append() {
              -c "secondaddr=${SECOND_RAM_BASE}" \
              -c "tagsaddr=${TAGS_RAM_BASE}" \
              ${EXTRA_ABOOTIMG_ARGS}
+}
 
+do_install_append() {
+    install -d ${D}/${KERNEL_IMAGEDEST}
+    install -m 0644 ${S}/boot.img ${D}/${KERNEL_IMAGEDEST}
+}
+
+do_deploy_append() {
+    cp ${S}/boot.img ${DEPLOYDIR}/${KERNEL_IMAGE_BASE_NAME}.fastboot
     ln -sf ${KERNEL_IMAGE_BASE_NAME}.fastboot ${DEPLOYDIR}/${KERNEL_IMAGE_SYMLINK_NAME}.fastboot
 }
+
+RDEPENDS_kernel-image += "abootimg"
+
+pkg_postinst_kernel-image_append () {
+    if [ x"$D" = "x" ] ; then
+        if [ ! -e /boot/boot.img ] ; then
+            # if the boot image is not available here something went wrong and we don't
+            # continue with anything that can be dangerous
+            exit 1
+        fi
+
+        if [ ! -e ${BOOT_PARTITION} ] ; then
+            echo "Boot partition does not exist!"
+            exit 1
+        fi
+
+        echo "Flashing the new kernel /boot/boot.img"
+        dd if=/boot/boot.img of=${BOOT_PARTITION}
+    else
+        exit 1
+    fi
+}
+
+FILES_kernel-image += "/${KERNEL_IMAGEDEST}/boot.img"
