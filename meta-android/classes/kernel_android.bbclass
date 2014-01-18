@@ -7,7 +7,6 @@ RAMDISK_RAM_BASE ?= "0x00000000"
 SECOND_RAM_BASE ?= "0x00000000"
 TAGS_RAM_BASE ?= "0x00000000"
 EXTRA_ABOOTIMG_ARGS ?= ""
-BOOT_PARTITION ?= "/dev/null"
 
 do_compile[depends] += "initramfs-android-image:do_build"
 DEPENDS += "abootimg-native initramfs-android-image"
@@ -44,13 +43,13 @@ pkg_postinst_kernel-image_append () {
             exit 1
         fi
 
-        if [ ! -e ${BOOT_PARTITION} ] ; then
+        if [ ! -e ${ANDROID_BOARD_BOOTIMAGE_PARTITION} ] ; then
             echo "Boot partition does not exist!"
             exit 1
         fi
 
         echo "Flashing the new kernel /boot/boot.img"
-        dd if=/boot/boot.img of=${BOOT_PARTITION}
+        dd if=/boot/boot.img of=${ANDROID_BOARD_BOOTIMAGE_PARTITION}
     else
         exit 1
     fi
