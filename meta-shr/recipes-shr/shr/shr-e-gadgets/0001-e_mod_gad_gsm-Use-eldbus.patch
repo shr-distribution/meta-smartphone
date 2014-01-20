@@ -1,0 +1,70 @@
+From 8e5c5217724fa6c381f6e7a231a4f4380e14f6cd Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Mon, 20 Jan 2014 20:02:09 +0100
+Subject: [PATCH] e_mod_gad_gsm: Use eldbus
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ src/battery-fso/e_mod_fso.c       |  9 +++++----
+ src/shelf-gadgets/e_mod_gad_gsm.c | 11 ++++++-----
+ 2 files changed, 11 insertions(+), 9 deletions(-)
+
+diff --git a/src/battery-fso/e_mod_fso.c b/src/battery-fso/e_mod_fso.c
+index 7bd184d..1f3edf6 100644
+--- a/src/battery-fso/e_mod_fso.c
++++ b/src/battery-fso/e_mod_fso.c
+@@ -1,5 +1,6 @@
+ #include "e.h"
+ #include "e_mod_main.h"
++#include <dbus/dbus.h>
+ 
+ #define FALSE   0
+ #define TRUE    1
+@@ -22,14 +23,14 @@ static void _battery_fso_powerstatus_update(void *data, char *charging);
+ static void _battery_fso_on_nameowner_change(void *data, DBusMessage *msg);
+ static void _battery_fso_result_free(void *data);
+ 
+-static E_DBus_Signal_Handler *nameowner_handler = NULL;
+-static E_DBus_Signal_Handler *capacity_handler = NULL;
+-static E_DBus_Signal_Handler *powerstatus_handler = NULL;
++static Eldbus_Signal_Handler *nameowner_handler = NULL;
++static Eldbus_Signal_Handler *capacity_handler = NULL;
++static Eldbus_Signal_Handler *powerstatus_handler = NULL;
+ 
+ extern Eina_List *device_batteries;
+ extern double init_time;
+ 
+-static E_DBus_Connection *conn = NULL;
++static Eldbus_Connection *conn = NULL;
+ static Battery *battery = NULL;
+ 
+ int
+diff --git a/src/shelf-gadgets/e_mod_gad_gsm.c b/src/shelf-gadgets/e_mod_gad_gsm.c
+index ab72fca..5b11a11 100644
+--- a/src/shelf-gadgets/e_mod_gad_gsm.c
++++ b/src/shelf-gadgets/e_mod_gad_gsm.c
+@@ -6,15 +6,16 @@
+ #include <stdlib.h>
+ #include <unistd.h>
+ #include <string.h>
++#include <dbus/dbus.h>
+ 
+ #define FALSE 0
+ #define TRUE 1
+ 
+-static E_DBus_Connection *conn_system = NULL;
+-static E_DBus_Signal_Handler *changed_fso_h = NULL;
+-static E_DBus_Signal_Handler *operatorch_fso_h = NULL;
+-static E_DBus_Signal_Handler *namech_system_h = NULL;
+-static E_DBus_Signal_Handler *device_status_changed_fso_h = NULL;
++static Eldbus_Connection *conn_system = NULL;
++static Eldbus_Signal_Handler *changed_fso_h = NULL;
++static Eldbus_Signal_Handler *operatorch_fso_h = NULL;
++static Eldbus_Signal_Handler *namech_system_h = NULL;
++static Eldbus_Signal_Handler *device_status_changed_fso_h = NULL;
+ 
+ static Ecore_Timer *try_again_timer = NULL;
+ 
+-- 
+1.8.5.3
+
