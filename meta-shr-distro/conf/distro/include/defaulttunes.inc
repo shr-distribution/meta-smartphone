@@ -28,7 +28,7 @@ SUPPORTED_EXTRA_ARCHS_om-gta02 ?= "arm920tt"
 
 SUPPORTED_EXTRA_ARCHS_spitz    ?= "xscalete"
 
-SUPPORTED_EXTRA_ARCHS_om-gta04 ?= "cortexa8-vfp-neon"
-SUPPORTED_EXTRA_ARCHS_nokia900 ?= "cortexa8-vfp-neon"
-SUPPORTED_EXTRA_ARCHS_crespo   ?= "cortexa8-vfp-neon"
-SUPPORTED_EXTRA_ARCHS_tuna     ?= "cortexa8-vfp-neon"
+SUPPORTED_EXTRA_ARCHS_om-gta04 ?= "cortexa8t2-vfp-neon"
+SUPPORTED_EXTRA_ARCHS_nokia900 ?= "cortexa8t2-vfp-neon"
+SUPPORTED_EXTRA_ARCHS_crespo   ?= "cortexa8t2-vfp-neon"
+SUPPORTED_EXTRA_ARCHS_tuna     ?= "cortexa8t2-vfp-neon"
