@@ -1,12 +1,12 @@
 require recipes-kernel/linux/linux.inc
 
-KERNEL_RELEASE = "3.12.0"
+KERNEL_RELEASE = "3.12.7"
 PV = "${KERNEL_RELEASE}+gitr${SRCPV}"
 PE = "5"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 
-SRCREV = "a4aa4cd9996258a352fca37c290a30bbe6ca8ff0"
+SRCREV = "1a3fa7ac13e0a1a0e84776033f5554c48ef99c05"
 DEPENDS += "bc-native"
 
 SRC_URI = "\
