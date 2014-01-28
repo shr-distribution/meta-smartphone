@@ -13,6 +13,7 @@ KERNEL_RAM_BASE = "0x80008000"
 RAMDISK_RAM_BASE = "0x81000000"
 SECOND_RAM_BASE = "0x80f00000"
 TAGS_RAM_BASE = "0x80000100"
+BOOT_PARTITION = "/dev/mmcblk0p7"
 
 inherit kernel_android
 
@@ -34,7 +35,7 @@ do_configure_append() {
   kernel_conf_variable_fixup USB_G_ANDROID y
 }
 
-SRCREV = "b4c2762e612460d3332fa132ad8ab2c3cf2457cc"
+SRCREV = "f8ed73f94a6ccb3bfef287fcd8e81e6798802b2f"
 
 PE = "3"
 KV = "3.0.72"

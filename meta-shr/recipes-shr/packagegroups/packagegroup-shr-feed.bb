@@ -224,6 +224,7 @@ RDEPENDS_${PN} += "\
         e-wm-illume-dict-pl \
         midori \
         pidgin \
+        pidgin-otr \
         libpurple-protocol-msn \
         libpurple-protocol-icq \
         udev \
