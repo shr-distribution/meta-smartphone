@@ -8,6 +8,6 @@ fi
 lxc-wait -n android -s RUNNING
 containerpid="$(lxc-info -n android | grep pid | sed 's/^pid:.* //')"
 while true; do
-	[ -f /proc/$containerpid/root/dev/.coldboot_done ] && break
+	[ -f /proc/$containerpid/root/dev/.android_boot_done ] && break
 	sleep 1
 done
