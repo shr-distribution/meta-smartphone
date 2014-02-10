@@ -43,13 +43,19 @@ pkg_postinst_kernel-image_append () {
             exit 1
         fi
 
-        if [ ! -e ${ANDROID_BOARD_BOOTIMAGE_PARTITION} ] ; then
+        BOOT_PARTITION_NAMES="LNX boot KERNEL"
+        for i in $BOOT_PARTITION_NAMES; do
+            path=$(find /dev -name "*$i*"|grep disk| head)
+            [ -n "$path" ] && break
+        done
+
+        if [ -z "$path" ] ; then
             echo "Boot partition does not exist!"
             exit 1
         fi
 
-        echo "Flashing the new kernel /boot/boot.img"
-        dd if=/boot/boot.img of=${ANDROID_BOARD_BOOTIMAGE_PARTITION}
+        echo "Flashing the new kernel /boot/boot.img to $path"
+        dd if=/boot/boot.img of=$path
     else
         exit 1
     fi
