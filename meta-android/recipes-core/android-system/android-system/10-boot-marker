@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# Install an additional late start script to indicate to the outer system that we're done
+# with booting
+echo ""
+echo "service bootdone /system/bin/touch /dev/.android_boot_done" >> $LXC_ROOTFS_PATH/init.rc
+echo "    class late_start" >> $LXC_ROOTFS_PATH/init.rc
+echo "    oneshot" >> $LXC_ROOTFS_PATH/init.rc
