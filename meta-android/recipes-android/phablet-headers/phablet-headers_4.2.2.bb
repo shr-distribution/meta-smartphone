@@ -3,7 +3,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
 SRC_URI = "git://github.com/webOS-ports/phablet-headers.git;branch=master;protocol=git"
-SRCREV = "cfbcae588a1c90fa57fbe4ad44af791c665fafd4"
+SRCREV = "59648ed5520a2274ce2549b249416a0dad50583c"
 S = "${WORKDIR}/git"
 
 PV = "4.2.2+gitr${SRCPV}"
