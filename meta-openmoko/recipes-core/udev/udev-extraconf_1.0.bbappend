@@ -26,5 +26,3 @@ do_install_append() {
         install -m 0755 ${WORKDIR}/gps.sh ${D}${sysconfdir}/udev/scripts/gps.sh
     fi
 }
-
-PRINC := "${@int(PRINC) + 3}"

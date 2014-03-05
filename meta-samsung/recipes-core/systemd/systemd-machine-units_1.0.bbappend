@@ -38,5 +38,3 @@ do_install_append_crespo() {
 
 SYSTEMD_SERVICE_${PN}_crespo = "rndissetup.service disablefbcon.service"
 SYSTEMD_SERVICE_${PN}_tuna = "${@base_contains('DISTRO_FEATURES', 'adb', '', 'rndissetup.service', d)} pvrinit.service"
-
-PRINC := "${@int(PRINC) + 10}"

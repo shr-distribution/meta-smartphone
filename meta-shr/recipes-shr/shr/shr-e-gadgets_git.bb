@@ -2,7 +2,7 @@ DESCRIPTION = "An e17 module for a lot of needed shr-gadgets"
 HOMEPAGE = "http://shr-project.org"
 LICENSE = "GPLv3"
 LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
-DEPENDS = "e-wm elementary"
+DEPENDS = "e-wm elementary eldbus"
 RDEPENDS_${PN} = "e-wm"
 SECTION = "x11/application"
 
@@ -13,6 +13,7 @@ inherit autotools
 
 SRC_URI = "\
     git://git.shr-project.org/repo/shr-e-gadgets.git;protocol=http;branch=master \
+    file://0001-e_mod_gad_gsm-Use-eldbus.patch \
 "
 S = "${WORKDIR}/git"
 

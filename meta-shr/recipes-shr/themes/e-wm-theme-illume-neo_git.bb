@@ -9,7 +9,7 @@ inherit allarch
 LICENSE = "MIT BSD"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=f523ab5986cc79b52a90d2ac3d5454a2"
 
-SRCREV = "4e6035ef5452b2f0a128dff91ddeb8335a3aafec"
+SRCREV = "bdc2f5992d12122d2405158f6a54e5118b5916b9"
 PV = "0.2+gitr${SRCPV}"
 
 SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http;branch=master"

@@ -1,5 +1,5 @@
 DESCRIPTION = "A set of notification sounds"
-LICENSE = "CC-BY-SA"
+LICENSE = "CC-BY-SA-3.0"
 LIC_FILES_CHKSUM = "file://COPYING;md5=a288ad49522a0d7d8c5d10c476b58a1f"
 SECTION = "multimedia"
 SRCREV = "dc8135c2d78f6335661a4ddefff0204721550abd"

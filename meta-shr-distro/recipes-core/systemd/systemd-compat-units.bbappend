@@ -1,5 +1,3 @@
-PRINC := "${@int(PRINC) + 11}"
-
 SYSTEMD_DISABLED_SYSV_SERVICES = " \
   busybox-udhcpc \
   dnsmasq \

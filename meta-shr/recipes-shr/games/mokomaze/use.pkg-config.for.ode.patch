@@ -1,0 +1,24 @@
+ode needs at least -lm and -lstdc++ to link and AC_CHECK_LIB was failing
+
+--- mokomaze-0.5.5+git8/configure.ac	2014-02-24 15:22:41.557604650 +0100
++++ mokomaze-0.5.5+git8/configure.ac	2009-07-26 21:25:26.000000000 +0200
+@@ -21,7 +21,7 @@
+ PKG_CHECK_MODULES(SDL, sdl >= 1.0.0)
+ AC_CHECK_LIB(SDL_image, IMG_Load, , [AC_MSG_ERROR([*** SDL_image not found!])])
+ AC_CHECK_LIB(SDL_ttf, TTF_OpenFont, , [AC_MSG_ERROR([*** SDL_ttf not found!])])
+-AC_CHECK_LIB(ode, dInitODE, , [AC_MSG_ERROR([*** ODE not found!])])
++PKG_CHECK_MODULES(ODE, ode >= 0.13)
+ 
+ AC_SUBST(SDL)
+ 
+--- mokomaze-0.5.5+git8/src/Makefile.am	2014-02-24 15:25:19.631614395 +0100
++++ mokomaze-0.5.5+git8/src/Makefile.am	2009-07-26 21:25:26.000000000 +0200
+@@ -18,7 +18,7 @@
+ mokomaze_SOURCES = \
+   main.c mainwindow.c paramsloader.c accelerometers.c vibro.c json.c
+ 
+-mokomaze_LDADD  = @SDL_LIBS@
++mokomaze_LDADD  = @SDL_LIBS@ @ODE_LIBS@
+ 
+ MAINTAINERCLEANFILES  = config.h.in Makefile.in
+ 

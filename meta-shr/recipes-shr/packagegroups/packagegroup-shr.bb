@@ -37,11 +37,16 @@ RDEPENDS_${PN}-gtk = "\
   vagalume \
 "
 
+BROWSER = "eve"
+# webkit-efl is currently broken
+BROWSER_armv4 = ""
+BROWSER_armv5 = ""
+
 RDEPENDS_${PN}-apps += "\
   packagegroup-shr-minimal-apps \
   opimd-utils-notes \
-  eve \
   intone \
+  ${BROWSER} \
 "
 RDEPENDS_${PN}-cli += "\
   packagegroup-shr-minimal-cli \

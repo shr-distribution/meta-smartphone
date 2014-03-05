@@ -29,5 +29,3 @@ SYSTEMD_SERVICE_${PN}_om-gta04 = "g_ether.service"
 
 #Add GPS for gta04
 RDEPENDS_${PN}_om-gta04 = "gta04-gps-handler-systemd"
-
-PRINC := "${@int(PRINC) + 5}"

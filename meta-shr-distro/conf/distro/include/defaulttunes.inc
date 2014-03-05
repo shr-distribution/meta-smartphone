@@ -23,12 +23,12 @@ DEFAULTTUNE_tuna     = "cortexa8t-neon"
 # this is just to prevent opkg installing something from e.g. armv4t feed on armv7a,
 # just because some upgrade was available in armv4t feed sooner and when it gets
 # available for armv7a (same version) it's not reinstalled to get it from feed with higher priority
-SUPPORTED_EXTRA_ARCHS_om-gta01 ?= "arm920tt"
-SUPPORTED_EXTRA_ARCHS_om-gta02 ?= "arm920tt"
+SUPPORTED_EXTRA_ARCHS_om-gta01 ?= "arm920t arm920tt"
+SUPPORTED_EXTRA_ARCHS_om-gta02 ?= "arm920t arm920tt"
 
-SUPPORTED_EXTRA_ARCHS_spitz    ?= "xscalete"
+SUPPORTED_EXTRA_ARCHS_spitz    ?= "xscalee xscalete"
 
-SUPPORTED_EXTRA_ARCHS_om-gta04 ?= "cortexa8t2-vfp-neon"
-SUPPORTED_EXTRA_ARCHS_nokia900 ?= "cortexa8t2-vfp-neon"
-SUPPORTED_EXTRA_ARCHS_crespo   ?= "cortexa8t2-vfp-neon"
-SUPPORTED_EXTRA_ARCHS_tuna     ?= "cortexa8t2-vfp-neon"
+SUPPORTED_EXTRA_ARCHS_om-gta04 ?= "cortexa8-vfp-neon cortexa8t2-vfp-neon"
+SUPPORTED_EXTRA_ARCHS_nokia900 ?= "cortexa8-vfp-neon cortexa8t2-vfp-neon"
+SUPPORTED_EXTRA_ARCHS_crespo   ?= "cortexa8-vfp-neon cortexa8t2-vfp-neon"
+SUPPORTED_EXTRA_ARCHS_tuna     ?= "cortexa8-vfp-neon cortexa8t2-vfp-neon"
