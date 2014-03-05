@@ -1,5 +1,3 @@
-PRINC := "${@int(PRINC) + 2}"
-
 do_install_append() {
     # Add necessary environment settings to execute android binaries
     echo "LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/system/lib" >> ${D}${sysconfdir}/profile

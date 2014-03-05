@@ -1,7 +1,5 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-PRINC := "${@int(PRINC) + 3}"
-
 volatiles = ""
 dirs755 += "${localstatedir}/cache \
     ${localstatedir}/run \

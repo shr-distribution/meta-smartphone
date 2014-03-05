@@ -1,5 +1,3 @@
-PRINC := "${@int(PRINC) + 5}"
-
 SUPPORTED_EXTRA_ARCHS ?= "armv4t arm920tt armv5te armv6-novfp armv7a-vfp-neon cortexa8-vfp-neon cortexa8t-vfp-neon cortexa9-vfp-neon cortexa9t-vfp-neon x86_64 i586"
 
 do_compile() {

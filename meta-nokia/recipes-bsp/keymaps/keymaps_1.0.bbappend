@@ -1,5 +1,4 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
-PRINC := "${@int(PRINC) + 1}"
 
 SRC_URI_append_nokia900 = " file://keymap-2.6.map"
 
