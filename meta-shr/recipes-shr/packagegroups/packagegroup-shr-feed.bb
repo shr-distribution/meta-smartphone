@@ -157,7 +157,13 @@ MISSING = "\
         omnewrotate \
 "
 
+EVE-BROWSER = "eve"
+# webkit-efl is currently broken
+EVE-BROWSER_armv4 = ""
+EVE-BROWSER_armv5 = ""
+
 RDEPENDS_${PN} += "\
+        ${EVE-BROWSER} \
         vagalume \
         elmdentica \
         bootchart \
@@ -289,7 +295,6 @@ RDEPENDS_${PN} += "\
         man \
         man-pages \
         om-neon \
-        eve \
         x11perf \
         advancedcaching \
         imagemagick \
