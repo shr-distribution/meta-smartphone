@@ -3,17 +3,17 @@ This layer depends on:
 
 URI: git://github.com/openembedded/oe-core.git
 layers: meta
-branch: shr
+branch: master
 revision: HEAD
 
 URI: git://github.com/openembedded/meta-oe.git
 layers: meta-oe
-branch: shr
+branch: master
 revision: HEAD
 
 URI: git://github.com/shr-distribution/meta-smartphone.git
 layers: meta-android
-branch: shr
+branch: master
 revision: HEAD
 
 If you want to contribute changes, please follow
