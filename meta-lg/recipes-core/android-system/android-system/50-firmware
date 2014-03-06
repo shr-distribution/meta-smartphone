@@ -1,0 +1,6 @@
+#!/bin/sh
+mkdir -p $LXC_ROOTFS_PATH/firmware
+mount -o bind,ro /firmware $LXC_ROOTFS_PATH/firmware
+
+mkdir -p $LXC_ROOTFS_PATH/persist
+mount -o bind /persist $LXC_ROOTFS_PATH/persist
