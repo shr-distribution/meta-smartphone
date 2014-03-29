@@ -1,16 +1,16 @@
 require recipes-kernel/linux/linux.inc
 
-KERNEL_RELEASE = "3.12.7"
+KERNEL_RELEASE = "3.13.6"
 PV = "${KERNEL_RELEASE}+gitr${SRCPV}"
 PE = "5"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 
-SRCREV = "1a3fa7ac13e0a1a0e84776033f5554c48ef99c05"
+SRCREV = "04c9f42eb1e7e7d9ecc7699c2d4b204f9f7f44de"
 DEPENDS += "bc-native"
 
 SRC_URI = "\
-  git://github.com/shr-distribution/linux.git;protocol=git;branch=om-gta04/3.12/master;name=kernel \
+  git://github.com/shr-distribution/linux.git;protocol=git;branch=om-gta04/3.13/master;name=kernel \
   file://defconfig \
 "
 S = "${WORKDIR}/git"

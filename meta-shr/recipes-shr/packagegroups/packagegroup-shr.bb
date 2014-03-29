@@ -4,7 +4,9 @@ PV = "2.0"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 
-inherit packagegroup allarch
+inherit packagegroup
+
+PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 RPROVIDES_${PN} += "task-shr"
 RPROVIDES_${PN}-gtk += "task-shr-gtk"
