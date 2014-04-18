@@ -4,7 +4,7 @@ AUTHOR = "cchandel"
 LICENSE = "GPLv3"
 LIC_FILES_CHKSUM = "file://COPYING;md5=f27defe1e96c2e1ecd4e0c9be8967949"
 SECTION = "e/apps"
-DEPENDS = "gtk+ libglade fftw sqlite3 alsa-lib"
+DEPENDS = "gtk+ libglade fftw sqlite3 alsa-lib dbus dbus-glib"
 
 SRCREV = "11"
 PV = "0.36+svnr${SRCPV}"
