@@ -14,6 +14,6 @@ SRC_URI[sha256sum] = "aabbfa2e3859d44c495f15b61f93b9050ee78641f8c3e5fb955f6447ba
 EXTRA_OECONF_append_armv4 = " --with-device=GTA"
 EXTRA_OECONF_append_armv7a = " --with-device=N900"
 
-inherit gettext autotools
+inherit gettext autotools-brokensep
 
 FILES_${PN} += "/opt/${PN}"

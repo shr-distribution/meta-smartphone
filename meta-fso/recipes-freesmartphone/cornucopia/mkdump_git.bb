@@ -14,3 +14,5 @@ PV = "1.0.0+gitr${SRCPV}"
 PR = "${INC_PR}.0"
 
 S = "${WORKDIR}/git/tools/${PN}"
+# autotools-brokensep
+B = "${S}"

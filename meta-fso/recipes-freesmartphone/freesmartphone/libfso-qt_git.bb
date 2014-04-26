@@ -6,7 +6,7 @@ DEPENDS = "fso-specs qfsodbusxml2cpp qfsodbusxml2cpp-native qt4-x11-free"
 SRCREV = "0d3d393061e4d599b246f5066e36246c07b0bd41"
 PV = "2012.06.01.1+gitr${SRCPV}"
 
-inherit autotools pkgconfig
+inherit autotools-brokensep pkgconfig
 
 SRC_URI = "${FREESMARTPHONE_GIT}/libfso-qt.git;protocol=git;branch=master"
 S = "${WORKDIR}/git"

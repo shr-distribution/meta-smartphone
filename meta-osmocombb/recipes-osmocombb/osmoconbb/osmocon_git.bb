@@ -10,6 +10,6 @@ PR = "${INC_PR}.0"
 
 DEPENDS = "libosmocore"
 RRECOMMENDS_${PN} = "socat"
-inherit autotools
+inherit autotools-brokensep
 
 S = "${WORKDIR}/git/src/host/osmocon"

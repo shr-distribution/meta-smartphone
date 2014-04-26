@@ -38,3 +38,5 @@ RRECOMMENDS_${PN} = "\
   illume-keyboard-default-terminal \
 "
 
+# autotools-brokensep
+B = "${S}"

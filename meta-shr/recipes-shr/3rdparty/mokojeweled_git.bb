@@ -24,4 +24,4 @@ do_configure_prepend() {
         autopoint --force
 }
 
-inherit gettext autotools
+inherit gettext autotools-brokensep
