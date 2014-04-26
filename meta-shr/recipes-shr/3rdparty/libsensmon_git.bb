@@ -13,7 +13,7 @@ SRC_URI = "git://gitorious.org/sensor-monitor/libsensmon.git;protocol=git;branch
 SRCREV = "1e986a6d84d4a63ffa85a049bdfced00bad8d97a"
 S = "${WORKDIR}/git"
 
-inherit autotools vala
+inherit autotools-brokensep vala
 
 FILES_${PN} += "${datadir}/${PN} ${datadir}/applications ${datadir}/pixmaps"
 

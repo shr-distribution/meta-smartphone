@@ -12,7 +12,7 @@ PV = "2011.03.08.2+gitr${SRCPV}"
 SRC_URI = "git://git.shr-project.org/repo/shr-specs.git;protocol=http;branch=master"
 S = "${WORKDIR}/git"
 
-inherit autotools pkgconfig
+inherit autotools-brokensep pkgconfig
 
 FILES_${PN}-dev += "${datadir}/shr-specs"
 

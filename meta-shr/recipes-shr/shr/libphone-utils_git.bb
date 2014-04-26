@@ -8,7 +8,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=b52f2d57d10c4f7ee67a7eb9615d5d24"
 
 DEPENDS="glib-2.0"
 
-inherit pkgconfig autotools autotools
+inherit pkgconfig autotools-brokensep
 
 CONFFILES_${PN} = "${sysconfdir}/phone-utils.conf"
 SRC_URI = "git://git.shr-project.org/repo/libphone-utils.git;protocol=http;branch=master"
