@@ -15,3 +15,5 @@ PR = "${INC_PR}.1"
 S = "${WORKDIR}/git/tools/${PN}"
 
 FILES_${PN} += "${datadir}"
+# autotools-brokensep
+B = "${S}"

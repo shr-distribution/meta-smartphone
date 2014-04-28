@@ -13,7 +13,7 @@ RCONFLICTS_${PN} = "shr-today"
 SRC_URI = "git://git.shr-project.org/repo/phoneuid.git;protocol=http;branch=master"
 S = "${WORKDIR}/git"
 
-inherit autotools
+inherit autotools-brokensep
 
 EXTRA_OECONF = "\
        SPECS_PATH=${STAGING_DATADIR}/shr-specs \
