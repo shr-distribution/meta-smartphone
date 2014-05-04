@@ -35,3 +35,7 @@ FILES_${PN}-dbg += "${libdir}/qt4/imports/Aurora/*/.debug ${datadir}/aurora/appl
 ALTERNATIVE_${PN} = "x-window-manager"
 ALTERNATIVE_TARGET[x-window-manager] = "${bindir}/aurora-daemon"
 ALTERNATIVE_PRIORITY[x-window-manager] = "16"
+
+# the regexp in insane.bbclass doesn't allow this valid path:
+# aurora-daemon-0.1+gitrAUTOINC+b65354ad6c: aurora-daemon: found library in wrong location: /usr/share/aurora/applications/settings/libaurora-app-settings.so
+INSANE_SKIP_${PN} += "libdir"
