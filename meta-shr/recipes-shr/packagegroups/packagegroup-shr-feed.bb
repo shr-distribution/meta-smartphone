@@ -152,7 +152,6 @@ MISSING = "\
         gpe-timesheet \
         gpe-contacts \
         shr-theme-neo \
-        intone-video \
         mupdf \
         omnewrotate \
 "
@@ -162,13 +161,15 @@ EVE-BROWSER = "eve"
 EVE-BROWSER_armv4 = ""
 EVE-BROWSER_armv5 = ""
 
+# mplayer is currently blacklisted
+# intone depends on blacklisted mplayer2
+# emacs is currently blacklisted
 RDEPENDS_${PN} += "\
         ${EVE-BROWSER} \
         vagalume \
         elmdentica \
         bootchart \
         anki \
-        emacs \
         grep \
         xchat \
         monav \
@@ -189,10 +190,8 @@ RDEPENDS_${PN} += "\
         gnuplot \
         omgps \
         php \
-        intone \
         mariadb \
         fbreader \
-        mplayer \
         enjoy \
         babiloo-efl \
         ffalarms \

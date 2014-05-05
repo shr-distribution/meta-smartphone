@@ -44,10 +44,11 @@ BROWSER = "eve"
 BROWSER_armv4 = ""
 BROWSER_armv5 = ""
 
+# intone depends on blacklisted mplayer2
+
 RDEPENDS_${PN}-apps += "\
   packagegroup-shr-minimal-apps \
   opimd-utils-notes \
-  intone \
   ${BROWSER} \
 "
 RDEPENDS_${PN}-cli += "\
