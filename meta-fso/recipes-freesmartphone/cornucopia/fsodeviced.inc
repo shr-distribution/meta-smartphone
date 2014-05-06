@@ -8,7 +8,6 @@ RPROVIDES_${PN} = "openmoko-alsa-scenarios virtual/alsa-scenarios"
 EXTRA_OECONF = "\
   --enable-kernel26-rfkill \
   --disable-player-canberra \
-  --enable-htcdream-powercontrol \
 "
 
 inherit update-rc.d
