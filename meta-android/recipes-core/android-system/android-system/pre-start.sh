@@ -23,25 +23,37 @@ if [ ! -e $ramdisk ] ; then
 fi
 
 if [ -d $LXC_ROOTFS_PATH ] ; then
+	umount --recursive $LXC_ROOTFS_PATH
 	rm -rf $LXC_ROOTFS_PATH
 fi
 
 # Make sure we're always starting from a clean base
 mkdir -p $LXC_ROOTFS_PATH
+mount -t tmpfs none $LXC_ROOTFS_PATH
 (cd $LXC_ROOTFS_PATH ; cat $ramdisk | gzip -d | cpio -i)
 
 # /dev/pts needs to be there
 mkdir -p $LXC_ROOTFS_PATH/dev/pts
 
-mount -o bind,ro /system $LXC_ROOTFS_PATH/system
-ln -sf /system/vendor $LXC_ROOTFS_PATH/vendor
+mount_bind_ro() {
+	if [ ! -d $2 ] ; then
+		mkdir $2
+	fi
+	mount --bind $1 $2
+	mount -o remount,ro,bind $2
+}
+
+mount_bind_ro /system $LXC_ROOTFS_PATH/system
+mount_bind_ro /system/vendor $LXC_ROOTFS_PATH/vendor
 
 # usage existing /data directory
 mkdir -p /data
 mount -o bind /data $LXC_ROOTFS_PATH/data
 
 # Process any overrides
-cp -a /var/lib/lxc/android/overrides/* $LXC_ROOTFS_PATH || true
+if [ -d /var/lib/lxc/android/overrides ] ; then
+	cp -a /var/lib/lxc/android/overrides/* $LXC_ROOTFS_PATH || true
+fi
 
 # Passing sockets between system and container
 rm -Rf /dev/socket

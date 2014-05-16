@@ -2,10 +2,10 @@
 Description=Android System Container
 
 [Service]
-Type=forking
-ExecStart=/usr/bin/lxc-start -n android -d -- /init
+Type=simple
+ExecStart=/usr/bin/lxc-start -n android -l DEBUG -- /init
 ExecStartPost=/usr/bin/wait-for-android.sh
-ExecStop=/usr/bin/lxc-stop -n android
+ExecStop=/usr/bin/lxc-stop -n android -k
 
 [Install]
 WantedBy=basic.target
