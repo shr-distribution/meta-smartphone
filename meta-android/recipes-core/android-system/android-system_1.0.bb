@@ -9,7 +9,7 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 # For some of the operations inside our setup script we need "real" sed!
 RDEPENDS_${PN} = "sed"
 
-# For running the container we're using lxc
+# For running the container we're using lxc (>= 1.0 required)
 RDEPENDS_${PN} += "lxc"
 
 # We're the former android-initscripts package
