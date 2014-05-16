@@ -16,5 +16,4 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Cleanup everything
-umount $LXC_ROOTFS_PATH/system
-umount $LXC_ROOTFS_PATH/socket
+umount --recursive $LXC_ROOTFS_PATH
