@@ -11,6 +11,7 @@ LIC_FILES_CHKSUM = " \
 "
 
 DEPENDS = "zlib openssl"
+RDEPENDS_${PN} = "${PN}-conf"
 
 # Use same version than ubuntu does here
 BASE_PV = "4.2.2+git20130218"
@@ -26,7 +27,6 @@ SRC_URI = " \
     file://adbd-disable-client-authentication.patch \
     file://disable-selinux-support.patch \
     file://remove-libselinux.patch;patchdir=.. \
-    file://android-gadget-setup \
     file://android-tools-adbd.service \
 "
 S = "${WORKDIR}/android-tools"
@@ -59,7 +59,6 @@ do_install() {
     install -d ${D}${bindir}
     install -m 0755 ${S}/core/adbd/adbd ${D}${bindir}
     install -m 0755 ${S}/extras/ext4_utils/make_ext4fs ${D}${bindir}
-    install -m 0755 ${WORKDIR}/android-gadget-setup ${D}${bindir}
 
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/android-tools-adbd.service ${D}${systemd_unitdir}/system
