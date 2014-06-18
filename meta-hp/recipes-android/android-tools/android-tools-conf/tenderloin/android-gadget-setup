@@ -1,0 +1,17 @@
+#!/bin/sh
+
+echo "HP" > /sys/class/android_usb/android0/f_rndis/manufacturer
+echo "18D1" > /sys/class/android_usb/android0/f_rndis/vendorID
+echo "1" > /sys/class/android_usb/android0/f_rndis/wceis
+
+echo "HP" > /sys/class/android_usb/android0/iManufacturer
+echo "Touchpad" > /sys/class/android_usb/android0/iProduct
+echo "01dfecf85125b0bb" > /sys/class/android_usb/android0/iSerial
+
+echo "0" > /sys/class/android_usb/android0/enable
+echo "18D1" > /sys/class/android_usb/android0/idVendor
+echo "d001" > /sys/class/android_usb/android0/idProduct
+echo "adb" > /sys/class/android_usb/android0/functions
+echo "1" >  /sys/class/android_usb/android0/enable
+
+sleep 4
