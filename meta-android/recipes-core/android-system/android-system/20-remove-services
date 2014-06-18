@@ -10,5 +10,4 @@ sed -i $LXC_ROOTFS_PATH/init.rc \
 	-e 's|\(/system/bin/ubuntuappmanager\)|\1.disabled|' \
 	-e 's|\(/sbin/upstart-property-watcher\)|\1.disabled|' \
 	-e 's|\(/system/bin/sensorservice\)|\1.disabled|' \
-	-e 's|\(/system/bin/mediaserver\)|\1.disabled|' \
-	-e 's|\(/system/bin/servicemanager\)|\1.disabled|'
+	-e 's|\(/system/bin/mediaserver\)|\1.disabled|'
