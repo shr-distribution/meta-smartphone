@@ -164,6 +164,11 @@ EVE-BROWSER_armv5 = ""
 # mplayer is currently blacklisted
 # intone depends on blacklisted mplayer2
 # emacs is currently blacklisted
+# xchat is currently blacklisted
+# abiword is currently blacklisted
+# omgps is currently blacklisted
+# sylpheed is currently blacklisted
+# mcnavi is currently blacklisted
 RDEPENDS_${PN} += "\
         ${EVE-BROWSER} \
         vagalume \
@@ -171,24 +176,20 @@ RDEPENDS_${PN} += "\
         bootchart \
         anki \
         grep \
-        xchat \
         monav \
         chroneo \
         pisi \
         rfkill \
-        mcnavi \
         estardict \
         claws-mail \
         claws-plugin-gtkhtml2-viewer \
         claws-plugin-mailmbox \
         claws-plugin-rssyl \
-        sylpheed \
         podboy \
         orrery \
         gpm \
         links-x11 \
         gnuplot \
-        omgps \
         php \
         mariadb \
         fbreader \
@@ -247,7 +248,6 @@ RDEPENDS_${PN} += "\
         minicom \
         picocom \
         leafpad \
-        abiword \
         aspell \
         enchant \
         nano \
