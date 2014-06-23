@@ -1,8 +1,7 @@
 SECTION = "gpe"
-RDEPENDS_${PN} += "gdk-pixbuf-loader-png"
 
 #only icons present in the package
-PACKAGE_ARCH = "all"
+inherit allarch
 
 INC_PR = "r6"
 
