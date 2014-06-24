@@ -11,6 +11,8 @@ PE = "1"
 SRC_URI = "git://github.com/libhybris/libhybris;branch=master;protocol=git"
 S = "${WORKDIR}/git/hybris"
 
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
 # We need the android headers which are now provided for compatiblity reasons as external
 # component. The android-headers are specific for the environment the android-system-image
 # is build with and can differ between different machines.
