@@ -12,11 +12,11 @@ SRC_URI = "git://github.com/libhybris/libhybris;branch=master;protocol=git"
 S = "${WORKDIR}/git/hybris"
 
 # We need the android headers which are now provided for compatiblity reasons as external
-# component. Each distro has to add it's own set of headers of the Android version it
-# targets.
+# component. The android-headers are specific for the environment the android-system-image
+# is build with and can differ between different machines.
 DEPENDS += "virtual/android-headers"
 
-PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/egl"
+PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/egl virtual/libandroid-properties"
 
 # most MACHINEs don't use libhybris and depend on mesa to provide *gl*
 # Multiple .bb files are due to be built which each provide virtual/libgles1 (virtual/libgles2, virtual/egl)
