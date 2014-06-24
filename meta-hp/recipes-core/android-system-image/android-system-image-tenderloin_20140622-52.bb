@@ -17,6 +17,6 @@ INSANE_SKIP_${PN} += "ldflags"
 # Fixing QA errors for binaries with relocations in .text
 INSANE_SKIP_${PN} += "textrel"
 
-SRC_URI = "http://build.webos-ports.org/phablet/cm-wop-11.0-${MACHINE}-${PV}.tar.bz2"
-SRC_URI[md5sum] = "e02b72ea99d6cb876ecd8a1d7536241f"
-SRC_URI[sha256sum] = "8192902968f4c48d8dddc67ef401f1354962b7de34c1aaf7dd7e38ae6c6ffb68"
+SRC_URI = "http://build.webos-ports.org/cm-wop-11.0/cm-wop-11.0-${PV}-${MACHINE}.tar.bz2"
+SRC_URI[md5sum] = "50ec3c38efa0b7aba0c5144347af5ab6"
+SRC_URI[sha256sum] = "7ca001389fe6eee903f731ea2d97117abd07aa91be7419e34bba010d38b44968"
