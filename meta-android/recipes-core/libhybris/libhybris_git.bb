@@ -18,7 +18,8 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 # is build with and can differ between different machines.
 DEPENDS += "virtual/android-headers"
 
-PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/egl virtual/libandroid-properties"
+PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/egl virtual/libandroid-properties \
+             virtual/libhardware"
 
 # most MACHINEs don't use libhybris and depend on mesa to provide *gl*
 # Multiple .bb files are due to be built which each provide virtual/libgles1 (virtual/libgles2, virtual/egl)
