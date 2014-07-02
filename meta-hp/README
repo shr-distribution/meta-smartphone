@@ -1,19 +1,19 @@
 The OpenEmbedded BSP layer for HP devices
 This layer depends on:
 
-URI: git://github.com/openembedded/oe-core.git
+URI: git://github.com/shr-distribution/oe-core.git
 layers: meta
-branch: dora
+branch: shr
 revision: HEAD
 
-URI: git://github.com/openembedded/meta-oe.git
+URI: git://github.com/shr-distribution/meta-oe.git
 layers: meta-oe
-branch: dora
+branch: shr
 revision: HEAD
 
 URI: git://github.com/shr-distribution/meta-smartphone.git
 layers: meta-android
-branch: dora
+branch: shr
 revision: HEAD
 
 If you want to contribute changes, please follow
