@@ -1,7 +1,6 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 EXTRA_DEPS = ""
-EXTRA_DEPS_om-gta04 = "gta04-gps-handler"
 EXTRA_DEPS_om-gta02 = "omhacks"
 RDEPENDS_${PN} += "${EXTRA_DEPS}"
 

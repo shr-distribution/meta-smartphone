@@ -9,7 +9,9 @@ COMPATIBLE_MACHINE = "mako"
 INSANE_SKIP_${PN} = "arch"
 # Fixing QA no GNU_HASH error for all binaries
 INSANE_SKIP_${PN} += "ldflags"
+# Fixing QA relocations in .text error for all binaries
+INSANE_SKIP_${PN} += "textrel"
 
-SRC_URI = "http://build.webos-ports.org/phablet/phablet-${MACHINE}-${PV}.tar.bz2"
-SRC_URI[md5sum] = "0fc12140e189298fa216da21c29a31c4"
-SRC_URI[sha256sum] = "257d00f784c06c5e691b4cedb8954b88ecc4b16e4a2c3c794d2a6f855fad9cd2"
+SRC_URI = "http://build.webos-ports.org/cm-wop-10.1/cm-wop-10.1-${PV}-${MACHINE}.tar.bz2"
+SRC_URI[md5sum] = "98bb1ff38e78acedb9fe7529b7c2ff69"
+SRC_URI[sha256sum] = "da866d069c9be9f977a196dfa63373129ed77f9a6ba28a1ab69736b4608946c8"

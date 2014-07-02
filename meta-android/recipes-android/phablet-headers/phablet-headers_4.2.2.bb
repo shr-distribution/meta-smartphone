@@ -10,6 +10,8 @@ PV = "4.2.2+gitr${SRCPV}"
 
 PROVIDES += "virtual/android-headers"
 
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
 do_install() {
     install -d ${D}${includedir}/android
     cp -rv ${S}/* ${D}${includedir}/android/
