@@ -116,7 +116,7 @@ RDEPENDS_${PN}-apps = "\
 RDEPENDS_${PN}-gtk = "\
   gtk-theme-e17lookalike \
   hicolor-icon-theme \
-  vala-terminal \
+  terminology \
   ffphonelog \
   matchbox-keyboard-im \
   gtk-immodule-xim \

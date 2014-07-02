@@ -6,7 +6,7 @@ DEPENDS = "dbus-glib gconf"
 
 SRC_URI = "http://www.devzero.net/openmoko/dist/omext-${PV}.tar.gz"
 
-inherit autotools pkgconfig
+inherit autotools-brokensep pkgconfig
 
 S = "${WORKDIR}/openmoko-extensionhandler"
 

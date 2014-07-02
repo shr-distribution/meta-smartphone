@@ -14,4 +14,4 @@ SRC_URI = "\
 "
 S = "${WORKDIR}/git/android/rpc"
 
-inherit autotools
+inherit autotools-brokensep
