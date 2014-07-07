@@ -12,7 +12,7 @@ PV = "0.36+svnr${SRCPV}"
 SRC_URI = "svn://guitartune.googlecode.com/svn;module=trunk;protocol=http"
 S = "${WORKDIR}/trunk"
 
-inherit autotools
+inherit autotools pkgconfig
 
 do_install_append() {
         install -d "${D}/${datadir}/pixmaps"

@@ -12,7 +12,7 @@ PR = "r1"
 SRC_URI = "${FREESMARTPHONE_GIT}/gsm0710muxd.git;protocol=git;branch=master"
 S = "${WORKDIR}/git"
 
-inherit autotools
+inherit autotools pkgconfig
 
 RDEPENDS_${PN} = "dbus dbus-glib"
 RCONFLICTS_${PN} = "gsm0710muxd"

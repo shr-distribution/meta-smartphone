@@ -8,7 +8,7 @@ SRCREV = "0730d15507270a307861d9bc1b6af84d9977c622"
 PV = "2011.03.08.2+gitr${SRCPV}"
 PR = "r2"
 
-inherit autotools
+inherit autotools pkgconfig
 
 SRC_URI = "git://git.shr-project.org/repo/libshr-glib.git;protocol=http;branch=master"
 S = "${WORKDIR}/git"

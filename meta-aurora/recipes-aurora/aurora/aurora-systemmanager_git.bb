@@ -17,7 +17,7 @@ S = "${WORKDIR}/git/aurora-systemmanager"
 INITSCRIPT_NAME = "aurora-systemmanager"
 INITSCRIPT_PARAMS = "defaults 85 10"
 
-inherit autotools update-rc.d vala
+inherit autotools update-rc.d vala pkgconfig
 
 do_install_append() {
   install -d ${D}${sysconfdir}/init.d/

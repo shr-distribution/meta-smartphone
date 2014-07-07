@@ -11,6 +11,6 @@ SRCREV = "de705c0b633c612aedb1273340c36fae59be9511"
 SRC_URI = "${FREESMARTPHONE_GIT}/qfsodbusxml2cpp.git;protocol=git;branch=master"
 S = "${WORKDIR}/git"
 
-inherit autotools
+inherit autotools pkgconfig
 
 BBCLASSEXTEND = "native"

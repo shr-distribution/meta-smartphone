@@ -8,7 +8,7 @@ PE = "1"
 
 SRC_URI = "http://downloads.freesmartphone.org/sources/cornucopia/0.12/${P}.tar.bz2"
 
-inherit autotools vala
+inherit autotools vala pkgconfig
 
 do_configure_prepend() {
        sed -i -e s#FSO_SPECS_DIR="#FSO_SPECS_DIR="${STAGING_DIR_HOST}/#g ${S}/configure.ac
