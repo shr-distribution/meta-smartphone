@@ -92,6 +92,38 @@ ALLOW_EMPTY_kernel-image = "1"
 ALLOW_EMPTY_kernel-modules = "1"
 DESCRIPTION_kernel-modules = "Kernel modules meta package"
 
+PACKAGES += " \
+    kernel-module-autofs4 \
+    kernel-module-unix \
+    kernel-module-ipv6 \
+    kernel-module-bridge \
+    kernel-module-x-tables \
+    kernel-module-ip-tables \
+    kernel-module-iptable-filter \
+    kernel-module-iptable-nat \
+    kernel-module-nf-defrag-ipv4 \
+    kernel-module-nf-conntrack \
+    kernel-module-nf-conntrack-ipv4 \
+    kernel-module-nf-nat \
+    kernel-module-ipt-maquerade \
+    kernel-module-binfmt-misc \
+"
+
+ALLOC_EMPTY_kernel-module-autofs4 = "1"
+ALLOC_EMPTY_kernel-module-unix = "1"
+ALLOC_EMPTY_kernel-module-ipv6 = "1"
+ALLOC_EMPTY_kernel-module-bridge = "1"
+ALLOC_EMPTY_kernel-module-x-tables = "1"
+ALLOC_EMPTY_kernel-module-ip-tables = "1"
+ALLOC_EMPTY_kernel-module-iptable-filter = "1"
+ALLOC_EMPTY_kernel-module-iptable-nat = "1"
+ALLOC_EMPTY_kernel-module-nf-defrag-ipv4 = "1"
+ALLOC_EMPTY_kernel-module-nf-conntrack = "1"
+ALLOC_EMPTY_kernel-module-nf-conntrack-ipv4 = "1"
+ALLOC_EMPTY_kernel-module-nf-nat = "1"
+ALLOC_EMPTY_kernel-module-ipt-maquerade = "1"
+ALLOC_EMPTY_kernel-module-binfmt-misc = "1"
+
 pkg_postinst_kernel-image_append () {
     :
 }
