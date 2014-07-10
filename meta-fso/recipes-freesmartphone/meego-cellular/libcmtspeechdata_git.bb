@@ -10,7 +10,7 @@ PR = "r2"
 
 S = "${WORKDIR}/git"
 
-inherit autotools
+inherit autotools pkgconfig
 
 FILES_${PN} += "${libdir}/${PN}-dummy/*${SOLIBS}"
 FILES_${PN}-dbg += "${libdir}/${PN}-dummy/.debug"

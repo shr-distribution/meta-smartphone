@@ -6,7 +6,7 @@ PE = "1"
 
 SRC_URI = "http://downloads.freesmartphone.org/sources/${BPN}/${P}.tar.bz2"
 
-inherit autotools
+inherit autotools pkgconfig
 
 PACKAGES =+ "${PN}-tools"
 FILES_${PN}-tools = "${bindir}/modemctrl ${bindir}/samsung_ipc_forward"
