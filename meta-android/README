@@ -7,9 +7,9 @@ layers: meta
 branch: daisy
 revision: HEAD
 
-URI: git://github.com/shr-distribution/meta-oe.git
+URI: git://github.com/openembedded/meta-oe.git
 layers: meta-oe
-branch: shr
+branch: daisy
 revision: HEAD
 
 If you want to contribute changes, please follow
