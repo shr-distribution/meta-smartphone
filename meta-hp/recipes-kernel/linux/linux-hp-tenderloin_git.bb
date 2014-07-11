@@ -73,12 +73,15 @@ do_install() {
     for mod in `find ${S}/modules -iname *.ko -type f -exec basename {} \;` ; do
         install -m 0644 ${S}/modules/$mod ${D}${KERNEL_MODULEDEST}/${KERNEL_VERSION}/
     done
+
+    install -d ${D}${sysconfdir}/modules-load.d
+    echo "ath6kl" > ${D}${sysconfdir}/modules-load.d/ath6kl.conf
 }
 
 PACKAGES = "kernel kernel-base kernel-image kernel-modules"
 FILES_kernel-base = "/lib/modules/${KERNEL_VERSION}/modules.order /lib/modules/${KERNEL_VERSION}/modules.builtin"
 FILES_kernel-image = "/boot/${KERNEL_IMAGETYPE}*"
-FILES_kernel-modules = "/lib/modules/${KERNEL_VERSION}"
+FILES_kernel-modules = "/lib/modules/${KERNEL_VERSION} ${sysconfdir}/modules-load.d/*"
 RDEPENDS_kernel = "kernel-base"
 # Allow machines to override this dependency if kernel image files are
 # not wanted in images as standard
@@ -123,6 +126,17 @@ ALLOC_EMPTY_kernel-module-nf-conntrack-ipv4 = "1"
 ALLOC_EMPTY_kernel-module-nf-nat = "1"
 ALLOC_EMPTY_kernel-module-ipt-maquerade = "1"
 ALLOC_EMPTY_kernel-module-binfmt-misc = "1"
+
+pkg_postinst_kernel-modules_append() {
+    if [ ! -e "$D/lib/modules/${KERNEL_VERSION}" ]; then
+        mkdir -p $D/lib/modules/${KERNEL_VERSION}
+    fi
+    if [ -n "$D" ]; then
+        depmodwrapper -a -b $D ${KERNEL_VERSION}
+    else
+        depmod -a ${KERNEL_VERSION}
+    fi
+}
 
 pkg_postinst_kernel-image_append () {
     :
