@@ -10,4 +10,4 @@ ExecStop=/usr/bin/lxc-stop -n android -k
 OOMScoreAdjust=-1000
 
 [Install]
-WantedBy=basic.target
+RequiredBy=basic.target
