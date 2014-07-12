@@ -11,6 +11,9 @@ COMPATIBLE_MACHINE = "tenderloin"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
+PACKAGES_DYNAMIC += "^kernel-module-.*"
+PACKAGES_DYNAMIC += "^kernel-image-.*"
+
 # Version coming from our jenkens when building the kernel within the android build
 BUILD_VERSION = "20140708-69"
 
@@ -30,11 +33,19 @@ S = "${WORKDIR}/kernel-parts-${BUILD_VERSION}"
 SRC_URI[md5sum] = "7fe4b8734dcfc4435ec3304dc94f137f"
 SRC_URI[sha256sum] = "4f35d1c3c094652e6f7ce55f1d2eb997202bd904536bd32f283d5ed5de231c24"
 
-inherit deploy
-
 INITRAMFS_IMAGE ?= "initramfs-android-image"
 do_compile[depends] += "${INITRAMFS_IMAGE}:do_rootfs"
 DEPENDS += "${INITRAMFS_IMAGE}"
+
+KERNEL_IMAGEDEST = "boot"
+KERNEL_MODULEDEST = "/lib/modules"
+KERNEL_IMAGETYPE = "uImage"
+KERNEL_SRC_PATH = "/usr/src"
+KERNEL_OUTPUT = "uImage"
+
+do_configure() {
+        :
+}
 
 do_compile () {
     if [ -e ${DEPLOY_DIR_IMAGE}/${INITRAMFS_IMAGE}-${MACHINE}.cpio.gz ] ; then
@@ -53,18 +64,6 @@ do_compile () {
     fi
 }
 
-KERNEL_IMAGEDEST = "boot"
-KERNEL_MODULEDEST = "/lib/modules"
-KERNEL_IMAGETYPE = "uImage"
-KERNEL_SRC_PATH = "/usr/src"
-KERNEL_OUTPUT = "uImage"
-
-do_bundle_initramfs() {
-    :
-}
-
-addtask bundle_initramfs after do_compile
-
 do_install() {
     install -d ${D}/${KERNEL_MODULEDEST}/${KERNEL_VERSION}
     install -d ${D}/${KERNEL_IMAGEDEST}
@@ -78,10 +77,35 @@ do_install() {
     echo "ath6kl" > ${D}${sysconfdir}/modules-load.d/ath6kl.conf
 }
 
+do_bundle_initramfs() {
+        :
+}
+do_bundle_initramfs[nostamp] = "1"
+addtask bundle_initramfs after do_compile
+
+KERNEL_IMAGE_BASE_NAME ?= "${KERNEL_IMAGETYPE}-${PKGE}-${PKGV}-${PKGR}-${MACHINE}-${DATETIME}"
+KERNEL_IMAGE_BASE_NAME[vardepsexclude] = "DATETIME"
+KERNEL_IMAGE_SYMLINK_NAME ?= "${KERNEL_IMAGETYPE}-${MACHINE}"
+
+inherit deploy
+
+do_deploy() {
+    install -m 0644 ${B}/${KERNEL_OUTPUT}.final ${DEPLOYDIR}/${KERNEL_IMAGE_BASE_NAME}.bin
+    ln -sf ${KERNEL_IMAGE_BASE_NAME}.bin ${DEPLOYDIR}/${KERNEL_IMAGE_SYMLINK_NAME}.bin
+    ln -sf ${KERNEL_IMAGE_BASE_NAME}.bin ${DEPLOYDIR}/${KERNEL_IMAGETYPE}
+
+    cp ${COREBASE}/meta/files/deploydir_readme.txt ${DEPLOYDIR}/README_-_DO_NOT_DELETE_FILES_IN_THIS_DIRECTORY.txt
+}
+addtask deploy after do_install
+
 PACKAGES = "kernel kernel-base kernel-image kernel-modules"
+
 FILES_kernel-base = "/lib/modules/${KERNEL_VERSION}/modules.order /lib/modules/${KERNEL_VERSION}/modules.builtin"
 FILES_kernel-image = "/boot/${KERNEL_IMAGETYPE}*"
 FILES_kernel-modules = "/lib/modules/${KERNEL_VERSION} ${sysconfdir}/modules-load.d/*"
+
+ALLOW_EMPTY_kernel = "1"
+
 RDEPENDS_kernel = "kernel-base"
 # Allow machines to override this dependency if kernel image files are
 # not wanted in images as standard
@@ -89,43 +113,6 @@ RDEPENDS_kernel-base ?= "kernel-image"
 PKG_kernel-image = "kernel-image-${@legitimize_package_name('${KERNEL_VERSION}')}"
 PKG_kernel-base = "kernel-${@legitimize_package_name('${KERNEL_VERSION}')}"
 RPROVIDES_kernel-base += "kernel-${KERNEL_VERSION}"
-ALLOW_EMPTY_kernel = "1"
-ALLOW_EMPTY_kernel-base = "1"
-ALLOW_EMPTY_kernel-image = "1"
-ALLOW_EMPTY_kernel-modules = "1"
-DESCRIPTION_kernel-modules = "Kernel modules meta package"
-
-PACKAGES += " \
-    kernel-module-autofs4 \
-    kernel-module-unix \
-    kernel-module-ipv6 \
-    kernel-module-bridge \
-    kernel-module-x-tables \
-    kernel-module-ip-tables \
-    kernel-module-iptable-filter \
-    kernel-module-iptable-nat \
-    kernel-module-nf-defrag-ipv4 \
-    kernel-module-nf-conntrack \
-    kernel-module-nf-conntrack-ipv4 \
-    kernel-module-nf-nat \
-    kernel-module-ipt-maquerade \
-    kernel-module-binfmt-misc \
-"
-
-ALLOC_EMPTY_kernel-module-autofs4 = "1"
-ALLOC_EMPTY_kernel-module-unix = "1"
-ALLOC_EMPTY_kernel-module-ipv6 = "1"
-ALLOC_EMPTY_kernel-module-bridge = "1"
-ALLOC_EMPTY_kernel-module-x-tables = "1"
-ALLOC_EMPTY_kernel-module-ip-tables = "1"
-ALLOC_EMPTY_kernel-module-iptable-filter = "1"
-ALLOC_EMPTY_kernel-module-iptable-nat = "1"
-ALLOC_EMPTY_kernel-module-nf-defrag-ipv4 = "1"
-ALLOC_EMPTY_kernel-module-nf-conntrack = "1"
-ALLOC_EMPTY_kernel-module-nf-conntrack-ipv4 = "1"
-ALLOC_EMPTY_kernel-module-nf-nat = "1"
-ALLOC_EMPTY_kernel-module-ipt-maquerade = "1"
-ALLOC_EMPTY_kernel-module-binfmt-misc = "1"
 
 pkg_postinst_kernel-modules_append() {
     if [ ! -e "$D/lib/modules/${KERNEL_VERSION}" ]; then
@@ -137,20 +124,3 @@ pkg_postinst_kernel-modules_append() {
         depmod -a ${KERNEL_VERSION}
     fi
 }
-
-pkg_postinst_kernel-image_append () {
-    :
-}
-
-KERNEL_IMAGE_BASE_NAME ?= "${KERNEL_IMAGETYPE}-${PKGE}-${PKGV}-${PKGR}-${MACHINE}-${DATETIME}"
-KERNEL_IMAGE_BASE_NAME[vardepsexclude] = "DATETIME"
-KERNEL_IMAGE_SYMLINK_NAME ?= "${KERNEL_IMAGETYPE}-${MACHINE}"
-
-do_deploy() {
-    install -m 0644 ${B}/${KERNEL_OUTPUT}.final ${DEPLOYDIR}/${KERNEL_IMAGE_BASE_NAME}.bin
-    ln -sf ${KERNEL_IMAGE_BASE_NAME}.bin ${DEPLOYDIR}/${KERNEL_IMAGE_SYMLINK_NAME}.bin
-    ln -sf ${KERNEL_IMAGE_BASE_NAME}.bin ${DEPLOYDIR}/${KERNEL_IMAGETYPE}
-
-    cp ${COREBASE}/meta/files/deploydir_readme.txt ${DEPLOYDIR}/README_-_DO_NOT_DELETE_FILES_IN_THIS_DIRECTORY.txt
-}
-addtask deploy after do_install
