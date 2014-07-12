@@ -54,6 +54,11 @@ do_install() {
     install -m 0755 ${WORKDIR}/20-remove-services ${D}${localstatedir}/lib/lxc/android/pre-start.d/
     install -m 0755 ${WORKDIR}/30-mount-nothing ${D}${localstatedir}/lib/lxc/android/pre-start.d/
     install -m 0755 ${WORKDIR}/40-rootfs-rw ${D}${localstatedir}/lib/lxc/android/pre-start.d/
+
+    # Somehow during post installation the link for android-system.service isn't created
+    install -d ${D}${sysconfdir}/systemd/system/basic.target.requires
+    ln -sf ${systemd_unitdir}/system/android-system.service \
+        ${D}${sysconfdir}/systemd/system/basic.target.requires/android-system.service
 }
 
 SYSTEMD_SERVICE_${PN} = "android-system.service"

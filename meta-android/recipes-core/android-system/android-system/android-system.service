@@ -1,5 +1,6 @@
 [Unit]
 Description=Android System Container
+Before=network.target ofono.service pulseaudio.service
 
 [Service]
 Type=simple
