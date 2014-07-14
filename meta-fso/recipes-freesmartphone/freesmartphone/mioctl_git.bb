@@ -13,4 +13,4 @@ DEPENDS = "glib-2.0"
 SRC_URI = "${FREESMARTPHONE_GIT}/cornucopia;protocol=git;branch=master"
 S = "${WORKDIR}/git/tools/mioctl"
 
-inherit autotools vala
+inherit autotools vala pkgconfig

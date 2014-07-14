@@ -22,7 +22,7 @@ S = "${WORKDIR}/git/palmpre/tsmd"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-inherit autotools update-rc.d
+inherit autotools update-rc.d pkgconfig
 
 INITSCRIPT_NAME = "tsmd"
 INITSCRIPT_PARAMS = "defaults 10"

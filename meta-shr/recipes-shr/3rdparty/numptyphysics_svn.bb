@@ -10,7 +10,7 @@ SRCREV = "109"
 PV = "0.2+svnr${SRCPV}"
 PR = "r6"
 
-inherit autotools-brokensep
+inherit autotools-brokensep pkgconfig
 
 # Maemo garage is sadly only available with https. Can make you trouble while fetching without accepting the certificate.
 SRC_URI = "\
