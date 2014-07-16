@@ -14,7 +14,7 @@ SRC_URI = "http://vagalume.igalia.com/files/source/${P}.tar.gz\
 SRC_URI[md5sum] = "fba804c44ecb441bca92f499be9377e1"
 SRC_URI[sha256sum] = "05210d308c686f62bb0c7a2a52b13489cb7701459d9b5b219540edb1cc27c062"
 
-inherit autotools-brokensep
+inherit autotools-brokensep pkgconfig
 
 PACKAGECONFIG ??= ""
 PACKAGECONFIG[notify] = "--enable-tray-icon,--disable-tray-icon,libnotify"
