@@ -7,7 +7,7 @@ branch: shr
 revision: HEAD
 
 URI: git://github.com/shr-distribution/meta-oe.git
-layers: meta-oe, meta-systemd
+layers: meta-oe, meta-systemd, meta-python
 branch: shr
 revision: HEAD
 
