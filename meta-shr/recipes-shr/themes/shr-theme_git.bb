@@ -4,9 +4,8 @@ LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=297cd7a08a1ae4d946a1164f25bacd88"
 SECTION = "x11/data"
 
-SRCREV = "730da87ad75c814c16c856ca138605d985b6efdb"
+SRCREV = "7f1c1b2fc81ce99815fe7946acf2c8d06502ad73"
 PV = "0.0.2+gitr${SRCPV}"
-PR = "r2"
 
 inherit autotools gettext allarch
 
