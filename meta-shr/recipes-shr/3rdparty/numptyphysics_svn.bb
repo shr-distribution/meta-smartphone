@@ -23,6 +23,7 @@ SRC_URI = "\
   file://faster.patch;striplevel=0 \
   file://numptyphysics.desktop \
   file://gcc-4.7.patch \
+  file://configure.patch \
 "
 S = "${WORKDIR}/trunk"
 

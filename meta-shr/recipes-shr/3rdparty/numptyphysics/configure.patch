@@ -1,0 +1,11 @@
+diff -uNr trunk.orig/configure.in trunk/configure.in
+--- trunk.orig/configure.in	2010-03-27 19:32:51.000000000 +0100
++++ trunk/configure.in	2014-07-18 16:10:14.997778233 +0200
+@@ -1,5 +1,5 @@
+-AC_INIT(README)
+-AM_INIT_AUTOMAKE(numptyphysics,0.3)
++AC_INIT(numptyphysics,0.3)
++AM_INIT_AUTOMAKE([foreign])
+ #AM_CONFIG_HEADER(amconfig.h)
+ 
+ AC_PROG_CC
