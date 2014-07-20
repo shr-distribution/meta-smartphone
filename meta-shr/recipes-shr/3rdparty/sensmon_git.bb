@@ -14,7 +14,7 @@ SRC_URI = "git://gitorious.org/sensor-monitor/sensor-monitor.git;protocol=git;br
 SRCREV = "bb2f8dfd5615abec96cc3e19a354e24a22991a4c"
 S = "${WORKDIR}/git"
 
-inherit autotools vala
+inherit autotools vala pkgconfig
 
 FILES_${PN} += "${datadir}/${PN} ${datadir}/applications ${datadir}/pixmaps"
 
