@@ -13,7 +13,7 @@ SRC_URI = "git://gitorious.org/vala-compass/vala-compass.git;protocol=git;branch
 SRCREV = "9ca9b568a055ff2412f0d642987421178334e683"
 S = "${WORKDIR}/git"
 
-inherit autotools vala
+inherit autotools vala pkgconfig
 
 FILES_${PN} += "${datadir}/${PN} ${datadir}/applications ${datadir}/pixmaps"
 
