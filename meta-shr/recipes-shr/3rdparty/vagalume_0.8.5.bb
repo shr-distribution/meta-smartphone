@@ -18,6 +18,7 @@ inherit autotools-brokensep pkgconfig
 
 PACKAGECONFIG ??= ""
 PACKAGECONFIG[notify] = "--enable-tray-icon,--disable-tray-icon,libnotify"
+PACKAGECONFIG[libproxy] = "--enable-libproxy,--disable-libproxy,libproxy"
 
 FILES_${PN} += "${datadir}/icons ${datadir}/dbus-1"
 
