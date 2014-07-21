@@ -15,7 +15,7 @@ SRC_URI = "\
 "
 S = "${WORKDIR}/git"
 
-inherit autotools update-rc.d systemd
+inherit autotools update-rc.d systemd pkgconfig
 
 INITSCRIPT_NAME = "fso-gpsd-sysv"
 INITSCRIPT_PARAMS = "defaults 35"

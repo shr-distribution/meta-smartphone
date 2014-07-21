@@ -12,7 +12,7 @@ SRC_URI = "git://git.shr-project.org/repo/phonefsod.git;protocol=http;branch=mas
 "
 S = "${WORKDIR}/git"
 
-inherit autotools update-rc.d systemd
+inherit autotools update-rc.d systemd pkgconfig
 
 SYSTEMD_SERVICE_${PN} = "${PN}.service"
 RPROVIDES_${PN} += "${PN}-systemd"

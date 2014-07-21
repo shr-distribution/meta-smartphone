@@ -10,7 +10,7 @@ SRCREV = "109"
 PV = "0.2+svnr${SRCPV}"
 PR = "r6"
 
-inherit autotools-brokensep
+inherit autotools-brokensep pkgconfig
 
 # Maemo garage is sadly only available with https. Can make you trouble while fetching without accepting the certificate.
 SRC_URI = "\
@@ -23,6 +23,7 @@ SRC_URI = "\
   file://faster.patch;striplevel=0 \
   file://numptyphysics.desktop \
   file://gcc-4.7.patch \
+  file://configure.patch \
 "
 S = "${WORKDIR}/trunk"
 

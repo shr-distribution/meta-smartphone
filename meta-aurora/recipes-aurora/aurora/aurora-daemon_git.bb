@@ -23,7 +23,7 @@ SRC_URI = "${FREESMARTPHONE_GIT}/aurora.git;protocol=git;branch=master"
 SRCREV = "${AURORA_SRCREV}"
 S = "${WORKDIR}/git/aurora-daemon"
 
-inherit autotools update-alternatives
+inherit autotools update-alternatives pkgconfig
 
 export XDG_DATA_DIRS = "${STAGING_DATADIR}"
 EXTRA_OECONF_append = " --with-qt-basedir=qt4"
