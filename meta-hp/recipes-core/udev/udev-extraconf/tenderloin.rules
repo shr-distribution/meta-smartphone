@@ -1,0 +1,2 @@
+# modalias for touch screen doesn't match the common rule so we add it statically here
+SUBSYSTEM=="input", KERNEL=="event[0-9]*", ATTRS{modalias}=="input:b0006v0001p0001e0001-e0,3,kra30,35,36,39,3A,mlsfw", SYMLINK+="input/touchscreen0"

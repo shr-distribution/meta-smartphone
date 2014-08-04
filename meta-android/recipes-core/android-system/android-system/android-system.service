@@ -1,5 +1,6 @@
 [Unit]
 Description=Android System Container
+Before=network.target ofono.service pulseaudio.service
 
 [Service]
 Type=simple
@@ -10,4 +11,4 @@ ExecStop=/usr/bin/lxc-stop -n android -k
 OOMScoreAdjust=-1000
 
 [Install]
-WantedBy=basic.target
+RequiredBy=basic.target

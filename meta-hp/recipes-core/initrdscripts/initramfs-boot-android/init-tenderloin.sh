@@ -50,14 +50,6 @@ mount /dev/store/ext3fs /rfs
 
 info "Done mounting rootfs!"
 
-if [ ! -e /rfs/SWAP.img ] ; then
-    info "Creating SWAP device ..."
-    dd if=/dev/zero of=/rfs/SWAP.img bs=4096 count=131072
-    chmod 600 /rfs/SWAP.img
-    chown 0:0 /rfs/SWAP.img
-    mkswap /rfs/SWAP.img
-fi
-
 # Disable MPDEC for now until android layer starts up and make sure atleast
 # one CPU stays online to not hangup the boot
 echo 0 > /sys/kernel/msm_mpdecision/conf/enabled
