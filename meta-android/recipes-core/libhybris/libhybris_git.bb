@@ -40,4 +40,5 @@ EXTRA_OECONF = "--with-android-headers=${STAGING_INCDIR}/android"
 # If you want to enable debugging/tracing functionality add the following to a bbappend
 # EXTRA_OECONF += "--enable-debug --enable-trace"
 
-inherit autotools pkgconfig
+# brokensep because configure creates include/android symlink to with-android-headers in ${S} not ${B}
+inherit autotools-brokensep pkgconfig
