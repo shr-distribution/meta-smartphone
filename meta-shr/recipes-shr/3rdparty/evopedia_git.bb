@@ -8,6 +8,8 @@ RRECOMMENDS_${PN} = "eve"
 RRECOMMENDS_${PN}_armv4 = ""
 RRECOMMENDS_${PN}_armv5 = ""
 
+DEPENDS = "bzip2"
+
 PV = "0.4.2+gitr${SRCPV}"
 
 SRC_URI = "git://gitorious.org/evopedia/evopedia.git;protocol=git;branch=master"
