@@ -3,10 +3,6 @@ AUTHOR = "Christian Reitwießner"
 HOMEPAGE = "http://www.reitwiessner.de/openmoko/evopedia.html"
 LICENSE = "GPLv3+"
 LIC_FILES_CHKSUM = "file://debian/copyright;md5=4f00322f2567b19a412b9c77e6bad425"
-RRECOMMENDS_${PN} = "eve"
-# eve is not available for armv4 and armv5
-RRECOMMENDS_${PN}_armv4 = ""
-RRECOMMENDS_${PN}_armv5 = ""
 
 DEPENDS = "bzip2"
 

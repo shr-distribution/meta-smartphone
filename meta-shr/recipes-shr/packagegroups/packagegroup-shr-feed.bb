@@ -155,10 +155,10 @@ MISSING = "\
         omnewrotate \
 "
 
-EVE-BROWSER = "eve"
+BROWSER = "elbow"
 # webkit-efl is currently broken
-EVE-BROWSER_armv4 = ""
-EVE-BROWSER_armv5 = ""
+BROWSER_armv4 = ""
+BROWSER_armv5 = ""
 
 BROKEN_BY_VALA_UPGRADE = "\
     iliwi \
@@ -175,7 +175,7 @@ BROKEN_BY_VALA_UPGRADE = "\
 # sylpheed is currently blacklisted
 # mcnavi is currently blacklisted
 RDEPENDS_${PN} += "\
-        ${EVE-BROWSER} \
+        ${BROWSER} \
         vagalume \
         elmdentica \
         bootchart \
