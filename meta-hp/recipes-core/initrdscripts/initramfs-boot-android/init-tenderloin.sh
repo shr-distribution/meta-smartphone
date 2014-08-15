@@ -24,9 +24,9 @@ setup_devtmpfs() {
     test -c $1/dev/stderr || ln -sf fd/2 $1/dev/stderr
 }
 
-mkdir -m 0755 /proc
+[ ! -d /proc ] && mkdir -m 0755 /proc
 mount -t proc proc /proc
-mkdir -m 0755 /sys
+[ ! -d /sys ] && mkdir -p -m 0755 /sys
 mount -t sysfs sys /sys
 
 info "Setting up devtmpfs ..."
@@ -36,6 +36,9 @@ info "Mounting rootfs ..."
 
 mkdir -p /mnt/boot
 mount /dev/mmcblk0p13 /mnt/boot
+
+[ ! -d /var/lock ] && mkdir -p /var/lock
+[ ! -d /run/lock ] && mkdir -p /run/lock
 
 export LVM_SYSTEM_DIR=/mnt/boot/etc/lvm
 /mnt/boot/usr/sbin/lvm.static vgchange -ay
