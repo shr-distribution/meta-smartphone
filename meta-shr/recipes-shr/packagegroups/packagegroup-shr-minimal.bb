@@ -5,9 +5,8 @@ PV = "2.1"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 
-inherit packagegroup
-
 PACKAGE_ARCH = "${MACHINE_ARCH}"
+inherit packagegroup
 
 RPROVIDES_${PN} += "task-shr-minimal"
 RPROVIDES_${PN}-base += "task-shr-minimal-base"
