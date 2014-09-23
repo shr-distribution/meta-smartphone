@@ -14,6 +14,29 @@ fail() {
     reboot
 }
 
+mount_rootfs() {
+    ROOT="$1"
+
+    if [ -b /dev/store/$ROOT ]
+    then
+        info "Found $ROOT volume"
+        mount /dev/store/$ROOT /rfs 
+        # sanity-check rootfs by checking that specific path exists
+        # (automatic pass if distro_rootfs_file is unset, since /rfs/
+        # mountpoint does exist)
+        if [ -e /rfs/${distro_rootfs_file} ]
+        then
+          info "Using $ROOT as rootfs"
+          return 0 # success
+        else
+          info "Volume $ROOT does not contain rootfs"
+          umount /rfs
+        fi
+    fi
+
+    return 1 # failure
+}
+
 setup_devtmpfs() {
     # mount -t devtmpfs -o mode=0755,nr_inodes=0 devtmpfs $1/dev
     mount -t devtmpfs devtmpfs $1/dev
@@ -48,8 +71,9 @@ then
    fail "Failed to start LVM"
 fi
 
+# look for distro-specific volume, with generic "ext3fs" volume as fallback
 mkdir -m 0755 /rfs
-mount /dev/store/ext3fs /rfs
+mount_rootfs ${distro_name}-root || mount_rootfs ext3fs || fail "Failed to mount root"
 
 info "Done mounting rootfs!"
 
