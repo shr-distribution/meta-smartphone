@@ -85,6 +85,7 @@ echo 0 > /sys/module/pm_8x60/modes/cpu0/power_collapse/idle_enabled
 
 umount -l /sys
 umount -l /proc
+umount /mnt/boot
 
 info "Setting up rootfs and switching to it ..."
 setup_devtmpfs "/rfs"
