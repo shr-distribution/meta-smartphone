@@ -72,9 +72,6 @@ do_install() {
     for mod in `find ${S}/modules -iname *.ko -type f -exec basename {} \;` ; do
         install -m 0644 ${S}/modules/$mod ${D}${KERNEL_MODULEDEST}/${KERNEL_VERSION}/
     done
-
-    install -d ${D}${sysconfdir}/modules-load.d
-    echo "ath6kl" > ${D}${sysconfdir}/modules-load.d/ath6kl.conf
 }
 
 do_bundle_initramfs() {
