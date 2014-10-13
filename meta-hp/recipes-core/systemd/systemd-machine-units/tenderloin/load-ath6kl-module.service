@@ -1,0 +1,9 @@
+[Unit]
+Description=Load the ath6kl WiFi kernel module
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/modprobe ath6kl
+
+[Install]
+WantedBy=basic.target
