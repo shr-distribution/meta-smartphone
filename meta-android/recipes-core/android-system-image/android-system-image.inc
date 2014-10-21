@@ -20,12 +20,14 @@ do_install() {
     cp -rv ${WORKDIR}/symbols ${D}/system
 
     # Copy android ramdisk so we can use it
-    install -d ${D}/boot
+    install -d ${D}${libdir}/android-system
     # Support packages with both ramdisk names
     if [ -e ${WORKDIR}/android-ramdisk.img ] ; then
-        install -m 0644 ${WORKDIR}/android-ramdisk.img ${D}/boot/android-ramdisk.img
+        install -m 0644 ${WORKDIR}/android-ramdisk.img ${D}${libdir}/android-system/ramdisk.img
+    elif [ -e ${WORKDIR}/ramdisk.img ] ; then
+        install -m 0644 ${WORKDIR}/ramdisk.img ${D}${libdir}/android-system/ramdisk.img
     else
-        install -m 0644 ${WORKDIR}/ramdisk.img ${D}/boot/android-ramdisk.img
+        bbfatal "Ramdisk image is missing but required!!!"
     fi
 
     if [ -e ${WORKDIR}/filesystem_config.txt ] ; then
@@ -54,4 +56,4 @@ INSANE_SKIP_${PN}-dbg = "ldflags"
 INHIBIT_PACKAGE_STRIP = "1"
 PACKAGES = "${PN}-dbg ${PN}"
 FILES_${PN}-dbg = "/system/symbols"
-FILES_${PN} = "/system /vendor /android /default.prop /boot/android-ramdisk.img ${sysconfdir}"
+FILES_${PN} = "/system /vendor /android /default.prop ${libdir}/android-system/ramdisk.img ${sysconfdir}"
