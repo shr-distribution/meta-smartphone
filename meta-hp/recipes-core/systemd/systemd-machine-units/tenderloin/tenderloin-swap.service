@@ -1,0 +1,15 @@
+[Unit]
+Description=Enable SWAP from LVM partition
+
+# NOTE: We need this to unbreak out boot process and to correctly mount the
+# existing swap from a LVM partition. Somehow systemd isn't able to detect
+# on startup that the LVM partition specified in /etc/fstab already exists
+# so we have to defer its activation for now a bit to make sure we correctly
+# activate our SWAP space.
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/swapon /dev/mapper/store-swap
+
+[Install]
+WantedBy=basic.target
