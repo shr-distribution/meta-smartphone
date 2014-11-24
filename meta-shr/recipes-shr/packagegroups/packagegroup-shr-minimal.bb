@@ -91,6 +91,10 @@ RDEPENDS_${PN}-x = "\
   libx11-locale \
 "
 
+BROKEN_BY_VALA_UPGRADE = "\
+  ffalarms \
+  iliwi \
+"
 RDEPENDS_${PN}-apps = "\
   packagegroup-fso2-compliance \
   phoneui-apps-messages \
@@ -102,11 +106,9 @@ RDEPENDS_${PN}-apps = "\
   opimd-utils \
   libphone-ui \
   libphone-ui-shr \
-  ffalarms \
   shr-settings \
   shr-theme \
   ecalc \
-  iliwi \
   ca-certificates \
 "
 
