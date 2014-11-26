@@ -25,7 +25,6 @@ SRC_URI = " \
     file://lxc-config \
     file://pre-start.sh \
     file://post-stop.sh \
-    file://android-chroot \
     file://10-boot-marker \
     file://20-remove-services \
     file://30-mount-nothing \
@@ -41,7 +40,6 @@ do_install() {
     install -m 0644 ${WORKDIR}/android-system.service ${D}${systemd_unitdir}/system
 
     install -d ${D}${bindir}
-    install -m 0755 ${WORKDIR}/android-chroot ${D}${bindir}
     install -m 0755 ${WORKDIR}/wait-for-android.sh ${D}${bindir}
 
     install -d ${D}${localstatedir}/lib/lxc/android
