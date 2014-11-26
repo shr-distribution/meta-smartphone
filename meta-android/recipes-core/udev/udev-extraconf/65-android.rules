@@ -35,3 +35,9 @@ ACTION=="add", KERNEL=="event[0-9]*", GROUP="android_input", MODE="0660"
 # misc devices
 ACTION=="add", KERNEL=="alarm", OWNER="system", GROUP="system", MODE="0664"
 ACTION=="add", KERNEL=="uhid", OWNER="system", GROUP="system", MODE="0660"
+
+# memory
+ACTION=="add", KERNEL=="ashmem", OWNER="system", GROUP="system", MODE="0666"
+
+# rfkill
+ACTION=="add", KERNEL=="rfkill", GROUP="android_input", MODE="0660"
