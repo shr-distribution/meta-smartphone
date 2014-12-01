@@ -25,3 +25,8 @@ lxc.pivotdir = lxc_putold
 
 lxc.hook.pre-start = /var/lib/lxc/android/pre-start.sh
 lxc.hook.post-stop = /var/lib/lxc/android/post-stop.sh
+
+# We have to share the network namespace with the host as otherwise the RIL
+# service doesn't have access to the network interfaces it needs to setup
+# a data connection.
+lxc.network.type = none

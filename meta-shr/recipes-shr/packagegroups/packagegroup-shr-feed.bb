@@ -160,6 +160,12 @@ EVE-BROWSER = "eve"
 EVE-BROWSER_armv4 = ""
 EVE-BROWSER_armv5 = ""
 
+BROKEN_BY_VALA_UPGRADE = "\
+    iliwi \
+    ffalarms \
+    valacompass \
+    sensmon \
+"
 # mplayer is currently blacklisted
 # intone depends on blacklisted mplayer2
 # emacs is currently blacklisted
@@ -194,7 +200,6 @@ RDEPENDS_${PN} += "\
         fbreader \
         enjoy \
         babiloo-efl \
-        ffalarms \
         foxtrotgps \
         gpe-scap \
         gtkmm \
@@ -302,7 +307,6 @@ RDEPENDS_${PN} += "\
         babiloo-efl \
         make \
         dnsmasq \
-        iliwi \
         emtooth2 \
         neolight \
         spojegui \
@@ -327,8 +331,6 @@ RDEPENDS_${PN} += "\
         openmoocow \
         mokomaze \
         mokoeightball \
-        valacompass \
-        sensmon \
         confclerk \
 "
 
