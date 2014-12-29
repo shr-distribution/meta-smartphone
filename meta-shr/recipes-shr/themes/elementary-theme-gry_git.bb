@@ -4,7 +4,7 @@ HOMEPAGE = "http://jmccloud.jm.funpic.de"
 AUTHOR = "Jesus McCloud <bernd.pruenster@gmail.com"
 DEPENDS = "edje-native"
 RRECOMMENDS_${PN} = "e-wm-theme-illume-gry"
-LICENSE = "MIT BSD"
+LICENSE = "MIT & BSD"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=f523ab5986cc79b52a90d2ac3d5454a2"
 
 SRCREV = "5ce42d9e1eaa0cb28d773ab90a87e29e6352e2c5"
