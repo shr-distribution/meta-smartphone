@@ -1,6 +1,6 @@
 DESCRIPTION = "Illume theme for the freesmartphone.org project"
 HOMEPAGE = "http://illume.projects.openmoko.org/"
-LICENSE = "MIT BSD"
+LICENSE = "MIT & BSD"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302 \
                     file://${COREBASE}/meta/files/common-licenses/BSD;md5=3775480a712fc46a69647678acb234cb"
 DEPENDS = "edje-native eet-native"

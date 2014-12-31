@@ -39,7 +39,7 @@ do_compile() {
     for d in lib/liblog lib/utils lib/libcutils lib/binder lib/audio_utils lib/libmedia lib/waudio lib/wctlplugin lib/wpcmplugin app ; do
       mkdir -p ${S}/$d/.obj
       mkdir -p ${S}/$d/.dep
-      make ARCH=arm -C ${S}/$d all
+      make ARCH=arm CC="${CC}" CXX="${CXX}" LINKER="${CXX}" -C ${S}/$d all
     done
 }
 

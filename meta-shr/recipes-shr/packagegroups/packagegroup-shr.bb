@@ -38,7 +38,7 @@ RDEPENDS_${PN}-gtk = "\
   vagalume \
 "
 
-BROWSER = "eve"
+BROWSER = "elbow"
 # webkit-efl is currently broken
 BROWSER_armv4 = ""
 BROWSER_armv5 = ""

@@ -6,7 +6,7 @@ DEPENDS = "edje-native"
 RDEPENDS_${PN} = "e-wm"
 RSUGGESTS_${PN} = "elementary-theme-neo gtk-theme-neo gpe-theme-neo icon-theme-neo"
 inherit allarch
-LICENSE = "MIT BSD"
+LICENSE = "MIT & BSD"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=f523ab5986cc79b52a90d2ac3d5454a2"
 
 SRCREV = "bdc2f5992d12122d2405158f6a54e5118b5916b9"
