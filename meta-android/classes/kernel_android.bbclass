@@ -12,8 +12,8 @@ do_compile[depends] += "initramfs-android-image:do_rootfs"
 DEPENDS += "abootimg-native initramfs-android-image"
 
 do_compile_append() {
-    abootimg --create ${S}/boot.img \
-             -k ${S}/${KERNEL_OUTPUT} \
+    abootimg --create ${B}/boot.img \
+             -k ${B}/${KERNEL_OUTPUT} \
              -r ${DEPLOY_DIR_IMAGE}/initramfs-android-image-${MACHINE}.cpio.gz \
              -c "cmdline=${CMDLINE}" \
              -c "kerneladdr=${KERNEL_RAM_BASE}" \
@@ -25,11 +25,11 @@ do_compile_append() {
 
 do_install_append() {
     install -d ${D}/${KERNEL_IMAGEDEST}
-    install -m 0644 ${S}/boot.img ${D}/${KERNEL_IMAGEDEST}
+    install -m 0644 ${B}/boot.img ${D}/${KERNEL_IMAGEDEST}
 }
 
 do_deploy_append() {
-    cp ${S}/boot.img ${DEPLOYDIR}/${KERNEL_IMAGE_BASE_NAME}.fastboot
+    cp ${B}/boot.img ${DEPLOYDIR}/${KERNEL_IMAGE_BASE_NAME}.fastboot
     ln -sf ${KERNEL_IMAGE_BASE_NAME}.fastboot ${DEPLOYDIR}/${KERNEL_IMAGE_SYMLINK_NAME}.fastboot
 }
 
