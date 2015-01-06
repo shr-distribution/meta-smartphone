@@ -25,8 +25,8 @@ S = "${WORKDIR}/git"
 
 do_configure_append() {
   kernel_conf_variable_fixup() {
-      sed -i "/CONFIG_$1[ =]/d" ${S}/.config
-      kernel_conf_variable $1 $2 ${S}/.config
+      sed -i "/CONFIG_$1[ =]/d" ${B}/.config
+      kernel_conf_variable $1 $2 ${B}/.config
   }
 
   # fixup some options which get changes from Y to M in oldconfig :/
