@@ -10,7 +10,7 @@ SRC_URI = " \
   git://github.com/shr-distribution/linux.git;protocol=git;branch=hpveer/2.6.29/master \
   file://defconfig \
 "
-S = "${WORKDIR}/git/"
+S = "${WORKDIR}/git"
 
 PE = "2"
 SRCREV = "29c1c6bb0a8feb6e6124dc0df2a22542ef45ef0d"

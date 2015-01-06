@@ -13,6 +13,6 @@ PR = "r8"
 
 SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http;branch=master"
 
-S = "${WORKDIR}/git/gtk/${PN}/"
+S = "${WORKDIR}/git/gtk/${PN}"
 
 require gtk-theme.inc

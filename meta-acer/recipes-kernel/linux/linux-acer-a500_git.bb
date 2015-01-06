@@ -21,7 +21,7 @@ SRC_URI = " \
 "
 SRCREV = "5ff650c7145a834cccf5110125ab06c252265eaa"
 
-S = "${WORKDIR}/git/"
+S = "${WORKDIR}/git"
 
 do_configure_append() {
   kernel_conf_variable_fixup() {

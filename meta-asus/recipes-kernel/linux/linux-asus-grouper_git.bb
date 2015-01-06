@@ -21,7 +21,7 @@ SRC_URI = " \
   file://defconfig \
 "
 
-S = "${WORKDIR}/git/"
+S = "${WORKDIR}/git"
 
 SRCREV = "9998c685b3282a8413c67218942bc200e6592c13"
 

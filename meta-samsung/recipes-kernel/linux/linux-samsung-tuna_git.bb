@@ -22,7 +22,7 @@ SRC_URI = " \
   file://defconfig \
 "
 
-S = "${WORKDIR}/git/"
+S = "${WORKDIR}/git"
 
 do_configure_append() {
   kernel_conf_variable_fixup() {
