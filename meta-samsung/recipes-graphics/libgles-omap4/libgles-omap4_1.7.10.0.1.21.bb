@@ -3,7 +3,7 @@ LICENSE = "TI-TSPA"
 LIC_FILES_CHKSUM = "file://license.txt;md5=542af8025bb26f9b36a120c00e319748"
 
 SRC_URI = "https://launchpad.net/ubuntu/+archive/primary/+files/pvr-omap4_${PV}.orig.tar.gz"
-S = "${WORKDIR}/pvr-omap4-${PV}/"
+S = "${WORKDIR}/pvr-omap4-${PV}"
 
 SRC_URI[md5sum] = "4ab152564f6bd98c0afe5ed0dcb9b72a"
 SRC_URI[sha256sum] = "c65b6af74d186bffedc9750c65db8f525df932e5df23836cf58cd4d02e5b871d"

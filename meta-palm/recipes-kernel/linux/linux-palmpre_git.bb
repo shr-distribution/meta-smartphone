@@ -15,4 +15,4 @@ SRC_URI = " \
   git://github.com/shr-distribution/linux.git;protocol=git;branch=palmpre/2.6.24/master \
   file://defconfig \
 "
-S = "${WORKDIR}/git/"
+S = "${WORKDIR}/git"

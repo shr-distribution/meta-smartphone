@@ -9,4 +9,4 @@ PR = "${INC_PR}.0"
 
 inherit autotools
 
-S = "${WORKDIR}/git/src/shared/libosmocore/"
+S = "${WORKDIR}/git/src/shared/libosmocore"
