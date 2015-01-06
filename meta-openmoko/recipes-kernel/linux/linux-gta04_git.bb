@@ -6,7 +6,7 @@ PE = "5"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 
-SRCREV = "04c9f42eb1e7e7d9ecc7699c2d4b204f9f7f44de"
+SRCREV = "4305e9432ac69bca860fc2c3244a59ab36c8a0b0"
 DEPENDS += "bc-native"
 
 SRC_URI = "\
