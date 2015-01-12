@@ -45,7 +45,7 @@ pkg_postinst_kernel-image_append () {
 
         BOOT_PARTITION_NAMES="LNX boot KERNEL"
         for i in $BOOT_PARTITION_NAMES; do
-            path=$(find /dev -name "*$i*"|grep disk| head)
+            path=$(find /dev -name "*$i*"|grep disk| head -n 1)
             [ -n "$path" ] && break
         done
 
