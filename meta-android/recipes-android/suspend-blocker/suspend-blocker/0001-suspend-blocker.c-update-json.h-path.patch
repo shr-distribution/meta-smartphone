@@ -1,0 +1,29 @@
+From 3806a6691715e9cdaf3d0e4c3dd8a2e4b793724e Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Mon, 12 Jan 2015 15:50:08 +0100
+Subject: [PATCH] suspend-blocker.c: update json.h path
+
+* json-c-0.12 unline 0.11 doesn't support backward compatibility with libjson
+  and doesn't install json -> json-c symlink
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ suspend-blocker.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/suspend-blocker.c b/suspend-blocker.c
+index df6745f..e53575e 100644
+--- a/suspend-blocker.c
++++ b/suspend-blocker.c
+@@ -29,7 +29,7 @@
+ #include <float.h>
+ #include <signal.h>
+ #include <sys/time.h>
+-#include <json/json.h>
++#include <json-c/json.h>
+ #include <math.h>
+ 
+ #define APP_NAME			"suspend-blocker"
+-- 
+2.2.1
+

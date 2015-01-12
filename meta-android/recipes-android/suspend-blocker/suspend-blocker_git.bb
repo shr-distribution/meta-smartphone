@@ -6,15 +6,16 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 DEPENDS = "json-c"
 
 PV = "0.1.22+gitr${SRCPV}"
-PR = "r0"
 
-SRC_URI = "git://kernel.ubuntu.com/cking/suspend-blocker.git;protocol=git;branch=master"
+SRC_URI = "git://kernel.ubuntu.com/cking/suspend-blocker.git \
+    file://0001-suspend-blocker.c-update-json.h-path.patch \
+"
 S = "${WORKDIR}/git"
 
 SRCREV = "9aa645305ff4870a3f825c7767937fa6cd5ae6d5"
 
 do_compile() {
-    oe_runmake CFLAGS="-DVERSION='\"${BASE_PV}\"'" LDFLAGS='-ljson-c -ljson -lm'
+    oe_runmake CFLAGS="-DVERSION='\"${PV}\"'" LDFLAGS='-ljson-c -lm'
 }
 
 do_install() {
