@@ -24,7 +24,7 @@ mount_rootfs() {
         # sanity-check rootfs by checking that specific path exists
         # (automatic pass if distro_rootfs_file is unset, since /rfs/
         # mountpoint does exist)
-        if [ -e /rfs/${distro_rootfs_file} ]
+        if [ -e /rfs/${distro_rootfs_file} ] || [ -e /rfs/${distro_rootfs_file_old} ]
         then
           info "Using $ROOT as rootfs"
           return 0 # success
