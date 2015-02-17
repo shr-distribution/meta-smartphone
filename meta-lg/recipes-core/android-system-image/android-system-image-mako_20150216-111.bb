@@ -13,5 +13,5 @@ INSANE_SKIP_${PN} += "ldflags"
 INSANE_SKIP_${PN} += "textrel"
 
 SRC_URI = "http://build.webos-ports.org/cm-wop-10.1/cm-wop-10.1-${PV}-${MACHINE}.tar.bz2"
-SRC_URI[md5sum] = "98bb1ff38e78acedb9fe7529b7c2ff69"
-SRC_URI[sha256sum] = "da866d069c9be9f977a196dfa63373129ed77f9a6ba28a1ab69736b4608946c8"
+SRC_URI[md5sum] = "95127d248084767cdf37bead94bc867b"
+SRC_URI[sha256sum] = "0cc584c0df312fdb7968329ff0eccec6884ea3546fd076d24895febdad8cf970"
