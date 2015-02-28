@@ -12,6 +12,8 @@ SRC_URI = "http://www.ecirc.net/openmoko/${P}.tgz \
            file://desktop_fix.patch;apply=yes \
 "
 
+PNBLACKLIST[gwaterpas] ?= "broken: depends on blacklisted fltk"
+
 SRC_URI[md5sum] = "b3be847e3f89dbbcdca3e0184686bcef"
 SRC_URI[sha256sum] = "23d56f10089722a33cde507cd398c82871dd14b80be1bc3f4cd2daee2cfcf641"
 

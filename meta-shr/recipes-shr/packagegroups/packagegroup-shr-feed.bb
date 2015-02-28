@@ -139,7 +139,6 @@ MISSING = "\
         xterm \
         inkspill \
         dns2tcp \
-        gwaterpas \
         sflphone-common \
         rtmom \
 \
@@ -174,6 +173,7 @@ BROKEN_BY_VALA_UPGRADE = "\
 # omgps is currently blacklisted
 # sylpheed is currently blacklisted
 # mcnavi is currently blacklisted
+# gwaterpas is currently blacklisted
 RDEPENDS_${PN} += "\
         ${BROWSER} \
         vagalume \
@@ -325,7 +325,6 @@ RDEPENDS_${PN} += "\
         linux-firmware \
         jefliks \
         evopedia \
-        gwaterpas \
         joe \
         aceofpenguins \
         openmoocow \
