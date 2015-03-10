@@ -17,12 +17,12 @@ TAGS_RAM_BASE = "0x80200100"
 inherit kernel_android
 
 SRC_URI = " \
-  git://github.com/shr-distribution/linux.git;protocol=git;branch=mako/3.4/master \
+  git://github.com/shr-distribution/linux.git;protocol=git;branch=mako/3.4/master-next \
   file://defconfig \
 "
 S = "${WORKDIR}/git"
 
-SRCREV = "90118260d5e0354ad96e0da376959deb0d6de636"
+SRCREV = "2820a8a82c5e3b770cd3af936bbbe154e3b0d665"
 
 KV = "3.4.0"
 PV = "${KV}+gitr${SRCPV}"

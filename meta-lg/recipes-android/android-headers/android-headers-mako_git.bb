@@ -1,7 +1,7 @@
 require recipes-android/android-headers/android-headers.inc
 
-PV = "4.2.2+gitr${SRCPV}"
-SRCREV = "59648ed5520a2274ce2549b249416a0dad50583c"
+PV = "4.4.3+gitr${SRCPV}"
+SRCREV = "890bef235d53ab09e140f02dcc27d1993df6e9df"
 
-SRC_URI = "git://github.com/webOS-ports/phablet-headers.git;branch=master;protocol=git"
+SRC_URI = "git://github.com/webOS-ports/phablet-headers.git;branch=cm-11.0;protocol=git"
 S = "${WORKDIR}/git"
