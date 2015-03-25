@@ -19,6 +19,10 @@ do_install() {
     install -d ${D}/system/symbols
     cp -rv ${WORKDIR}/symbols ${D}/system
 
+    install -d ${D}${sysconfdir}
+    ln -sf /system/etc/media_codecs.xml ${D}${sysconfdir}/media_codecs.xml
+    ln -sf /system/etc/media_profiles ${D}${sysconfdir}/media_profiles.xml
+
     # Copy android ramdisk so we can use it
     install -d ${D}${libdir}/android-system
     # Support packages with both ramdisk names
