@@ -13,4 +13,7 @@ IMAGE_LINGUAS = ""
 # NOTE we must use cpio.gz here as this is what mkbootimg requires
 IMAGE_FSTYPES_forcevariable = "cpio.gz"
 
+# We don't need depmod data here
+KERNELDEPMODDEPEND = ""
+
 inherit core-image
