@@ -3,17 +3,17 @@ This layer depends on:
 
 URI: git://github.com/openembedded/oe-core.git
 layers: meta
-branch: master
+branch: fido
 revision: HEAD
 
 URI: git://github.com/openembedded/meta-oe.git
 layers: meta-oe, meta-efl, meta-gnome, meta-gpe, meta-systemd
-branch: master
+branch: fido
 revision: HEAD
 
 URI: git://github.com/shr-distribution/meta-smartphone.git
 layers: meta-shr, meta-fso, meta-aurora
-branch: master
+branch: fido
 revision: HEAD
 
 It is recommended to follow the instruction at 
@@ -26,7 +26,7 @@ you just setup shr-core repositories and environment settings with
 
 If you want to contribute changes, please follow
 http://www.shr-project.org/trac/wiki/Howto%20get%20my%20application%20in%20the%20SHR%20feed
-and send patches or pull requests to shr-devel@lists.shr-project.org with prefix [meta-shr-distro].
+and send patches or pull requests to shr-devel@lists.shr-project.org with prefix [meta-shr-distro][fido].
 
 If you want to discuss this layer join us on #openmoko-cdevel on FreeNode IRC network.
 
