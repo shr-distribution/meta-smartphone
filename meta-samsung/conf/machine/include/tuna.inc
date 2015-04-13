@@ -25,10 +25,6 @@ MACHINE_EXTRA_RDEPENDS = " \
 PREFERRED_PROVIDER_virtual/egl ?= "libhybris"
 PREFERRED_PROVIDER_virtual/libgles1 ?= "libhybris"
 PREFERRED_PROVIDER_virtual/libgles2 ?= "libhybris"
-PREFERRED_PROVIDER_virtual/libandroid-properties ?= "libhybris"
-PREFERRED_PROVIDER_virtual/libhardware ?= "libhybris"
-
-PREFERRED_PROVIDER_virtual/android-headers = "phablet-headers"
 
 PREFERRED_PROVIDER_virtual/xserver = "xserver-xorg"
 XSERVER = " \
