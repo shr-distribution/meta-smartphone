@@ -2,6 +2,7 @@ require recipes-bsp/u-boot/u-boot.inc
 
 SRC_URI = "git://git.goldelico.com/gta04-uboot.git;branch=gta04 \
   file://0001-config-Always-use-GNU-ld.patch \
+  file://gcc5.patch \
 "
 SRCREV = "9e2ea9f36fc1d914d68a112643ba90fc037c3b27"
 
@@ -18,3 +19,5 @@ UBOOT_MACHINE_om-gta04 = "omap3_gta04_config"
 COMPATIBLE_MACHINE = "om-gta04"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
+
+EXTRA_OEMAKE_append = " KCFLAGS=-fgnu89-inline"
