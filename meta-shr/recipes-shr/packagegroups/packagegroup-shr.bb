@@ -34,7 +34,6 @@ RDEPENDS_${PN}-gtk = "\
   pidgin \
   libpurple-protocol-msn \
   libpurple-protocol-icq \
-  foxtrotgps \
   vagalume \
 "
 

@@ -118,7 +118,6 @@ MISSING = "\
         fltkcurrency \
         fltkspacetrader \
         mokoeightball \
-        libsyncml \
         wpa-gui \
         gabriel \
         stopwatch \
@@ -174,6 +173,7 @@ BROKEN_BY_VALA_UPGRADE = "\
 # sylpheed is currently blacklisted
 # mcnavi is currently blacklisted
 # gwaterpas is currently blacklisted
+# pisi, podboy, navit blacklisted because of bluez4 dependency
 RDEPENDS_${PN} += "\
         ${BROWSER} \
         vagalume \
@@ -183,14 +183,12 @@ RDEPENDS_${PN} += "\
         grep \
         monav \
         chroneo \
-        pisi \
         rfkill \
         estardict \
         claws-mail \
         claws-plugin-gtkhtml2-viewer \
         claws-plugin-mailmbox \
         claws-plugin-rssyl \
-        podboy \
         orrery \
         gpm \
         links-x11 \
@@ -200,12 +198,10 @@ RDEPENDS_${PN} += "\
         fbreader \
         enjoy \
         babiloo-efl \
-        foxtrotgps \
         gpe-scap \
         gtkmm \
         guitartune \
         mc \
-        navit \
         elfe \
         omhacks \
         python-elementary \
@@ -222,7 +218,6 @@ RDEPENDS_${PN} += "\
         shr-splash-theme-logo \
         shr-splash-theme-openmoko \
         x11vnc \
-        obex-data-server \
         telepathy-python \
         opkg-utils \
         libnotify \
@@ -239,7 +234,6 @@ RDEPENDS_${PN} += "\
         libpurple-protocol-icq \
         udev \
         ppp \
-        bluez-hcidump \
         kexec \
         mc \
         xprop \
@@ -307,7 +301,6 @@ RDEPENDS_${PN} += "\
         babiloo-efl \
         make \
         dnsmasq \
-        emtooth2 \
         neolight \
         spojegui \
         dbus-daemon-proxy \
