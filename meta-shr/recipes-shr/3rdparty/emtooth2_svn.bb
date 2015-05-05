@@ -8,6 +8,8 @@ DEPENDS = "glib-2.0 libeflvala"
 RDEPENDS_${PN} += "bluez4 obexd"
 RRECOMMENS_${PN} += "libasound-module-bluez kernel-module-btusb"
 
+PNBLACKLIST[emtooth2] ?= "${@bb.utils.contains('DISTRO_FEATURES', 'bluez5', 'bluez5 conflicts with bluez4 and bluez5 is selected in DISTRO_FEATURES', '', d)}"
+
 SRCREV = "171"
 PV = "0.1+svnr${SRCPV}"
 PR = "r3"

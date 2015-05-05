@@ -1,0 +1,270 @@
+From c9624e4d3d4f16129210626145898d3eadecfb97 Mon Sep 17 00:00:00 2001
+From: "Dr. Michael Lauer" <mickey@vanille-media.de>
+Date: Tue, 31 Mar 2015 18:21:18 +0000
+Subject: [PATCH 4/7] fsodeviced: upgrade to libgee-0.8
+
+---
+ fsodeviced/MAINTAINERS                                  | 2 +-
+ fsodeviced/configure.ac                                 | 4 ++--
+ fsodeviced/src/lib/Makefile.am                          | 2 +-
+ fsodeviced/src/lib/fsodevice-2.0.deps                   | 2 +-
+ fsodeviced/src/plugins/accelerometer_bma180/Makefile.am | 2 +-
+ fsodeviced/src/plugins/accelerometer_kxsd9/Makefile.am  | 2 +-
+ fsodeviced/src/plugins/accelerometer_lis302/Makefile.am | 2 +-
+ fsodeviced/src/plugins/audio/Makefile.am                | 2 +-
+ fsodeviced/src/plugins/dummy_input/Makefile.am          | 2 +-
+ fsodeviced/src/plugins/gpio_input/Makefile.am           | 2 +-
+ fsodeviced/src/plugins/gta04_quirks/Makefile.am         | 2 +-
+ fsodeviced/src/plugins/herring_quirks/Makefile.am       | 2 +-
+ fsodeviced/src/plugins/kernel_idle/Makefile.am          | 2 +-
+ fsodeviced/src/plugins/kernel_input/Makefile.am         | 2 +-
+ fsodeviced/src/plugins/n900_quirks/Makefile.am          | 2 +-
+ fsodeviced/src/plugins/player_alsa/Makefile.am          | 2 +-
+ fsodeviced/src/plugins/player_canberra/Makefile.am      | 2 +-
+ fsodeviced/src/plugins/player_gstreamer/Makefile.am     | 2 +-
+ fsodeviced/src/plugins/router_alsa/Makefile.am          | 2 +-
+ 19 files changed, 20 insertions(+), 20 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 8d3329d..d3f0503 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -3,7 +3,7 @@ m4_define([fsogsmd_base_version], [0.12.0])
+ m4_define([fsogsmd_maybe_gitrev], m4_if(fsogsmd_released, [1], [], [m4_esyscmd([git show-ref --hash=5 HEAD | tr -d '\n\r'])]))
+ m4_define([fsogsmd_version], m4_if(fsogsmd_released, [1], [fsogsmd_base_version], [fsogsmd_base_version-fsogsmd_maybe_gitrev]))
+ 
+-AC_INIT([fsodeviced], fsogsmd_version, [smartphones-userland@linuxtogo.org], [fsodeviced])
++AC_INIT([fsodeviced], fsodeviced_version, [fso@openphoenux.org], [fsodeviced])
+ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+ 
+ AC_PREREQ([2.65])
+@@ -64,7 +64,7 @@ PKG_CHECK_MODULES(GLIB,
+   glib-2.0 >= $GLIB_REQUIRED
+   gobject-2.0 >= $GLIB_REQUIRED
+   gio-2.0 >= $GLIB_REQUIRED
+-  gee-1.0 >= $GEE_REQUIRED)
++  gee-0.8 >= $GEE_REQUIRED)
+ AC_SUBST(GLIB_CFLAGS)
+ AC_SUBST(GLIB_LIBS)
+ 
+diff --git a/src/lib/Makefile.am b/src/lib/Makefile.am
+index 23d2a0b..308046f 100644
+--- a/src/lib/Makefile.am
++++ b/src/lib/Makefile.am
+@@ -25,7 +25,7 @@ libfsodevice_la_VALAFLAGS = \
+ 	--pkg posix \
+ 	--pkg alsa \
+ 	--pkg glib-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoresource-2.0 \
+ 	--pkg fsoframework-2.0 \
+diff --git a/src/lib/fsodevice-2.0.deps b/src/lib/fsodevice-2.0.deps
+index ac5f306..7642cb6 100644
+--- a/src/lib/fsodevice-2.0.deps
++++ b/src/lib/fsodevice-2.0.deps
+@@ -1,4 +1,4 @@
+-gee-1.0
++gee-0.8
+ fsoresource-2.0
+ fsoframework-2.0
+ alsa
+diff --git a/src/plugins/accelerometer_bma180/Makefile.am b/src/plugins/accelerometer_bma180/Makefile.am
+index 134006c..31b33ad 100644
+--- a/src/plugins/accelerometer_bma180/Makefile.am
++++ b/src/plugins/accelerometer_bma180/Makefile.am
+@@ -15,7 +15,7 @@ accelerometer_bma180_la_VALAFLAGS = \
+ 	--vapidir $(top_srcdir)/src/lib \
+ 	--pkg linux \
+ 	--pkg glib-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsodevice-2.0 \
+diff --git a/src/plugins/accelerometer_kxsd9/Makefile.am b/src/plugins/accelerometer_kxsd9/Makefile.am
+index 3ad0272..0089cd7 100644
+--- a/src/plugins/accelerometer_kxsd9/Makefile.am
++++ b/src/plugins/accelerometer_kxsd9/Makefile.am
+@@ -15,7 +15,7 @@ accelerometer_kxsd9_la_VALAFLAGS = \
+ 	--vapidir $(top_srcdir)/src/lib \
+ 	--pkg linux \
+ 	--pkg glib-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsodevice-2.0
+diff --git a/src/plugins/accelerometer_lis302/Makefile.am b/src/plugins/accelerometer_lis302/Makefile.am
+index d13456a..dfbb690 100644
+--- a/src/plugins/accelerometer_lis302/Makefile.am
++++ b/src/plugins/accelerometer_lis302/Makefile.am
+@@ -15,7 +15,7 @@ accelerometer_lis302_la_VALAFLAGS = \
+ 	--vapidir $(top_srcdir)/src/lib \
+ 	--pkg linux \
+ 	--pkg glib-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsodevice-2.0 \
+diff --git a/src/plugins/audio/Makefile.am b/src/plugins/audio/Makefile.am
+index b14cacf..b6a238d 100644
+--- a/src/plugins/audio/Makefile.am
++++ b/src/plugins/audio/Makefile.am
+@@ -13,7 +13,7 @@ audio_la_VALAFLAGS = \
+ 	--basedir $(top_srcdir) \
+ 	--vapidir $(top_srcdir)/src/lib \
+ 	--pkg glib-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fsodevice-2.0 \
+diff --git a/src/plugins/dummy_input/Makefile.am b/src/plugins/dummy_input/Makefile.am
+index 106bd92..5b82efb 100644
+--- a/src/plugins/dummy_input/Makefile.am
++++ b/src/plugins/dummy_input/Makefile.am
+@@ -16,7 +16,7 @@ dummy_input_la_VALAFLAGS = \
+ 	--vapidir $(top_srcdir)/vapi \
+ 	--pkg glib-2.0 \
+ 	--pkg gio-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg linux \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoframework-2.0 \
+diff --git a/src/plugins/gpio_input/Makefile.am b/src/plugins/gpio_input/Makefile.am
+index 98f723b..63c2549 100644
+--- a/src/plugins/gpio_input/Makefile.am
++++ b/src/plugins/gpio_input/Makefile.am
+@@ -16,7 +16,7 @@ gpio_input_la_VALAFLAGS = \
+ 	--vapidir $(top_srcdir)/vapi \
+ 	--pkg glib-2.0 \
+ 	--pkg gio-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg linux \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsobasics-2.0 \
+diff --git a/src/plugins/gta04_quirks/Makefile.am b/src/plugins/gta04_quirks/Makefile.am
+index 966b95f..cc6f6ae 100644
+--- a/src/plugins/gta04_quirks/Makefile.am
++++ b/src/plugins/gta04_quirks/Makefile.am
+@@ -24,7 +24,7 @@ gta04_quirks_la_VALAFLAGS = \
+ 	--vapidir $(top_srcdir)/src/lib \
+ 	--pkg linux \
+ 	--pkg glib-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fsotransport-2.0 \
+diff --git a/src/plugins/herring_quirks/Makefile.am b/src/plugins/herring_quirks/Makefile.am
+index 5a1171b..8546854 100644
+--- a/src/plugins/herring_quirks/Makefile.am
++++ b/src/plugins/herring_quirks/Makefile.am
+@@ -25,7 +25,7 @@ herring_quirks_la_VALAFLAGS = \
+ 	--vapidir $(top_srcdir)/src/lib \
+ 	--pkg linux \
+ 	--pkg glib-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fsotransport-2.0 \
+diff --git a/src/plugins/kernel_idle/Makefile.am b/src/plugins/kernel_idle/Makefile.am
+index 81a096f..ae2eb31 100644
+--- a/src/plugins/kernel_idle/Makefile.am
++++ b/src/plugins/kernel_idle/Makefile.am
+@@ -17,7 +17,7 @@ kernel_idle_la_VALAFLAGS = \
+ 	--basedir $(top_srcdir) \
+ 	--vapidir $(top_srcdir)/src/lib \
+ 	--pkg glib-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg linux \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoresource-2.0 \
+diff --git a/src/plugins/kernel_input/Makefile.am b/src/plugins/kernel_input/Makefile.am
+index 7d60c98..3b648a4 100644
+--- a/src/plugins/kernel_input/Makefile.am
++++ b/src/plugins/kernel_input/Makefile.am
+@@ -15,7 +15,7 @@ kernel_input_la_VALAFLAGS = \
+ 	--vapidir $(top_srcdir)/src/lib \
+ 	--vapidir $(top_srcdir)/vapi \
+ 	--pkg glib-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg linux \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoframework-2.0 \
+diff --git a/src/plugins/n900_quirks/Makefile.am b/src/plugins/n900_quirks/Makefile.am
+index b324378..58815de 100644
+--- a/src/plugins/n900_quirks/Makefile.am
++++ b/src/plugins/n900_quirks/Makefile.am
+@@ -26,7 +26,7 @@ n900_quirks_la_VALAFLAGS = \
+ 	--vapidir $(top_srcdir)/src/lib \
+ 	--pkg linux \
+ 	--pkg glib-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fsotransport-2.0 \
+diff --git a/src/plugins/player_alsa/Makefile.am b/src/plugins/player_alsa/Makefile.am
+index 8f2cdb0..29b0817 100644
+--- a/src/plugins/player_alsa/Makefile.am
++++ b/src/plugins/player_alsa/Makefile.am
+@@ -13,7 +13,7 @@ player_alsa_la_VALAFLAGS = \
+ 	--basedir $(top_srcdir) \
+ 	--vapidir $(top_srcdir)/src/lib \
+ 	--pkg glib-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fsodevice-2.0 \
+diff --git a/src/plugins/player_canberra/Makefile.am b/src/plugins/player_canberra/Makefile.am
+index 6693ca7..9ce3727 100644
+--- a/src/plugins/player_canberra/Makefile.am
++++ b/src/plugins/player_canberra/Makefile.am
+@@ -13,7 +13,7 @@ player_canberra_la_VALAFLAGS = \
+ 	--basedir $(top_srcdir) \
+ 	--vapidir $(top_srcdir)/src/lib \
+ 	--pkg glib-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fsodevice-2.0 \
+diff --git a/src/plugins/player_gstreamer/Makefile.am b/src/plugins/player_gstreamer/Makefile.am
+index d2823f2..8aa3fc7 100644
+--- a/src/plugins/player_gstreamer/Makefile.am
++++ b/src/plugins/player_gstreamer/Makefile.am
+@@ -17,7 +17,7 @@ player_gstreamer_la_VALAFLAGS = \
+ 	--pkg thread \
+ 	--pkg gstreamer-0.10 \
+ 	--pkg glib-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fsodevice-2.0 \
+diff --git a/src/plugins/router_alsa/Makefile.am b/src/plugins/router_alsa/Makefile.am
+index 0df1f1f..84544e1 100644
+--- a/src/plugins/router_alsa/Makefile.am
++++ b/src/plugins/router_alsa/Makefile.am
+@@ -13,7 +13,7 @@ router_alsa_la_VALAFLAGS = \
+ 	--basedir $(top_srcdir) \
+ 	--vapidir $(top_srcdir)/src/lib \
+ 	--pkg glib-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fsodevice-2.0 \
+-- 
+2.3.5
+

@@ -7,6 +7,9 @@ SECTION = "x11/applications"
 
 DEPENDS = "python-native edje-native ${@base_conditional('ENTERPRISE_DISTRO', '1', '', 'gst-plugins-ugly', d)}"
 
+# Rdepends on gst-plugin-bluetooth
+PNBLACKLIST[pisi] ?= "${@bb.utils.contains('DISTRO_FEATURES', 'bluez5', 'bluez5 conflicts with bluez4 and bluez5 is selected in DISTRO_FEATURES', '', d)}"
+
 SRCREV = "218"
 PV = "1.7.4+svnr${SRCPV}"
 PR = "r4"

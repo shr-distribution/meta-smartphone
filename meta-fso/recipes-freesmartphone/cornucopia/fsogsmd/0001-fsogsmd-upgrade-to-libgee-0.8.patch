@@ -1,0 +1,304 @@
+From b7c652acd0fbf592f48d7fdeb16d67534c46e215 Mon Sep 17 00:00:00 2001
+From: "Dr. Michael Lauer" <mickey@vanille-media.de>
+Date: Tue, 31 Mar 2015 18:50:16 +0000
+Subject: [PATCH 7/7] fsogsmd: upgrade to libgee-0.8
+
+---
+ fsogsmd/configure.ac                               |  6 ++--
+ fsogsmd/src/lib/Makefile.am                        | 32 +++++++++++-----------
+ fsogsmd/src/lib/modem.vala                         |  3 ++
+ fsogsmd/src/plugins/dbus_service/Makefile.am       |  2 +-
+ .../src/plugins/modem_cinterion_mc75/Makefile.am   |  2 +-
+ fsogsmd/src/plugins/modem_dummy/Makefile.am        |  2 +-
+ .../plugins/modem_freescale_neptune/Makefile.am    |  2 +-
+ fsogsmd/src/plugins/modem_nokia_isi/Makefile.am    |  2 +-
+ .../src/plugins/modem_option_gtm601/Makefile.am    |  2 +-
+ fsogsmd/src/plugins/modem_phonesim/Makefile.am     |  2 +-
+ fsogsmd/src/plugins/modem_qualcomm_htc/Makefile.am |  2 +-
+ fsogsmd/src/plugins/modem_samsung/Makefile.am      |  2 +-
+ fsogsmd/src/plugins/modem_singleline/Makefile.am   |  2 +-
+ fsogsmd/src/plugins/modem_ti_calypso/Makefile.am   |  2 +-
+ fsogsmd/src/ppp/Makefile.am                        |  2 +-
+ fsogsmd/tests/Makefile.am                          |  2 +-
+ fsogsmd/tests/integration/Makefile.am              |  2 +-
+ 17 files changed, 36 insertions(+), 33 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index a964238..e16b47f 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -3,13 +3,13 @@ m4_define([fsogsmd_base_version], [0.12.0])
+ m4_define([fsogsmd_maybe_gitrev], m4_if(fsogsmd_released, [1], [], [m4_esyscmd([git show-ref --hash=5 HEAD | tr -d '\n\r'])]))
+ m4_define([fsogsmd_version], m4_if(fsogsmd_released, [1], [fsogsmd_base_version], [fsogsmd_base_version-fsogsmd_maybe_gitrev]))
+ 
+-AC_INIT([fsogsmd], fsogsmd_version, [smartphones-userland@linuxtogo.org], [fsogsmd])
++AC_INIT([fsogsmd], fsogsmd_version, [fso@openphoenux.org], [fsogsmd])
+ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+ 
+ AC_PREREQ([2.65])
+ AC_CONFIG_SRCDIR([Makefile.am])
+ AC_CONFIG_HEADERS(config.h)
+-AM_INIT_AUTOMAKE([dist-bzip2 no-dist-gzip tar-ustar])
++AM_INIT_AUTOMAKE([dist-bzip2 no-dist-gzip tar-ustar subdir-objects])
+ AM_MAINTAINER_MODE([enable])
+ 
+ AC_PROG_CC
+@@ -77,7 +77,7 @@ AC_SUBST(XML_CFLAGS)
+ AC_SUBST(XML_LIBS)
+ 
+ PKG_CHECK_MODULES(GEE,
+-  gee-1.0 >= $GEE_REQUIRED)
++  gee-0.8 >= $GEE_REQUIRED)
+ AC_SUBST(GEE_CFLAGS)
+ AC_SUBST(GEE_LIBS)
+ 
+diff --git a/src/lib/Makefile.am b/src/lib/Makefile.am
+index 84d9f9d..1c0802a 100644
+--- a/src/lib/Makefile.am
++++ b/src/lib/Makefile.am
+@@ -49,22 +49,22 @@ libfsogsm_la_SOURCES = \
+ 	serviceprovider.vala \
+ 	mbpi.vala \
+ 	\
+-	$(top_srcdir)/src/3rdparty/conversions.c \
+-	$(top_srcdir)/src/3rdparty/smsutil.c \
+-	$(top_srcdir)/src/3rdparty/storage.c \
+-	$(top_srcdir)/src/3rdparty/util.c \
++	../3rdparty/conversions.c \
++	../3rdparty/smsutil.c \
++	../3rdparty/storage.c \
++	../3rdparty/util.c \
+ 	\
+-	$(top_srcdir)/src/3rdparty/ppp/crc-ccitt.c \
+-	$(top_srcdir)/src/3rdparty/ppp/gathdlc.c \
+-	$(top_srcdir)/src/3rdparty/ppp/gatio.c \
+-	$(top_srcdir)/src/3rdparty/ppp/gatppp.c \
+-	$(top_srcdir)/src/3rdparty/ppp/gatutil.c \
+-	$(top_srcdir)/src/3rdparty/ppp/ppp_auth.c \
+-	$(top_srcdir)/src/3rdparty/ppp/ppp_cp.c \
+-	$(top_srcdir)/src/3rdparty/ppp/ppp_ipcp.c \
+-	$(top_srcdir)/src/3rdparty/ppp/ppp_lcp.c \
+-	$(top_srcdir)/src/3rdparty/ppp/ppp_net.c \
+-	$(top_srcdir)/src/3rdparty/ppp/ringbuffer.c \
++	../3rdparty/ppp/crc-ccitt.c \
++	../3rdparty/ppp/gathdlc.c \
++	../3rdparty/ppp/gatio.c \
++	../3rdparty/ppp/gatppp.c \
++	../3rdparty/ppp/gatutil.c \
++	../3rdparty/ppp/ppp_auth.c \
++	../3rdparty/ppp/ppp_cp.c \
++	../3rdparty/ppp/ppp_ipcp.c \
++	../3rdparty/ppp/ppp_lcp.c \
++	../3rdparty/ppp/ppp_net.c \
++	../3rdparty/ppp/ringbuffer.c \
+ 	$(NULL)
+ libfsogsm_la_VALAFLAGS = \
+ 	--basedir $(top_srcdir) \
+@@ -72,7 +72,7 @@ libfsogsm_la_VALAFLAGS = \
+ 	--vapidir $(top_srcdir)/src/lib \
+ 	--pkg glib-2.0 \
+ 	--pkg gio-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsosystem-2.0 \
+ 	--pkg fsoframework-2.0 \
+diff --git a/src/lib/modem.vala b/src/lib/modem.vala
+index 447f455..e482064 100644
+--- a/src/lib/modem.vala
++++ b/src/lib/modem.vala
+@@ -293,6 +293,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
+ 
+     construct
+     {
++        // dependencies
++        theServiceDependencies = new GLib.List<string>();
++
+         // channel map
+         channels = new HashMap<string,FsoGsm.Channel>();
+ 
+diff --git a/src/plugins/dbus_service/Makefile.am b/src/plugins/dbus_service/Makefile.am
+index 9989ebc..c267b83 100644
+--- a/src/plugins/dbus_service/Makefile.am
++++ b/src/plugins/dbus_service/Makefile.am
+@@ -37,7 +37,7 @@ dbus_service_la_VALAFLAGS = \
+ 	--pkg posix \
+ 	--pkg glib-2.0 \
+ 	--pkg gio-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fsotransport-2.0 \
+diff --git a/src/plugins/modem_cinterion_mc75/Makefile.am b/src/plugins/modem_cinterion_mc75/Makefile.am
+index 204c5ad..defce5b 100644
+--- a/src/plugins/modem_cinterion_mc75/Makefile.am
++++ b/src/plugins/modem_cinterion_mc75/Makefile.am
+@@ -16,7 +16,7 @@ modem_cinterion_mc75_la_VALAFLAGS = \
+ 	--pkg posix \
+ 	--pkg glib-2.0 \
+ 	--pkg gio-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg gsm0710mux-1.0 \
+ 	--pkg fsoframework-2.0 \
+diff --git a/src/plugins/modem_dummy/Makefile.am b/src/plugins/modem_dummy/Makefile.am
+index d66b1b5..92b8240 100644
+--- a/src/plugins/modem_dummy/Makefile.am
++++ b/src/plugins/modem_dummy/Makefile.am
+@@ -14,7 +14,7 @@ modem_dummy_la_VALAFLAGS = \
+ 	--vapidir $(top_srcdir)/src/lib \
+ 	--pkg posix \
+ 	--pkg glib-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fsotransport-2.0 \
+diff --git a/src/plugins/modem_freescale_neptune/Makefile.am b/src/plugins/modem_freescale_neptune/Makefile.am
+index 00c087d..aa5f1d7 100644
+--- a/src/plugins/modem_freescale_neptune/Makefile.am
++++ b/src/plugins/modem_freescale_neptune/Makefile.am
+@@ -16,7 +16,7 @@ modem_freescale_neptune_la_VALAFLAGS = \
+ 	--pkg posix \
+ 	--pkg glib-2.0 \
+ 	--pkg gio-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fsotransport-2.0 \
+diff --git a/src/plugins/modem_nokia_isi/Makefile.am b/src/plugins/modem_nokia_isi/Makefile.am
+index 0ce6df4..5017801 100644
+--- a/src/plugins/modem_nokia_isi/Makefile.am
++++ b/src/plugins/modem_nokia_isi/Makefile.am
+@@ -29,7 +29,7 @@ modem_nokia_isi_la_VALAFLAGS = \
+ 	--pkg posix \
+ 	--pkg glib-2.0 \
+ 	--pkg gio-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fsotransport-2.0 \
+diff --git a/src/plugins/modem_option_gtm601/Makefile.am b/src/plugins/modem_option_gtm601/Makefile.am
+index a4b760a..55dd1a4 100644
+--- a/src/plugins/modem_option_gtm601/Makefile.am
++++ b/src/plugins/modem_option_gtm601/Makefile.am
+@@ -22,7 +22,7 @@ modem_option_gtm601_la_VALAFLAGS = \
+ 	--pkg posix \
+ 	--pkg glib-2.0 \
+ 	--pkg gio-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fsotransport-2.0 \
+diff --git a/src/plugins/modem_phonesim/Makefile.am b/src/plugins/modem_phonesim/Makefile.am
+index 250de55..c27f6dc 100644
+--- a/src/plugins/modem_phonesim/Makefile.am
++++ b/src/plugins/modem_phonesim/Makefile.am
+@@ -15,7 +15,7 @@ modem_phonesim_la_VALAFLAGS = \
+ 	--pkg posix \
+ 	--pkg glib-2.0 \
+ 	--pkg gio-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fsotransport-2.0 \
+diff --git a/src/plugins/modem_qualcomm_htc/Makefile.am b/src/plugins/modem_qualcomm_htc/Makefile.am
+index db0618a..a6d9c29 100644
+--- a/src/plugins/modem_qualcomm_htc/Makefile.am
++++ b/src/plugins/modem_qualcomm_htc/Makefile.am
+@@ -17,7 +17,7 @@ modem_qualcomm_htc_la_VALAFLAGS = \
+ 	--pkg posix \
+ 	--pkg glib-2.0 \
+ 	--pkg gio-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fsotransport-2.0 \
+diff --git a/src/plugins/modem_samsung/Makefile.am b/src/plugins/modem_samsung/Makefile.am
+index 2136531..0f10795 100644
+--- a/src/plugins/modem_samsung/Makefile.am
++++ b/src/plugins/modem_samsung/Makefile.am
+@@ -36,7 +36,7 @@ modem_samsung_la_VALAFLAGS = \
+ 	--pkg posix \
+ 	--pkg glib-2.0 \
+ 	--pkg gio-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fsotransport-2.0 \
+diff --git a/src/plugins/modem_singleline/Makefile.am b/src/plugins/modem_singleline/Makefile.am
+index 79ff5bc..1ce5c26 100644
+--- a/src/plugins/modem_singleline/Makefile.am
++++ b/src/plugins/modem_singleline/Makefile.am
+@@ -15,7 +15,7 @@ modem_singleline_la_VALAFLAGS = \
+ 	--pkg posix \
+ 	--pkg glib-2.0 \
+ 	--pkg gio-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fsotransport-2.0 \
+diff --git a/src/plugins/modem_ti_calypso/Makefile.am b/src/plugins/modem_ti_calypso/Makefile.am
+index 142afd7..51a00af 100644
+--- a/src/plugins/modem_ti_calypso/Makefile.am
++++ b/src/plugins/modem_ti_calypso/Makefile.am
+@@ -15,7 +15,7 @@ modem_ti_calypso_la_VALAFLAGS = \
+ 	--pkg posix \
+ 	--pkg glib-2.0 \
+ 	--pkg gio-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg gsm0710mux-1.0 \
+ 	--pkg fsoframework-2.0 \
+diff --git a/src/ppp/Makefile.am b/src/ppp/Makefile.am
+index d1d16c3..31d018c 100644
+--- a/src/ppp/Makefile.am
++++ b/src/ppp/Makefile.am
+@@ -16,7 +16,7 @@ ppp2fsogsmd_la_VALAFLAGS = \
+ 	--pkg ppp \
+ 	--pkg glib-2.0 \
+ 	--pkg gio-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fso-glib-1.0 \
+ 	--pkg fsobasics-2.0 \
+ 	--pkg fsoframework-2.0 \
+diff --git a/tests/Makefile.am b/tests/Makefile.am
+index 52925b7..6b7ee04 100644
+--- a/tests/Makefile.am
++++ b/tests/Makefile.am
+@@ -29,7 +29,7 @@ AM_VALAFLAGS = \
+ 	--pkg posix \
+ 	--pkg glib-2.0 \
+ 	--pkg gio-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fsobasics-2.0 \
+ 	--pkg fsotransport-2.0 \
+diff --git a/tests/integration/Makefile.am b/tests/integration/Makefile.am
+index 91fcc27..67e7220 100644
+--- a/tests/integration/Makefile.am
++++ b/tests/integration/Makefile.am
+@@ -25,7 +25,7 @@ AM_VALAFLAGS = \
+ 	--pkg posix \
+ 	--pkg glib-2.0 \
+ 	--pkg gio-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fsoframework-2.0 \
+ 	--pkg fsobasics-2.0 \
+ 	--pkg fsotransport-2.0 \
+-- 
+2.3.5
+
