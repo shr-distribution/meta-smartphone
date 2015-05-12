@@ -9,6 +9,7 @@ PR = "${INC_PR}.3"
 
 SRC_URI = " \
   ${FREESMARTPHONE_GIT}/aurora.git;protocol=git;branch=master \
+  file://0001-aurora-systemmanager-use-gee-0.8-instead-of-older-ge.patch \
   file://aurora-systemmanager \
 "
 SRCREV = "${AURORA_SRCREV}"
