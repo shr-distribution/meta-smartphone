@@ -1,0 +1,26 @@
+From 4f288dcf1d99b353d367edee74964940c5da8b12 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Tue, 12 May 2015 14:11:41 +0200
+Subject: [PATCH] aurora-systemmanager: use gee-0.8 instead of older gee-1.0
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ systemmanager/Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/systemmanager/Makefile.am b/systemmanager/Makefile.am
+index 10a989e..926f403 100644
+--- a/systemmanager/Makefile.am
++++ b/systemmanager/Makefile.am
+@@ -10,7 +10,7 @@ AM_CFLAGS = \
+ VALAC_ARGS = \
+ 	--vapidir ../vapi \
+ 	--pkg gio-2.0 \
+-	--pkg gee-1.0 \
++	--pkg gee-0.8 \
+ 	--pkg fsosystem-2.0 \
+ 	--pkg fsobasics-2.0 \
+ 	--pkg fsoframework-2.0 \
+-- 
+2.3.5
+
