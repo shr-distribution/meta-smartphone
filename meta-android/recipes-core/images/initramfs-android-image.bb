@@ -15,5 +15,6 @@ IMAGE_FSTYPES_forcevariable = "cpio.gz"
 
 # We don't need depmod data here
 KERNELDEPMODDEPEND = ""
+USE_DEPMOD = "0"
 
 inherit core-image
