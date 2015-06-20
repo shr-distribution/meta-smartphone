@@ -35,7 +35,6 @@ SRC_URI[sha256sum] = "fc999a6f5ed904849075d5378df08726588731b54519ce9fe88cb8dc69
 
 INITRAMFS_IMAGE ?= "initramfs-android-image"
 do_compile[depends] += "${INITRAMFS_IMAGE}:do_rootfs"
-DEPENDS += "${INITRAMFS_IMAGE}"
 
 KERNEL_IMAGEDEST = "boot"
 KERNEL_MODULEDEST = "/lib/modules"
@@ -102,6 +101,15 @@ FILES_kernel-image = "/boot/${KERNEL_IMAGETYPE}*"
 FILES_kernel-modules = "/lib/modules/${KERNEL_VERSION} ${sysconfdir}/modules-load.d/*"
 
 ALLOW_EMPTY_kernel = "1"
+
+emit_depmod_pkgdata() {
+        # Stash data for depmod
+        install -d ${PKGDESTWORK}/kernel-depmod/
+        echo "${KERNEL_VERSION}" > ${PKGDESTWORK}/kernel-depmod/kernel-abiversion
+        cp System.map ${PKGDESTWORK}/kernel-depmod/System.map-${KERNEL_VERSION}
+}
+
+PACKAGEFUNCS += "emit_depmod_pkgdata"
 
 RDEPENDS_kernel = "kernel-base"
 # Allow machines to override this dependency if kernel image files are
