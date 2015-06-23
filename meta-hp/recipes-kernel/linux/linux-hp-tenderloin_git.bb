@@ -106,7 +106,7 @@ emit_depmod_pkgdata() {
         # Stash data for depmod
         install -d ${PKGDESTWORK}/kernel-depmod/
         echo "${KERNEL_VERSION}" > ${PKGDESTWORK}/kernel-depmod/kernel-abiversion
-        cp System.map ${PKGDESTWORK}/kernel-depmod/System.map-${KERNEL_VERSION}
+        # cp System.map ${PKGDESTWORK}/kernel-depmod/System.map-${KERNEL_VERSION}
 }
 
 PACKAGEFUNCS += "emit_depmod_pkgdata"
