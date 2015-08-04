@@ -15,9 +15,9 @@ PACKAGES_DYNAMIC += "^kernel-module-.*"
 PACKAGES_DYNAMIC += "^kernel-image-.*"
 
 # Version coming from our jenkens when building the kernel within the android build
-BUILD_VERSION = "20150129-83"
+BUILD_VERSION = "20150804-91"
 
-# This is the version we et from the kernel tree: <kernel version>-<commits since last
+# This is the version we get from the kernel tree: <kernel version>-<commits since last
 # tag>-g<short ref of last commit>. You can get it easily with running `git describe`
 # within the repo. In this case the last tag was v3.0.65 but we're already at 3.0.101
 # without having all the tags merged.
@@ -30,8 +30,8 @@ SRC_URI = " \
 "
 S = "${WORKDIR}/kernel-parts-${BUILD_VERSION}"
 
-SRC_URI[md5sum] = "e40d771c7f9880c2c54778f178eef118"
-SRC_URI[sha256sum] = "fc999a6f5ed904849075d5378df08726588731b54519ce9fe88cb8dc692488ec"
+SRC_URI[md5sum] = "b3a022524f0ab420e4a75192da70eb7a"
+SRC_URI[sha256sum] = "49ad188a4359f7cb944f9b54cfef04e1f79615e705835cfccfeb93ed50d24eb8"
 
 INITRAMFS_IMAGE ?= "initramfs-android-image"
 do_compile[depends] += "${INITRAMFS_IMAGE}:do_rootfs"
