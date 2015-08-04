@@ -21,7 +21,7 @@ BUILD_VERSION = "20150804-91"
 # tag>-g<short ref of last commit>. You can get it easily with running `git describe`
 # within the repo. In this case the last tag was v3.0.65 but we're already at 3.0.101
 # without having all the tags merged.
-KERNEL_VERSION = "3.0.101-12914-gfab4a27"
+KERNEL_VERSION = "3.0.101-9792-g7cc80db"
 
 PV = "${KERNEL_VERSION}-${BUILD_VERSION}"
 
