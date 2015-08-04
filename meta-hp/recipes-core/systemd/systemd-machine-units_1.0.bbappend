@@ -5,6 +5,8 @@ SRC_URI_append_tenderloin = " \
     file://tenderloin-swap.service \
 "
 
+RDEPENDS_${PN}_ternderloin += "tenderloin-bluetooth-utilities"
+
 do_install_append_tenderloin() {
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/tenderloin-ath6kl-module.service ${D}${systemd_unitdir}/system
