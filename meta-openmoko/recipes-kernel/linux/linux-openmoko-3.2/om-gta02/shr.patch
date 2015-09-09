@@ -3,6 +3,8 @@ rebased on top latest stable patch (linux-stable tag v3.2.52 now)
 
 https://gitorious.org/shr/linux/commits/shr-3.2-nodrm
 
+93d64d1: ARM: 8158/1: LLVMLinux: use static inline in ARM ftrace.h
+1cb4c77: kernel: add support for gcc 5
 696bb70: shr-create-patch: update stable version
 dc77c99: s3c24xx: ACK the external interrupt source when no handler is available
 9c276af: ar6000: add netif_carrier handling
@@ -158,6 +160,19 @@ index d493d0b..6902e6c 100644
 -}
 -
  #endif
+diff --git a/arch/arm/include/asm/ftrace.h b/arch/arm/include/asm/ftrace.h
+index f89515a..2bb8cac 100644
+--- a/arch/arm/include/asm/ftrace.h
++++ b/arch/arm/include/asm/ftrace.h
+@@ -45,7 +45,7 @@ void *return_address(unsigned int);
+ 
+ #else
+ 
+-extern inline void *return_address(unsigned int level)
++static inline void *return_address(unsigned int level)
+ {
+ 	return NULL;
+ }
 diff --git a/arch/arm/kernel/fiq.c b/arch/arm/kernel/fiq.c
 index 4c164ec..8ba2e51 100644
 --- a/arch/arm/kernel/fiq.c
@@ -296,6 +311,22 @@ index 4c164ec..8ba2e51 100644
  int claim_fiq(struct fiq_handler *f)
  {
  	int ret = 0;
+diff --git a/arch/arm/kernel/return_address.c b/arch/arm/kernel/return_address.c
+index 8085417..57827a6 100644
+--- a/arch/arm/kernel/return_address.c
++++ b/arch/arm/kernel/return_address.c
+@@ -62,11 +62,6 @@ void *return_address(unsigned int level)
+ #warning "TODO: return_address should use unwind tables"
+ #endif
+ 
+-void *return_address(unsigned int level)
+-{
+-	return NULL;
+-}
+-
+ #endif /* if defined(CONFIG_FRAME_POINTER) && !defined(CONFIG_ARM_UNWIND) / else */
+ 
+ EXPORT_SYMBOL_GPL(return_address);
 diff --git a/arch/arm/mach-s3c2440/Kconfig b/arch/arm/mach-s3c2440/Kconfig
 index 914e620..264c375 100644
 --- a/arch/arm/mach-s3c2440/Kconfig
@@ -3751,7 +3782,7 @@ index 1b31421..37227af 100644
  obj-y				+= firmware/
 diff --git a/drivers/ar6000/Kconfig b/drivers/ar6000/Kconfig
 new file mode 100644
-index 0000000..29b28b8
+index 0000000..29b28b8c
 --- /dev/null
 +++ b/drivers/ar6000/Kconfig
 @@ -0,0 +1,32 @@
@@ -45716,6 +45747,78 @@ index 0000000..6c3fe9c
 +MODULE_DESCRIPTION("Smedia Glamo 336x/337x framebuffer driver");
 +MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:glamo-fb");
+diff --git a/include/linux/compiler-gcc5.h b/include/linux/compiler-gcc5.h
+new file mode 100644
+index 0000000..cdd1cc2
+--- /dev/null
++++ b/include/linux/compiler-gcc5.h
+@@ -0,0 +1,66 @@
++#ifndef __LINUX_COMPILER_H
++#error "Please don't include <linux/compiler-gcc5.h> directly, include <linux/compiler.h> instead."
++#endif
++
++#define __used				__attribute__((__used__))
++#define __must_check			__attribute__((warn_unused_result))
++#define __compiler_offsetof(a, b)	__builtin_offsetof(a, b)
++
++/* Mark functions as cold. gcc will assume any path leading to a call
++   to them will be unlikely.  This means a lot of manual unlikely()s
++   are unnecessary now for any paths leading to the usual suspects
++   like BUG(), printk(), panic() etc. [but let's keep them for now for
++   older compilers]
++
++   Early snapshots of gcc 4.3 don't support this and we can't detect this
++   in the preprocessor, but we can live with this because they're unreleased.
++   Maketime probing would be overkill here.
++
++   gcc also has a __attribute__((__hot__)) to move hot functions into
++   a special section, but I don't see any sense in this right now in
++   the kernel context */
++#define __cold			__attribute__((__cold__))
++
++#define __UNIQUE_ID(prefix) __PASTE(__PASTE(__UNIQUE_ID_, prefix), __COUNTER__)
++
++#ifndef __CHECKER__
++# define __compiletime_warning(message) __attribute__((warning(message)))
++# define __compiletime_error(message) __attribute__((error(message)))
++#endif /* __CHECKER__ */
++
++/*
++ * Mark a position in code as unreachable.  This can be used to
++ * suppress control flow warnings after asm blocks that transfer
++ * control elsewhere.
++ *
++ * Early snapshots of gcc 4.5 don't support this and we can't detect
++ * this in the preprocessor, but we can live with this because they're
++ * unreleased.  Really, we need to have autoconf for the kernel.
++ */
++#define unreachable() __builtin_unreachable()
++
++/* Mark a function definition as prohibited from being cloned. */
++#define __noclone	__attribute__((__noclone__))
++
++/*
++ * Tell the optimizer that something else uses this function or variable.
++ */
++#define __visible __attribute__((externally_visible))
++
++/*
++ * GCC 'asm goto' miscompiles certain code sequences:
++ *
++ *   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=58670
++ *
++ * Work it around via a compiler barrier quirk suggested by Jakub Jelinek.
++ * Fixed in GCC 4.8.2 and later versions.
++ *
++ * (asm goto is automatically volatile - the naming reflects this.)
++ */
++#define asm_volatile_goto(x...)	do { asm goto(x); asm (""); } while (0)
++
++#ifdef CONFIG_ARCH_USE_BUILTIN_BSWAP
++#define __HAVE_BUILTIN_BSWAP32__
++#define __HAVE_BUILTIN_BSWAP64__
++#define __HAVE_BUILTIN_BSWAP16__
++#endif /* CONFIG_ARCH_USE_BUILTIN_BSWAP */
 diff --git a/include/linux/fb.h b/include/linux/fb.h
 index 73845ce..2c44628 100644
 --- a/include/linux/fb.h
