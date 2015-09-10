@@ -18,6 +18,9 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 # is build with and can differ between different machines.
 DEPENDS += "virtual/android-headers"
 
+# Only MACHINEs which provide virtual/android-headers can build this
+COMPATIBLE_MACHINE = "(^$)"
+
 PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/egl"
 
 # most MACHINEs don't use libhybris and depend on mesa to provide *gl*
