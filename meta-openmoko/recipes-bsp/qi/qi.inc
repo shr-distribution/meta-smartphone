@@ -18,6 +18,7 @@ SRC_URI = "\
   file://0004-Makefile-sanitize-use-values-provided-by-recipe.patch \
   file://0001-start_qi-add-include-for-stddef.h-with-gcc-4.7.1-it-.patch \
   file://0009-Fix-build-with-GCC-4.6-Werror-unused-but.patch \
+  file://0010-drop-undefinded-inline-functions.patch \
 "
 S = "${WORKDIR}/git"
 

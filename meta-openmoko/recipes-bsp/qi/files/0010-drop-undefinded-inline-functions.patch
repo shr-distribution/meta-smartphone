@@ -1,0 +1,36 @@
+From 6ac9a227db6f7a4b41d22164e3e3108434cec1c7 Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Wed, 9 Sep 2015 21:27:01 +0200
+Subject: [PATCH] drop undefinded inline functions
+
+* with gcc-5.2 there is new error:
+  | In file included from src/phase2.c:29:0:
+  | include/image.h:367:13: error: inline function 'image_print_contents_noindent' declared but never defined [-Werror]
+  |  inline void image_print_contents_noindent (image_header_t *hdr);
+  |              ^
+  | include/image.h:366:13: error: inline function 'image_print_contents' declared but never defined [-Werror]
+  |  inline void image_print_contents (image_header_t *hdr);
+  |              ^
+  | cc1: all warnings being treated as errors
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ include/image.h                         |  3 ---
+
+diff --git a/include/image.h b/include/image.h
+index af9ecda..a5e29c7 100644
+--- a/include/image.h
++++ b/include/image.h
+@@ -363,9 +363,6 @@ ulong image_multi_count (image_header_t *hdr);
+ void image_multi_getimg (image_header_t *hdr, ulong idx,
+ 			ulong *data, ulong *len);
+ 
+-inline void image_print_contents (image_header_t *hdr);
+-inline void image_print_contents_noindent (image_header_t *hdr);
+-
+ #ifndef USE_HOSTCC
+ static inline int image_check_target_arch (image_header_t *hdr)
+ {
+-- 
+2.5.1
+

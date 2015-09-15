@@ -6,3 +6,5 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=ebb5c50ab7cab4baeffba14977030c07"
 DEPENDS = "glib-2.0 dbus dbus-glib readline"
 
 SRC_URI = "${SOURCEFORGE_MIRROR}/freesmartphone/sources/${BP}.tar.bz2"
+
+inherit autotools pkgconfig
