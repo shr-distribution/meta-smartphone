@@ -227,7 +227,6 @@ RDEPENDS_${PN} += "\
         tar \
         oh-puzzles \
         e-wm-illume-dict-pl \
-        midori \
         pidgin \
         pidgin-otr \
         libpurple-protocol-msn \
