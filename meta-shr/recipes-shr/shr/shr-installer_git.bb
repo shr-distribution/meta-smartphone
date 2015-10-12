@@ -17,3 +17,4 @@ S = "${WORKDIR}/git"
 FILES_${PN} += "${prefix}/share/pixmaps"
 FILES_${PN} += "${prefix}/share/applications"
 
+PNBLACKLIST[shr-installer] ?= "Depends on blacklisted packagekit"

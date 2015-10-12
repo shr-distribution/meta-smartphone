@@ -174,10 +174,10 @@ BROKEN_BY_VALA_UPGRADE = "\
 # mcnavi is currently blacklisted
 # gwaterpas is currently blacklisted
 # pisi, podboy, navit blacklisted because of bluez4 dependency
+# elmdentica is blacklisted because of packagekit dependency
 RDEPENDS_${PN} += "\
         ${BROWSER} \
         vagalume \
-        elmdentica \
         bootchart \
         anki \
         grep \
