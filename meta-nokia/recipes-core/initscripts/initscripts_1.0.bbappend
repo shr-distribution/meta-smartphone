@@ -1,14 +1,10 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS_prepend_nokia900 := "${THISDIR}/${PN}:"
 
-EXTRA_DEPS = ""
-EXTRA_DEPS_nokia900 = "phonet-utils"
-RDEPENDS_${PN} += "${EXTRA_DEPS}"
+RDEPENDS_${PN}_append_nokia900 = " phonet-utils"
 
-do_install_append() {
-        if [ "${MACHINE}" = "nokia900" ]; then
-                install -m 0755 ${WORKDIR}/nokia-n900-cmt-gpio.sh ${D}${sysconfdir}/init.d
-                ln -sf ../init.d/nokia-n900-cmt-gpio.sh ${D}${sysconfdir}/rcS.d/S40nokia-n900-cmt-gpio.sh
-        fi
+do_install_append_nokia900() {
+    install -m 0755 ${WORKDIR}/nokia-n900-cmt-gpio.sh ${D}${sysconfdir}/init.d
+    ln -sf ../init.d/nokia-n900-cmt-gpio.sh ${D}${sysconfdir}/rcS.d/S40nokia-n900-cmt-gpio.sh
 }
 
 SRC_URI_append_nokia900 = " file://nokia-n900-cmt-gpio.sh"

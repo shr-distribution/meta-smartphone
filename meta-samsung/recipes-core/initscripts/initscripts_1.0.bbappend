@@ -1,4 +1,5 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS_prepend_crespo := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS_prepend_tuna := "${THISDIR}/${PN}:"
 
 # NOTE: As we're using android usb composite driver we need to enable rndis support manually on startup.
 install_common() {
