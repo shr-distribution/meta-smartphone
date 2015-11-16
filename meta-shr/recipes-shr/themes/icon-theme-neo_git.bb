@@ -11,6 +11,8 @@ SRCREV = "4e6035ef5452b2f0a128dff91ddeb8335a3aafec"
 PV = "0.3+gitr${SRCPV}"
 PR = "r4"
 
+inherit allarch
+
 SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http;branch=master"
 
 S = "${WORKDIR}/git/icons/icon-theme-neo"
