@@ -12,7 +12,7 @@ setup_devtmpfs() {
     test -c $1/dev/stderr || ln -sf fd/2 $1/dev/stderr
 }
 
-echo "Mounting relevant filesystems ..."
+echo "Mounting pseudo-filesystems"
 mkdir -m 0755 /proc
 mount -t proc proc /proc
 mkdir -m 0755 /sys
@@ -26,9 +26,9 @@ info() {
 }
 
 fail() {
-    echo "Failed" > /dev/ttyprintk
+    echo "$distro_name initramfs failed:" > /dev/ttyprintk
     echo "$1" > /dev/ttyprintk
-    echo "Waiting for 15 seconds before rebooting ..." > /dev/ttyprintk
+    echo "Waiting for 15 seconds before rebooting" > /dev/ttyprintk
     sleep 15s
     reboot
 }
@@ -41,29 +41,28 @@ if [ $? -ne 1 ] ; then
 fi
 
 
-mkdir -m 0755 /rfs
-
-while [ ! -e /sys/block/mmcblk0 ] ; do
-    info "Waiting for sdcard/nand ..."
+sdcard_device=$( echo "$sdcard_partition" | sed -e 's/p[[:digit:]]\+$//' )
+while [ ! -e /sys/block/$sdcard_device ] ; do
+    info "Waiting for SD card/NAND"
     sleep 1
 done
 
 # Try unpartitioned card
-if [ ! -e /sys/block/mmcblk0/$sdcard_partition ] ; then
-    sdcard_partition=mmcblk0
+if [ ! -e /sys/block/$sdcard_device/$sdcard_partition ] ; then
+    sdcard_partition=$sdcard_device
 fi
 
-info "Mounting sdcard/nand ..."
-mkdir -m 0777 /sdcard
-mount -t auto -o rw,noatime,nodiratime /dev/$sdcard_partition /sdcard
-[ $? -eq 0 ] || fail "Failed to mount the sdcard/nan. Cannot continue."
+SDCARD_DIR="/sdcard"
+info "Mounting SD card/NAND /dev/$sdcard_partition"
+mkdir -m 0777 $SDCARD_DIR
+mount -t auto -o rw,noatime,nodiratime /dev/$sdcard_partition $SDCARD_DIR
+[ $? -eq 0 ] || fail "Failed to mount SD card/NAND, cannot continue"
 
-ANDROID_SDCARD_DIR="/sdcard"
-ANDROID_MEDIA_DIR="/sdcard/media/"
 
+ANDROID_MEDIA_DIR="$SDCARD_DIR/media"
 # Workaround for multi-user functionality in Android 4.2
-if [ -d /sdcard/media/0 ] ; then
-    ANDROID_MEDIA_DIR="/sdcard/media/0"
+if [ -d $SDCARD_DIR/media/0 ] ; then
+    ANDROID_MEDIA_DIR="$SDCARD_DIR/media/0"
 fi
 
 if [ -e $ANDROID_MEDIA_DIR/linux/installer ] ; then
@@ -74,36 +73,43 @@ if [ -e $ANDROID_MEDIA_DIR/linux/installer ] ; then
     rm $ANDROID_MEDIA_DIR/linux/installer
 fi
 
-info "Checking for rootfs image on sdcard/nand ..."
-if [ -e $ANDROID_MEDIA_DIR/linux/rootfs.ext2 ] ; then
-    info "Rootfs image found at $ANDROID_MEDIA_DIR/linux/rootfs.ext2; mounting it now ..."
-    losetup /dev/loop2 $ANDROID_MEDIA_DIR/linux/rootfs.ext2
-    [ $? -eq 0 ] || fail "Failed to find rootfs.img on SD Card!"
+
+if [ -z "$rootfs_type" ] ; then
+    rootfs_type=ext2
+fi
+mkdir -m 0755 /rfs
+info "Checking for root filesystem image on SD card/NAND"
+if [ -e $ANDROID_MEDIA_DIR/linux/rootfs.$rootfs_type ] ; then
+    info "Mounting root filesystem image $ANDROID_MEDIA_DIR/linux/rootfs.$rootfs_type"
+    losetup /dev/loop2 $ANDROID_MEDIA_DIR/linux/rootfs.$rootfs_type
+    [ $? -eq 0 ] || fail "Failed to create loop device for root filesystem image!"
     e2fsck -y /dev/loop2
-    mount -t ext2 -o noatime,nodiratime,sync,rw /dev/loop2 /rfs
-    [ $? -eq 0 ] || fail "Failed to mount /rootfs"
+    mount -t $rootfs_type -o noatime,nodiratime,sync,rw /dev/loop2 /rfs
+    [ $? -eq 0 ] || fail "Failed to mount root filesystem image!"
 elif [ -d $ANDROID_MEDIA_DIR/linux/rootfs ] ; then
-    info "Rootfs folder found at $ANDROID_MEDIA_DIR/linux/rootfs; chrooting into ..."
+    info "Chrooting into root filesystem folder $ANDROID_MEDIA_DIR/linux/rootfs"
     mount -o bind,rw $ANDROID_MEDIA_DIR/linux/rootfs /rfs
-    [ $? -eq 0 ] || fail "Failed to mount /rootfs"
-elif [ -d $ANDROID_SDCARD_DIR/$distro_name ] ; then
-    info "Rootfs folder found at $ANDROID_SDCARD_DIR/$distro_name; chrooting into ..."
-    mount -o bind,rw $ANDROID_SDCARD_DIR/$distro_name /rfs
-    [ $? -eq 0 ] || fail "Failed to mount /rootfs"
+    [ $? -eq 0 ] || fail "Failed to bind mount $ANDROID_MEDIA_DIR/linux/rootfs"
+elif [ -d $SDCARD_DIR/$distro_name ] ; then
+    info "Chrooting into root filesystem folder $SDCARD_DIR/$distro_name"
+    mount -o bind,rw $SDCARD_DIR/$distro_name /rfs
+    [ $? -eq 0 ] || fail "Failed to bind mount $SDCARD_DIR/$distro_name"
 else
+    info "No root filesystem found on SD card/NAND; using /dev/$system_partition"
+
     # We don't have anything to boot from sdcard. Cleanup and boot
     # from system partition.
-    umount /sdcard
+    umount $SDCARD_DIR
 
     mount -t auto -o rw,noatime,nodiratime /dev/$system_partition /rfs
-    [ $? -eq 0 ] || fail "Failed to mount /rootfs"
+    [ $? -eq 0 ] || fail "Failed to mount system partition /dev/$system_partition"
 fi
 
 setup_devtmpfs "/rfs"
 
-info "Umount not needed filesystems ..."
+info "Umounting unneeded filesystems"
 umount -l /proc
 umount -l /sys
 
-info "Switching to rootfs..."
+info "Switching to root filesystem"
 exec switch_root /rfs /sbin/init
