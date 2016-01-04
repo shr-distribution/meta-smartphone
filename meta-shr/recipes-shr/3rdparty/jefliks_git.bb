@@ -8,6 +8,8 @@ HOMEPAGE = "http://jefliks.sourceforge.net/"
 AUTHOR = "Phoenix Kayo <kayo.k11.4@gmail.com>"
 PV = "0.0.3+gitr${SRCPV}"
 
+PNBLACKLIST[jefliks] ?= "depends on blacklisted iksemel"
+
 inherit autotools-brokensep pkgconfig
 
 SRCREV = "0125d93bbe9b2e527ed8dcd97332ddafb6ab360c"
