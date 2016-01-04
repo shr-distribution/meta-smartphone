@@ -31,9 +31,6 @@ PACKAGES = "\
 "
 
 RDEPENDS_${PN}-gtk = "\
-  pidgin \
-  libpurple-protocol-msn \
-  libpurple-protocol-icq \
   vagalume \
 "
 
