@@ -179,9 +179,7 @@ RDEPENDS_${PN} += "\
         ${BROWSER} \
         vagalume \
         bootchart \
-        anki \
         grep \
-        monav \
         chroneo \
         rfkill \
         estardict \
@@ -307,13 +305,11 @@ RDEPENDS_${PN} += "\
         bison \
         automake \
         linux-firmware \
-        evopedia \
         joe \
         aceofpenguins \
         openmoocow \
         mokomaze \
         mokoeightball \
-        confclerk \
 "
 
 # armv4 is not goog enough for firefox ASM optimalizations
