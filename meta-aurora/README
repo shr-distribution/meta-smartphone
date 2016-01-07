@@ -21,6 +21,8 @@ layers: meta-shr
 branch: shr
 revision: HEAD
 
+URI: http://git.yoctoproject.org/cgit/cgit.cgi/meta-qt4/
+
 If you want to contribute changes, please follow
 http://www.shr-project.org/trac/wiki/Howto%20get%20my%20application%20in%20the%20SHR%20feed
 and send patches or pull requests to shr-devel@lists.shr-project.org with prefix [meta-aurora].
