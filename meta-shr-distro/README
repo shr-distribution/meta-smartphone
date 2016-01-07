@@ -12,7 +12,7 @@ branch: shr
 revision: HEAD
 
 URI: git://github.com/shr-distribution/meta-smartphone.git
-layers: meta-shr, meta-fso, meta-aurora
+layers: meta-shr, meta-fso
 branch: shr
 revision: HEAD
 
