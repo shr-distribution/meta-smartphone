@@ -41,6 +41,8 @@ IMAGE_INSTALL += "\
   packagegroup-shr-minimal-x \
 "
 
+# Make graphical.target the default instead of multi-user.target
+SYSTEMD_DEFAULT_TARGET = "graphical.target"
 
 shr_rootfs_gta02_postprocess() {
     curdir=$PWD
