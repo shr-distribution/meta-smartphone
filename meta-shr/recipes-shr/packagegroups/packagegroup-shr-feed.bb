@@ -179,16 +179,10 @@ RDEPENDS_${PN} += "\
         ${BROWSER} \
         vagalume \
         bootchart \
-        anki \
         grep \
-        monav \
         chroneo \
         rfkill \
         estardict \
-        claws-mail \
-        claws-plugin-gtkhtml2-viewer \
-        claws-plugin-mailmbox \
-        claws-plugin-rssyl \
         orrery \
         gpm \
         links-x11 \
@@ -227,10 +221,6 @@ RDEPENDS_${PN} += "\
         tar \
         oh-puzzles \
         e-wm-illume-dict-pl \
-        pidgin \
-        pidgin-otr \
-        libpurple-protocol-msn \
-        libpurple-protocol-icq \
         udev \
         ppp \
         kexec \
@@ -315,14 +305,11 @@ RDEPENDS_${PN} += "\
         bison \
         automake \
         linux-firmware \
-        jefliks \
-        evopedia \
         joe \
         aceofpenguins \
         openmoocow \
         mokomaze \
         mokoeightball \
-        confclerk \
 "
 
 # armv4 is not goog enough for firefox ASM optimalizations

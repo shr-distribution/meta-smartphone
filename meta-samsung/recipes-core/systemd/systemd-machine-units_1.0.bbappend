@@ -1,17 +1,22 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
+RNDISSETUP_URI = "${@base_contains('DISTRO_FEATURES', 'adb', '', \
+                                   'file://rndissetup.sh file://rndissetup.service', d)}"
+
 SRC_URI_append_crespo = " \
-  ${@base_contains('DISTRO_FEATURES', 'adb', '', 'file://rndissetup.sh', d)} \
-  ${@base_contains('DISTRO_FEATURES', 'adb', '', 'file://rndissetup.service', d)} \
+  ${RNDISSETUP_URI} \
   file://disablefbcon.sh \
   file://disablefbcon.service \
   file://logind.conf \
 "
 
 SRC_URI_append_tuna = " \
-  ${@base_contains('DISTRO_FEATURES', 'adb', '', 'file://rndissetup.sh', d)} \
-  ${@base_contains('DISTRO_FEATURES', 'adb', '', 'file://rndissetup.service', d)} \
+  ${RNDISSETUP_URI} \
   file://pvrinit.service \
+"
+
+SRC_URI_append_i9300 = " \
+  ${RNDISSETUP_URI} \
 "
 
 install_common() {
@@ -36,5 +41,13 @@ do_install_append_crespo() {
     install -m 0655 ${WORKDIR}/logind.conf ${D}${sysconfdir}/systemd/
 }
 
-SYSTEMD_SERVICE_${PN}_crespo = "rndissetup.service disablefbcon.service"
-SYSTEMD_SERVICE_${PN}_tuna = "${@base_contains('DISTRO_FEATURES', 'adb', '', 'rndissetup.service', d)} pvrinit.service"
+do_install_append_i9300() {
+    install_common
+}
+
+
+RNDISSETUP_SERVICE = "${@base_contains('DISTRO_FEATURES', 'adb', '', 'rndissetup.service', d)}"
+
+SYSTEMD_SERVICE_${PN}_crespo = "${RNDISSETUP_SERVICE} disablefbcon.service"
+SYSTEMD_SERVICE_${PN}_tuna   = "${RNDISSETUP_SERVICE} pvrinit.service"
+SYSTEMD_SERVICE_${PN}_i9300  = "${RNDISSETUP_SERVICE}"
