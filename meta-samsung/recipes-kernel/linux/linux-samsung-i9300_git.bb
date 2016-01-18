@@ -12,6 +12,8 @@ inherit kernel_android
 
 SRC_URI = " \
   git://github.com/CyanogenMod/android_kernel_samsung_smdk4412.git;protocol=git;branch=cm-13.0 \
+  file://battery-quiet.patch \
+  file://watchdog-quiet.patch \
 "
 
 S = "${WORKDIR}/git"
