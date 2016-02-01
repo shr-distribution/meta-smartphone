@@ -26,7 +26,8 @@ SRC_URI = "http://downloads.freesmartphone.org/sources/cornucopia/${SHRT_VER}/${
 
 S = "${WORKDIR}/${PN}-${SRC_VER}"
 
-inherit autotools pkgconfig vala
+# inherit from autotools-brokensep to work around Automake bug #13002
+inherit autotools pkgconfig vala autotools-brokensep
 
 FILES_${PN} += "\
   ${sysconfdir} \

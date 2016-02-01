@@ -14,4 +14,4 @@ SRC_URI = "git://git.bitwiz.org.uk/openmoocow.git;protocol=git;branch=master"
 
 S = "${WORKDIR}/git"
 
-inherit autotools
+inherit autotools pkgconfig

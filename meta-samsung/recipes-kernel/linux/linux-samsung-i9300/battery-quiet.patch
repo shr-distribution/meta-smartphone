@@ -1,0 +1,151 @@
+Quieten kernel output from battery events.  When connected over USB,
+the kernel log becomes saturated with excessive output so we remove
+lots of print statements to make it more manageable.
+
+Bob Ham <bob.ham@collabora.com>
+Index: git/drivers/battery/max77693_charger.c
+===================================================================
+--- git.orig/drivers/battery/max77693_charger.c
++++ git/drivers/battery/max77693_charger.c
+@@ -1544,7 +1544,6 @@ static irqreturn_t max77693_charger_irq(
+ 	u8 dtls_00, thm_dtls, chgin_dtls;
+ 	u8 dtls_01, chg_dtls, bat_dtls;
+ 	u8 mu_st2, vbvolt;
+-	pr_info("%s: irq(%d)\n", __func__, irq);
+ 
+ 	mutex_lock(&chg_data->irq_lock);
+ 
+@@ -1594,10 +1593,6 @@ static irqreturn_t max77693_charger_irq(
+ 				MAX77693_MUIC_REG_STATUS2, &mu_st2);
+ 	vbvolt = ((mu_st2 & MAX77693_VBVOLT) >>
+ 				MAX77693_VBVOLT_SHIFT);
+-	pr_info("%s: INT_OK(0x%x), THM(0x%x), CHGIN(0x%x), CHG(0x%x), BAT(0x%x), "
+-						"ST2(0x%x)\n", __func__,
+-						int_ok, thm_dtls, chgin_dtls,
+-						chg_dtls, bat_dtls, mu_st2);
+ 
+ #if defined(USE_CHGIN_INTR)
+ 	if (((chgin_dtls == 0x0) || (chgin_dtls == 0x1)) &&
+Index: git/drivers/mfd/max77693-irq.c
+===================================================================
+--- git.orig/drivers/mfd/max77693-irq.c
++++ git/drivers/mfd/max77693-irq.c
+@@ -183,13 +183,11 @@ clear_retry:
+ 				ret);
+ 		return IRQ_NONE;
+ 	}
+-	pr_info("%s: interrupt source(0x%02x)\n", __func__, irq_src);
+ 
+ 	if (irq_src & MAX77693_IRQSRC_CHG) {
+ 		/* CHG_INT */
+ 		ret = max77693_read_reg(max77693->i2c, MAX77693_CHG_REG_CHG_INT,
+ 				&irq_reg[CHG_INT]);
+-		pr_info("%s: charger interrupt(0x%02x)\n", __func__, irq_reg[CHG_INT]);
+ 	}
+ 
+ 	if (irq_src & MAX77693_IRQSRC_TOP) {
+Index: git/drivers/battery/max17047_fuelgauge.c
+===================================================================
+--- git.orig/drivers/battery/max17047_fuelgauge.c
++++ git/drivers/battery/max17047_fuelgauge.c
+@@ -290,7 +290,6 @@ static int max17047_get_soc(struct i2c_c
+ 	soc = fg_data->soc =
+ 		((rawsoc < empty) ? 0 : (min((rawsoc * 100 / fullsoc), 100)));
+ 
+-	pr_info("%s: SOC(%d, %d / %d)\n", __func__, soc, rawsoc, fullsoc);
+ 	return soc;
+ }
+ 
+@@ -641,7 +640,6 @@ static int max17047_set_property(struct
+ 	case POWER_SUPPLY_PROP_STATUS:
+ 		if (val->intval != POWER_SUPPLY_STATUS_FULL)
+ 			return -EINVAL;
+-		pr_info("%s: charger full state!\n", __func__);
+ 		/* adjust full soc */
+ 		max17047_adjust_fullsoc(fg_data->client);
+ 		break;
+Index: git/drivers/battery/samsung_battery.c
+===================================================================
+--- git.orig/drivers/battery/samsung_battery.c
++++ git/drivers/battery/samsung_battery.c
+@@ -710,9 +710,6 @@ static void battery_monitor_interval(str
+ 
+ 	/* apply monitor interval weight */
+ 	if (info->monitor_weight != 100) {
+-		pr_info("%s: apply weight(%d), %d -> %d\n", __func__,
+-			info->monitor_weight, info->monitor_interval,
+-			(info->monitor_interval * info->monitor_weight / 100));
+ 		info->monitor_interval *= info->monitor_weight;
+ 		info->monitor_interval /= 100;
+ 	}
+@@ -1376,7 +1373,6 @@ static void battery_interval_calulation(
+ 
+ 	/* 5 times after boot, apply no interval (1 sec) */
+ 	 if (info->monitor_count < 5) {
+-		pr_info("%s: now in booting, set 1s\n", __func__);
+ 		info->monitor_mode = MONITOR_EMER_LV1; /* dummy value */
+ 		return;
+ 	 }
+@@ -1406,8 +1402,6 @@ static void battery_interval_calulation(
+ 			ABS(info->battery_v_diff), info->monitor_weight);
+ 	} else if ((ABS(info->battery_v_diff)) < 50000) {
+ 		info->monitor_weight += 20;
+-		pr_info("%s: v diff(%d), weight(%d)\n", __func__,
+-			ABS(info->battery_v_diff), info->monitor_weight);
+ 	}
+ 
+ 	/*
+@@ -1459,9 +1453,6 @@ static void battery_interval_calulation(
+ 
+ 	/* prevent too low or too high weight, 10 ~ 150% */
+ 	info->monitor_weight = MIN(MAX(info->monitor_weight, 10), 150);
+-
+-	if (info->monitor_weight != 100)
+-		pr_info("%s: weight(%d)\n", __func__, info->monitor_weight);
+ }
+ 
+ static void battery_monitor_work(struct work_struct *work)
+@@ -1690,43 +1681,6 @@ monitor_finish:
+ 
+ 	power_supply_changed(&info->psy_bat);
+ 
+-	pr_info("[%d] bat: s(%d, %d), v(%d, %d), "
+-		"t(%d.%d), "
+-		"cs(%d, %d), cb(%d), cr(%d, %d)",
+-		++info->monitor_count,
+-		info->battery_soc,
+-		info->battery_r_s_delta,
+-		info->battery_vcell / 1000,
+-		info->battery_v_diff / 1000,
+-		info->battery_temper / 10, info->battery_temper % 10,
+-		info->charge_real_state,
+-		info->charge_virt_state,
+-		info->cable_type,
+-		info->charge_current,
+-		info->input_current);
+-
+-	if (info->battery_present == 0)
+-		pr_cont(", b(%d)", info->battery_present);
+-	if (info->battery_health != POWER_SUPPLY_HEALTH_GOOD)
+-		pr_cont(", h(%d)", info->battery_health);
+-	if (info->abstimer_state == 1)
+-		pr_cont(", a(%d)", info->abstimer_state);
+-	if (info->abstimer_active)
+-		pr_cont(", aa(%d)", info->abstimer_active);
+-	if (info->full_charged_state != STATUS_NOT_FULL)
+-		pr_cont(", f(%d)", info->full_charged_state);
+-	if (info->recharge_phase == 1)
+-		pr_cont(", r(%d)", info->recharge_phase);
+-	if (info->charge_start_time != 0)
+-		pr_cont(", t(%d)", ((int)info->current_time.tv_sec -
+-						info->charge_start_time));
+-	if (info->event_state != EVENT_STATE_CLEAR)
+-		pr_cont(", e(%d, 0x%04x)", info->event_state, info->event_type);
+-	if (info->siop_state)
+-		pr_cont(", op(%d, %d)", info->siop_state, info->siop_lv);
+-
+-	pr_cont("\n");
+-
+ 	/* check current_avg */
+ 	if (info->charge_current_avg < 0)
+ 		pr_info("%s: charging but discharging, power off\n", __func__);
