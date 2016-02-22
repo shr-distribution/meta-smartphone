@@ -29,6 +29,8 @@ inherit update-rc.d
 INITSCRIPT_NAME = "atd"
 INITSCRIPT_PARAMS = "defaults 97"
 
+EXTRA_OEMAKE = "-e MAKEFLAGS="
+
 do_compile() {
     export CFLAGS="$CFLAGS `${STAGING_BINDIR_NATIVE}/pkg-config --cflags dbus-glib-1`"
     export LDFLAGS="$LDFLAGS `${STAGING_BINDIR_NATIVE}/pkg-config --libs dbus-glib-1`"
