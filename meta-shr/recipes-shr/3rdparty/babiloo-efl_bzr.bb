@@ -17,10 +17,10 @@ S = "${WORKDIR}/efl"
 
 do_install() {
     install -d "${D}${datadir}/babiloo"
-    cp -a "${S}/core" "${D}${datadir}/babiloo/"
-    cp -a "${S}/efl" "${D}${datadir}/babiloo/"
-    cp -a "${S}/images" "${D}${datadir}/babiloo/"
-    cp -a "${S}/dicts" "${D}${datadir}/babiloo/"
+    cp -R --no-dereference --preserve=mode,links -v "${S}/core" "${D}${datadir}/babiloo/"
+    cp -R --no-dereference --preserve=mode,links -v "${S}/efl" "${D}${datadir}/babiloo/"
+    cp -R --no-dereference --preserve=mode,links -v "${S}/images" "${D}${datadir}/babiloo/"
+    cp -R --no-dereference --preserve=mode,links -v "${S}/dicts" "${D}${datadir}/babiloo/"
     install -m 0755 "${S}/run.py" "${D}${datadir}/babiloo/"
     install -d "${D}${bindir}"
     ln -s "${datadir}/babiloo/run.py" "${D}${bindir}/babiloo"
@@ -30,7 +30,7 @@ do_install() {
     install -m 0644 "${S}/babiloo.desktop" "${D}${datadir}/applications"
 
     install -d "${D}${datadir}"
-    cp -a "${S}/locale" "${D}${datadir}/"
+    cp -R --no-dereference --preserve=mode,links -v "${S}/locale" "${D}${datadir}/"
     find ${D}${datadir}/locale -name *.po -exec rm {} \;
     rm -f ${D}${datadir}/locale/babiloo.pot
 

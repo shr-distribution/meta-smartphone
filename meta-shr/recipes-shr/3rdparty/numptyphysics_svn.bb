@@ -30,8 +30,8 @@ S = "${WORKDIR}/trunk"
 EXTRA_S = "${WORKDIR}/local/packages/numptyphysics"
 
 do_configure_append() {
-  cp -a ../next.png data
-  cp -a ../keyb.png data
+  cp -R --no-dereference --preserve=mode,links -v ../next.png data
+  cp -R --no-dereference --preserve=mode,links -v ../keyb.png data
 }
 
 do_install_append() {
@@ -40,7 +40,7 @@ do_install_append() {
         install -d ${D}${datadir}/applications
         install -m 0644 ${EXTRA_S}/star.png ${D}${datadir}/pixmaps
         install -m 0644 ../numptyphysics.desktop ${D}/${datadir}/applications
-        cp -a ${EXTRA_S}/data/* data/keyb.png ${D}/${datadir}/numptyphysics/
+        cp -R --no-dereference --preserve=mode,links -v ${EXTRA_S}/data/* data/keyb.png ${D}/${datadir}/numptyphysics/
 }
 
 FILES_${PN} += "${datadir}"
