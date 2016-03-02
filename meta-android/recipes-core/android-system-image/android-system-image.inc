@@ -1,5 +1,5 @@
 DESCRIPTION = "Tiny Android system to leverage android hardware drivers through libhybris"
-LICENSE = "Apache-2.0 & Properietary"
+LICENSE = "Apache-2.0 & Proprietary"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
 # don't run package_do_shlibs on our packages as this will add a RDEPENDS from ${PN} to
