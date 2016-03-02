@@ -5,3 +5,5 @@ SRCREV = "890bef235d53ab09e140f02dcc27d1993df6e9df"
 
 SRC_URI = "git://github.com/webOS-ports/phablet-headers.git;branch=cm-11.0;protocol=git"
 S = "${WORKDIR}/git"
+
+COMPATIBLE_MACHINE = "^tenderloin$"

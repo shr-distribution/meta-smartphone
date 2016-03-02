@@ -5,3 +5,5 @@ SRCREV = "59648ed5520a2274ce2549b249416a0dad50583c"
 
 SRC_URI = "git://github.com/webOS-ports/phablet-headers.git;branch=master;protocol=git"
 S = "${WORKDIR}/git"
+
+COMPATIBLE_MACHINE = "^grouper$"
