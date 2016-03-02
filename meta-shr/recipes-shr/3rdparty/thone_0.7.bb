@@ -16,6 +16,6 @@ S = "${WORKDIR}/usr"
 
 do_install() {
   install -d ${D}/usr
-  cp -Ra ${S}/bin ${D}/usr
-  cp -Ra ${S}/share ${D}/usr
+  cp -R --no-dereference --preserve=mode,links -v ${S}/bin ${D}/usr
+  cp -R --no-dereference --preserve=mode,links -v ${S}/share ${D}/usr
 }

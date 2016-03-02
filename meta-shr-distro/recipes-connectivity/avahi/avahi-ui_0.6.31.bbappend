@@ -1,1 +1,0 @@
-RDEPENDS_avahi-daemon = ""

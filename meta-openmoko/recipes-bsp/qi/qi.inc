@@ -71,7 +71,7 @@ do_deploy () {
         ln -sf ${IMG} ${IMG_LINK}
     done
     install -d ${DEPLOY_DIR_IMAGE}
-    cp -fa qi-*.udfu ${DEPLOY_DIR_IMAGE}
+    cp -R --no-dereference --preserve=mode,links -v qi-*.udfu ${DEPLOY_DIR_IMAGE}
 }
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"

@@ -35,7 +35,7 @@ pkg_postinst_${PN} () {
                 for pixmap in `find ${pixmap_dir}`; do
                           pixmap_target=`echo ${pixmap} | sed "s/${pixmap_dir}/pixmaps.${PN}/g"`;
                           if [ ! -e ${pixmap_target} ] ; then
-                                      cp -Ra ${pixmap} ${pixmap_target};
+                                      cp -R --no-dereference --preserve=mode,links -v ${pixmap} ${pixmap_target};
                                       echo "${pixmap} merged";
                           fi;
                 done
