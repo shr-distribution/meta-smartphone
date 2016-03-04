@@ -34,10 +34,11 @@ RDEPENDS_${PN}-gtk = "\
   vagalume \
 "
 
-BROWSER = "elbow"
+BROWSER = ""
 # webkit-efl is currently broken
-BROWSER_armv4 = ""
-BROWSER_armv5 = ""
+#BROWSER = "elbow"
+#BROWSER_armv4 = ""
+#BROWSER_armv5 = ""
 
 # intone depends on blacklisted mplayer2
 

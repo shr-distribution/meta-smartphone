@@ -153,10 +153,11 @@ MISSING = "\
         omnewrotate \
 "
 
-BROWSER = "elbow"
+BROWSER = ""
 # webkit-efl is currently broken
-BROWSER_armv4 = ""
-BROWSER_armv5 = ""
+#BROWSER = "elbow"
+#BROWSER_armv4 = ""
+#BROWSER_armv5 = ""
 
 BROKEN_BY_VALA_UPGRADE = "\
     iliwi \
