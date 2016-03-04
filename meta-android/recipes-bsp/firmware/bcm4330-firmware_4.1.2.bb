@@ -1,5 +1,5 @@
-DESCRIPTION = "Properitary firmware binaries needed for the BCM4330 wifi/bt chip"
-LICENSE = "Properitary"
+DESCRIPTION = "Proprietary firmware binaries needed for the BCM4330 wifi/bt chip"
+LICENSE = "Proprietary"
 LIC_FILES_CHKSUM = "file://${WORKDIR}/${HARDWARE_BROADCOM_NAME}/bcmdhd/firmware/LICENSE.TXT;md5=bafc4300ca5bbd85b704c45969d15e03"
 PR = "r2"
 

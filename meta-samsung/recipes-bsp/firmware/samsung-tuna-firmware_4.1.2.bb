@@ -1,5 +1,5 @@
-DESCRIPTION = "Properitary firmware binaries needed for the Samsung Galaxy Nexus smartphone"
-LICENSE = "Properitary"
+DESCRIPTION = "Proprietary firmware binaries needed for the Samsung Galaxy Nexus smartphone"
+LICENSE = "Proprietary"
 
 ANDROID_VERSION = "android-4.1.2_r1"
 
