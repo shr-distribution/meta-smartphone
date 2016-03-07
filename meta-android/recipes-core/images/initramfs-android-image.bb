@@ -7,6 +7,7 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384
 IMAGE_INSTALL = "busybox base-passwd initramfs-boot-android android-tools bash"
 IMAGE_FEATURES = ""
 IMAGE_ROOTFS_SIZE = "8192"
+INITRAMFS_MAXSIZE="300000"
 export IMAGE_BASENAME = "initramfs-android-image"
 IMAGE_LINGUAS = ""
 
