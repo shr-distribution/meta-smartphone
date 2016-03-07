@@ -34,7 +34,7 @@ SRC_URI[md5sum] = "b3ae78e6d007889175b87ef58dd25dc8"
 SRC_URI[sha256sum] = "08a8917e8ef8a445f8f898a3cadce215851a0f0002366e6fdfbe309d64975a47"
 
 INITRAMFS_IMAGE ?= "initramfs-android-image"
-do_compile[depends] += "${INITRAMFS_IMAGE}:do_rootfs"
+do_compile[depends] += "${INITRAMFS_IMAGE}:do_image_complete"
 
 KERNEL_IMAGEDEST = "boot"
 KERNEL_MODULEDEST = "/lib/modules"
