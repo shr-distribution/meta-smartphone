@@ -18,7 +18,7 @@ S = "${WORKDIR}/git"
 
 SRCREV = "db81eaaed9b8c1c7e4e1998837d10282bb59b5b6"
 
-inherit autotools update-rc.d systemd
+inherit autotools update-rc.d systemd pkgconfig
 
 INITSCRIPT_NAME = "samsung-rfs-mgr"
 INITSCRIPT_PARAMS = "defaults 20"
