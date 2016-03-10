@@ -16,7 +16,7 @@ inherit autotools native
 
 do_deploy() {
     install -d ${DEPLOY_DIR_IMAGE}
-    install -m 0755 ${S}/src/pty_forward ${DEPLOY_DIR_IMAGE}/pty-forward
+    install -m 0755 ${B}/src/pty_forward ${DEPLOY_DIR_IMAGE}/pty-forward
 }
 
 addtask deploy before do_package after do_install
