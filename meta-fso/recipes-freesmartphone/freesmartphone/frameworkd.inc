@@ -61,7 +61,6 @@ RDEPENDS_${PN} += "\
 
 RRECOMMENDS_${PN} += "\
   alsa-utils-amixer \
-  python-gst \
   python-phoneutils \
   python-vobject \
   ppp \
