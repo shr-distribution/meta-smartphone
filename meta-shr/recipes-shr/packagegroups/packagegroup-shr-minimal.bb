@@ -71,7 +71,6 @@ RDEPENDS_${PN}-fso = "\
   fsoraw \
   opimd-utils-cli \
   python-codecs \
-  python-gst \
 "
 
 RDEPENDS_${PN}-audio = "\

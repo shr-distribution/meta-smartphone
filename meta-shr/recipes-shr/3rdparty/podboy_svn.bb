@@ -25,7 +25,7 @@ inherit distutils
 
 FILES_${PN} += "${datadir}/podboy ${datadir}/applications/podboy.desktop ${datadir}/pixmaps/podboy.png"
 
-RDEPENDS_${PN} += "python-compression python-elementary python-gst python-html python-netclient python-netserver python-sqlite3 python-subprocess gst-plugins-base-alsa gst-plugins-base-audioconvert gst-plugins-base-audioresample gst-plugin-bluetooth ${@base_conditional('ENTERPRISE_DISTRO', '1', '', 'gst-plugins-ugly-mad', d)} gst-plugins-base-ogg gst-plugins-base-volume gst-plugins-base-vorbis"
+RDEPENDS_${PN} += "python-compression python-elementary python-html python-netclient python-netserver python-sqlite3 python-subprocess gst-plugins-base-alsa gst-plugins-base-audioconvert gst-plugins-base-audioresample gst-plugin-bluetooth ${@base_conditional('ENTERPRISE_DISTRO', '1', '', 'gst-plugins-ugly-mad', d)} gst-plugins-base-ogg gst-plugins-base-volume gst-plugins-base-vorbis"
 
 do_compile_prepend() {
     ${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/data ${S}/data/podboy.edc
