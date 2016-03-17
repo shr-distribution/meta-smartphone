@@ -10,8 +10,9 @@ RDEPENDS_${PN} = "python-vobject python-core python-pygtk python-pygobject pytho
            python-dateutil python-sqlite3 python-netserver python-netclient\
            python-misc python-ctypes libsyncml"
 
-# Rdepends on libsyncml
-PNBLACKLIST[pisi] ?= "${@bb.utils.contains('DISTRO_FEATURES', 'bluez5', 'bluez5 conflicts with bluez4 and bluez5 is selected in DISTRO_FEATURES', '', d)}"
+# Rdepends on libsyncml and python-pygtk
+#PNBLACKLIST[pisi] ?= "${@bb.utils.contains('DISTRO_FEATURES', 'bluez5', 'bluez5 conflicts with bluez4 and bluez5 is selected in DISTRO_FEATURES', '', d)}"
+PNBLACKLIST[pisi] ?= "RDEPENDS on python-pygtk which was removed from oe-core"
 
 SRC_URI = "http://github.com/downloads/kichkasch/pisi/pisi-src-${PV}.tar.gz"
 SRC_URI[md5sum] = "c416b316668575f8506dc54e19475795"

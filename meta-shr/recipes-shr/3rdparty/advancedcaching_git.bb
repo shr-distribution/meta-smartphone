@@ -21,3 +21,5 @@ do_compile_append() {
 }
 
 FILES_${PN} += "${datadir}/applications/* ${datadir}/icons/* ${datadir}/agtl"
+
+PNBLACKLIST[advancedcaching] ?= "RDEPENDS on python-pygtk was removed from oe-core"
