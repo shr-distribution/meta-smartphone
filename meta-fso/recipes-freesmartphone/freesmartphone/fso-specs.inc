@@ -15,4 +15,5 @@ S = "${WORKDIR}/${SRCNAME}-${PV}"
 
 inherit autotools pkgconfig pythonnative
 
+RDEPENDS_${PN}-dev = ""
 FILES_${PN}-dev += "${datadir}/freesmartphone/xml"
