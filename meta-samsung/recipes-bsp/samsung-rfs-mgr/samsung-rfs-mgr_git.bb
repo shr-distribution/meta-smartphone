@@ -6,6 +6,9 @@ PV = "0.1.0+gitr${SRCPV}"
 PR = "r2"
 
 DEPENDS = "glib-2.0 libsamsung-ipc"
+# systemd is needed to install the service file
+# otherwise do_package fails to find samsung-rfs-mgr.service
+DEPENDS += "${@base_contains('DISTRO_FEATURES', 'systemd', 'systemd', '', d)}"
 
 # depends on libsamsung-ipc_git which has negative D_P
 # Requested 'samsung-ipc-1.0 >= 0.2' but version of libsamsung-ipc is 0.1.0
