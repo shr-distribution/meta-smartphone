@@ -283,7 +283,6 @@ RDEPENDS_${PN} += "\
         man-pages \
         om-neon \
         x11perf \
-        advancedcaching \
         imagemagick \
         speex \
         xf86-input-tslib \

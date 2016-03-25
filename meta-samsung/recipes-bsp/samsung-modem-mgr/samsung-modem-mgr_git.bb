@@ -18,7 +18,7 @@ S = "${WORKDIR}/git"
 
 SRCREV = "4cf06005d676855285c88774b4ce96ed22abac0d"
 
-inherit autotools update-rc.d systemd
+inherit autotools update-rc.d systemd pkgconfig
 
 INITSCRIPT_NAME = "samsung-modem-mgr"
 INITSCRIPT_PARAMS = "defaults 20"
