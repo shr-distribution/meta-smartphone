@@ -1,0 +1,24 @@
+From da48d7b841a116ae2e76e5d2853c4842f854cd6a Mon Sep 17 00:00:00 2001
+From: Christophe Chapuis <chris.chapuis@gmail.com>
+Date: Sat, 30 Apr 2016 18:53:20 +0200
+Subject: [PATCH] fd_fdinfo_mnt_id: disable fdinfo stat
+
+---
+ src/basic/mount-util.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/basic/mount-util.c b/src/basic/mount-util.c
+index 33f2ee9..1c7350d 100644
+--- a/src/basic/mount-util.c
++++ b/src/basic/mount-util.c
+@@ -55,6 +55,7 @@ static int fd_fdinfo_mnt_id(int fd, const char *filename, int flags, int *mnt_id
+         }
+ 
+         r = read_full_file(path, &fdinfo, NULL);
++        r = -ENOENT;
+         if (r == -ENOENT) /* The fdinfo directory is a relatively new addition */
+                 return -EOPNOTSUPP;
+         if (r < 0)
+-- 
+1.8.1.2
+
