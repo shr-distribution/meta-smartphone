@@ -1,6 +1,6 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-RNDISSETUP_URI = "${@base_contains('DISTRO_FEATURES', 'adb', '', \
+RNDISSETUP_URI = "${@bb.utils.contains('DISTRO_FEATURES', 'adb', '', \
                                    'file://rndissetup.sh file://rndissetup.service', d)}"
 
 SRC_URI_append_crespo = " \
@@ -46,7 +46,7 @@ do_install_append_i9300() {
 }
 
 
-RNDISSETUP_SERVICE = "${@base_contains('DISTRO_FEATURES', 'adb', '', 'rndissetup.service', d)}"
+RNDISSETUP_SERVICE = "${@bb.utils.contains('DISTRO_FEATURES', 'adb', '', 'rndissetup.service', d)}"
 
 SYSTEMD_SERVICE_${PN}_crespo = "${RNDISSETUP_SERVICE} disablefbcon.service"
 SYSTEMD_SERVICE_${PN}_tuna   = "${RNDISSETUP_SERVICE} pvrinit.service"

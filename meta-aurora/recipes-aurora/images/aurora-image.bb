@@ -23,7 +23,7 @@ RDEPENDS_${PN} += " \
   packagegroup-fso2-compliance \
 "
 
-TOUCH = ' ${@base_contains("MACHINE_FEATURES", "touchscreen", "tslib tslib-calibrate tslib-tests", "",d)}'
+TOUCH = ' ${@bb.utils.contains("MACHINE_FEATURES", "touchscreen", "tslib tslib-calibrate tslib-tests", "",d)}'
 
 # FIXME: We need to separate the things below into a task later
 IMAGE_INSTALL += " \
