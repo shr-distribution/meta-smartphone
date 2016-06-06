@@ -243,7 +243,6 @@ RDEPENDS_${PN} += "\
         x11vnc \
         dbus-x11 \
         git \
-        zhone \
         net-tools \
         iproute2 \
         iputils \

@@ -20,6 +20,8 @@ do_install_append() {
     install -m 0755 ${WORKDIR}/80zhone.sh ${D}${sysconfdir}/X11/Xsession.d/
 }
 
+PNBLACKLIST[zhone] ?= "rdepends on python-pycairo which was removed"
+
 FILES_${PN} += "${datadir} ${sysconfdir}"
 
 RDEPENDS_${PN} = "\
