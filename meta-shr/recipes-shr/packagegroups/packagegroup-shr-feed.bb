@@ -176,6 +176,7 @@ BROKEN_BY_VALA_UPGRADE = "\
 # gwaterpas is currently blacklisted
 # pisi, podboy, navit blacklisted because of bluez4 dependency
 # elmdentica is blacklisted because of packagekit dependency
+# fbreader is blacklisted because of gcc-6
 RDEPENDS_${PN} += "\
         ${BROWSER} \
         vagalume \
@@ -190,7 +191,6 @@ RDEPENDS_${PN} += "\
         gnuplot \
         php \
         mariadb \
-        fbreader \
         enjoy \
         babiloo-efl \
         gpe-scap \
@@ -313,7 +313,9 @@ RDEPENDS_${PN} += "\
 
 # armv4 is not goog enough for firefox ASM optimalizations
 EXTRA_MOZILLA_armv4 = ""
-EXTRA_MOZILLA = "firefox"
+# firefox fails to build with gcc-6
+# EXTRA_MOZILLA = "firefox"
+EXTRA_MOZILLA = ""
 
 RDEPENDS_${PN} += "${EXTRA_MOZILLA}"
 
