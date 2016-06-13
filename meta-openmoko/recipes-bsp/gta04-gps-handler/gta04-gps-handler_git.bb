@@ -6,7 +6,10 @@ SECTION = "base"
 LICENSE = "GPLv3"
 LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
 
-RDEPENDS_${PN} += "python-pygps python-pygobject python-core"
+RDEPENDS_${PN} += "python-pygps python-core"
+
+# python-pygobject is broken http://lists.openembedded.org/pipermail/openembedded-devel/2016-June/107798.html
+# RDEPENDS_${PN} += "python-pygobject"
 
 PR = "r3"
 PV = "0.0.0+gitr${SRCPV}"

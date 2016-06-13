@@ -46,7 +46,6 @@ RDEPENDS_${PN} += "\
   python-logging \
   python-pprint \
   python-pyalsaaudio \
-  python-pygobject \
   python-pyrtc \
   python-pyserial \
   python-pyyaml \
@@ -58,6 +57,9 @@ RDEPENDS_${PN} += "\
   python-multiprocessing \
   ${PN}-config \
 "
+
+# python-pygobject is broken http://lists.openembedded.org/pipermail/openembedded-devel/2016-June/107798.html
+# RDEPENDS_${PN} += "python-pygobject"
 
 RRECOMMENDS_${PN} += "\
   alsa-utils-amixer \
