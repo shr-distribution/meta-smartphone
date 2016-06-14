@@ -177,6 +177,7 @@ BROKEN_BY_VALA_UPGRADE = "\
 # pisi, podboy, navit blacklisted because of bluez4 dependency
 # elmdentica is blacklisted because of packagekit dependency
 # fbreader is blacklisted because of gcc-6
+# oh-puzzles replaced by puzzles
 RDEPENDS_${PN} += "\
         ${BROWSER} \
         vagalume \
@@ -220,7 +221,6 @@ RDEPENDS_${PN} += "\
         vim \
         gdb \
         tar \
-        oh-puzzles \
         e-wm-illume-dict-pl \
         udev \
         ppp \
