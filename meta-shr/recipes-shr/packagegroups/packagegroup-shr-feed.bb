@@ -235,7 +235,6 @@ RDEPENDS_${PN} += "\
         zip \
         minicom \
         picocom \
-        leafpad \
         aspell \
         enchant \
         nano \
