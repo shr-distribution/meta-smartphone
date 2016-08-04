@@ -6,6 +6,7 @@ Type=simple
 Restart=on-failure
 ExecStartPre=/usr/bin/android-gadget-setup adb
 ExecStart=/usr/bin/adbd
+ExecStopPost=/usr/bin/android-gadget-setup noadb
 StandardOutput=null
 
 [Install]
