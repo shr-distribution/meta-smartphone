@@ -1,5 +1,17 @@
 #!/bin/sh
 
+if [ "$1" != "adb" ] && [ "$1" != "noadb" ]; then
+    exit 0
+fi
+
+functions="mtp"
+if [ "$1" = "adb" ]; then
+    functions="$functions,adb"
+fi
+
+old_functions=`cat /sys/class/android_usb/android0/functions`
+[ "$old_functions" != "$functions" ] || { exit 0; }
+
 echo "HP" > /sys/class/android_usb/android0/f_rndis/manufacturer
 echo "18D1" > /sys/class/android_usb/android0/f_rndis/vendorID
 echo "1" > /sys/class/android_usb/android0/f_rndis/wceis
@@ -10,8 +22,8 @@ echo "01dfecf85125b0bb" > /sys/class/android_usb/android0/iSerial
 
 echo "0" > /sys/class/android_usb/android0/enable
 echo "18D1" > /sys/class/android_usb/android0/idVendor
-echo "d001" > /sys/class/android_usb/android0/idProduct
-echo "adb" > /sys/class/android_usb/android0/functions
+echo "4EE2" > /sys/class/android_usb/android0/idProduct
+echo "$functions" > /sys/class/android_usb/android0/functions
 echo "1" >  /sys/class/android_usb/android0/enable
 
 sleep 4
