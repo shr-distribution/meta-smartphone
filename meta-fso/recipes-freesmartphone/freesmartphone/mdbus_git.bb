@@ -16,8 +16,10 @@ do_install() {
 }
 
 RDEPENDS_${PN} = "\
-  python-dbus \
-  python-pygobject \
-  python-pprint \
-  python-xml \
+    python-dbus \
+    python-pprint \
+    python-xml \
 "
+
+# python-pygobject is broken http://lists.openembedded.org/pipermail/openembedded-devel/2016-June/107798.html
+# RDEPENDS_${PN} += "python-pygobject"

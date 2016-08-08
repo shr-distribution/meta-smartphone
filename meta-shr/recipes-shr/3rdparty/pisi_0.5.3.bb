@@ -5,10 +5,13 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=8f0e2cd40e05189ec81232da84bd6e1a"
 HOMEPAGE = "http://freshmeat.net/projects/pisiom"
 SRCNAME = "pisi"
 DEPENDS = "python-native"
-RDEPENDS_${PN} = "python-vobject python-core python-pygtk python-pygobject python-pycairo\
+RDEPENDS_${PN} = "python-vobject python-core python-pygtk python-pycairo\
            python-gdata python-webdav python-ldap python-epydoc python-core\
            python-dateutil python-sqlite3 python-netserver python-netclient\
            python-misc python-ctypes libsyncml"
+
+# python-pygobject is broken http://lists.openembedded.org/pipermail/openembedded-devel/2016-June/107798.html
+# RDEPENDS_${PN} += "python-pygobject"
 
 # Rdepends on libsyncml and python-pygtk
 #PNBLACKLIST[pisi] ?= "${@bb.utils.contains('DISTRO_FEATURES', 'bluez5', 'bluez5 conflicts with bluez4 and bluez5 is selected in DISTRO_FEATURES', '', d)}"
