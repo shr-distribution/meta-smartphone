@@ -174,6 +174,7 @@ BROKEN_BY_VALA_UPGRADE = "\
 # mcnavi is currently blacklisted
 # gwaterpas is currently blacklisted
 # aceofpenguins is currently blacklisted
+# samba is currently blacklisted
 # pisi, podboy, navit blacklisted because of bluez4 dependency
 # elmdentica is blacklisted because of packagekit dependency
 # fbreader is blacklisted because of gcc-6
@@ -298,7 +299,6 @@ RDEPENDS_${PN} += "\
         ca-certificates \
         setxkbmap \
         shr-theme-efenniht \
-        samba \
         bison \
         automake \
         linux-firmware \
