@@ -283,7 +283,6 @@ RDEPENDS_${PN} += "\
         x11perf \
         imagemagick \
         speex \
-        xf86-input-tslib \
         xf86-video-fbdev \
         babiloo-efl \
         make \
