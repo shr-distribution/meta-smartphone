@@ -96,7 +96,6 @@ MISSING = "\
         qwo \
         python-xlib \
         xcompmgr \
-        aceofpenguins-launcher \
         ipython \
         phoneme-advanced-foundation \
         python-pybluez \
@@ -174,6 +173,8 @@ BROKEN_BY_VALA_UPGRADE = "\
 # sylpheed is currently blacklisted
 # mcnavi is currently blacklisted
 # gwaterpas is currently blacklisted
+# aceofpenguins is currently blacklisted
+# samba is currently blacklisted
 # pisi, podboy, navit blacklisted because of bluez4 dependency
 # elmdentica is blacklisted because of packagekit dependency
 # fbreader is blacklisted because of gcc-6
@@ -283,7 +284,6 @@ RDEPENDS_${PN} += "\
         x11perf \
         imagemagick \
         speex \
-        xf86-input-tslib \
         xf86-video-fbdev \
         babiloo-efl \
         make \
@@ -299,12 +299,10 @@ RDEPENDS_${PN} += "\
         ca-certificates \
         setxkbmap \
         shr-theme-efenniht \
-        samba \
         bison \
         automake \
         linux-firmware \
         joe \
-        aceofpenguins \
         openmoocow \
         mokomaze \
         mokoeightball \

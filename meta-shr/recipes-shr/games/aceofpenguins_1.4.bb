@@ -18,3 +18,6 @@ SRC_URI[sha256sum] = "1fee3b0533921a42873c0623f33d873a067b1eec58f2c70c01449146e7
 S = "${WORKDIR}/ace-${PV}"
 
 inherit autotools
+
+# http://errors.yoctoproject.org/Errors/Details/81006/
+PNBLACKLIST[aceofpenguins] ?= "BROKEN: fails to build with new binutils-2.27"
