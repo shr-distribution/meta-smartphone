@@ -30,8 +30,8 @@ SRC_URI = " \
 "
 S = "${WORKDIR}/kernel-parts-${BUILD_VERSION}"
 
-SRC_URI[md5sum] = "6621a60f4108497db0f9b967fef95f95"
-SRC_URI[sha256sum] = "7251281578eb25a77da43ccb9f9cc2fb5cd354f1a120f1c21612c39201b3043a"
+SRC_URI[md5sum] = "ca4ad3b953a7f280d223406998dbfb28"
+SRC_URI[sha256sum] = "0ce037ae2e9a94572df73de6b297d4428f96b703287d280aa9e889487f2e2815"
 
 INITRAMFS_IMAGE ?= "initramfs-android-image"
 do_compile[depends] += "${INITRAMFS_IMAGE}:do_image_complete"
