@@ -4,12 +4,12 @@ This layer depends on:
 
 URI: git://github.com/openembedded/oe-core.git
 layers: meta
-branch: master
+branch: morty
 revision: HEAD
 
 URI: git://github.com/openembedded/meta-oe.git
 layers: meta-oe
-branch: master
+branch: morty
 revision: HEAD
 
 If you want to contribute changes, please follow

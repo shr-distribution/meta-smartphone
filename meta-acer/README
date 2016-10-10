@@ -3,15 +3,15 @@ This layer depends on:
 
 URI: git://github.com/openembedded/oe-core.git
 layers: meta
-branch: master
+branch: morty
 
 URI: git://github.com/openembedded/meta-oe.git
 layers: meta-oe
-branch: master
+branch: morty
 
 URI: git://github.com/shr-distribution/meta-smartphone.git
 layers: meta-android
-branch: master
+branch: morty
 
 If you want to contribute changes, please follow
 http://www.shr-project.org/trac/wiki/Howto%20get%20my%20application%20in%20the%20SHR%20feed
