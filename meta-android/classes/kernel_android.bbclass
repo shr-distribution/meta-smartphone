@@ -7,6 +7,7 @@ RAMDISK_RAM_BASE ?= "0x00000000"
 SECOND_RAM_BASE ?= "0x00000000"
 TAGS_RAM_BASE ?= "0x00000000"
 EXTRA_ABOOTIMG_ARGS ?= ""
+KERNEL_OUTPUT ?= "${KERNEL_OUTPUT_DIR}/${KERNEL_IMAGETYPE}"
 
 do_compile[depends] += "initramfs-android-image:do_image_complete"
 DEPENDS += "abootimg-native"
