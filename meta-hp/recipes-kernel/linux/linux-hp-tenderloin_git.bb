@@ -15,7 +15,7 @@ PACKAGES_DYNAMIC += "^kernel-module-.*"
 PACKAGES_DYNAMIC += "^kernel-image-.*"
 
 # Version coming from our jenkens when building the kernel within the android build
-BUILD_VERSION = "20161015-94"
+BUILD_VERSION = "20161117-94"
 
 # This is the version we get from the kernel tree: <kernel version>-<commits since last
 # tag>-g<short ref of last commit>. You can get it easily with running `git describe`
@@ -30,8 +30,8 @@ SRC_URI = " \
 "
 S = "${WORKDIR}/kernel-parts-${BUILD_VERSION}"
 
-SRC_URI[md5sum] = "91ec63463eb85b1415a81a97e3719748"
-SRC_URI[sha256sum] = "0a24f67b153cc7c1abd2f742a33097cc4bb5f78a3afd3cfb45933901cf6d7797"
+SRC_URI[md5sum] = "67d8dbc04a2412a75af6e941676815dc"
+SRC_URI[sha256sum] = "2e973c0710b47634300f7bdb4d03be8cd1b14a951475912ed59a23568518bff2"
 
 INITRAMFS_IMAGE ?= "initramfs-android-image"
 do_compile[depends] += "${INITRAMFS_IMAGE}:do_image_complete"
