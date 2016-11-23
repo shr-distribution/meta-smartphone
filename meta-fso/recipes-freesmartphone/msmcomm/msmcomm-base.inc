@@ -10,5 +10,5 @@ INC_PR = "r1"
 
 COMPATIBLE_MACHINE = "(palmpre|palmpre2)"
 
-SHRT_VER = "${@bb.data.getVar('PV',d,1).split('.')[0]}.${@bb.data.getVar('PV',d,1).split('.')[1]}"
+SHRT_VER = "${@d.getVar('PV', True).split('.')[0]}.${@d.getVar('PV', True).split('.')[1]}"
 SRC_URI = "http://downloads.freesmartphone.org/sources/msmcomm/${SHRT_VER}/${P}.tar.bz2"
