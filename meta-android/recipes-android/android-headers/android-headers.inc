@@ -9,7 +9,6 @@ PROVIDES += "virtual/android-headers"
 do_install() {
     install -d ${D}${includedir}/android
     cp -rv ${S}/* ${D}${includedir}/android/
-    rm ${D}${includedir}/android/android-headers.pc
 
     if [ -e ${S}/android-config_${MACHINE}.h ] ; then
         rm ${D}${includedir}/android/android-config.h
@@ -17,7 +16,8 @@ do_install() {
     fi
 
     install -d ${D}${libdir}/pkgconfig
-    install -m 0644 ${S}/android-headers.pc ${D}${libdir}/pkgconfig
+    install -m 0644 ${S}/../debian/android-headers-${ANDROID_API}.pc ${D}${libdir}/pkgconfig/android-headers.pc
+    ln -s android ${D}${includedir}/android-${ANDROID_API}
 }
 
 FILES_${PN}-dev += "${libdir}/pkg-config"
