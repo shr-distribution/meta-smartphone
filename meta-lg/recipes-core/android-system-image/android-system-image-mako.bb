@@ -14,6 +14,6 @@ INSANE_SKIP_${PN} += "ldflags"
 # Fixing QA relocations in .text error for all binaries
 INSANE_SKIP_${PN} += "textrel"
 
-SRC_URI = "http://build.webos-ports.org/cm-wop-10.1/cm-wop-10.1-${PV}-${MACHINE}.tar.bz2"
-SRC_URI[md5sum] = "a24bb600f03d2cc23faea013b74c49a7"
-SRC_URI[sha256sum] = "088d6d52933f9ca0b91f0ccab5c52b8fc8b6da42abf6058ffce915c42ee8202e"
+SRC_URI = "file:///media/LuneOS/Android/mako/cm-wop-12.1-20161120-0-mako.tar.bz2"
+SRC_URI[md5sum] = "807cf31e0e9c2465711cea12d5de802f"
+SRC_URI[sha256sum] = "75a42cb073a103644ac2b654962b5785fec593e47b454e0339510490f6b8f2d1"
