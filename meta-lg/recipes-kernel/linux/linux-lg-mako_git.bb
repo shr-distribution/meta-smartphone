@@ -17,12 +17,12 @@ TAGS_RAM_BASE = "0x80200100"
 inherit kernel_android
 
 SRC_URI = " \
-  git://github.com/shr-distribution/linux.git;protocol=git;branch=mako/3.4/master \
+  git://github.com/Tofee/android_kernel_google_msm.git;protocol=git;branch=mako/3.4/cm-12.1 \
   file://defconfig \
 "
 S = "${WORKDIR}/git"
 
-SRCREV = "3b9a1381392f3ec5c96aab5f6cc5de21b0d90573"
+SRCREV = "7d37fad3f1db6f01fe322b2ef0523c9259d7d96e"
 
 KV = "3.4.0"
 PV = "${KV}+gitr${SRCPV}"
