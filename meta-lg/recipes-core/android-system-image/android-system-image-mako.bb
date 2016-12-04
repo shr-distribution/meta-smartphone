@@ -2,7 +2,7 @@ require recipes-core/android-system-image/android-system-image.inc
 
 COMPATIBLE_MACHINE = "mako"
 
-PV = "20150313-115"
+PV = "20160412-001"
 
 # Fixing QA errors for not matching architecture for the following binaries:
 # - /system/etc/firmware/vidc.b00
@@ -14,6 +14,15 @@ INSANE_SKIP_${PN} += "ldflags"
 # Fixing QA relocations in .text error for all binaries
 INSANE_SKIP_${PN} += "textrel"
 
-SRC_URI = "file:///media/LuneOS/Android/mako/cm-wop-12.1-20161120-0-mako.tar.bz2"
-SRC_URI[md5sum] = "807cf31e0e9c2465711cea12d5de802f"
-SRC_URI[sha256sum] = "75a42cb073a103644ac2b654962b5785fec593e47b454e0339510490f6b8f2d1"
+SRC_URI = "file:///media/LuneOS/Android/mako/hal-droid-wop-12.1-20161204-0-mako.tar.bz2"
+SRC_URI[md5sum] = "8927093234ecc11bc74ca3eddb801a10"
+SRC_URI[sha256sum] = "92cc2c2d7a8120409f61a6bd30dc12bfd8087892a3885be0d092823e459d99eb"
+
+do_install_prepend() {
+    # fixup libGLESv3.so if needed
+    if [ -h ${WORKDIR}/system/lib/libGLESv3.so ] ; then
+        rm ${WORKDIR}/system/lib/libGLESv3.so
+        cp ${WORKDIR}/system/lib/libGLESv2.so ${WORKDIR}/system/lib/libGLESv3.so
+    fi
+
+}
