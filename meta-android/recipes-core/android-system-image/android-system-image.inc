@@ -44,10 +44,10 @@ do_install() {
             user=`echo $line | cut -d' ' -f 2`
             group=`echo $line | cut -d' ' -f 3`
             mode=`echo $line | cut -d' ' -f 4`
-            chown -h $user:$group ${D}/$file
+            chown -h $user:$group ${D}${libexecdir}/hal-droid/$file
             # Avoid changing symlinks
-            if [ ! -h ${D}/$file ] ; then
-                chmod $mode ${D}/$file
+            if [ ! -h ${D}${libexecdir}/hal-droid/$file ] ; then
+                chmod $mode ${D}${libexecdir}/hal-droid/$file
             fi
         done < "${WORKDIR}/filesystem_config.txt"
     else
