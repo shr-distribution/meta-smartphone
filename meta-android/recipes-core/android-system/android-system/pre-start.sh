@@ -48,7 +48,7 @@ mount_bind_ro() {
 
 mount_bind_ro /system $LXC_ROOTFS_PATH/system
 mount_bind_ro /system/vendor $LXC_ROOTFS_PATH/vendor
-mount_bind_ro /usr/libexec/hal-droid/system $LXC_ROOTFS_PATH/hal-hybris
+mount_bind_ro /usr/libexec/hal-droid $LXC_ROOTFS_PATH/hal-hybris
 
 # usage existing /data directory
 mkdir -p /data
