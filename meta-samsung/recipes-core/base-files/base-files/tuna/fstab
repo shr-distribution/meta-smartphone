@@ -5,3 +5,4 @@ usbdevfs             /proc/bus/usb        usbdevfs   noauto                0  0
 tmpfs                /var/volatile        tmpfs      defaults              0  0
 /dev/mmcblk0p3       /factory             auto       defaults              0  0
 /dev/mmcblk0p3       /data/radio          auto       defaults              0  0
+/dev/mmcblk0p10      /system              auto       ro,nofail             0  0
