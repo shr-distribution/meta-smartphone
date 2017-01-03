@@ -18,10 +18,6 @@ MACHINE_DISPLAY_HEIGHT_PIXELS = "800"
 MACHINE_DISPLAY_ORIENTATION = "0"
 MACHINE_DISPLAY_PPI = "233"
 
-MACHINE_EXTRA_RDEPENDS = " \
-    samsung-tuna-firmware \
-"
-
 PREFERRED_PROVIDER_virtual/egl ?= "libhybris"
 PREFERRED_PROVIDER_virtual/libgles1 ?= "libhybris"
 PREFERRED_PROVIDER_virtual/libgles2 ?= "libhybris"
@@ -34,7 +30,7 @@ XSERVER = " \
 "
 
 KERNEL_IMAGETYPE = "zImage"
-IMAGE_FSTYPES += "tar.gz ext2 ext4"
+IMAGE_FSTYPES += "tar.gz ext4"
 IMAGE_ROOTFS_EXTRA_SPACE = "200000"
 
 ANDROID_BOARD_BOOTIMAGE_PARTITION = "/dev/block/mmcblk0p7"
