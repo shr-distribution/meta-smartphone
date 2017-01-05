@@ -17,7 +17,7 @@ TAGS_RAM_BASE = "0x80200100"
 inherit kernel_android
 
 SRC_URI = " \
-  git://github.com/Tofee/android_kernel_google_msm.git;protocol=git;branch=mako/3.4/cm-12.1 \
+  git://github.com/shr-distribution/linux.git;protocol=git;branch=mako/3.4/cm-12.1 \
   file://defconfig \
 "
 S = "${WORKDIR}/git"
