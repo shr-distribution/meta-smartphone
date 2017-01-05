@@ -18,7 +18,7 @@ BOOT_PARTITION = "/dev/mmcblk0p7"
 inherit kernel_android
 
 SRC_URI = " \
-  git://github.com/Tofee/android_kernel_samsung_tuna.git;protocol=git;branch=tuna/3.0/cm-12.1 \
+  git://github.com/shr-distribution/linux.git;protocol=git;branch=tuna/3.0/cm-12.1 \
   file://defconfig \
 "
 
