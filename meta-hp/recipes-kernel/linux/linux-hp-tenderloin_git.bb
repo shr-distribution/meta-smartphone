@@ -17,13 +17,36 @@ PACKAGES_DYNAMIC += "^kernel-image-.*"
 # Version coming from our jenkens when building the kernel within the android build
 BUILD_VERSION = "20161117-94"
 
+def get_kernelversion_modules(p):
+    import re
+    if not os.path.isdir(p):
+        return None
+
+    for fn in os.listdir(p):
+        if os.path.isfile(p+fn):
+            try:
+                f = open(p+fn, 'r')
+            except IOError:
+                return None
+
+            l = f.readlines()
+            f.close()
+
+            r = re.compile("vermagic=(\S*)")
+            for s in l:
+                m = r.search(s)
+                if m:
+                    return m.group(1)
+    return None
+
 # This is the version we get from the kernel tree: <kernel version>-<commits since last
 # tag>-g<short ref of last commit>. You can get it easily with running `git describe`
 # within the repo. In this case the last tag was v3.0.65 but we're already at 3.0.101
 # without having all the tags merged.
-KERNEL_VERSION = "3.0.101-12919-gc31ea94"
+# KERNEL_VERSION = "3.0.101-12919-gc31ea94"
+KERNEL_VERSION = "${@get_kernelversion_modules('${B}/modules/')}"
 
-PV = "${KERNEL_VERSION}-${BUILD_VERSION}"
+PV = "3.0.101-${BUILD_VERSION}"
 
 SRC_URI = " \
     http://build.webos-ports.org/cm-wop-11.0/cm-wop-11.0-${BUILD_VERSION}-kernel-parts-tenderloin.tar.bz2 \

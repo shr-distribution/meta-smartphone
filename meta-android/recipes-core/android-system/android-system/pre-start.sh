@@ -35,6 +35,9 @@ mount -t tmpfs none $LXC_ROOTFS_PATH
 # /dev/pts needs to be there
 mkdir -p $LXC_ROOTFS_PATH/dev/pts
 
+# setup a mount point for hal-hybris
+mkdir $LXC_ROOTFS_PATH/hal-hybris
+
 mount_bind_ro() {
 	if [ ! -d $2 ] ; then
 		mkdir $2
@@ -45,6 +48,7 @@ mount_bind_ro() {
 
 mount_bind_ro /system $LXC_ROOTFS_PATH/system
 mount_bind_ro /system/vendor $LXC_ROOTFS_PATH/vendor
+mount_bind_ro /usr/libexec/hal-droid $LXC_ROOTFS_PATH/hal-hybris
 
 # usage existing /data directory
 mkdir -p /data

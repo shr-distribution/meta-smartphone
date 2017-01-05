@@ -13,11 +13,13 @@ RPROVIDES_${PN} += "virtual/android-system-image"
 INC_PR = "r4"
 
 do_install() {
-    cp -rpv ${WORKDIR}/system ${D}
+    install -d ${D}${libexecdir}/hal-droid
+    cp -rpv ${WORKDIR}/system ${D}${libexecdir}/hal-droid
+
     ln -sf /system/vendor ${D}/vendor
 
-    install -d ${D}/system/symbols
-    cp -rv ${WORKDIR}/symbols ${D}/system
+    install -d ${D}${libexecdir}/hal-droid/system/symbols
+    cp -rv ${WORKDIR}/symbols ${D}${libexecdir}/hal-droid/system
 
     install -d ${D}${sysconfdir}
     ln -sf /system/etc/media_codecs.xml ${D}${sysconfdir}/media_codecs.xml
@@ -42,13 +44,15 @@ do_install() {
             user=`echo $line | cut -d' ' -f 2`
             group=`echo $line | cut -d' ' -f 3`
             mode=`echo $line | cut -d' ' -f 4`
-            chown -h $user:$group ${D}/$file
+            chown -h $user:$group ${D}${libexecdir}/hal-droid/$file
             # Avoid changing symlinks
-            if [ ! -h ${D}/$file ] ; then
-                chmod $mode ${D}/$file
+            if [ ! -h ${D}${libexecdir}/hal-droid/$file ] ; then
+                chmod $mode ${D}${libexecdir}/hal-droid/$file
             fi
         done < "${WORKDIR}/filesystem_config.txt"
     else
+        # do a minimal fixup anyway
+        chown -Rh 0:0 ${D}${libexecdir}/hal-droid/system
         bbwarn "image doesn't contain a filesystem_config.txt; may cause runtime errors with android system"
     fi
 }
@@ -59,5 +63,5 @@ INSANE_SKIP_${PN}-dbg = "ldflags"
 # Already stripped and we cannot fix it, this will hide a lot of warnings about files already stripped
 INHIBIT_PACKAGE_STRIP = "1"
 PACKAGES = "${PN}-dbg ${PN}"
-FILES_${PN}-dbg = "/system/symbols"
-FILES_${PN} = "/system /vendor /android /default.prop ${libdir}/android-system/ramdisk.img ${sysconfdir}"
+FILES_${PN}-dbg = "${libexecdir}/hal-droid/system/symbols"
+FILES_${PN} = "${libexecdir}/hal-droid/system /vendor /android /default.prop ${libdir}/android-system/ramdisk.img ${sysconfdir}"
