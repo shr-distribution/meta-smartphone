@@ -1,0 +1,19 @@
+[Unit]
+Description=Load wifi module
+After=android-system.service
+Before=network.target
+Conflicts=shutdown.target actdead.target
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+ExecStartPre=/bin/touch /dev/wcnss_wlan
+ExecStartPre=/bin/sleep 3
+ExecStart=/sbin/modprobe wlan
+ExecStop=/sbin/rmmod wlan
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=basic.target
+
