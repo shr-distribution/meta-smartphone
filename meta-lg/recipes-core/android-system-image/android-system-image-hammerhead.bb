@@ -14,7 +14,7 @@ INSANE_SKIP_${PN} += "ldflags"
 # Fixing QA relocations in .text error for all binaries
 INSANE_SKIP_${PN} += "textrel"
 
-SRC_URI = "https://dl.dropboxusercontent.com/u/4679068/CM12.1-luneos-HAL/hal-droid-wop-12.1-${PV}-${MACHINE}.tar.bz2"
+SRC_URI = "http://build.webos-ports.org/cm-wop-12.1/hal-droid-wop-12.1-${PV}-${MACHINE}.tar.bz2"
 SRC_URI[md5sum] = "51f55b6ea4fe0522e9a7e1dcf40a1ec1"
 SRC_URI[sha256sum] = "510c65895637021ce2d3a22ebe4aef1bcadeaf1bd770e914d28df4ca50593fcb"
 
