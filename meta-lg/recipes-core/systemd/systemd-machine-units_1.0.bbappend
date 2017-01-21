@@ -24,3 +24,21 @@ SYSTEMD_SERVICE_${PN}_mako = " \
     wifi-module-load.service \
     hcismd.service \
 "
+
+
+SRC_URI_append_hammerhead = " \
+    file://hcismd.service \
+    file://hci-smd-enable.sh \
+"
+
+do_install_append_hammerhead() {
+    install -d ${D}${systemd_unitdir}/system
+    install -m 0644 ${WORKDIR}/hcismd.service ${D}${systemd_unitdir}/system
+
+    install -d ${D}${bindir}
+    install -m 0755 ${WORKDIR}/hci-smd-enable.sh ${D}${bindir}
+}
+
+SYSTEMD_SERVICE_${PN}_hammerhead = " \
+    hcismd.service \
+"
