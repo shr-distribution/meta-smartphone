@@ -1498,7 +1498,7 @@ CONFIG_WLAN=y
 CONFIG_BCMDHD=y
 CONFIG_BCM4339=y
 CONFIG_BCMDHD_FW_PATH="/vendor/firmware/fw_bcmdhd.bin"
-CONFIG_BCMDHD_NVRAM_PATH="/etc/wifi/bcmdhd.cal"
+CONFIG_BCMDHD_NVRAM_PATH="/system/etc/wifi/bcmdhd.cal"
 # CONFIG_DHD_USE_STATIC_BUF is not set
 CONFIG_DHD_USE_SCHED_SCAN=y
 # CONFIG_BRCMFMAC is not set
