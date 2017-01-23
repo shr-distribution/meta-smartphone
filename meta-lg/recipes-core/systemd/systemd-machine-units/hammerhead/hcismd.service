@@ -1,0 +1,13 @@
+[Unit]
+Description=Enable Bluetooth HCI SMD device
+DefaultDependencies=false
+Requires=android-system.service
+After=android-system.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/hci-smd-enable.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=bluetooth.service
