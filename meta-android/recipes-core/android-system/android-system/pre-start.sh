@@ -37,6 +37,9 @@ mkdir -p $LXC_ROOTFS_PATH/dev/pts
 
 mount -t devtmpfs none $LXC_ROOTFS_PATH/dev
 
+mkdir $LXC_ROOTFS_PATH/sys
+mount -t sysfs none $LXC_ROOTFS_PATH/sys
+
 # setup a mount point for hal-hybris
 mkdir $LXC_ROOTFS_PATH/hal-hybris
 
@@ -57,6 +60,9 @@ mount_bind_ro /system/etc $LXC_ROOTFS_PATH/etc
 # usage existing /data directory
 mkdir -p /data
 mount -o bind /data $LXC_ROOTFS_PATH/data
+
+# Avoid being spammed with "missing packages.list; retrying"
+touch $LXC_ROOTFS_PATH/data/system/packages.list
 
 # Process any overrides
 if [ -d /var/lib/lxc/android/overrides ] ; then
