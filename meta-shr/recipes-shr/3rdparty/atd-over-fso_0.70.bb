@@ -65,3 +65,5 @@ updatercd_postrm_append() {
         fi
     fi
 }
+
+PNBLACKLIST[atd-over-fso] ?= "Fails to build with RSS http://errors.yoctoproject.org/Errors/Details/130540/"

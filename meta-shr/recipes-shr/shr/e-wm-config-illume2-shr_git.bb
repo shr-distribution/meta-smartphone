@@ -40,3 +40,5 @@ RRECOMMENDS_${PN} = "\
 
 # autotools-brokensep
 B = "${S}"
+
+PNBLACKLIST[e-wm-config-illume2-shr] ?= "Fails to build with RSS http://errors.yoctoproject.org/Errors/Details/130520/"

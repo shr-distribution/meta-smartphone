@@ -19,3 +19,5 @@ RCONFLICTS_${PN} = "gsm0710muxd"
 RREPLACES_${PN} = "gsm0710muxd"
 
 FILES_${PN} += "${datadir} ${sysconfdir}"
+
+PNBLACKLIST[fso-gsm0710muxd] ?= "Fails to build with RSS http://errors.yoctoproject.org/Errors/Details/130517/"
