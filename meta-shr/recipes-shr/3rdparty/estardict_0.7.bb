@@ -17,3 +17,5 @@ EXTRA_OECONF_append_armv7a = " --with-device=N900"
 inherit gettext autotools-brokensep
 
 FILES_${PN} += "/opt/${PN}"
+
+PNBLACKLIST[estardict] ?= "Depends on blacklisted elementary"

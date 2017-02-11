@@ -25,3 +25,5 @@ FILES_${PN} += "${datadir}/icons ${datadir}/dbus-1"
 do_install_append() {
     install -m 0644 ${WORKDIR}/index.theme ${D}${datadir}/vagalume/icons/hicolor
 }
+
+PNBLACKLIST[vagalume] ?= "Depends on blacklisted gstreamer"

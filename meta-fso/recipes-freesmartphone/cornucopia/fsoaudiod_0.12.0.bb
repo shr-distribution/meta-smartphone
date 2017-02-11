@@ -14,3 +14,5 @@ do_configure_prepend() {
 SRC_URI += "file://0001-fsoaudiod-upgrade-to-libgee-0.8.patch \
     file://0001-fix-pkg-alsa.patch \
 "
+
+PNBLACKLIST[fsoaudiod] ?= "Depends on blacklisted libfso-glib"

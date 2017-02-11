@@ -16,3 +16,5 @@ PR = "${INC_PR}.0"
 S = "${WORKDIR}/git/tools/${PN}"
 # autotools-brokensep
 B = "${S}"
+
+PNBLACKLIST[mkdump] ?= "Depends on blacklisted libfsoframework"

@@ -33,3 +33,5 @@ do_install() {
 
 SRC_URI[md5sum] = "c4a1012fc0e00d2b64d8d794166bf893"
 SRC_URI[sha256sum] = "9227e503a90054dd643364272d48b3eae8dae3a9c6c4a42a2859395a8786398f"
+
+PNBLACKLIST[rtmom] ?= "Depends on blacklisted python-elementary"

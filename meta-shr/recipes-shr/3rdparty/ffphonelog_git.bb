@@ -32,3 +32,5 @@ do_install() {
 }
 
 MAINTAINER = "Lukasz Pankowski <lukpank@o2.pl>"
+
+PNBLACKLIST[ffphonelog] ?= "Depends on blacklisted libeflvala"

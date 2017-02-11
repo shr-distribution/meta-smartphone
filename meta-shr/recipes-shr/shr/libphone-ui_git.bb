@@ -17,3 +17,5 @@ S = "${WORKDIR}/git"
 inherit autotools pkgconfig
 
 RDEPENDS_${PN} = "${PN}-config"
+
+PNBLACKLIST[libphone-ui] ?= "Depends on blacklisted libfso-glib"

@@ -18,3 +18,5 @@ do_install_append() {
     install -d ${D}${bindir}
     ln -s fso-raw ${D}${bindir}/fsoraw
 }
+
+PNBLACKLIST[fsoraw] ?= "Depends on blacklisted libfso-glib"

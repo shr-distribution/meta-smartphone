@@ -17,3 +17,5 @@ S = "${WORKDIR}/git/tools/${PN}"
 FILES_${PN} += "${datadir}"
 # autotools-brokensep
 B = "${S}"
+
+PNBLACKLIST[mterm2] ?= "Depends on blacklisted libfsoframework"

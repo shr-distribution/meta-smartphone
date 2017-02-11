@@ -25,3 +25,5 @@ do_configure_prepend() {
 }
 
 inherit gettext autotools-brokensep
+
+PNBLACKLIST[mokojeweled] ?= "Depends on blacklisted elementary"

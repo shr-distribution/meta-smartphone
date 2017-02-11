@@ -20,3 +20,6 @@ SRC_URI[sha256sum] = "515d842b79a2c34f5789fa10110bc9d7b15c65a7b1fa623131a1e03599
 inherit autotools pkgconfig gettext
 
 EXTRA_OECONF = "FONTDIR=${datadir}/fonts/truetype --enable-rgb-swap"
+
+PNBLACKLIST[mokomaze] ?= "Depends on blacklisted libsdl-ttf"
+PNBLACKLIST[mokomaze] ?= "Depends on blacklisted ode"

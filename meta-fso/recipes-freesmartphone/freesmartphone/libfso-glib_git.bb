@@ -8,3 +8,5 @@ PR = "r1"
 
 SRC_URI = "${FREESMARTPHONE_GIT}/${BPN}.git;protocol=git;branch=master"
 S = "${WORKDIR}/git"
+
+PNBLACKLIST[libfso-glib] ?= "Depends on blacklisted vala-dbus-binding-tool"
