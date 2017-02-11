@@ -48,3 +48,25 @@ RRECOMMENDS_${PN} = "\
   mkdump \
   mioctl \
 "
+
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsoaudiod-config"
+
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted mkdump"
+
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsonetworkd"
+
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fso-apm"
+
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsodatad"
+
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted packagegroup-fso2-compliance"
+
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsogsmd"
+
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted mterm2"
+
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsodeviced"
+
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsotdld"
+
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsousaged"

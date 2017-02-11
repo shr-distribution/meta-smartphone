@@ -17,3 +17,5 @@ inherit distutils
 FILES_${PN} += "${datadir}/atrack ${datadir}/applications/atrack.desktop ${datadir}/pixmaps"
 
 RDEPENDS_${PN} += "python-netclient python-elementary"
+
+PNBLACKLIST[atrack] ?= "Runtime depends on blacklisted python-elementary"

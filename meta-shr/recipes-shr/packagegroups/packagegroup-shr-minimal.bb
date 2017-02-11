@@ -121,3 +121,13 @@ RDEPENDS_${PN}-gtk = "\
   matchbox-keyboard-im \
   gtk-immodule-xim \
 "
+
+PNBLACKLIST[packagegroup-shr-minimal] ?= "Runtime depends on blacklisted shr-wizard"
+
+PNBLACKLIST[packagegroup-shr-minimal] ?= "Runtime depends on blacklisted terminology"
+
+PNBLACKLIST[packagegroup-shr-minimal] ?= "Runtime depends on blacklisted packagegroup-shr-minimal"
+
+PNBLACKLIST[packagegroup-shr-minimal] ?= "Runtime depends on blacklisted libphone-ui-shr"
+
+PNBLACKLIST[packagegroup-shr-minimal] ?= "Runtime depends on blacklisted ffphonelog"

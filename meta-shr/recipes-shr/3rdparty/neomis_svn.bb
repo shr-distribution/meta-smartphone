@@ -29,3 +29,5 @@ RDEPENDS_${PN} += "python-audio python-pyalsaaudio python-elementary"
 do_compile_prepend() {
     ${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/data ${S}/data/neomis.edc
 }
+
+PNBLACKLIST[neomis] ?= "Runtime depends on blacklisted python-elementary"

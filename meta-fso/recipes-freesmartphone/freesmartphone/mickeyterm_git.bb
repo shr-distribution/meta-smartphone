@@ -25,3 +25,5 @@ RRECOMMENDS_${PN} += "\
   fso-gsm0710muxd \
   python-dbus \
 "
+
+PNBLACKLIST[mickeyterm] ?= "Runtime depends on blacklisted fso-gsm0710muxd"

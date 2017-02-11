@@ -10,3 +10,5 @@ PV = "0.0"
 inherit allarch
 
 ALLOW_EMPTY_${PN} = "1"
+
+PNBLACKLIST[shr-theme-efenniht] ?= "Runtime depends on blacklisted e-wm-theme-illume-efenniht"

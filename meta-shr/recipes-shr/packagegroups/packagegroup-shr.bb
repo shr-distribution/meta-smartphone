@@ -58,3 +58,13 @@ RDEPENDS_${PN}-cli += "\
 RDEPENDS_${PN}-games += "\
   numptyphysics \
 "
+
+PNBLACKLIST[packagegroup-shr] ?= "Runtime depends on blacklisted packagegroup-cli-tools-debug"
+
+PNBLACKLIST[packagegroup-shr] ?= "Runtime depends on blacklisted packagegroup-shr-minimal-cli"
+
+PNBLACKLIST[packagegroup-shr] ?= "Runtime depends on blacklisted packagegroup-cli-tools"
+
+PNBLACKLIST[packagegroup-shr] ?= "Runtime depends on blacklisted packagegroup-shr-minimal-apps"
+
+PNBLACKLIST[packagegroup-shr] ?= "Runtime depends on blacklisted vagalume"

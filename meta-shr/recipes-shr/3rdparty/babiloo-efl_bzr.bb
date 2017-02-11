@@ -39,3 +39,9 @@ do_install() {
 }
 
 FILES_${PN} += "${datadir}/babiloo"
+
+PNBLACKLIST[babiloo-efl] ?= "Runtime depends on blacklisted python-elementary"
+
+PNBLACKLIST[babiloo-efl] ?= "Runtime depends on blacklisted babiloo-efl"
+
+PNBLACKLIST[babiloo-efl] ?= "Runtime depends on blacklisted babiloo-efl-dev"

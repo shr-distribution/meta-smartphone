@@ -8,3 +8,7 @@ PV = "0.10.99+gitr${SRCPV}"
 SRC_URI = "${FREESMARTPHONE_GIT}/framework.git;protocol=git;branch=master"
 
 S = "${WORKDIR}/git"
+
+PNBLACKLIST[frameworkd] ?= "Runtime depends on blacklisted fsousaged"
+
+PNBLACKLIST[frameworkd] ?= "Runtime depends on blacklisted frameworkd-dev"

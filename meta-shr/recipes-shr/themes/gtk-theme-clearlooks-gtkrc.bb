@@ -19,3 +19,7 @@ pkg_postinst_${PN} () {
 pkg_prerm_${PN} () {
         update-alternatives --remove gtk-theme ${sysconfdir}/gtk-2.0/gtkrc.${PN}
 }
+
+PNBLACKLIST[gtk-theme-clearlooks-gtkrc] ?= "Runtime depends on blacklisted gtk-theme-clearlooks"
+
+PNBLACKLIST[gtk-theme-clearlooks-gtkrc] ?= "Runtime depends on blacklisted gtk-theme-clearlooks-gtkrc-dev"

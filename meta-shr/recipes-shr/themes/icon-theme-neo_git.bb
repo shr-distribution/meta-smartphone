@@ -29,3 +29,7 @@ pkg_postinst_${PN} () {
         echo "To activate this theme select it under ICON THEME in the LOOK tab of enlightenment settings"
         echo "Restart enlightenment for the changes to take affect"
 }
+
+PNBLACKLIST[icon-theme-neo] ?= "Runtime depends on blacklisted e-wm"
+
+PNBLACKLIST[icon-theme-neo] ?= "Runtime depends on blacklisted icon-theme-neo-dev"

@@ -39,3 +39,5 @@ RPROVIDES_${PN} = "gpsd"
 # Disabled as we always got gpsd but not fso-gpsd in the fso-image. Needs
 # fixing.
 #RCONFLICTS_${PN} = "gpsd"
+
+PNBLACKLIST[fso-gpsd] ?= "Runtime depends on blacklisted fso-gpsd-dev"
