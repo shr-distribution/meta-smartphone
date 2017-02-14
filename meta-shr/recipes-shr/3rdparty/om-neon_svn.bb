@@ -26,3 +26,13 @@ do_compile_prepend() {
     sed -i "s/#THEMES_DIR = '\/usr\/share\/neon\/themes'/THEMES_DIR = '\/usr\/share\/neon\/themes'/g" ${S}/neon/neon.py
     sed -i "s/THEMES_DIR = '..\/data\/themes'/#THEMES_DIR = '..\/data\/themes'/g" ${S}/neon/neon.py
 }
+
+PNBLACKLIST[om-neon] ?= "Runtime depends on blacklisted python-evas"
+
+PNBLACKLIST[om-neon] ?= "Runtime depends on blacklisted om-neon-dev"
+
+PNBLACKLIST[om-neon] ?= "Runtime depends on blacklisted python-edje"
+
+PNBLACKLIST[om-neon] ?= "Runtime depends on blacklisted python-ecore"
+
+PNBLACKLIST[om-neon] ?= "Runtime depends on blacklisted om-neon"

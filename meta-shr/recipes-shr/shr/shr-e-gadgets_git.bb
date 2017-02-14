@@ -29,3 +29,4 @@ FILES_${PN}-staticdev += "${libdir}/enlightenment/modules/*/*/*.a"
 FILES_${PN}-dev += "${libdir}/enlightenment/modules/*/*/*.la"
 FILES_${PN}-dbg += "${libdir}/enlightenment/modules/*/*/.debug"
 
+PNBLACKLIST[shr-e-gadgets] ?= "Depends on blacklisted elementary"

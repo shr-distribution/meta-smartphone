@@ -12,3 +12,5 @@ do_configure_prepend() {
 }
 
 SRC_URI += "file://0001-fsodatad-upgrade-to-libgee-0.8.patch"
+
+PNBLACKLIST[fsodatad] ?= "Depends on blacklisted libfso-glib"

@@ -19,3 +19,5 @@ inherit distutils
 RDEPENDS_${PN} += "python-math python-elementary" 
 
 FILES_${PN} += "${datadir}"
+
+PNBLACKLIST[numberx] ?= "Runtime depends on blacklisted python-elementary"

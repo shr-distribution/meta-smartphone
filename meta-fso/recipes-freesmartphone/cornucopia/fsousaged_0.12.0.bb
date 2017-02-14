@@ -16,3 +16,5 @@ do_configure_prepend() {
 #     5067  rm ../fsousaged-0.12.0/src/plugins/dbus_service/plugin.c
 
 SRC_URI += "file://0001-fsousaged-upgrade-to-gee-0.8.patch"
+
+PNBLACKLIST[fsousaged] ?= "Depends on blacklisted libfso-glib"

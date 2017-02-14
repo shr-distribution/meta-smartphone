@@ -16,7 +16,7 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 # We need the android headers which are now provided for compatiblity reasons as external
 # component. The android-headers are specific for the environment the android-system-image
 # is build with and can differ between different machines.
-DEPENDS += "virtual/android-headers"
+DEPENDS += "virtual/android-headers wayland-native"
 
 # Only MACHINEs which provide virtual/android-headers can build this
 COMPATIBLE_MACHINE = "(^$)"

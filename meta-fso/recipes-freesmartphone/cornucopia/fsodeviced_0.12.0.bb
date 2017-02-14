@@ -13,3 +13,5 @@ do_configure_prepend() {
 }   
 
 SRC_URI += "file://0001-fsodeviced-upgrade-to-libgee-0.8.patch"
+
+PNBLACKLIST[fsodeviced] ?= "Depends on blacklisted libfso-glib"

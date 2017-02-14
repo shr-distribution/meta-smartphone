@@ -28,3 +28,5 @@ do_install_append() {
 }
 
 FILES_${PN} += "/usr/share/guitartune/* /usr/share/applications/* /usr/share/pixmaps/*"
+
+PNBLACKLIST[guitartune] ?= "Depends on blacklisted libglade"

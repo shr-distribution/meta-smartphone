@@ -11,3 +11,5 @@ do_configure_prepend() {
     rm -f ${S}/fsotransport/commandqueue.c ${S}/fsoframework/subsystem.c
 }
 SRC_URI += "file://0001-libfsoframework-switch-to-gee-0.8-remove-unnecessary.patch"
+
+PNBLACKLIST[libfsoframework] ?= "Depends on blacklisted libfso-glib"

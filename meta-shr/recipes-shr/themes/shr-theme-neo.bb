@@ -11,3 +11,9 @@ PR = "r5"
 inherit allarch
 
 ALLOW_EMPTY_${PN} = "1"
+
+PNBLACKLIST[shr-theme-neo] ?= "Runtime depends on blacklisted shr-theme-neo-dev"
+
+PNBLACKLIST[shr-theme-neo] ?= "Runtime depends on blacklisted shr-theme-neo"
+
+PNBLACKLIST[shr-theme-neo] ?= "Runtime depends on blacklisted e-wm-theme-illume-neo"

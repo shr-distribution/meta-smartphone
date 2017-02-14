@@ -29,3 +29,5 @@ ALTERNATIVE_LINK_NAME[libphone-ui-shr-config] = "${datadir}/libphone-ui-shr/conf
 ALTERNATIVE_PRIORITY[libphone-ui-shr-config] = "5"
 
 FILES_${PN} = "${datadir}/libphone-ui-shr/"
+
+PNBLACKLIST[phoneui-shr-theme-niebiee] ?= "Runtime depends on blacklisted libphone-ui-shr"

@@ -12,3 +12,5 @@ PV = "2.0.0+gitr${SRCPV}"
 PR = "${INC_PR}.1"
 
 S = "${WORKDIR}/git/tools/apm2"
+
+PNBLACKLIST[fso-apm] ?= "Depends on blacklisted libfso-glib"

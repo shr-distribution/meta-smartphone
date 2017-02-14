@@ -25,3 +25,5 @@ do_compile_append() {
         cd ${S}/data/themes
         ${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/data/themes/default ${S}/data/themes/default/minneo.edc
 }
+
+PNBLACKLIST[minneo] ?= "Runtime depends on blacklisted python-elementary"

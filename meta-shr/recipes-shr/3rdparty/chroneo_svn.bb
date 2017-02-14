@@ -25,3 +25,5 @@ RDEPENDS_${PN} += "python-audio python-pyalsaaudio python-elementary python-sqli
 do_compile_prepend() {
     ${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/data ${S}/data/chroneo.edc
 }
+
+PNBLACKLIST[chroneo] ?= "Runtime depends on blacklisted python-elementary"

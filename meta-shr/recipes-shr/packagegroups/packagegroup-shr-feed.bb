@@ -319,3 +319,33 @@ RDEPENDS_${PN} += "${EXTRA_MOZILLA}"
 # this is only usefull on gta02 and on other devices it's trying to pull mesa-dri (not respecting DEFAULT_PROVIDER for virtual/libgl)
 #RDEPENDS_${PN}_append_om-gta02 = "glamo-dri-tests \
 #"
+
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted mokomaze"
+
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted dates"
+
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted dbus-daemon-proxy"
+
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted guitartune"
+
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted illume-keyboard-default-numeric"
+
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted e-tasks"
+
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted enjoy"
+
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted mokojeweled"
+
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted estardict"
+
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted gpe-scap"
+
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted ffphonelog"
+
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted om-neon"
+
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted python-elementary"
+
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted elfe"
+
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted vagalume"

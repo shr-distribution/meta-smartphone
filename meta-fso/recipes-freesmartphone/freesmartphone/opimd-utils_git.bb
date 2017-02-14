@@ -52,3 +52,5 @@ FILES_${PN}-notes += "${prefix}/share/applications/opimd-notes.desktop"
 FILES_${PN}-gui += "${prefix}/share/applications/opimd-messages.desktop"
 FILES_${PN}-gui += "${prefix}/share/applications/opimd-contacts.desktop"
 FILES_${PN}-gui += "${prefix}/share/applications/opimd-dates.desktop"
+
+PNBLACKLIST[opimd-utils] ?= "Runtime depends on blacklisted ffphonelog"

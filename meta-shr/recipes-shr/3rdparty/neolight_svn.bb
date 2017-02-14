@@ -22,3 +22,7 @@ RDEPENDS_${PN} += "python-edbus python-elementary"
 do_compile_prepend() {
     ${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/data ${S}/data/neolight.edc
 }
+
+PNBLACKLIST[neolight] ?= "Runtime depends on blacklisted python-edbus"
+
+PNBLACKLIST[neolight] ?= "Runtime depends on blacklisted python-elementary"

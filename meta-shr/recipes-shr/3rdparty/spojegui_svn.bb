@@ -29,3 +29,5 @@ do_install() {
 }
 
 FILES_${PN} += " ${datadir}/applications/spoje.desktop ${datadir}/pixmaps"
+
+PNBLACKLIST[spojegui] ?= "Runtime depends on blacklisted python-elementary"

@@ -26,3 +26,5 @@ FILES_${PN} += "${libdir}/phoneui/modules/shr.so"
 FILES_${PN}-dev += "${libdir}/phoneui/modules/*.la"
 FILES_${PN}-dbg += "${libdir}/phoneui/modules/.debug"
 FILES_${PN}-staticdev += "${libdir}/phoneui/modules/*.a"
+
+PNBLACKLIST[libphone-ui-shr] ?= "Depends on blacklisted elementary"
