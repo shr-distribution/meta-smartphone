@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# The PVR module will be loaded by LuneOS infra, no need to load it in lxc
+sed -i "\\,/system/lib/modules/pvrsrvkm_sgx540_120.ko, s/insmod/# insmod/" $LXC_ROOTFS_PATH/init.tuna.rc
