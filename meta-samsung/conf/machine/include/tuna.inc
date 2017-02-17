@@ -29,6 +29,12 @@ XSERVER = " \
     xf86-video-omapfb \
 "
 
+# We need the PVR module here
+MACHINE_EXTRA_RDEPENDS = " \
+    kernel-module-pvrsrvkm-sgx540-120 \
+    pvrsrvkm-sgx540-module \
+"
+
 KERNEL_IMAGETYPE = "zImage"
 IMAGE_FSTYPES += "tar.gz ext4"
 IMAGE_ROOTFS_EXTRA_SPACE = "200000"
