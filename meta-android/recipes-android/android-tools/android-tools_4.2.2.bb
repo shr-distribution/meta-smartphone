@@ -10,7 +10,7 @@ LIC_FILES_CHKSUM = " \
   file://${WORKDIR}/debian/copyright;md5=141efd1050596168ca05ced04e4f498b \
 "
 
-DEPENDS = "zlib openssl"
+DEPENDS = "zlib openssl libcap"
 RDEPENDS_${PN} = "${PN}-conf"
 
 # Use same version than ubuntu does here
@@ -26,6 +26,7 @@ SRC_URI = " \
     file://reboot-syscall.patch \
     file://adbd-disable-client-authentication.patch \
     file://disable-selinux-support.patch \
+    file://fix-big-endian-build.patch \
     file://remove-libselinux.patch;patchdir=.. \
     file://android-tools-adbd.service \
 "
@@ -35,6 +36,10 @@ SRC_URI[source.md5sum] = "0e653b129ab0c95bdffa91410c8b55be"
 SRC_URI[source.sha256sum] = "9bfba987e1351b12aa983787b9ae4424ab752e9e646d8e93771538dc1e5d932f"
 SRC_URI[debian.md5sum] = "5e409d01caf3c33fc60a2100464754ff"
 SRC_URI[debian.sha256sum] = "320757edc8af015f40335c41dc96bf37e2d50c9f3a40a31e64264ff6e2dba5e3"
+
+# http://errors.yoctoproject.org/Errors/Details/133881/
+ARM_INSTRUCTION_SET_armv4 = "arm"
+ARM_INSTRUCTION_SET_armv5 = "arm"
 
 inherit systemd
 
