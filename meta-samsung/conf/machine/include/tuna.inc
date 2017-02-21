@@ -32,7 +32,6 @@ XSERVER = " \
 # We need the PVR module here
 MACHINE_EXTRA_RDEPENDS = " \
     kernel-module-pvrsrvkm-sgx540-120 \
-    pvrsrvkm-sgx540-module \
 "
 
 KERNEL_IMAGETYPE = "zImage"
