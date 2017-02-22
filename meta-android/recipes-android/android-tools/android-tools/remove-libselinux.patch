@@ -1,0 +1,13 @@
+diff --git a/debian/makefiles/ext4_utils.mk b/debian/makefiles/ext4_utils.mk
+index cb64916..60e81d6 100644
+--- a/debian/makefiles/ext4_utils.mk
++++ b/debian/makefiles/ext4_utils.mk
+@@ -36,7 +36,7 @@ CPPFLAGS+= -I/usr/include
+ CPPFLAGS+= -I../../core/include
+ CPPFLAGS+= -I../../core/libsparse/include/
+ 
+-LIBS+= -lz -lselinux
++LIBS+= -lz
+ 
+ OBJS= $(SRCS:.c=.o)
+ 
