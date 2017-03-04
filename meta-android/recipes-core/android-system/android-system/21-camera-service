@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Replace mediaserver with our hybris/libcompat camera_service
+sed -i $LXC_ROOTFS_PATH/init.rc \
+	-e 's|\(/system/bin/mediaserver\)|/hal-hybris/system/bin/camera_service|'
+
+# camera_service needs patched libs from overlay-libs
+sed -i '/camera_service/a \
+    setenv LD_LIBRARY_PATH /hal-hybris/overlay-libs' $LXC_ROOTFS_PATH/init.rc
+
