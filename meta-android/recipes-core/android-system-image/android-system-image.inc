@@ -22,6 +22,9 @@ do_install() {
     cp -rv ${WORKDIR}/symbols ${D}${libexecdir}/hal-droid/system
 
     cp -rpv ${WORKDIR}/overlay-libs ${D}${libexecdir}/hal-droid
+    for i in ${WORKDIR}/overlay-libs/*.so; do
+        [ ! -f ${D}${libexecdir}/hal-droid/system/lib/$(basename $i) ] && cp $i ${D}${libexecdir}/hal-droid/system/lib
+    done
 
     install -d ${D}${sysconfdir}
     ln -sf /system/etc/media_codecs.xml ${D}${sysconfdir}/media_codecs.xml
