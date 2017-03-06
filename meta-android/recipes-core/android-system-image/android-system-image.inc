@@ -21,6 +21,11 @@ do_install() {
     install -d ${D}${libexecdir}/hal-droid/system/symbols
     cp -rv ${WORKDIR}/symbols ${D}${libexecdir}/hal-droid/system
 
+    cp -rpv ${WORKDIR}/overlay-libs ${D}${libexecdir}/hal-droid
+    for i in ${WORKDIR}/overlay-libs/*.so; do
+        [ ! -f ${D}${libexecdir}/hal-droid/system/lib/$(basename $i) ] && cp $i ${D}${libexecdir}/hal-droid/system/lib
+    done
+
     install -d ${D}${sysconfdir}
     ln -sf /system/etc/media_codecs.xml ${D}${sysconfdir}/media_codecs.xml
     ln -sf /system/etc/media_profiles ${D}${sysconfdir}/media_profiles.xml
@@ -64,4 +69,4 @@ INSANE_SKIP_${PN}-dbg = "ldflags"
 INHIBIT_PACKAGE_STRIP = "1"
 PACKAGES = "${PN}-dbg ${PN}"
 FILES_${PN}-dbg = "${libexecdir}/hal-droid/system/symbols"
-FILES_${PN} = "${libexecdir}/hal-droid/system /vendor /android /default.prop ${libdir}/android-system/ramdisk.img ${sysconfdir}"
+FILES_${PN} = "${libexecdir}/hal-droid/system ${libexecdir}/hal-droid/overlay-libs /vendor /android /default.prop ${libdir}/android-system/ramdisk.img ${sysconfdir}"
