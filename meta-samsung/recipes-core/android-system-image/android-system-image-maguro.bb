@@ -4,11 +4,11 @@ PR = "${INC_PR}.1"
 
 COMPATIBLE_MACHINE = "maguro"
 
-PV = "20170128-0"
+PV = "20170305-19"
 
 SRC_URI = "http://build.webos-ports.org/cm-wop-12.1/hal-droid-wop-12.1-${PV}-${MACHINE}.tar.bz2"
-SRC_URI[md5sum] = "b20339a604d1df1dd11519a67c40cd49"
-SRC_URI[sha256sum] = "265c4dda28098408dedaf0005fac190359ca30e5daaee4d11170149630fa2c36"
+SRC_URI[md5sum] = "e83ca11e8844ab5d664ee4ab628de587"
+SRC_URI[sha256sum] = "de1cbcbde7b533a442df0352ce8477c59d5195fca4e194aa10f8c575c0a89008"
 
 do_install_prepend() {
     # fixup libGLESv3.so if needed
