@@ -21,6 +21,7 @@ do_install() {
     install -d ${D}${libexecdir}/hal-droid/system/symbols
     cp -rv ${WORKDIR}/symbols ${D}${libexecdir}/hal-droid/system
 
+    mkdir -p ${WORKDIR}/overlay-libs
     cp -rpv ${WORKDIR}/overlay-libs ${D}${libexecdir}/hal-droid
     for i in ${WORKDIR}/overlay-libs/*.so; do
         [ ! -f ${D}${libexecdir}/hal-droid/system/lib/$(basename $i) ] && cp $i ${D}${libexecdir}/hal-droid/system/lib
