@@ -29,3 +29,7 @@ module_do_install() {
 }
 
 KERNEL_MODULE_AUTOLOAD = "pvrsrvkm_sgx540_120"
+
+# Explicitly list this package, so that virtual/kernel isn't picked to provide this
+# as generic kernel-module-* provider
+PACKAGES += "kernel-module-pvrsrvkm-sgx540-120"
