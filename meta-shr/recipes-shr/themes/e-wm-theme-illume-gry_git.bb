@@ -26,3 +26,11 @@ do_install() {
 }
 
 FILES_${PN} = "${datadir}/enlightenment/data/themes/"
+
+PNBLACKLIST[e-wm-theme-illume-gry] ?= "Depends on blacklisted edje-native"
+
+PNBLACKLIST[e-wm-theme-illume-gry] ?= "Runtime depends on blacklisted e-wm-theme-illume-gry"
+
+PNBLACKLIST[e-wm-theme-illume-gry] ?= "Runtime depends on blacklisted e-wm-theme-illume-gry-dev"
+
+PNBLACKLIST[e-wm-theme-illume-gry] ?= "Runtime depends on blacklisted elementary-theme-gry"

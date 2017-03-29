@@ -23,3 +23,9 @@ do_install() {
 FILES_${PN} = "${datadir}/enlightenment/data/themes/sowka.edj"
 
 
+
+PNBLACKLIST[e-wm-theme-sowka] ?= "Depends on blacklisted edje-native"
+
+PNBLACKLIST[e-wm-theme-sowka] ?= "Runtime depends on blacklisted e-wm-theme-sowka-dev"
+
+PNBLACKLIST[e-wm-theme-sowka] ?= "Runtime depends on blacklisted e-wm-theme-sowka"

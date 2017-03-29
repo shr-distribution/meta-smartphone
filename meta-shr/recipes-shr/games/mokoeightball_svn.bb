@@ -36,3 +36,9 @@ do_install() {
     install -m 0644 ipk/usr/share/applications/eightball.desktop ${D}${datadir}/applications/eightball.desktop
     install -m 0644 ipk/usr/share/pixmaps/eightball.png ${D}${datadir}/pixmaps/eightball.png
 }
+
+PNBLACKLIST[mokoeightball] ?= "Depends on blacklisted edje-native"
+
+PNBLACKLIST[mokoeightball] ?= "Runtime depends on blacklisted mokoeightball-dev"
+
+PNBLACKLIST[mokoeightball] ?= "Runtime depends on blacklisted mokoeightball"

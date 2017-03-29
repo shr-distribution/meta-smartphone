@@ -41,3 +41,11 @@ do_install() {
 RPROVIDES_${PN} = "illume-theme"
 CONFFILES_${PN} = "${sysconfdir}/enlightenment/default_profile"
 FILES_${PN} = "${sysconfdir}/enlightenment ${datadir}/enlightenment"
+
+PNBLACKLIST[illume-theme-freesmartphone] ?= "Depends on blacklisted edje-native"
+
+PNBLACKLIST[illume-theme-freesmartphone] ?= "Depends on blacklisted eet-native"
+
+PNBLACKLIST[illume-theme-freesmartphone] ?= "Runtime depends on blacklisted illume-theme-freesmartphone"
+
+PNBLACKLIST[illume-theme-freesmartphone] ?= "Runtime depends on blacklisted illume-theme-freesmartphone-dev"

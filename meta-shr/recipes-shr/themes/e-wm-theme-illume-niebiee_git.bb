@@ -23,3 +23,9 @@ do_install() {
 FILES_${PN} = "${datadir}/enlightenment/data/themes/illume-niebiee.edj"
 
 
+
+PNBLACKLIST[e-wm-theme-illume-niebiee] ?= "Depends on blacklisted edje-native"
+
+PNBLACKLIST[e-wm-theme-illume-niebiee] ?= "Runtime depends on blacklisted e-wm-theme-illume-niebiee"
+
+PNBLACKLIST[e-wm-theme-illume-niebiee] ?= "Runtime depends on blacklisted e-wm-theme-illume-niebiee-dev"

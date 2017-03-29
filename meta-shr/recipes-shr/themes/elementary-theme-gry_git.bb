@@ -26,3 +26,11 @@ do_install() {
 }
 
 FILES_${PN} = "${datadir}/elementary/themes/"
+
+PNBLACKLIST[elementary-theme-gry] ?= "Depends on blacklisted edje-native"
+
+PNBLACKLIST[elementary-theme-gry] ?= "Runtime depends on blacklisted elementary-theme-gry-dev"
+
+PNBLACKLIST[elementary-theme-gry] ?= "Runtime depends on blacklisted e-wm-theme-illume-gry"
+
+PNBLACKLIST[elementary-theme-gry] ?= "Runtime depends on blacklisted elementary-theme-gry"

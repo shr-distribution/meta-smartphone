@@ -21,3 +21,9 @@ do_install() {
 }
 
 FILES_${PN} = "${datadir}/elementary/themes/niebiee.edj"
+
+PNBLACKLIST[elementary-theme-niebiee] ?= "Depends on blacklisted edje-native"
+
+PNBLACKLIST[elementary-theme-niebiee] ?= "Runtime depends on blacklisted elementary-theme-niebiee"
+
+PNBLACKLIST[elementary-theme-niebiee] ?= "Runtime depends on blacklisted elementary-theme-niebiee-dev"

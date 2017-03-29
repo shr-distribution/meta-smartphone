@@ -23,3 +23,9 @@ do_install() {
 FILES_${PN} = "${datadir}/enlightenment/data/themes/illume-sixteen.edj"
 
 
+
+PNBLACKLIST[e-wm-theme-illume-sixteen] ?= "Depends on blacklisted edje-native"
+
+PNBLACKLIST[e-wm-theme-illume-sixteen] ?= "Runtime depends on blacklisted e-wm-theme-illume-sixteen"
+
+PNBLACKLIST[e-wm-theme-illume-sixteen] ?= "Runtime depends on blacklisted e-wm-theme-illume-sixteen-dev"

@@ -23,3 +23,9 @@ do_install() {
 FILES_${PN} = "${datadir}/enlightenment/data/themes/illume-shr.edj"
 
 
+
+PNBLACKLIST[e-wm-theme-illume-shr] ?= "Depends on blacklisted edje-native"
+
+PNBLACKLIST[e-wm-theme-illume-shr] ?= "Runtime depends on blacklisted e-wm-theme-illume-shr-dev"
+
+PNBLACKLIST[e-wm-theme-illume-shr] ?= "Runtime depends on blacklisted e-wm-theme-illume-shr"

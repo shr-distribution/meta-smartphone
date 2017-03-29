@@ -21,3 +21,9 @@ do_install() {
 }
 
 FILES_${PN} = "${datadir}/elementary/themes/sowka.edj"
+
+PNBLACKLIST[elementary-theme-sowka] ?= "Depends on blacklisted edje-native"
+
+PNBLACKLIST[elementary-theme-sowka] ?= "Runtime depends on blacklisted elementary-theme-sowka-dev"
+
+PNBLACKLIST[elementary-theme-sowka] ?= "Runtime depends on blacklisted elementary-theme-sowka"

@@ -26,3 +26,9 @@ do_install() {
 }
 
 FILES_${PN} = "${datadir}/elementary/themes/"
+
+PNBLACKLIST[elementary-theme-neo] ?= "Depends on blacklisted edje-native"
+
+PNBLACKLIST[elementary-theme-neo] ?= "Runtime depends on blacklisted elementary-theme-neo"
+
+PNBLACKLIST[elementary-theme-neo] ?= "Runtime depends on blacklisted elementary-theme-neo-dev"

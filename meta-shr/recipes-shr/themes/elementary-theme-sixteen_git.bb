@@ -23,3 +23,9 @@ do_install() {
 FILES_${PN} = "${datadir}/elementary/themes/sixteen.edj"
 
 
+
+PNBLACKLIST[elementary-theme-sixteen] ?= "Depends on blacklisted edje-native"
+
+PNBLACKLIST[elementary-theme-sixteen] ?= "Runtime depends on blacklisted elementary-theme-sixteen-dev"
+
+PNBLACKLIST[elementary-theme-sixteen] ?= "Runtime depends on blacklisted elementary-theme-sixteen"
