@@ -20,7 +20,7 @@ RDEPENDS_${PN} = "\
 "
 
 do_compile() {
-    ${CC} pyc.c -o pyc
+    ${CC} ${CFLAGS} ${LDFLAGS} pyc.c -o pyc
 }
 
 do_install() {
