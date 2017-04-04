@@ -29,4 +29,4 @@ do_install_append() {
     install -m 0644 ${WORKDIR}/${PN}.service ${D}${systemd_unitdir}/system
 }
 
-PNBLACKLIST[phonefsod] ?= "Depends on blacklisted libfso-glib"
+PNBLACKLIST[phonefsod] ?= "Depends on blacklisted libfso-glib - the recipe will be removed on 2017-09-01 unless the issue is fixed"

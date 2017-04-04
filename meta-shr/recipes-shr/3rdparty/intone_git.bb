@@ -11,7 +11,7 @@ SRCREV = "d5c211f7f5ed815437b4dbd880bf2fa3af7105e1"
 PV = "0.70+gitr${SRCPV}"
 PR = "r1"
 
-PNBLACKLIST[intone] = "rdepends on blacklisted mplayer2"
+PNBLACKLIST[intone] = "rdepends on blacklisted mplayer2 - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 SRC_URI = "git://code.google.com/p/intone;protocol=http"
 
 S = "${WORKDIR}/git"

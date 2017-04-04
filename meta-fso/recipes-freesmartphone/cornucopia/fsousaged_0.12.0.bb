@@ -17,4 +17,4 @@ do_configure_prepend() {
 
 SRC_URI += "file://0001-fsousaged-upgrade-to-gee-0.8.patch"
 
-PNBLACKLIST[fsousaged] ?= "Depends on blacklisted libfso-glib"
+PNBLACKLIST[fsousaged] ?= "Depends on blacklisted libfso-glib - the recipe will be removed on 2017-09-01 unless the issue is fixed"

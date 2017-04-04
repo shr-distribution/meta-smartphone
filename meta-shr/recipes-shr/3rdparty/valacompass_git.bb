@@ -8,7 +8,7 @@ RSUGGESTS_${PN} = ""
 PV = "0.11+gitr${SRCPV}"
 PR = "r1"
 
-PNBLACKLIST[valacompass] = "Doesn't build after vala upgrade from 0.24.0 to 0.26.1"
+PNBLACKLIST[valacompass] = "Doesn't build after vala upgrade from 0.24.0 to 0.26.1 - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
 SRC_URI = "git://gitorious.org/vala-compass/vala-compass.git;protocol=git;branch=master"
 

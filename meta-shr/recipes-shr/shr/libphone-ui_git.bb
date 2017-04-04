@@ -18,4 +18,4 @@ inherit autotools pkgconfig
 
 RDEPENDS_${PN} = "${PN}-config"
 
-PNBLACKLIST[libphone-ui] ?= "Depends on blacklisted libfso-glib"
+PNBLACKLIST[libphone-ui] ?= "Depends on blacklisted libfso-glib - the recipe will be removed on 2017-09-01 unless the issue is fixed"

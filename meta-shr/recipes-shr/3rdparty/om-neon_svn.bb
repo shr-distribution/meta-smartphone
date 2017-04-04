@@ -27,12 +27,12 @@ do_compile_prepend() {
     sed -i "s/THEMES_DIR = '..\/data\/themes'/#THEMES_DIR = '..\/data\/themes'/g" ${S}/neon/neon.py
 }
 
-PNBLACKLIST[om-neon] ?= "Runtime depends on blacklisted python-evas"
+PNBLACKLIST[om-neon] ?= "Runtime depends on blacklisted python-evas - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[om-neon] ?= "Runtime depends on blacklisted om-neon-dev"
+PNBLACKLIST[om-neon] ?= "Runtime depends on blacklisted om-neon-dev - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[om-neon] ?= "Runtime depends on blacklisted python-edje"
+PNBLACKLIST[om-neon] ?= "Runtime depends on blacklisted python-edje - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[om-neon] ?= "Runtime depends on blacklisted python-ecore"
+PNBLACKLIST[om-neon] ?= "Runtime depends on blacklisted python-ecore - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[om-neon] ?= "Runtime depends on blacklisted om-neon"
+PNBLACKLIST[om-neon] ?= "Runtime depends on blacklisted om-neon - the recipe will be removed on 2017-09-01 unless the issue is fixed"

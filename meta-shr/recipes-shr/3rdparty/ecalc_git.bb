@@ -27,6 +27,6 @@ do_install(){
 FILES_${PN} += "${prefix}/share/pixmaps"
 FILES_${PN} += "${prefix}/share/applications"
 
-PNBLACKLIST[ecalc] ?= "Runtime depends on blacklisted python-edbus"
+PNBLACKLIST[ecalc] ?= "Runtime depends on blacklisted python-edbus - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[ecalc] ?= "Runtime depends on blacklisted python-elementary"
+PNBLACKLIST[ecalc] ?= "Runtime depends on blacklisted python-elementary - the recipe will be removed on 2017-09-01 unless the issue is fixed"

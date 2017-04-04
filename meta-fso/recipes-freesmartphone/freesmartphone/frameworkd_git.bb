@@ -9,6 +9,6 @@ SRC_URI = "${FREESMARTPHONE_GIT}/framework.git;protocol=git;branch=master"
 
 S = "${WORKDIR}/git"
 
-PNBLACKLIST[frameworkd] ?= "Runtime depends on blacklisted fsousaged"
+PNBLACKLIST[frameworkd] ?= "Runtime depends on blacklisted fsousaged - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[frameworkd] ?= "Runtime depends on blacklisted frameworkd-dev"
+PNBLACKLIST[frameworkd] ?= "Runtime depends on blacklisted frameworkd-dev - the recipe will be removed on 2017-09-01 unless the issue is fixed"

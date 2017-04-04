@@ -13,8 +13,8 @@ PV = "0.1"
 
 ALLOW_EMPTY_${PN} = "1"
 
-PNBLACKLIST[shr-theme-o2] ?= "Runtime depends on blacklisted phoneui-shr-theme-o2"
+PNBLACKLIST[shr-theme-o2] ?= "Runtime depends on blacklisted phoneui-shr-theme-o2 - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[shr-theme-o2] ?= "Runtime depends on blacklisted shr-theme-o2"
+PNBLACKLIST[shr-theme-o2] ?= "Runtime depends on blacklisted shr-theme-o2 - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[shr-theme-o2] ?= "Runtime depends on blacklisted shr-theme-o2-dev"
+PNBLACKLIST[shr-theme-o2] ?= "Runtime depends on blacklisted shr-theme-o2-dev - the recipe will be removed on 2017-09-01 unless the issue is fixed"

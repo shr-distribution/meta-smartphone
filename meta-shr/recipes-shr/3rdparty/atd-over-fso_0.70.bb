@@ -66,4 +66,4 @@ updatercd_postrm_append() {
     fi
 }
 
-PNBLACKLIST[atd-over-fso] ?= "Fails to build with RSS http://errors.yoctoproject.org/Errors/Details/130540/"
+PNBLACKLIST[atd-over-fso] ?= "Fails to build with RSS http://errors.yoctoproject.org/Errors/Details/130540/ - the recipe will be removed on 2017-09-01 unless the issue is fixed"

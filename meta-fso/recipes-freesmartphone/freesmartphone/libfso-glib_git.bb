@@ -9,4 +9,4 @@ PR = "r1"
 SRC_URI = "${FREESMARTPHONE_GIT}/${BPN}.git;protocol=git;branch=master"
 S = "${WORKDIR}/git"
 
-PNBLACKLIST[libfso-glib] ?= "Depends on blacklisted vala-dbus-binding-tool"
+PNBLACKLIST[libfso-glib] ?= "Depends on blacklisted vala-dbus-binding-tool - the recipe will be removed on 2017-09-01 unless the issue is fixed"

@@ -26,4 +26,4 @@ do_configure_prepend() {
 
 inherit gettext autotools-brokensep
 
-PNBLACKLIST[mokojeweled] ?= "Depends on blacklisted elementary"
+PNBLACKLIST[mokojeweled] ?= "Depends on blacklisted elementary - the recipe will be removed on 2017-09-01 unless the issue is fixed"

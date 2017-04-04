@@ -33,4 +33,4 @@ do_install() {
 
 MAINTAINER = "Lukasz Pankowski <lukpank@o2.pl>"
 
-PNBLACKLIST[ffphonelog] ?= "Depends on blacklisted libeflvala"
+PNBLACKLIST[ffphonelog] ?= "Depends on blacklisted libeflvala - the recipe will be removed on 2017-09-01 unless the issue is fixed"

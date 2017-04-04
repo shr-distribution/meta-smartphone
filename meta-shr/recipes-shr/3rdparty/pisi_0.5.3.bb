@@ -15,7 +15,7 @@ RDEPENDS_${PN} = "python-vobject python-core python-pygtk python-pycairo\
 
 # Rdepends on libsyncml and python-pygtk
 #PNBLACKLIST[pisi] ?= "${@bb.utils.contains('DISTRO_FEATURES', 'bluez5', 'bluez5 conflicts with bluez4 and bluez5 is selected in DISTRO_FEATURES', '', d)}"
-PNBLACKLIST[pisi] ?= "RDEPENDS on python-pygtk which was removed from oe-core"
+PNBLACKLIST[pisi] ?= "RDEPENDS on python-pygtk which was removed from oe-core - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
 SRC_URI = "http://github.com/downloads/kichkasch/pisi/pisi-src-${PV}.tar.gz"
 SRC_URI[md5sum] = "c416b316668575f8506dc54e19475795"

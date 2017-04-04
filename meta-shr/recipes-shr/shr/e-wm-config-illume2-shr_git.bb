@@ -41,4 +41,4 @@ RRECOMMENDS_${PN} = "\
 # autotools-brokensep
 B = "${S}"
 
-PNBLACKLIST[e-wm-config-illume2-shr] ?= "Fails to build with RSS http://errors.yoctoproject.org/Errors/Details/130520/"
+PNBLACKLIST[e-wm-config-illume2-shr] ?= "Fails to build with RSS http://errors.yoctoproject.org/Errors/Details/130520/ - the recipe will be removed on 2017-09-01 unless the issue is fixed"

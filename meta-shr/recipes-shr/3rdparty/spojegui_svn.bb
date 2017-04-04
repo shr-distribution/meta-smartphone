@@ -30,4 +30,4 @@ do_install() {
 
 FILES_${PN} += " ${datadir}/applications/spoje.desktop ${datadir}/pixmaps"
 
-PNBLACKLIST[spojegui] ?= "Runtime depends on blacklisted python-elementary"
+PNBLACKLIST[spojegui] ?= "Runtime depends on blacklisted python-elementary - the recipe will be removed on 2017-09-01 unless the issue is fixed"

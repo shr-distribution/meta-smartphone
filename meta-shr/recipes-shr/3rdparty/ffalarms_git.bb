@@ -14,7 +14,7 @@ PR = "r2"
 #disable as-needed for now, fails on many undefined symbols otherwise
 ASNEEDED = ""
 
-PNBLACKLIST[ffalarms] = "Doesn't build after vala upgrade from 0.24.0 to 0.26.1"
+PNBLACKLIST[ffalarms] = "Doesn't build after vala upgrade from 0.24.0 to 0.26.1 - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
 SRC_URI = "git://git.shr-project.org/repo/ffalarms.git;protocol=http;branch=master \
 "

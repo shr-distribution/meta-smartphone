@@ -26,4 +26,4 @@ RRECOMMENDS_${PN} += "\
   python-dbus \
 "
 
-PNBLACKLIST[mickeyterm] ?= "Runtime depends on blacklisted fso-gsm0710muxd"
+PNBLACKLIST[mickeyterm] ?= "Runtime depends on blacklisted fso-gsm0710muxd - the recipe will be removed on 2017-09-01 unless the issue is fixed"

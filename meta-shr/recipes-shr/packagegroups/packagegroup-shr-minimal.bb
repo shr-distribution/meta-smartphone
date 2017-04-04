@@ -122,12 +122,12 @@ RDEPENDS_${PN}-gtk = "\
   gtk-immodule-xim \
 "
 
-PNBLACKLIST[packagegroup-shr-minimal] ?= "Runtime depends on blacklisted shr-wizard"
+PNBLACKLIST[packagegroup-shr-minimal] ?= "Runtime depends on blacklisted shr-wizard - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr-minimal] ?= "Runtime depends on blacklisted terminology"
+PNBLACKLIST[packagegroup-shr-minimal] ?= "Runtime depends on blacklisted terminology - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr-minimal] ?= "Runtime depends on blacklisted packagegroup-shr-minimal"
+PNBLACKLIST[packagegroup-shr-minimal] ?= "Runtime depends on blacklisted packagegroup-shr-minimal - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr-minimal] ?= "Runtime depends on blacklisted libphone-ui-shr"
+PNBLACKLIST[packagegroup-shr-minimal] ?= "Runtime depends on blacklisted libphone-ui-shr - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr-minimal] ?= "Runtime depends on blacklisted ffphonelog"
+PNBLACKLIST[packagegroup-shr-minimal] ?= "Runtime depends on blacklisted ffphonelog - the recipe will be removed on 2017-09-01 unless the issue is fixed"

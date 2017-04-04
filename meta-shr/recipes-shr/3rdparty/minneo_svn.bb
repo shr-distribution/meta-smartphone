@@ -26,4 +26,4 @@ do_compile_append() {
         ${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/data/themes/default ${S}/data/themes/default/minneo.edc
 }
 
-PNBLACKLIST[minneo] ?= "Runtime depends on blacklisted python-elementary"
+PNBLACKLIST[minneo] ?= "Runtime depends on blacklisted python-elementary - the recipe will be removed on 2017-09-01 unless the issue is fixed"

@@ -17,4 +17,4 @@ S = "${WORKDIR}/git"
 FILES_${PN} += "${prefix}/share/pixmaps"
 FILES_${PN} += "${prefix}/share/applications"
 
-PNBLACKLIST[shr-installer] ?= "Depends on blacklisted packagekit"
+PNBLACKLIST[shr-installer] ?= "Depends on blacklisted packagekit - the recipe will be removed on 2017-09-01 unless the issue is fixed"

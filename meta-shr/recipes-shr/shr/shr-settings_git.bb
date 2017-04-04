@@ -41,6 +41,6 @@ CONFFILES_${PN}-backup-configuration = "\
   ${sysconfdir}/shr-settings/backup.whitelist \
 "
 
-PNBLACKLIST[shr-settings] ?= "Runtime depends on blacklisted python-edbus"
+PNBLACKLIST[shr-settings] ?= "Runtime depends on blacklisted python-edbus - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[shr-settings] ?= "Runtime depends on blacklisted python-elementary"
+PNBLACKLIST[shr-settings] ?= "Runtime depends on blacklisted python-elementary - the recipe will be removed on 2017-09-01 unless the issue is fixed"

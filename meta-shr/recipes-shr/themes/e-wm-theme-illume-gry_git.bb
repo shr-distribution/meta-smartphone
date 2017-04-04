@@ -27,10 +27,10 @@ do_install() {
 
 FILES_${PN} = "${datadir}/enlightenment/data/themes/"
 
-PNBLACKLIST[e-wm-theme-illume-gry] ?= "Depends on blacklisted edje-native"
+PNBLACKLIST[e-wm-theme-illume-gry] ?= "Depends on blacklisted edje-native - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[e-wm-theme-illume-gry] ?= "Runtime depends on blacklisted e-wm-theme-illume-gry"
+PNBLACKLIST[e-wm-theme-illume-gry] ?= "Runtime depends on blacklisted e-wm-theme-illume-gry - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[e-wm-theme-illume-gry] ?= "Runtime depends on blacklisted e-wm-theme-illume-gry-dev"
+PNBLACKLIST[e-wm-theme-illume-gry] ?= "Runtime depends on blacklisted e-wm-theme-illume-gry-dev - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[e-wm-theme-illume-gry] ?= "Runtime depends on blacklisted elementary-theme-gry"
+PNBLACKLIST[e-wm-theme-illume-gry] ?= "Runtime depends on blacklisted elementary-theme-gry - the recipe will be removed on 2017-09-01 unless the issue is fixed"

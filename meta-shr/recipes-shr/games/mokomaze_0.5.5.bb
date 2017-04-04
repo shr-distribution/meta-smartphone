@@ -21,5 +21,5 @@ inherit autotools pkgconfig gettext
 
 EXTRA_OECONF = "FONTDIR=${datadir}/fonts/truetype --enable-rgb-swap"
 
-PNBLACKLIST[mokomaze] ?= "Depends on blacklisted libsdl-ttf"
-PNBLACKLIST[mokomaze] ?= "Depends on blacklisted ode"
+PNBLACKLIST[mokomaze] ?= "Depends on blacklisted libsdl-ttf - the recipe will be removed on 2017-09-01 unless the issue is fixed"
+PNBLACKLIST[mokomaze] ?= "Depends on blacklisted ode - the recipe will be removed on 2017-09-01 unless the issue is fixed"

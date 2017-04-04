@@ -20,4 +20,4 @@ RDEPENDS_${PN} += "python-math python-elementary"
 
 FILES_${PN} += "${datadir}"
 
-PNBLACKLIST[numberx] ?= "Runtime depends on blacklisted python-elementary"
+PNBLACKLIST[numberx] ?= "Runtime depends on blacklisted python-elementary - the recipe will be removed on 2017-09-01 unless the issue is fixed"

@@ -18,4 +18,4 @@ FILES_${PN} += "${datadir}/atrack ${datadir}/applications/atrack.desktop ${datad
 
 RDEPENDS_${PN} += "python-netclient python-elementary"
 
-PNBLACKLIST[atrack] ?= "Runtime depends on blacklisted python-elementary"
+PNBLACKLIST[atrack] ?= "Runtime depends on blacklisted python-elementary - the recipe will be removed on 2017-09-01 unless the issue is fixed"

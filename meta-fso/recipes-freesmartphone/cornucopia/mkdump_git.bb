@@ -17,4 +17,4 @@ S = "${WORKDIR}/git/tools/${PN}"
 # autotools-brokensep
 B = "${S}"
 
-PNBLACKLIST[mkdump] ?= "Depends on blacklisted libfsoframework"
+PNBLACKLIST[mkdump] ?= "Depends on blacklisted libfsoframework - the recipe will be removed on 2017-09-01 unless the issue is fixed"

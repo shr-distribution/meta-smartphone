@@ -18,4 +18,4 @@ inherit gettext autotools-brokensep
 
 FILES_${PN} += "/opt/${PN}"
 
-PNBLACKLIST[estardict] ?= "Depends on blacklisted elementary"
+PNBLACKLIST[estardict] ?= "Depends on blacklisted elementary - the recipe will be removed on 2017-09-01 unless the issue is fixed"

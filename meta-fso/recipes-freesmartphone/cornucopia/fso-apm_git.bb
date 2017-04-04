@@ -13,4 +13,4 @@ PR = "${INC_PR}.1"
 
 S = "${WORKDIR}/git/tools/apm2"
 
-PNBLACKLIST[fso-apm] ?= "Depends on blacklisted libfso-glib"
+PNBLACKLIST[fso-apm] ?= "Depends on blacklisted libfso-glib - the recipe will be removed on 2017-09-01 unless the issue is fixed"

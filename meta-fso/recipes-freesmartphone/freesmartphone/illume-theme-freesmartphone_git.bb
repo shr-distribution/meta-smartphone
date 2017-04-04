@@ -42,10 +42,10 @@ RPROVIDES_${PN} = "illume-theme"
 CONFFILES_${PN} = "${sysconfdir}/enlightenment/default_profile"
 FILES_${PN} = "${sysconfdir}/enlightenment ${datadir}/enlightenment"
 
-PNBLACKLIST[illume-theme-freesmartphone] ?= "Depends on blacklisted edje-native"
+PNBLACKLIST[illume-theme-freesmartphone] ?= "Depends on blacklisted edje-native - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[illume-theme-freesmartphone] ?= "Depends on blacklisted eet-native"
+PNBLACKLIST[illume-theme-freesmartphone] ?= "Depends on blacklisted eet-native - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[illume-theme-freesmartphone] ?= "Runtime depends on blacklisted illume-theme-freesmartphone"
+PNBLACKLIST[illume-theme-freesmartphone] ?= "Runtime depends on blacklisted illume-theme-freesmartphone - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[illume-theme-freesmartphone] ?= "Runtime depends on blacklisted illume-theme-freesmartphone-dev"
+PNBLACKLIST[illume-theme-freesmartphone] ?= "Runtime depends on blacklisted illume-theme-freesmartphone-dev - the recipe will be removed on 2017-09-01 unless the issue is fixed"

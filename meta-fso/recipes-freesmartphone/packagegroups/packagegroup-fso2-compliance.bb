@@ -49,24 +49,24 @@ RRECOMMENDS_${PN} = "\
   mioctl \
 "
 
-PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsoaudiod-config"
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsoaudiod-config - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted mkdump"
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted mkdump - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsonetworkd"
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsonetworkd - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fso-apm"
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fso-apm - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsodatad"
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsodatad - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted packagegroup-fso2-compliance"
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted packagegroup-fso2-compliance - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsogsmd"
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsogsmd - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted mterm2"
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted mterm2 - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsodeviced"
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsodeviced - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsotdld"
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsotdld - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsousaged"
+PNBLACKLIST[packagegroup-fso2-compliance] ?= "Runtime depends on blacklisted fsousaged - the recipe will be removed on 2017-09-01 unless the issue is fixed"

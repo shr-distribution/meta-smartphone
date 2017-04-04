@@ -40,8 +40,8 @@ do_install() {
 
 FILES_${PN} += "${datadir}/babiloo"
 
-PNBLACKLIST[babiloo-efl] ?= "Runtime depends on blacklisted python-elementary"
+PNBLACKLIST[babiloo-efl] ?= "Runtime depends on blacklisted python-elementary - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[babiloo-efl] ?= "Runtime depends on blacklisted babiloo-efl"
+PNBLACKLIST[babiloo-efl] ?= "Runtime depends on blacklisted babiloo-efl - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[babiloo-efl] ?= "Runtime depends on blacklisted babiloo-efl-dev"
+PNBLACKLIST[babiloo-efl] ?= "Runtime depends on blacklisted babiloo-efl-dev - the recipe will be removed on 2017-09-01 unless the issue is fixed"

@@ -19,4 +19,4 @@ do_install_append() {
     ln -s fso-raw ${D}${bindir}/fsoraw
 }
 
-PNBLACKLIST[fsoraw] ?= "Depends on blacklisted libfso-glib"
+PNBLACKLIST[fsoraw] ?= "Depends on blacklisted libfso-glib - the recipe will be removed on 2017-09-01 unless the issue is fixed"

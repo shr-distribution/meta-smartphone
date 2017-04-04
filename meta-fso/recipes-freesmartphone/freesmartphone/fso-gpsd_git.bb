@@ -40,4 +40,4 @@ RPROVIDES_${PN} = "gpsd"
 # fixing.
 #RCONFLICTS_${PN} = "gpsd"
 
-PNBLACKLIST[fso-gpsd] ?= "Runtime depends on blacklisted fso-gpsd-dev"
+PNBLACKLIST[fso-gpsd] ?= "Runtime depends on blacklisted fso-gpsd-dev - the recipe will be removed on 2017-09-01 unless the issue is fixed"

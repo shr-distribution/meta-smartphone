@@ -37,8 +37,8 @@ do_install() {
     install -m 0644 ipk/usr/share/pixmaps/eightball.png ${D}${datadir}/pixmaps/eightball.png
 }
 
-PNBLACKLIST[mokoeightball] ?= "Depends on blacklisted edje-native"
+PNBLACKLIST[mokoeightball] ?= "Depends on blacklisted edje-native - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[mokoeightball] ?= "Runtime depends on blacklisted mokoeightball-dev"
+PNBLACKLIST[mokoeightball] ?= "Runtime depends on blacklisted mokoeightball-dev - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[mokoeightball] ?= "Runtime depends on blacklisted mokoeightball"
+PNBLACKLIST[mokoeightball] ?= "Runtime depends on blacklisted mokoeightball - the recipe will be removed on 2017-09-01 unless the issue is fixed"

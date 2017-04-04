@@ -24,8 +24,8 @@ FILES_${PN} = "${datadir}/enlightenment/data/themes/illume-shr.edj"
 
 
 
-PNBLACKLIST[e-wm-theme-illume-shr] ?= "Depends on blacklisted edje-native"
+PNBLACKLIST[e-wm-theme-illume-shr] ?= "Depends on blacklisted edje-native - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[e-wm-theme-illume-shr] ?= "Runtime depends on blacklisted e-wm-theme-illume-shr-dev"
+PNBLACKLIST[e-wm-theme-illume-shr] ?= "Runtime depends on blacklisted e-wm-theme-illume-shr-dev - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[e-wm-theme-illume-shr] ?= "Runtime depends on blacklisted e-wm-theme-illume-shr"
+PNBLACKLIST[e-wm-theme-illume-shr] ?= "Runtime depends on blacklisted e-wm-theme-illume-shr - the recipe will be removed on 2017-09-01 unless the issue is fixed"

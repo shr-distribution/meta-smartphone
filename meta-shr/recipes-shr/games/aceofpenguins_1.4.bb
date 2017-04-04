@@ -20,4 +20,4 @@ S = "${WORKDIR}/ace-${PV}"
 inherit autotools
 
 # http://errors.yoctoproject.org/Errors/Details/81006/
-PNBLACKLIST[aceofpenguins] ?= "BROKEN: fails to build with new binutils-2.27"
+PNBLACKLIST[aceofpenguins] ?= "BROKEN: fails to build with new binutils-2.27 - the recipe will be removed on 2017-09-01 unless the issue is fixed"
