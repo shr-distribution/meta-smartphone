@@ -23,3 +23,9 @@ do_install() {
 FILES_${PN} = "${datadir}/enlightenment/data/themes/sowka.edj"
 
 
+
+PNBLACKLIST[e-wm-theme-sowka] ?= "Depends on blacklisted edje-native - the recipe will be removed on 2017-09-01 unless the issue is fixed"
+
+PNBLACKLIST[e-wm-theme-sowka] ?= "Runtime depends on blacklisted e-wm-theme-sowka-dev - the recipe will be removed on 2017-09-01 unless the issue is fixed"
+
+PNBLACKLIST[e-wm-theme-sowka] ?= "Runtime depends on blacklisted e-wm-theme-sowka - the recipe will be removed on 2017-09-01 unless the issue is fixed"

@@ -59,12 +59,12 @@ RDEPENDS_${PN}-games += "\
   numptyphysics \
 "
 
-PNBLACKLIST[packagegroup-shr] ?= "Runtime depends on blacklisted packagegroup-cli-tools-debug"
+PNBLACKLIST[packagegroup-shr] ?= "Runtime depends on blacklisted packagegroup-cli-tools-debug - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr] ?= "Runtime depends on blacklisted packagegroup-shr-minimal-cli"
+PNBLACKLIST[packagegroup-shr] ?= "Runtime depends on blacklisted packagegroup-shr-minimal-cli - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr] ?= "Runtime depends on blacklisted packagegroup-cli-tools"
+PNBLACKLIST[packagegroup-shr] ?= "Runtime depends on blacklisted packagegroup-cli-tools - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr] ?= "Runtime depends on blacklisted packagegroup-shr-minimal-apps"
+PNBLACKLIST[packagegroup-shr] ?= "Runtime depends on blacklisted packagegroup-shr-minimal-apps - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr] ?= "Runtime depends on blacklisted vagalume"
+PNBLACKLIST[packagegroup-shr] ?= "Runtime depends on blacklisted vagalume - the recipe will be removed on 2017-09-01 unless the issue is fixed"

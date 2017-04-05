@@ -30,6 +30,6 @@ pkg_postinst_${PN} () {
         echo "Restart enlightenment for the changes to take affect"
 }
 
-PNBLACKLIST[icon-theme-neo] ?= "Runtime depends on blacklisted e-wm"
+PNBLACKLIST[icon-theme-neo] ?= "Runtime depends on blacklisted e-wm - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[icon-theme-neo] ?= "Runtime depends on blacklisted icon-theme-neo-dev"
+PNBLACKLIST[icon-theme-neo] ?= "Runtime depends on blacklisted icon-theme-neo-dev - the recipe will be removed on 2017-09-01 unless the issue is fixed"

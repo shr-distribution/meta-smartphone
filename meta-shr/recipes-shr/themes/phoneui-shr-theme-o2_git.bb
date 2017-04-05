@@ -31,4 +31,4 @@ ALTERNATIVE_PRIORITY[libphone-ui-shr-config] = "3"
 
 FILES_${PN} = "${datadir}/libphone-ui-shr/"
 
-PNBLACKLIST[phoneui-shr-theme-o2] ?= "Runtime depends on blacklisted libphone-ui-shr"
+PNBLACKLIST[phoneui-shr-theme-o2] ?= "Runtime depends on blacklisted libphone-ui-shr - the recipe will be removed on 2017-09-01 unless the issue is fixed"

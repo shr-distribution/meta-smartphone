@@ -21,3 +21,9 @@ do_install() {
 }
 
 FILES_${PN} = "${datadir}/elementary/themes/niebiee.edj"
+
+PNBLACKLIST[elementary-theme-niebiee] ?= "Depends on blacklisted edje-native - the recipe will be removed on 2017-09-01 unless the issue is fixed"
+
+PNBLACKLIST[elementary-theme-niebiee] ?= "Runtime depends on blacklisted elementary-theme-niebiee - the recipe will be removed on 2017-09-01 unless the issue is fixed"
+
+PNBLACKLIST[elementary-theme-niebiee] ?= "Runtime depends on blacklisted elementary-theme-niebiee-dev - the recipe will be removed on 2017-09-01 unless the issue is fixed"

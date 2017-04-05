@@ -9,8 +9,8 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384
 
 ALLOW_EMPTY_${PN} = "1"
 
-PNBLACKLIST[shr-theme-niebiee] ?= "Runtime depends on blacklisted phoneui-shr-theme-niebiee"
+PNBLACKLIST[shr-theme-niebiee] ?= "Runtime depends on blacklisted phoneui-shr-theme-niebiee - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[shr-theme-niebiee] ?= "Runtime depends on blacklisted shr-theme-niebiee"
+PNBLACKLIST[shr-theme-niebiee] ?= "Runtime depends on blacklisted shr-theme-niebiee - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[shr-theme-niebiee] ?= "Runtime depends on blacklisted shr-theme-niebiee-dev"
+PNBLACKLIST[shr-theme-niebiee] ?= "Runtime depends on blacklisted shr-theme-niebiee-dev - the recipe will be removed on 2017-09-01 unless the issue is fixed"

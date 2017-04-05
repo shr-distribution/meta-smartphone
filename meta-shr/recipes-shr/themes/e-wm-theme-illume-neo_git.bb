@@ -33,8 +33,8 @@ pkg_postinst_${PN} () {
     echo "After activating this theme be sure to switch to SOFTWARE_16 engine in enlightenment advanced settings to unleash the theme's full power ;-)"
 }
 
-PNBLACKLIST[e-wm-theme-illume-neo] ?= "Runtime depends on blacklisted e-wm"
+PNBLACKLIST[e-wm-theme-illume-neo] ?= "Runtime depends on blacklisted e-wm - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[e-wm-theme-illume-neo] ?= "Runtime depends on blacklisted e-wm-theme-illume-neo-dev"
+PNBLACKLIST[e-wm-theme-illume-neo] ?= "Runtime depends on blacklisted e-wm-theme-illume-neo-dev - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[e-wm-theme-illume-neo] ?= "Runtime depends on blacklisted e-wm-theme-illume-neo"
+PNBLACKLIST[e-wm-theme-illume-neo] ?= "Runtime depends on blacklisted e-wm-theme-illume-neo - the recipe will be removed on 2017-09-01 unless the issue is fixed"

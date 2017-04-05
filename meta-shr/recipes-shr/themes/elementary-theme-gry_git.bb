@@ -26,3 +26,11 @@ do_install() {
 }
 
 FILES_${PN} = "${datadir}/elementary/themes/"
+
+PNBLACKLIST[elementary-theme-gry] ?= "Depends on blacklisted edje-native - the recipe will be removed on 2017-09-01 unless the issue is fixed"
+
+PNBLACKLIST[elementary-theme-gry] ?= "Runtime depends on blacklisted elementary-theme-gry-dev - the recipe will be removed on 2017-09-01 unless the issue is fixed"
+
+PNBLACKLIST[elementary-theme-gry] ?= "Runtime depends on blacklisted e-wm-theme-illume-gry - the recipe will be removed on 2017-09-01 unless the issue is fixed"
+
+PNBLACKLIST[elementary-theme-gry] ?= "Runtime depends on blacklisted elementary-theme-gry - the recipe will be removed on 2017-09-01 unless the issue is fixed"

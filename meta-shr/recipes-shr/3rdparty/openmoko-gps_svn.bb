@@ -23,7 +23,7 @@ PR = "r2"
 
 SRC_URI = "svn://forge.bearstech.com/forge/openmoko;module=gps"
 
-PNBLACKLIST[openmoko-gps] ?= "RDEPENDS on python-pygtk which was removed from oe-core"
+PNBLACKLIST[openmoko-gps] ?= "RDEPENDS on python-pygtk which was removed from oe-core - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
 S = "${WORKDIR}/gps"
 

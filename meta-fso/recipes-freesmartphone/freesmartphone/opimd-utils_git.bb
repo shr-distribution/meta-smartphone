@@ -53,4 +53,4 @@ FILES_${PN}-gui += "${prefix}/share/applications/opimd-messages.desktop"
 FILES_${PN}-gui += "${prefix}/share/applications/opimd-contacts.desktop"
 FILES_${PN}-gui += "${prefix}/share/applications/opimd-dates.desktop"
 
-PNBLACKLIST[opimd-utils] ?= "Runtime depends on blacklisted ffphonelog"
+PNBLACKLIST[opimd-utils] ?= "Runtime depends on blacklisted ffphonelog - the recipe will be removed on 2017-09-01 unless the issue is fixed"

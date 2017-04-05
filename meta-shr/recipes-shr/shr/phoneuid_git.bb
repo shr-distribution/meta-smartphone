@@ -24,4 +24,4 @@ FILES_${PN} += "${datadir}"
 CONFFILES_${PN} = "${sysconfdir}/phoneuid.conf"
 
 
-PNBLACKLIST[phoneuid] ?= "Depends on blacklisted libfso-glib"
+PNBLACKLIST[phoneuid] ?= "Depends on blacklisted libfso-glib - the recipe will be removed on 2017-09-01 unless the issue is fixed"

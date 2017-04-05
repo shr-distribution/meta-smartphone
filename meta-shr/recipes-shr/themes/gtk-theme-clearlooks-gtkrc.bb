@@ -20,6 +20,6 @@ pkg_prerm_${PN} () {
         update-alternatives --remove gtk-theme ${sysconfdir}/gtk-2.0/gtkrc.${PN}
 }
 
-PNBLACKLIST[gtk-theme-clearlooks-gtkrc] ?= "Runtime depends on blacklisted gtk-theme-clearlooks"
+PNBLACKLIST[gtk-theme-clearlooks-gtkrc] ?= "Runtime depends on blacklisted gtk-theme-clearlooks - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[gtk-theme-clearlooks-gtkrc] ?= "Runtime depends on blacklisted gtk-theme-clearlooks-gtkrc-dev"
+PNBLACKLIST[gtk-theme-clearlooks-gtkrc] ?= "Runtime depends on blacklisted gtk-theme-clearlooks-gtkrc-dev - the recipe will be removed on 2017-09-01 unless the issue is fixed"

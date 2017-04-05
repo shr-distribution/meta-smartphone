@@ -18,4 +18,4 @@ FILES_${PN} += "${datadir}"
 # autotools-brokensep
 B = "${S}"
 
-PNBLACKLIST[mterm2] ?= "Depends on blacklisted libfsoframework"
+PNBLACKLIST[mterm2] ?= "Depends on blacklisted libfsoframework - the recipe will be removed on 2017-09-01 unless the issue is fixed"

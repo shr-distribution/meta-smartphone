@@ -8,7 +8,7 @@ HOMEPAGE = "http://jefliks.sourceforge.net/"
 AUTHOR = "Phoenix Kayo <kayo.k11.4@gmail.com>"
 PV = "0.0.3+gitr${SRCPV}"
 
-PNBLACKLIST[jefliks] ?= "depends on blacklisted iksemel"
+PNBLACKLIST[jefliks] ?= "depends on blacklisted iksemel - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
 inherit autotools-brokensep pkgconfig
 

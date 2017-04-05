@@ -12,8 +12,8 @@ inherit allarch
 
 ALLOW_EMPTY_${PN} = "1"
 
-PNBLACKLIST[shr-theme-neo] ?= "Runtime depends on blacklisted shr-theme-neo-dev"
+PNBLACKLIST[shr-theme-neo] ?= "Runtime depends on blacklisted shr-theme-neo-dev - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[shr-theme-neo] ?= "Runtime depends on blacklisted shr-theme-neo"
+PNBLACKLIST[shr-theme-neo] ?= "Runtime depends on blacklisted shr-theme-neo - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[shr-theme-neo] ?= "Runtime depends on blacklisted e-wm-theme-illume-neo"
+PNBLACKLIST[shr-theme-neo] ?= "Runtime depends on blacklisted e-wm-theme-illume-neo - the recipe will be removed on 2017-09-01 unless the issue is fixed"

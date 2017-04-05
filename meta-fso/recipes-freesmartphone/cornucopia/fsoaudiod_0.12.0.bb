@@ -15,4 +15,4 @@ SRC_URI += "file://0001-fsoaudiod-upgrade-to-libgee-0.8.patch \
     file://0001-fix-pkg-alsa.patch \
 "
 
-PNBLACKLIST[fsoaudiod] ?= "Depends on blacklisted libfso-glib"
+PNBLACKLIST[fsoaudiod] ?= "Depends on blacklisted libfso-glib - the recipe will be removed on 2017-09-01 unless the issue is fixed"

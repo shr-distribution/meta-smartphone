@@ -8,7 +8,7 @@ DEPENDS = "glib-2.0 libeflvala"
 RDEPENDS_${PN} += "bluez4 obexd"
 RRECOMMENS_${PN} += "libasound-module-bluez kernel-module-btusb"
 
-PNBLACKLIST[emtooth2] ?= "${@bb.utils.contains('DISTRO_FEATURES', 'bluez5', 'bluez5 conflicts with bluez4 and bluez5 is selected in DISTRO_FEATURES', '', d)}"
+PNBLACKLIST[emtooth2] ?= "${@bb.utils.contains('DISTRO_FEATURES', 'bluez5', 'bluez5 conflicts with bluez4 and bluez5 is selected in DISTRO_FEATURES', '', d)} - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
 SRCREV = "171"
 PV = "0.1+svnr${SRCPV}"

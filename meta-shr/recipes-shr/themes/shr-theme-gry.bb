@@ -8,3 +8,7 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 
 ALLOW_EMPTY_${PN} = "1"
+
+PNBLACKLIST[shr-theme-gry] ?= "Runtime depends on blacklisted e-wm-theme-illume-gry - the recipe will be removed on 2017-09-01 unless the issue is fixed"
+
+PNBLACKLIST[shr-theme-gry] ?= "Runtime depends on blacklisted elementary-theme-gry - the recipe will be removed on 2017-09-01 unless the issue is fixed"

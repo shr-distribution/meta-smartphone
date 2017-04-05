@@ -15,7 +15,7 @@ S = "${WORKDIR}/git"
 SRCREV = "9aa645305ff4870a3f825c7767937fa6cd5ae6d5"
 
 do_compile() {
-    oe_runmake CFLAGS="-DVERSION='\"${PV}\"'" LDFLAGS='-ljson-c -lm'
+    oe_runmake CFLAGS="-DVERSION='\"${PV}\"'" LDFLAGS='${LDFLAGS} -ljson-c -lm'
 }
 
 do_install() {

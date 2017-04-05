@@ -29,4 +29,4 @@ do_install_append() {
 
 FILES_${PN} += "/usr/share/guitartune/* /usr/share/applications/* /usr/share/pixmaps/*"
 
-PNBLACKLIST[guitartune] ?= "Depends on blacklisted libglade"
+PNBLACKLIST[guitartune] ?= "Depends on blacklisted libglade - the recipe will be removed on 2017-09-01 unless the issue is fixed"

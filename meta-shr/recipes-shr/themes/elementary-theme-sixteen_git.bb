@@ -23,3 +23,9 @@ do_install() {
 FILES_${PN} = "${datadir}/elementary/themes/sixteen.edj"
 
 
+
+PNBLACKLIST[elementary-theme-sixteen] ?= "Depends on blacklisted edje-native - the recipe will be removed on 2017-09-01 unless the issue is fixed"
+
+PNBLACKLIST[elementary-theme-sixteen] ?= "Runtime depends on blacklisted elementary-theme-sixteen-dev - the recipe will be removed on 2017-09-01 unless the issue is fixed"
+
+PNBLACKLIST[elementary-theme-sixteen] ?= "Runtime depends on blacklisted elementary-theme-sixteen - the recipe will be removed on 2017-09-01 unless the issue is fixed"

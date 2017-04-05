@@ -30,4 +30,4 @@ ALTERNATIVE_PRIORITY[libphone-ui-shr-config] = "1"
 
 FILES_${PN} = "${datadir}/libphone-ui-shr/"
 
-PNBLACKLIST[phoneui-shr-theme-sowka] ?= "Runtime depends on blacklisted libphone-ui-shr"
+PNBLACKLIST[phoneui-shr-theme-sowka] ?= "Runtime depends on blacklisted libphone-ui-shr - the recipe will be removed on 2017-09-01 unless the issue is fixed"

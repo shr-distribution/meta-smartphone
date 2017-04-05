@@ -320,32 +320,32 @@ RDEPENDS_${PN} += "${EXTRA_MOZILLA}"
 #RDEPENDS_${PN}_append_om-gta02 = "glamo-dri-tests \
 #"
 
-PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted mokomaze"
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted mokomaze - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted dates"
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted dates - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted dbus-daemon-proxy"
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted dbus-daemon-proxy - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted guitartune"
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted guitartune - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted illume-keyboard-default-numeric"
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted illume-keyboard-default-numeric - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted e-tasks"
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted e-tasks - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted enjoy"
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted enjoy - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted mokojeweled"
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted mokojeweled - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted estardict"
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted estardict - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted gpe-scap"
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted gpe-scap - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted ffphonelog"
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted ffphonelog - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted om-neon"
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted om-neon - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted python-elementary"
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted python-elementary - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted elfe"
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted elfe - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted vagalume"
+PNBLACKLIST[packagegroup-shr-feed] ?= "Runtime depends on blacklisted vagalume - the recipe will be removed on 2017-09-01 unless the issue is fixed"

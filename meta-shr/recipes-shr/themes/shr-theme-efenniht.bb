@@ -11,4 +11,4 @@ inherit allarch
 
 ALLOW_EMPTY_${PN} = "1"
 
-PNBLACKLIST[shr-theme-efenniht] ?= "Runtime depends on blacklisted e-wm-theme-illume-efenniht"
+PNBLACKLIST[shr-theme-efenniht] ?= "Runtime depends on blacklisted e-wm-theme-illume-efenniht - the recipe will be removed on 2017-09-01 unless the issue is fixed"

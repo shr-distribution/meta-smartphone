@@ -30,4 +30,4 @@ do_compile_prepend() {
     ${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/data ${S}/data/neomis.edc
 }
 
-PNBLACKLIST[neomis] ?= "Runtime depends on blacklisted python-elementary"
+PNBLACKLIST[neomis] ?= "Runtime depends on blacklisted python-elementary - the recipe will be removed on 2017-09-01 unless the issue is fixed"

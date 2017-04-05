@@ -12,4 +12,4 @@ do_configure_prepend() {
 }
 SRC_URI += "file://0001-libfsoframework-switch-to-gee-0.8-remove-unnecessary.patch"
 
-PNBLACKLIST[libfsoframework] ?= "Depends on blacklisted libfso-glib"
+PNBLACKLIST[libfsoframework] ?= "Depends on blacklisted libfso-glib - the recipe will be removed on 2017-09-01 unless the issue is fixed"

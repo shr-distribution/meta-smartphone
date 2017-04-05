@@ -13,4 +13,4 @@ S = "${WORKDIR}/openmoko-extensionhandler"
 SRC_URI[md5sum] = "3c1fcd85f0a0cd3ccc4d7b4f26996b47"
 SRC_URI[sha256sum] = "3d3cc3e4f92f7e0b6a352c3f68a337a599a90f4e4b6e6743adc0c70b570639f5"
 
-PNBLACKLIST[omext] ?= "Fails to build with RSS http://errors.yoctoproject.org/Errors/Details/130539/"
+PNBLACKLIST[omext] ?= "Fails to build with RSS http://errors.yoctoproject.org/Errors/Details/130539/ - the recipe will be removed on 2017-09-01 unless the issue is fixed"

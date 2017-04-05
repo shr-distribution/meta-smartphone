@@ -33,6 +33,6 @@ ALTERNATIVE_PRIORITY[libphone-ui-shr-config] = "4"
 
 FILES_${PN} = "${datadir}/libphone-ui-shr/"
 
-PNBLACKLIST[phoneui-shr-theme-neo] ?= "Runtime depends on blacklisted libphone-ui-shr"
+PNBLACKLIST[phoneui-shr-theme-neo] ?= "Runtime depends on blacklisted libphone-ui-shr - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[phoneui-shr-theme-neo] ?= "Runtime depends on blacklisted phoneui-shr-theme-neo-dev"
+PNBLACKLIST[phoneui-shr-theme-neo] ?= "Runtime depends on blacklisted phoneui-shr-theme-neo-dev - the recipe will be removed on 2017-09-01 unless the issue is fixed"

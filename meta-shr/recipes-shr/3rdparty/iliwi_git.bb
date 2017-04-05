@@ -11,7 +11,7 @@ SRCREV = "be1ebf0978deb3b16f69e65af225b2630128e612"
 PV = "0.0.1.1+gitr${SRCPV}"
 PR = "r1"
 
-PNBLACKLIST[iliwi] = "Doesn't build after vala upgrade from 0.24.0 to 0.26.1"
+PNBLACKLIST[iliwi] = "Doesn't build after vala upgrade from 0.24.0 to 0.26.1 - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
 SRC_URI = "git://github.com/shr-project/Iliwi.git;protocol=http;branch=master \
 "

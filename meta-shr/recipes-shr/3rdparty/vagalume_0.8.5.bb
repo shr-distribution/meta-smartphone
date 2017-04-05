@@ -26,4 +26,4 @@ do_install_append() {
     install -m 0644 ${WORKDIR}/index.theme ${D}${datadir}/vagalume/icons/hicolor
 }
 
-PNBLACKLIST[vagalume] ?= "Depends on blacklisted gstreamer"
+PNBLACKLIST[vagalume] ?= "Depends on blacklisted gstreamer - the recipe will be removed on 2017-09-01 unless the issue is fixed"

@@ -9,7 +9,7 @@ RSUGGESTS_${PN} = ""
 PV = "0.21+gitr${SRCPV}"
 PR = "r1"
 
-PNBLACKLIST[sensmon] = "Doesn't build after vala upgrade from 0.24.0 to 0.26.1"
+PNBLACKLIST[sensmon] = "Doesn't build after vala upgrade from 0.24.0 to 0.26.1 - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
 SRC_URI = "git://gitorious.org/sensor-monitor/sensor-monitor.git;protocol=git;branch=master"
 

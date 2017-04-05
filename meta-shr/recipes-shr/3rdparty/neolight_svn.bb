@@ -23,6 +23,6 @@ do_compile_prepend() {
     ${STAGING_BINDIR_NATIVE}/edje_cc -id ${S}/data ${S}/data/neolight.edc
 }
 
-PNBLACKLIST[neolight] ?= "Runtime depends on blacklisted python-edbus"
+PNBLACKLIST[neolight] ?= "Runtime depends on blacklisted python-edbus - the recipe will be removed on 2017-09-01 unless the issue is fixed"
 
-PNBLACKLIST[neolight] ?= "Runtime depends on blacklisted python-elementary"
+PNBLACKLIST[neolight] ?= "Runtime depends on blacklisted python-elementary - the recipe will be removed on 2017-09-01 unless the issue is fixed"

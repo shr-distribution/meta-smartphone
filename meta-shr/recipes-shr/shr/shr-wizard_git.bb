@@ -19,4 +19,4 @@ FILES_${PN}-dev += "${libdir}/enlightenment/modules/wizard/*/page_900.la"
 FILES_${PN}-staticdev += "${libdir}/enlightenment/modules/wizard/*/page_900.a"
 FILES_${PN}-dbg += "${libdir}/enlightenment/modules/wizard/*/.debug/"
 
-PNBLACKLIST[shr-wizard] ?= "Depends on blacklisted e-wm"
+PNBLACKLIST[shr-wizard] ?= "Depends on blacklisted e-wm - the recipe will be removed on 2017-09-01 unless the issue is fixed"
