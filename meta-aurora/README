@@ -3,22 +3,22 @@ This layer depends on:
 
 URI: git://github.com/openembedded/oe-core.git
 layers: meta
-branch: master
+branch: pyro
 revision: HEAD
 
 URI: git://github.com/openembedded/meta-oe.git
 layers: meta-oe
-branch: master
+branch: pyro
 revision: HEAD
 
 URI: git://github.com/shr-distribution/meta-smartphone.git
 layers: meta-fso
-branch: master
+branch: pyro
 revision: HEAD
 
 URI: git://github.com/shr-distribution/meta-smartphone.git
 layers: meta-shr
-branch: master
+branch: pyro
 revision: HEAD
 
 URI: http://git.yoctoproject.org/cgit/cgit.cgi/meta-qt4/
