@@ -16,3 +16,5 @@ S = "${WORKDIR}/git"
 do_configure_prepend() {
        sed -i -e s#SHR_SPECS_DIR="#SHR_SPECS_DIR="${STAGING_DIR_HOST}/#g ${S}/configure.ac
 }
+
+PNBLACKLIST[libshr-glib] ?= "Sometimes fails as in http://errors.yoctoproject.org/Errors/Details/141196/ - the recipe will be removed on 2017-09-01 unless the issue is fixed""
