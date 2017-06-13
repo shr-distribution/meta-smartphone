@@ -18,3 +18,5 @@ inherit autotools-brokensep vala pkgconfig
 FILES_${PN} += "${datadir}/${PN} ${datadir}/applications ${datadir}/pixmaps"
 
 MAINTAINER = "Michele Brocco <ssj2micvm@gmail.com>"
+
+PNBLACKLIST[libsensmon] ?= "BROKEN: not compatible with newer vala, http://errors.yoctoproject.org/Errors/Details/143058/"
