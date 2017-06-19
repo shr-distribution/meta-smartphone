@@ -17,3 +17,6 @@ inherit cmake
 
 FILES_${PN} += "${prefix}/lib/pm-utils"
 FILES_${PN}-dbg += "${prefix}/lib/pm-utils/sleep.d/.debug"
+
+# http://errors.yoctoproject.org/Errors/Details/145597/
+PNBLACKLIST[omhacks] ?= "Not compatible with gcc7 - the recipe will be removed on 2017-09-01 unless the issue is fixed"
