@@ -19,7 +19,9 @@ do_install() {
     ln -sf /system/vendor ${D}/vendor
 
     install -d ${D}${libexecdir}/hal-droid/system/symbols
-    cp -rv ${WORKDIR}/symbols ${D}${libexecdir}/hal-droid/system
+    if [ -d ${WORKDIR}/symbols ] ; then
+        cp -rv ${WORKDIR}/symbols ${D}${libexecdir}/hal-droid/system
+    fi
 
     mkdir -p ${WORKDIR}/overlay-libs
     cp -rpv ${WORKDIR}/overlay-libs ${D}${libexecdir}/hal-droid
