@@ -17,6 +17,6 @@ INSANE_SKIP_${PN} += "ldflags"
 # Fixing QA errors for binaries with relocations in .text
 INSANE_SKIP_${PN} += "textrel"
 
-SRC_URI = "http://build.webos-ports.org/halium-wop-12.1/hal-droid-wop-12.1-20170708-tenderloin.tar.bz2"
-SRC_URI[md5sum] = "be29055be38fc540f92dc5b1664e8890"
-SRC_URI[sha256sum] = "ce8fe227a888d59426406ce2baf6374bc44cc6092b429c997dfe1e9c15b884cf"
+SRC_URI = "http://build.webos-ports.org/halium-wop-12.1/hal-droid-wop-12.1-20170714-tenderloin.tar.bz2"
+SRC_URI[md5sum] = "c1b91241951904ba4e72227188987efd"
+SRC_URI[sha256sum] = "286e982f34308c2a69fc203f1ed60447040760f7a1b41fd3a81702f0a9cf7aa0"
