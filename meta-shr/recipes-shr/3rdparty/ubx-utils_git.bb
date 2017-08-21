@@ -16,3 +16,5 @@ SRC_URI = "git://lindi.iki.fi/lindi/git/ubx.git;protocol=http;branch=master"
 S = "${WORKDIR}/git"
 
 inherit distutils
+
+RDEPENDS_${PN} = "bash"
