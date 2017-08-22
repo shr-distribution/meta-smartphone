@@ -1,3 +1,0 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
-
-PACKAGE_ARCH_grouper = "${MACHINE_ARCH}"

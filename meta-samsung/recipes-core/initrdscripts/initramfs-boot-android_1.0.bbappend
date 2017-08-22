@@ -1,5 +1,0 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
-
-COMPATIBLE_MACHINE_tuna = "tuna"
-COMPATIBLE_MACHINE_crespo = "crespo"
-COMPATIBLE_MACHINE_i9300 = "i9300"
