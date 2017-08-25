@@ -8,7 +8,10 @@ PV = "0.1.0+gitr${SRCPV}"
 PR = "r1"
 PE = "1"
 
-SRC_URI = "git://github.com/libhybris/libhybris;branch=master;protocol=git"
+SRC_URI = "git://github.com/libhybris/libhybris \
+    file://0001-hooks.c-Fix-build-with-glibc-2.26.patch;patchdir=.. \
+"
+
 S = "${WORKDIR}/git/hybris"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"

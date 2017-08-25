@@ -6,12 +6,12 @@ DESCRIPTION = "Linux kernel for HP Touchpad"
 COMPATIBLE_MACHINE = "tenderloin"
 
 SRC_URI = " \
-  git://github.com/Tofee/android_kernel_htc_msm8960.git;protocol=git;branch=tenderloin/3.4/cm-12.1 \
+  git://github.com/shr-distribution/linux.git;branch=tenderloin/3.4/cm-12.1 \
   file://defconfig \
 "
 S = "${WORKDIR}/git"
 
-SRCREV = "c300d47f8eee6219e066cba2a58225e6b7b5ef38"
+SRCREV = "56b402673a191a25f3bc211dfa37124f0c0fc6d8"
 
 do_compile[depends] += "initramfs-android-image:do_image_complete"
 DEPENDS += "u-boot-mkimage-native initramfs-android-image"

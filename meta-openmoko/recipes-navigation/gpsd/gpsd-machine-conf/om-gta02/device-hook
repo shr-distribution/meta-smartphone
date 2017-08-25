@@ -1,5 +1,0 @@
-if [ "$2" = "ACTIVATE" ];then
-    om gps power 1
-else
-    om gps power 0
-fi
