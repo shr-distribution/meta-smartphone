@@ -13,6 +13,8 @@ INSANE_SKIP_${PN} = "arch"
 INSANE_SKIP_${PN} += "ldflags"
 # Fixing QA relocations in .text error for all binaries
 INSANE_SKIP_${PN} += "textrel"
+# Skip already-stripped check, because it's prebuilt outside OE so we cannot easily prevent stripping it here
+INSANE_SKIP_${PN} += "already-stripped"
 
 SRC_URI = "http://build.webos-ports.org/cm-wop-12.1/hal-droid-wop-12.1-${PV}-${MACHINE}.tar.bz2"
 SRC_URI[md5sum] = "6efee2c0ce8ed240f5622eba1aee7bf3"
