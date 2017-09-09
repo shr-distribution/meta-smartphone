@@ -1151,7 +1151,7 @@ CONFIG_BT_HIDP=y
 #
 # Bluetooth device drivers
 #
-# CONFIG_BT_HCISMD is not set
+CONFIG_BT_HCISMD=y
 # CONFIG_BT_HCIBTUSB is not set
 # CONFIG_BT_HCIBTSDIO is not set
 # CONFIG_BT_HCIUART is not set
@@ -1489,14 +1489,14 @@ CONFIG_USB_IPHETH=y
 CONFIG_USB_SIERRA_NET=y
 # CONFIG_USB_VL600 is not set
 # CONFIG_MSM_RMNET_USB is not set
-CONFIG_WLAN=y
+CONFIG_WLAN=m
 # CONFIG_USB_ZD1201 is not set
 # CONFIG_USB_NET_RNDIS_WLAN is not set
 # CONFIG_LIBRA_SDIOIF is not set
 # CONFIG_ATH6K_LEGACY_EXT is not set
 # CONFIG_WCNSS_CORE is not set
 # CONFIG_ATH_COMMON is not set
-CONFIG_BCMDHD=y
+CONFIG_BCMDHD=m
 CONFIG_BCM4339=y
 CONFIG_BCMDHD_FW_PATH="/vendor/firmware/fw_bcmdhd.bin"
 CONFIG_BCMDHD_NVRAM_PATH="/system/etc/wifi/bcmdhd.cal"
