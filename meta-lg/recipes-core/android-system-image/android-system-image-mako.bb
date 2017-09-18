@@ -27,5 +27,7 @@ do_install_prepend() {
         cp ${WORKDIR}/system/lib/libGLESv2.so ${WORKDIR}/system/lib/libGLESv3.so
     fi
     # fixup executable flag for binaries in /system/bin
-    chmod +x ${WORKDIR}/system/bin/*
+    for i in ${WORKDIR}/system/bin/* ; do
+       [[ -f $î ]] && chmod +x $i
+    done
 }
