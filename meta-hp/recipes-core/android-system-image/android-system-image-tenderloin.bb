@@ -23,5 +23,5 @@ INSANE_SKIP_${PN} += "textrel"
 INSANE_SKIP_${PN} += "already-stripped"
 
 SRC_URI = "http://build.webos-ports.org/halium-wop-12.1/halium-wop-12.1-${PV}-${MACHINE}.tar.bz2"
-SRC_URI[md5sum] = "c1b91241951904ba4e72227188987efd"
-SRC_URI[sha256sum] = "286e982f34308c2a69fc203f1ed60447040760f7a1b41fd3a81702f0a9cf7aa0"
+SRC_URI[md5sum] = "7060dc1ec09726f3c92691c6fa5f4a97"
+SRC_URI[sha256sum] = "ccf066ffb0d318b8b88a407325756ab2c1b01d048adfb275c8ba4f906b667618"
