@@ -2,7 +2,7 @@ require recipes-core/android-system-image/android-system-image.inc
 
 COMPATIBLE_MACHINE = "hammerhead"
 
-PV = "20170914-5"
+PV = "20170918-2"
 
 # Fixing QA errors for not matching architecture for the following binaries:
 # - /system/etc/firmware/vidc.b00
@@ -17,8 +17,8 @@ INSANE_SKIP_${PN} += "textrel"
 INSANE_SKIP_${PN} += "already-stripped"
 
 SRC_URI = "http://build.webos-ports.org/halium-wop-12.1/halium-wop-12.1-${PV}-${MACHINE}.tar.bz2"
-SRC_URI[md5sum] = "ac2dc0e9a8ebc5763e578863ee16f675"
-SRC_URI[sha256sum] = "85f7df083b1ecf093b0e9d406fcf7e2e528c2107991fbe99e2bc95cc80f0380b"
+SRC_URI[md5sum] = "0b276d5f93bb12e52bf6839627c11882"
+SRC_URI[sha256sum] = "4357acbdf34ea86a8ae4b270972d4c02ff3327271c9fb679c6ddecfd46a6d96d"
 
 do_install_prepend() {
     # fixup libGLESv3.so if needed
