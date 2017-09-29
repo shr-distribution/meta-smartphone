@@ -28,6 +28,6 @@ do_install_prepend() {
     fi
     # fixup executable flag for binaries in /system/bin
     for i in ${WORKDIR}/system/bin/* ; do
-       [[ -f $î ]] && chmod +x $i
+       [[ -f $i ]] && chmod +x $i
     done
 }
