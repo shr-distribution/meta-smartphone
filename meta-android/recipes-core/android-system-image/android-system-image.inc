@@ -10,24 +10,17 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 RPROVIDES_${PN} += "virtual/android-system-image"
 
-INC_PR = "r4"
+INC_PR = "r5"
 
 do_install() {
-    install -d ${D}${libexecdir}/hal-droid
-    cp -rpv ${WORKDIR}/system ${D}${libexecdir}/hal-droid
+    cp -rpv ${WORKDIR}/system ${D}
 
     ln -sf /system/vendor ${D}/vendor
 
-    install -d ${D}${libexecdir}/hal-droid/system/symbols
+    install -d ${D}/system/symbols
     if [ -d ${WORKDIR}/symbols ] ; then
-        cp -rv ${WORKDIR}/symbols ${D}${libexecdir}/hal-droid/system
+        cp -rv ${WORKDIR}/symbols ${D}/system
     fi
-
-    mkdir -p ${WORKDIR}/overlay-libs
-    cp -rpv ${WORKDIR}/overlay-libs ${D}${libexecdir}/hal-droid
-    for i in ${WORKDIR}/overlay-libs/*.so; do
-        [ ! -f ${D}${libexecdir}/hal-droid/system/lib/$(basename $i) ] && cp $i ${D}${libexecdir}/hal-droid/system/lib
-    done
 
     install -d ${D}${sysconfdir}
     ln -sf /system/etc/wifi ${D}${sysconfdir}/wifi
@@ -72,5 +65,5 @@ INSANE_SKIP_${PN}-dbg = "ldflags"
 # Already stripped and we cannot fix it, this will hide a lot of warnings about files already stripped
 INHIBIT_PACKAGE_STRIP = "1"
 PACKAGES = "${PN}-dbg ${PN}"
-FILES_${PN}-dbg = "${libexecdir}/hal-droid/system/symbols"
-FILES_${PN} = "${libexecdir}/hal-droid/system ${libexecdir}/hal-droid/overlay-libs /vendor /android /default.prop ${libdir}/android-system/ramdisk.img ${sysconfdir}"
+FILES_${PN}-dbg = "/system/symbols"
+FILES_${PN} = "/system /vendor /android /default.prop ${libdir}/android-system/ramdisk.img ${sysconfdir}"
