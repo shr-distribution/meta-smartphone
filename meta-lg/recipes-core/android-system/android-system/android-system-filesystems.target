@@ -1,8 +1,8 @@
 [Unit]
 Description=Android System Filesystems requirements
 Before=android-system.service
-After=system.mount persist.mount firmware.mount
-Requires=system.mount persist.mount firmware.mount
+After=persist.mount firmware.mount
+Requires=persist.mount firmware.mount
 
 [Install]
 RequiredBy=android-system.service
