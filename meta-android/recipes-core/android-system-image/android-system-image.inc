@@ -30,6 +30,7 @@ do_install() {
     done
 
     install -d ${D}${sysconfdir}
+    ln -sf /system/etc/wifi ${D}${sysconfdir}/wifi
     ln -sf /system/etc/media_codecs.xml ${D}${sysconfdir}/media_codecs.xml
     ln -sf /system/etc/media_profiles ${D}${sysconfdir}/media_profiles.xml
 
