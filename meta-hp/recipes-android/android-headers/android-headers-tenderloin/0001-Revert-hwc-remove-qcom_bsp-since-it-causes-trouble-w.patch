@@ -1,0 +1,30 @@
+From 169e1699ccd04c6fb983ab79e7e904c0ec788fab Mon Sep 17 00:00:00 2001
+From: Christophe Chapuis <chris.chapuis@gmail.com>
+Date: Thu, 14 Sep 2017 12:53:04 +0200
+Subject: [PATCH 1/2] Revert "[hwc] remove qcom_bsp since it causes trouble
+ with libhybris"
+
+This reverts commit c5afd16f803a1ae5f7f1a5962a6cc14f237dd002.
+---
+ hardware/hwcomposer.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/git/hardware/hwcomposer.h b/git/hardware/hwcomposer.h
+index 21045c1..e848d32 100644
+--- a/git/hardware/hwcomposer.h
++++ b/git/hardware/hwcomposer.h
+@@ -215,6 +215,11 @@ typedef struct hwc_layer_1 {
+              */
+             hwc_region_t visibleRegionScreen;
+ 
++#ifdef QCOM_BSP
++            /* Region of the layer changed in the source buffer since
++             * previous frame */
++            hwc_rect_t dirtyRect;
++#endif
+ 
+             /* Sync fence object that will be signaled when the buffer's
+              * contents are available. May be -1 if the contents are already
+-- 
+2.10.1.windows.1
+
