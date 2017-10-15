@@ -17,12 +17,15 @@ TAGS_RAM_BASE = "0x02700000"
 inherit kernel_android
 
 SRC_URI = " \
-  git://github.com/shr-distribution/linux.git;branch=hammerhead/3.4/cm-12.1 \
-  file://defconfig \
+  git://github.com/Halium/android_kernel_lge_hammerhead.git;branch=halium-5.1 \
 "
 S = "${WORKDIR}/git"
 
-SRCREV = "9100bb5d0e3f88dfb14790adeaa1d4b62e56b4ba"
+do_configure_prepend() {
+    cp -v -f ${S}/arch/arm/configs/cyanogenmod_hammerhead_defconfig ${WORKDIR}/defconfig
+}
+
+SRCREV = "5b2e4b8d36260feea46f4ae3b955ba997a26b5fb"
 
 KV = "3.4.0"
 PV = "${KV}+gitr${SRCPV}"
