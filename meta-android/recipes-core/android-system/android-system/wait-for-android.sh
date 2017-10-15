@@ -11,6 +11,9 @@ lxc-wait -n android -s RUNNING
 containerpid="$(lxc-info -n android -p | grep PID | sed 's/^PID:.* //')"
 while true; do
 	echo "Checking for boot done flag ..."
-	[ -f /proc/$containerpid/root/dev/.android_boot_done ] && break
 	sleep 1
+	[ -f /proc/$containerpid/root/dev/.android_boot_done ] && break
 done
+
+sleep 1
+
