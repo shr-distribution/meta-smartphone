@@ -17,12 +17,15 @@ TAGS_RAM_BASE = "0x80200100"
 inherit kernel_android
 
 SRC_URI = " \
-  git://github.com/shr-distribution/linux.git;branch=mako/3.4/cm-12.1 \
-  file://defconfig \
+  git://github.com/ubports/android_kernel_google_msm.git;branch=ubp-5.1 \
 "
 S = "${WORKDIR}/git"
 
-SRCREV = "374532021f88921bc273e95850f4c6469b03a9ae"
+do_configure_prepend() {
+    cp -v -f ${S}/arch/arm/configs/mako_defconfig ${WORKDIR}/defconfig
+}
+
+SRCREV = "5f967233e931cd1d5fb542b3221a37f5520c4f30"
 
 KV = "3.4.0"
 PV = "${KV}+gitr${SRCPV}"
