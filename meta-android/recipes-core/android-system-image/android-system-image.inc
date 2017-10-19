@@ -26,6 +26,8 @@ do_install() {
     ln -sf /system/etc/wifi ${D}${sysconfdir}/wifi
     ln -sf /system/etc/media_codecs.xml ${D}${sysconfdir}/media_codecs.xml
     ln -sf /system/etc/media_profiles ${D}${sysconfdir}/media_profiles.xml
+    # add a link for firmware, hardcoded in bluez5's hciattach for bcm43xx
+    ln -sf /system/vendor/firmware ${D}${sysconfdir}/firmware
 
     # Copy android ramdisk so we can use it
     install -d ${D}${libdir}/android-system
