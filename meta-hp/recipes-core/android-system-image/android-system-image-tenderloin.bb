@@ -2,7 +2,7 @@ require recipes-core/android-system-image/android-system-image.inc
 
 COMPATIBLE_MACHINE = "tenderloin"
 
-PV = "20170923-3"
+PV = "20171130-5"
 
 # Fixing QA errors for not matching architecture for the following binaries:
 # - /system/etc/firmware/q6.mdt
@@ -22,6 +22,6 @@ INSANE_SKIP_${PN} += "textrel"
 # Skip already-stripped check, because it's prebuilt outside OE so we cannot easily prevent stripping it here
 INSANE_SKIP_${PN} += "already-stripped"
 
-SRC_URI = "http://build.webos-ports.org/halium-wop-12.1/halium-wop-12.1-${PV}-${MACHINE}.tar.bz2"
-SRC_URI[md5sum] = "966e3fcd2414310791fc35a91b4f4bb8"
-SRC_URI[sha256sum] = "98672c975cebdc593f94f3cd3d46c26f4b40dbcce16f72e2c38516db12d292a8"
+SRC_URI = "http://build.webos-ports.org/halium-wop-5.1/halium-wop-5.1-${PV}-${MACHINE}.tar.bz2"
+SRC_URI[md5sum] = "35683ec36e97fa593271091e5745bee4"
+SRC_URI[sha256sum] = "02efd7c8d182b6d44e9936a4b3277d3b7e2cb7396becec8e61f0ed76ad463a1b"
