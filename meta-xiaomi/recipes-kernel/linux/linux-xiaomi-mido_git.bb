@@ -17,7 +17,7 @@ TAGS_RAM_BASE = "0x00000100"
 inherit kernel_android
 
 SRC_URI = " \
-  git://github.com/Herrie82/android_kernel_xiaomi_msm8953.git;branch=pgz-14.1-eb6 \
+  git://github.com/piggz/android_kernel_xiaomi_msm8953.git;branch=pgz-14.1-eb8 \
 "
 S = "${WORKDIR}/git"
 
@@ -25,9 +25,14 @@ do_configure_prepend() {
     cp -v -f ${S}/arch/arm64/configs/mido_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "6a14e0309e13fa9bc8658d9515829542688780f4"
+SRCREV = "8b078d06e88d34e79222237cf74b99c2d97db98d"
 
-KV = "3.18.76"
+KV = "3.18.85"
 PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
+
+do_install_append () {
+    rm -rf ${D}/usr/src/usr
+
+}
