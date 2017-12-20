@@ -1,0 +1,17 @@
+[Unit]
+Description=Load wifi module
+After=android-system-filesystems.target
+Before=android-system.service
+Conflicts=shutdown.target actdead.target
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+ExecStart=/sbin/modprobe bcmdhd
+ExecStop=/sbin/rmmod bcmdhd
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=basic.target
+
