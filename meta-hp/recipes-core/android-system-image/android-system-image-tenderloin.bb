@@ -22,6 +22,6 @@ INSANE_SKIP_${PN} += "textrel"
 # Skip already-stripped check, because it's prebuilt outside OE so we cannot easily prevent stripping it here
 INSANE_SKIP_${PN} += "already-stripped"
 
-SRC_URI = "http://build.webos-ports.org/halium-wop-5.1/halium-wop-5.1-${PV}-${MACHINE}.tar.bz2"
+SRC_URI = "http://build.webos-ports.org/halium-luneos-5.1/halium-luneos-5.1-${PV}-${MACHINE}.tar.bz2"
 SRC_URI[md5sum] = "35683ec36e97fa593271091e5745bee4"
 SRC_URI[sha256sum] = "02efd7c8d182b6d44e9936a4b3277d3b7e2cb7396becec8e61f0ed76ad463a1b"
