@@ -9,10 +9,10 @@ DESCRIPTION = "Linux kernel for the Xiaomi Mido (Redmi Note 4, Snapdragon) devic
 source from Xiaomi"
 
 CMDLINE = "androidboot.hardware=qcom msm_rtb.filter=0x237 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 androidboot.bootdevice=7824900.sdhci earlycon=msm_hsl_uart,0x78af000"
-KERNEL_RAM_BASE = "0x00008000" 
-RAMDISK_RAM_BASE = "0x01000000"
+KERNEL_RAM_BASE = "0x80008000" 
+RAMDISK_RAM_BASE = "0x81000000"
 SECOND_RAM_BASE = "0x00f00000" 
-TAGS_RAM_BASE = "0x00000100"
+TAGS_RAM_BASE = "0x80000100"
 
 inherit kernel_android
 
