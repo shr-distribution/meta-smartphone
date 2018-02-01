@@ -2,7 +2,7 @@ require recipes-core/android-system-image/android-system-image.inc
 
 COMPATIBLE_MACHINE = "athene"
 
-PV = "20171204-2"
+PV = "20171230-2"
 
 # Fixing QA errors for not matching architecture for the following binaries:
 # - /system/etc/firmware/vidc.b00
@@ -20,12 +20,8 @@ INSANE_SKIP_${PN} += "already-stripped"
 INSANE_SKIP_${PN} += "dev-so"
 
 SRC_URI = "http://build.webos-ports.org/halium-luneos-7.1/halium-luneos-7.1-${PV}-${MACHINE}.tar.bz2"
-SRC_URI[md5sum] = "7a0bc4afac084bd5035ace65f95de0d9"
-SRC_URI[sha256sum] = "df93b14c9858efb8cb92789373f790748a6c625f9ecad7ac89b3f586805cb71b"
-
-do_install_prepend() {
-    rm -rf ${WORKDIR}/system/lib/
-}
+SRC_URI[md5sum] = "1103f36923a10e21fa84c494f58e66a8"
+SRC_URI[sha256sum] = "195b66b61340be1015628c90106d537c071476b1acb6946bfa2ac9be11a577d2"
 
 FILES_${PN}-dbg += "\
   ${WORKDIR}/system/bin/.debug/linker \
