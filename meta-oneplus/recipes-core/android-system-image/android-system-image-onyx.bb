@@ -2,7 +2,7 @@ require recipes-core/android-system-image/android-system-image.inc
 
 COMPATIBLE_MACHINE = "onyx"
 
-PV = "20171204-2"
+PV = "20180128-1"
 
 # Fixing QA errors for not matching architecture for the following binaries:
 # - /system/etc/firmware/vidc.b00
@@ -19,13 +19,9 @@ INSANE_SKIP_${PN} += "already-stripped"
 
 INSANE_SKIP_${PN} += "dev-so"
 
-SRC_URI = "http://build.webos-ports.org/halium-wop-7.1/halium-wop-7.1-${PV}-${MACHINE}.tar.bz2"
-SRC_URI[md5sum] = "7a0bc4afac084bd5035ace65f95de0d9"
-SRC_URI[sha256sum] = "df93b14c9858efb8cb92789373f790748a6c625f9ecad7ac89b3f586805cb71b"
-
-do_install_prepend() {
-    rm -rf ${WORKDIR}/system/lib/
-}
+SRC_URI = "http://build.webos-ports.org/halium-luneos-7.1/halium-luneos-7.1-${PV}-${MACHINE}.tar.bz2"
+SRC_URI[md5sum] = "95799b41a85c3f65f2191ce8d041c78a"
+SRC_URI[sha256sum] = "c3f9a92809e3a3dac0b65c7eaa830aaf86a861e1c73dc70f46a0fd1f823f398e"
 
 FILES_${PN}-dbg += "\
   ${WORKDIR}/system/bin/.debug/linker \
