@@ -40,7 +40,7 @@ do_deploy_append() {
     done
 }
 
-RDEPENDS_kernel-image += "abootimg"
+RDEPENDS_${KERNEL_PACKAGE_NAME}-image += "abootimg"
 
 pkg_postinst_kernel-image_append () {
     if [ x"$D" = "x" ] ; then
@@ -68,4 +68,4 @@ pkg_postinst_kernel-image_append () {
     fi
 }
 
-FILES_kernel-image += "/${KERNEL_IMAGEDEST}/boot.img"
+FILES_${KERNEL_PACKAGE_NAME}-image += "/${KERNEL_IMAGEDEST}/boot.img"
