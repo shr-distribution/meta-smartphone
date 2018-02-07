@@ -17,7 +17,7 @@ TAGS_RAM_BASE = "0x80000100"
 inherit kernel_android
 
 SRC_URI = " \
-  git://github.com/lineageos/android_kernel_motorola_msm8952.git;branch=cm-14.1 \
+  git://github.com/herrie82/android_kernel_motorola_msm8952.git;branch=cm-14.1 \
 "
 S = "${WORKDIR}/git"
 
@@ -25,7 +25,7 @@ do_configure_prepend() {
     cp -v -f ${S}/arch/arm/configs/athene_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "4d3a6849e576efbedc83a59095eecf305a57b1a2"
+SRCREV = "f8406b96363849c38204def56dfe7f10bc42c567"
 
 KV = "3.10.107"
 PV = "${KV}+gitr${SRCPV}"
