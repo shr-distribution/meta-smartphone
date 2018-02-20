@@ -40,9 +40,6 @@ mount -t devtmpfs none $LXC_ROOTFS_PATH/dev
 mkdir $LXC_ROOTFS_PATH/sys
 mount -t sysfs none $LXC_ROOTFS_PATH/sys
 
-# setup a mount point for hal-hybris
-mkdir $LXC_ROOTFS_PATH/hal-hybris
-
 mount_bind_ro() {
 	if [ ! -d $2 ] ; then
 		mkdir $2
