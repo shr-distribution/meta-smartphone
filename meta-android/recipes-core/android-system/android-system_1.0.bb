@@ -26,8 +26,6 @@ SRC_URI = " \
     file://pre-start.sh \
     file://post-stop.sh \
     file://10-boot-marker \
-    file://20-remove-services \
-    file://21-camera-service \
     file://30-mount-nothing \
     file://40-rootfs-rw \
 "
