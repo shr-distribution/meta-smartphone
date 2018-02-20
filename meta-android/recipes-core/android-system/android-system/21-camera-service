@@ -1,6 +1,0 @@
-#!/bin/sh
-
-# Replace mediaserver with our hybris/libcompat camera_service
-sed -i $LXC_ROOTFS_PATH/init.rc \
-	-e 's|\(/system/bin/mediaserver.disabled\)|/hal-hybris/system/bin/camera_service|'
-
