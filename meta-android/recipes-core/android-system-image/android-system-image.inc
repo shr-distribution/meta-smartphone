@@ -48,15 +48,15 @@ do_install() {
             user=`echo $line | cut -d' ' -f 2`
             group=`echo $line | cut -d' ' -f 3`
             mode=`echo $line | cut -d' ' -f 4`
-            chown -h $user:$group ${D}${libexecdir}/hal-droid/$file
+            chown -h $user:$group ${D}/$file
             # Avoid changing symlinks
-            if [ ! -h ${D}${libexecdir}/hal-droid/$file ] ; then
-                chmod $mode ${D}${libexecdir}/hal-droid/$file
+            if [ ! -h ${D}/$file ] ; then
+                chmod $mode ${D}/$file
             fi
         done < "${WORKDIR}/filesystem_config.txt"
     else
         # do a minimal fixup anyway
-        chown -Rh 0:0 ${D}${libexecdir}/hal-droid/system
+        chown -Rh 0:0 ${D}/system
         bbwarn "image doesn't contain a filesystem_config.txt; may cause runtime errors with android system"
     fi
 }
