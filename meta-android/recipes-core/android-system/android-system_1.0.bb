@@ -48,8 +48,6 @@ do_install() {
 
     install -d ${D}${localstatedir}/lib/lxc/android/pre-start.d
     install -m 0755 ${WORKDIR}/10-boot-marker ${D}${localstatedir}/lib/lxc/android/pre-start.d/
-    install -m 0755 ${WORKDIR}/20-remove-services ${D}${localstatedir}/lib/lxc/android/pre-start.d/
-    install -m 0755 ${WORKDIR}/21-camera-service ${D}${localstatedir}/lib/lxc/android/pre-start.d/
     install -m 0755 ${WORKDIR}/30-mount-nothing ${D}${localstatedir}/lib/lxc/android/pre-start.d/
     install -m 0755 ${WORKDIR}/40-rootfs-rw ${D}${localstatedir}/lib/lxc/android/pre-start.d/
 
