@@ -11,9 +11,15 @@ do_install() {
     install -d ${D}${includedir}/android
     cp -rv ${S}/git/* ${D}${includedir}/android/
 
-    if [ -e ${S}/android-config_${MACHINE}.h ] ; then
+    if [ -n "${ANDROID_HEADERS_DEFINES}" ] ; then
         rm ${D}${includedir}/android/android-config.h
-        install ${S}/android-config_${MACHINE}.h ${D}${includedir}/android-config.h
+        sed '/\/\* CONFIG GOES HERE/,$d' ${S}/git/android-config.h > android-config.h.pre
+        sed '0,/\/\* CONFIG GOES HERE/d' ${S}/git/android-config.h > android-config.h.post
+        for i in ${ANDROID_HEADERS_DEFINES}; do
+          echo "#define $i 1" >> android-config_${MACHINE}.h
+        done
+        cat android-config.h.pre android-config_${MACHINE}.h android-config.h.post >> android-config.h.new
+        install android-config.h.new ${D}${includedir}/android/android-config.h
     fi
 
     install -d ${D}${libdir}/pkgconfig
