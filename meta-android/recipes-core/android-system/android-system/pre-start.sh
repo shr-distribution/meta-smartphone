@@ -52,6 +52,9 @@ mount_bind_ro /system $LXC_ROOTFS_PATH/system
 mount_bind_ro /system/vendor $LXC_ROOTFS_PATH/vendor
 mount_bind_ro /firmware $LXC_ROOTFS_PATH/firmware
 mount_bind_ro /system/etc $LXC_ROOTFS_PATH/etc
+if [ -d /persist ] ; then
+  mount_bind_ro /persist $LXC_ROOTFS_PATH/persist
+fi
 
 # usage existing /data directory
 mkdir -p /data
