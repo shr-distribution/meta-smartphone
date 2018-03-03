@@ -1,6 +1,5 @@
 [Unit]
 Description=Load wifi module
-After=android-system-filesystems.target
 Before=android-system.service
 Conflicts=shutdown.target actdead.target
 
