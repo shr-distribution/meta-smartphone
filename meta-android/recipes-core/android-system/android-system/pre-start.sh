@@ -16,22 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-ramdisk=/usr/lib/android-system/ramdisk.img
-
-if [ ! -e $ramdisk ] ; then
-	exit 1
-fi
-
-if [ -d $LXC_ROOTFS_PATH ] ; then
-	umount --recursive $LXC_ROOTFS_PATH
-	rm -rf $LXC_ROOTFS_PATH
-fi
-
-# Make sure we're always starting from a clean base
-mkdir -p $LXC_ROOTFS_PATH
-mount -t tmpfs none $LXC_ROOTFS_PATH
-(cd $LXC_ROOTFS_PATH ; cat $ramdisk | gzip -d | cpio -i)
-
 # /dev/pts needs to be there
 mkdir -p $LXC_ROOTFS_PATH/dev/pts
 
@@ -56,8 +40,7 @@ if [ -d /persist ] ; then
   mount_bind_ro /persist $LXC_ROOTFS_PATH/persist
 fi
 
-# usage existing /data directory
-mkdir -p /data
+# usage existing /data directory, rw
 mount -o bind /data $LXC_ROOTFS_PATH/data
 
 # Avoid being spammed with "missing packages.list; retrying"
