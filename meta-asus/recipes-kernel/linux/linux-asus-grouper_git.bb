@@ -7,15 +7,6 @@ COMPATIBLE_MACHINE = "grouper"
 
 DESCRIPTION = "Linux kernel for the Asus Grouper device"
 
-CMDLINE = "console=tty1"
-KERNEL_RAM_BASE = "0x10008000"
-RAMDISK_RAM_BASE = "0x11000000"
-SECOND_RAM_BASE = "0x10f00000"
-TAGS_RAM_BASE = "0x10000100"
-BOOT_PARTITION = "/dev/mmcblk0p2"
-
-inherit kernel_android
-
 SRC_URI = " \
   git://github.com/shr-distribution/linux.git;protocol=git;branch=grouper/3.1/master \
   file://defconfig \
@@ -24,6 +15,8 @@ SRC_URI = " \
 S = "${WORKDIR}/git"
 
 SRCREV = "0bc115f0e3511c09becce80b044e9b6271955d28"
+
+CMDLINE = "${ANDROID_BOOTIMG_CMDLINE}"
 
 KV = "3.1.10"
 PV = "${KV}+gitr${SRCPV}"

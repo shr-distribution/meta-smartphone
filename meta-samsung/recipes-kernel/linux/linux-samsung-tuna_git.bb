@@ -8,21 +8,14 @@ COMPATIBLE_MACHINE = "tuna"
 DESCRIPTION = "Linux kernel for the Samsung Tuna device based on the offical \
 source from Samsung"
 
-CMDLINE = "console=ttyFIQ0 androidboot.console=ttyFIQ0 mem=1G vmalloc=768M omap_wdt.timer_margin=30 no_console_suspend"
-KERNEL_RAM_BASE = "0x80008000"
-RAMDISK_RAM_BASE = "0x81000000"
-SECOND_RAM_BASE = "0x80f00000"
-TAGS_RAM_BASE = "0x80000100"
-BOOT_PARTITION = "/dev/mmcblk0p7"
-
-inherit kernel_android
-
 SRC_URI = " \
   git://github.com/shr-distribution/linux.git;protocol=git;branch=tuna/3.0/cm-12.1 \
   file://defconfig \
 "
 
 S = "${WORKDIR}/git"
+
+CMDLINE = "${ANDROID_BOOTIMG_CMDLINE}"
 
 do_configure_append() {
   kernel_conf_variable_fixup() {
