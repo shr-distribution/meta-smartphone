@@ -1,0 +1,13 @@
+diff --git a/scripts/halium b/scripts/halium
+index 03b568a..53e43e5 100644
+--- a/scripts/halium
++++ b/scripts/halium
+@@ -405,7 +405,7 @@ mountroot() {
+ 
+ 	# Mount the data partition to a temporary mount point
+ 	# FIXME: data=journal used as a workaround for bug 1387214
+-	mount -o discard,data=journal $path /tmpmnt
++	mount  $path /tmpmnt
+ 
+ 	# Set $syspart if it is specified as systempart= on the command line
+ 	if grep -q systempart= /proc/cmdline; then
