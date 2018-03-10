@@ -2,8 +2,8 @@ require recipes-core/android-system-image/android-system-image.inc
 
 COMPATIBLE_MACHINE = "mido"
 
-PV = "20180303-2"
+PV = "20180308-9"
 
 SRC_URI = "http://build.webos-ports.org/halium-luneos-7.1/halium-luneos-7.1-${PV}-${MACHINE}.tar.bz2"
-SRC_URI[md5sum] = "7a0bc4afac084bd5035ace65f95de0d9"
-SRC_URI[sha256sum] = "df93b14c9858efb8cb92789373f790748a6c625f9ecad7ac89b3f586805cb71b"
+SRC_URI[md5sum] = "62919c2f334566345b66b404913758ad"
+SRC_URI[sha256sum] = "99750a788483299ed74d53de3358c853a6626bc66621badf31a37256afecdbad"
