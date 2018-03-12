@@ -4,6 +4,8 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7ca
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
+DEPENDS = "android-tools-native e2fsprogs-native"
+
 RPROVIDES_${PN} += "virtual/android-system-image"
 
 INC_PR = "r6"
@@ -11,6 +13,15 @@ INC_PR = "r6"
 do_install() {
     install -d ${D}/android
     install -d ${D}${localstatedir}/lib/lxc/android
+
+    # convert the sparse android image into a regular ext4 image
+    if file ${WORKDIR}/system.img | grep -v ": Linux rev 1.0 ext4" >/dev/null; then
+        mv ${WORKDIR}/system.img ${WORKDIR}/system.img.sparse
+        simg2img ${WORKDIR}/system.img.sparse ${WORKDIR}/system.img
+        resize2fs -M ${WORKDIR}/system.img
+        rm ${WORKDIR}/system.img.sparse
+    fi
+
     install -m 0644 ${WORKDIR}/system.img ${D}${localstatedir}/lib/lxc/android/system.img
 
     install -d ${D}${sysconfdir}
