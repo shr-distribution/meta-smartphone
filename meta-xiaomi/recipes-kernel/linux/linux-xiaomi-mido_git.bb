@@ -9,7 +9,7 @@ DESCRIPTION = "Linux kernel for the Xiaomi Mido (Redmi Note 4, Snapdragon) devic
 source from Xiaomi"
 
 SRC_URI = " \
-  git://github.com/piggz/android_kernel_xiaomi_msm8953.git;branch=pgz-14.1-eb8 \
+  git://github.com/herrie82/android_kernel_xiaomi_msm8953.git;branch=pgz-14.1-eb8 \
 "
 S = "${WORKDIR}/git"
 
@@ -19,7 +19,7 @@ do_configure_prepend() {
     cp -v -f ${S}/arch/arm64/configs/mido_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "8b078d06e88d34e79222237cf74b99c2d97db98d"
+SRCREV = "f974d591e9553d614fe4cc56b190f9aa598c8197"
 
 KV = "3.18.85"
 PV = "${KV}+gitr${SRCPV}"
