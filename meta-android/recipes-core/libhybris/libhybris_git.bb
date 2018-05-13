@@ -9,7 +9,9 @@ PR = "r1"
 PE = "1"
 
 SRC_URI = "git://github.com/libhybris/libhybris \
-    file://0001-hooks.c-Fix-build-with-glibc-2.26.patch;patchdir=.. \
+    file://0001-Fix-test_sensors-printf.patch;patchdir=.. \
+    file://0002-tests-make-test_camera-use-wayland.patch;patchdir=.. \
+    file://0003-hooks.c-Fix-build-with-glibc-2.26.patch;patchdir=.. \
 "
 
 S = "${WORKDIR}/git/hybris"
