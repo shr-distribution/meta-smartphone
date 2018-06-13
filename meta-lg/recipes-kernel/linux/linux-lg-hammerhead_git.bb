@@ -10,6 +10,8 @@ source from Google/LG"
 
 SRC_URI = " \
   git://github.com/Halium/android_kernel_lge_hammerhead.git;branch=halium-5.1 \
+  file://0001-compiler-gcc.h-Add-gcc-recommended-GCC_VERSION-macro.patch \
+  file://0001-compiler-gcc-integrate-the-various-compiler-gcc-345-.patch \
 "
 S = "${WORKDIR}/git"
 

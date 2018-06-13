@@ -11,7 +11,7 @@ SRC_URI = " \
 "
 S = "${WORKDIR}/git"
 
-SRCREV = "56b402673a191a25f3bc211dfa37124f0c0fc6d8"
+SRCREV = "ece92940da642531c3810c7474c1ec1dd2073a72"
 
 do_deploy[depends] += "initramfs-android-image:do_image_complete"
 DEPENDS += "u-boot-mkimage-native"
