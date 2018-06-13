@@ -1,0 +1,59 @@
+From 3f3f8d2f48acfd8ed3b8e6b7377935da57b27b16 Mon Sep 17 00:00:00 2001
+From: Daniel Santos <daniel.santos@pobox.com>
+Date: Thu, 21 Feb 2013 16:41:39 -0800
+Subject: [PATCH] compiler-gcc.h: Add gcc-recommended GCC_VERSION macro
+
+Throughout compiler*.h, many version checks are made.  These can be
+simplified by using the macro that gcc's documentation recommends.
+However, my primary reason for adding this is that I need bug-check
+macros that are enabled at certain gcc versions and it's cleaner to use
+this macro than the tradition method:
+
+  #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ => 2)
+
+If you add patch level, it gets this ugly:
+
+  #if __GNUC__ > 4 || (__GNUC__ == 4 && (__GNUC_MINOR__ > 2 || \
+      __GNUC_MINOR__ == 2 __GNUC_PATCHLEVEL__ >= 1))
+
+As opposed to:
+
+  #if GCC_VERSION >= 40201
+
+While having separate headers for gcc 3 & 4 eliminates some of this
+verbosity, they can still be cleaned up by this.
+
+See also:
+
+  http://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html
+
+Signed-off-by: Daniel Santos <daniel.santos@pobox.com>
+Acked-by: Borislav Petkov <bp@alien8.de>
+Acked-by: David Rientjes <rientjes@google.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Joe Perches <joe@perches.com>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: Paul Gortmaker <paul.gortmaker@windriver.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+---
+ include/linux/compiler-gcc.h | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
+index 6a6d7aefe12d..24545cd90a25 100644
+--- a/include/linux/compiler-gcc.h
++++ b/include/linux/compiler-gcc.h
+@@ -5,6 +5,9 @@
+ /*
+  * Common definitions for all gcc versions go here.
+  */
++#define GCC_VERSION (__GNUC__ * 10000 \
++		   + __GNUC_MINOR__ * 100 \
++		   + __GNUC_PATCHLEVEL__)
+ 
+ 
+ /* Optimization barrier */
+-- 
+2.17.1
+

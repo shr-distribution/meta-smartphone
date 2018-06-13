@@ -10,6 +10,8 @@ source from Google/LG"
 
 SRC_URI = " \
   git://github.com/ubports/android_kernel_google_msm.git;branch=ubp-5.1 \
+  file://0001-compiler-gcc.h-Add-gcc-recommended-GCC_VERSION-macro.patch \
+  file://0001-compiler-gcc-integrate-the-various-compiler-gcc-345-.patch \
   file://0001-Force-WLAN-to-be-build-as-module.patch \  
 "
 S = "${WORKDIR}/git"
