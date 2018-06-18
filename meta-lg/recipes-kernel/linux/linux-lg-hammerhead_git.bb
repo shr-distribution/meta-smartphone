@@ -10,8 +10,6 @@ source from Google/LG"
 
 SRC_URI = " \
   git://github.com/Halium/android_kernel_lge_hammerhead.git;branch=halium-5.1 \
-  file://0001-compiler-gcc.h-Add-gcc-recommended-GCC_VERSION-macro.patch \
-  file://0001-compiler-gcc-integrate-the-various-compiler-gcc-345-.patch \
 "
 S = "${WORKDIR}/git"
 
@@ -21,7 +19,7 @@ do_configure_prepend() {
     cp -v -f ${S}/arch/arm/configs/cyanogenmod_hammerhead_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "5b2e4b8d36260feea46f4ae3b955ba997a26b5fb"
+SRCREV = "8bc4e3a577c3677e798f1f5ae2142ae57ad04a10"
 
 KV = "3.4.0"
 PV = "${KV}+gitr${SRCPV}"
