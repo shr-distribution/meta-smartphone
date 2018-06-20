@@ -1,9 +1,0 @@
-rootfs                  /                    auto       defaults              1  1
-proc                    /proc                proc       defaults              0  0
-devpts                  /dev/pts             devpts     mode=0620,gid=5       0  0
-usbdevfs                /proc/bus/usb        usbdevfs   noauto                0  0
-tmpfs                   /run                 tmpfs      mode=0755,nodev,nosuid,strictatime 0  0
-tmpfs                   /var/volatile        tmpfs      defaults              0  0
-
-# /dev/mmcblk0p3          /system              auto       ro,nofail             0  0
-
