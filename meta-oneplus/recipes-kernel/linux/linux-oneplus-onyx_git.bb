@@ -9,7 +9,7 @@ DESCRIPTION = "Linux kernel for the OnePlus Onyx (OnePlus X) device based on the
 source from OnePlus"
 
 SRC_URI = " \
-  git://github.com/herrie82/android_kernel_oneplus_onyx.git;branch=cm-14.1 \
+  git://github.com/corpuscle/android_kernel_oneplus_onyx.git;branch=cm-14.1-los \
 "
 S = "${WORKDIR}/git"
 
@@ -19,7 +19,7 @@ do_configure_prepend() {
     cp -v -f ${S}/arch/arm/configs/lineageos_onyx_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "53e0ee0ae3196d4e9aa4247263437b6279d9ebed"
+SRCREV = "79e6735d4a7deae28426e756c8b87f58e27393d6"
 
 KV = "3.4.0"
 PV = "${KV}+gitr${SRCPV}"
