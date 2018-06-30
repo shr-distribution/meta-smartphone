@@ -9,7 +9,7 @@ DESCRIPTION = "Linux kernel for the Xiaomi Rosy (Redmi 5, Snapdragon) device bas
 source from Xiaomi"
 
 SRC_URI = " \
-  git://github.com/Tofee/android_kernel_xiaomi_msm8953.git;branch=los-14.1 \
+  git://github.com/Tofee/android_kernel_xiaomi_msm8953.git;branch=los14.1 \
 "
 S = "${WORKDIR}/git"
 
@@ -19,7 +19,7 @@ do_configure_prepend() {
     cp -v -f ${S}/arch/arm64/configs/lineageos_rosy_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "e91dc076869afd077fc8e0650919c7ffc1f3f070"
+SRCREV = "77531a217781482be659cc4c703330489c0910bd"
 
 KV = "3.18.31"
 PV = "${KV}+gitr${SRCPV}"
