@@ -19,6 +19,8 @@ MACHINE_DISPLAY_PPI = "233"
 
 MACHINE_EXTRA_RDEPENDS = "asus-grouper-firmware"
 
+PREFERRED_PROVIDER_virtual/libgl ?= "mesa-gl"
+PREFERRED_PROVIDER_virtual/libgbm ?= "mesa-gl"
 PREFERRED_PROVIDER_virtual/egl ?= "libhybris"
 PREFERRED_PROVIDER_virtual/mesa ?= "libhybris"
 PREFERRED_PROVIDER_virtual/libgles1 ?= "libhybris"

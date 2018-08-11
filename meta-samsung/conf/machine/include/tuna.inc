@@ -18,6 +18,8 @@ MACHINE_DISPLAY_HEIGHT_PIXELS = "800"
 MACHINE_DISPLAY_ORIENTATION = "0"
 MACHINE_DISPLAY_PPI = "233"
 
+PREFERRED_PROVIDER_virtual/libgl ?= "mesa-gl"
+PREFERRED_PROVIDER_virtual/libgbm ?= "mesa-gl"
 PREFERRED_PROVIDER_virtual/egl ?= "libhybris"
 PREFERRED_PROVIDER_virtual/mesa ?= "libhybris"
 PREFERRED_PROVIDER_virtual/libgles1 ?= "libhybris"
