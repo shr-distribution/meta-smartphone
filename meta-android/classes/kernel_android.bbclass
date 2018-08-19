@@ -33,10 +33,8 @@ do_deploy_append() {
     # We're probably interested only in zImage KERNEL_IMAGETYPE, but keep
     # the for loop for consistency with other bbclasses
     for type in ${KERNEL_IMAGETYPES} ; do
-        base_name=${type}-${KERNEL_IMAGE_BASE_NAME}
-        symlink_name=${type}-${KERNEL_IMAGE_SYMLINK_NAME}
-        cp ${B}/boot.img ${DEPLOYDIR}/${base_name}.fastboot
-        ln -sf ${base_name}.fastboot ${DEPLOYDIR}/${symlink_name}.fastboot
+        cp ${B}/boot.img ${DEPLOYDIR}/${type}-${KERNEL_IMAGE_NAME}.fastboot
+        ln -snvf ${type}-${KERNEL_IMAGE_NAME}.fastboot ${DEPLOYDIR}/${type}-${KERNEL_IMAGE_LINK_NAME}.fastboot
     done
 }
 

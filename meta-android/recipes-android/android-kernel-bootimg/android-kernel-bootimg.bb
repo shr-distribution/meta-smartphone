@@ -20,8 +20,7 @@ DEPENDS += "abootimg-native"
 
 RDEPENDS_${PN} += "abootimg"
 
-inherit deploy
-do_deploy[vardepsexclude] = "KERNEL_IMAGE_BASE_NAME"
+inherit deploy kernel-artifact-names
 do_compile[depends] += "initramfs-android-image:do_image_complete virtual/kernel:do_deploy"
 
 do_compile() {
@@ -45,10 +44,8 @@ do_deploy() {
     # We're probably interested only in zImage KERNEL_IMAGETYPE, but keep
     # the for loop for consistency with other bbclasses
     for type in ${KERNEL_IMAGETYPES} ; do
-        base_name=${type}-${KERNEL_IMAGE_BASE_NAME}
-        symlink_name=${type}-${KERNEL_IMAGE_SYMLINK_NAME}
-        cp ${B}/boot.img ${DEPLOYDIR}/${base_name}.fastboot
-        ln -sf ${base_name}.fastboot ${DEPLOYDIR}/${symlink_name}.fastboot
+        cp ${B}/boot.img ${DEPLOYDIR}/${type}-${KERNEL_IMAGE_NAME}.fastboot
+        ln -snvf ${type}-${KERNEL_IMAGE_NAME}.fastboot ${DEPLOYDIR}/${type}-${KERNEL_IMAGE_LINK_NAME}.fastboot
     done
 }
 addtask deploy after do_install before do_build
