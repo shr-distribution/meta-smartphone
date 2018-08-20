@@ -12,6 +12,7 @@ INC_PR = "r6"
 
 do_install() {
     install -d ${D}/android
+    install -d ${D}/userdata
     install -d ${D}${localstatedir}/lib/lxc/android
 
     # convert the sparse android image into a regular ext4 image
@@ -37,4 +38,4 @@ do_install() {
     ln -sf /system/vendor ${D}/vendor
 }
 
-FILES_${PN} = "${localstatedir}/lib/lxc/android/system.img ${sysconfdir} /android /cache /data /factory /firmware /persist /system /vendor"
+FILES_${PN} = "${localstatedir}/lib/lxc/android/system.img ${sysconfdir} /android /cache /data /factory /firmware /persist /system /vendor /userdata"
