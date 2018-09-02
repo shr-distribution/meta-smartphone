@@ -60,7 +60,7 @@ pkg_postinst_ontarget_${KERNEL_PACKAGE_NAME}-image_append () {
         exit 1
     fi
 
-    BOOT_PARTITION_NAMES="LNX boot KERNEL"
+    BOOT_PARTITION_NAMES="LNX boot boot_a KERNEL"
     for i in $BOOT_PARTITION_NAMES; do
         path=$(find /dev -name "$i"|grep disk| head -n 1)
         [ -n "$path" ] && break
