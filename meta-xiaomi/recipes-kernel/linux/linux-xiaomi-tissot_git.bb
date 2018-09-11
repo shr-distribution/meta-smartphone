@@ -11,19 +11,19 @@ source from Xiaomi"
 DEPENDS += "openssl-native"
 
 SRC_URI = " \
-  git://github.com/herrie82/tissot.git;branch=tissot-o-oss \
+  git://github.com/Tofee/tissot.git;branch=cm-14.1 \
 "
 S = "${WORKDIR}/git"
 
 CMDLINE = "${ANDROID_BOOTIMG_CMDLINE}"
 
 do_configure_prepend() {
-    cp -v -f ${S}/arch/arm64/configs/tissot-perf_defconfig ${WORKDIR}/defconfig
+    cp -v -f ${S}/arch/arm64/configs/tissot_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "dc17fae650e5437bf13c755f95d9f5d006a8fc0e"
+SRCREV = "e8ef22278d9ab768dcd20bb3c8f64cd991832d7f"
 
-KV = "3.18.113"
+KV = "3.18.31"
 PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
