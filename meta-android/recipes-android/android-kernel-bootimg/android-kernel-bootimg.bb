@@ -23,10 +23,15 @@ RDEPENDS_${PN} += "abootimg"
 inherit deploy kernel-artifact-names
 do_compile[depends] += "initramfs-android-image:do_image_complete virtual/kernel:do_deploy"
 
-do_compile() {
+INITRAMFS_NAME = "initramfs-android-image-${MACHINE}${IMAGE_NAME_SUFFIX}.cpio.gz"
+
+do_compile_append() {
+    if [ ! -e ${DEPLOY_DIR_IMAGE}/${INITRAMFS_NAME} ] ; then
+        bbfatal "Required initramfs image ${DEPLOY_DIR_IMAGE}/${INITRAMFS_NAME} is not available!"
+    fi
     abootimg --create ${B}/boot.img \
              -k ${DEPLOY_DIR_IMAGE}/${KERNEL_IMAGETYPE} \
-             -r ${DEPLOY_DIR_IMAGE}/initramfs-android-image-${MACHINE}.cpio.gz \
+             -r ${DEPLOY_DIR_IMAGE}/${INITRAMFS_NAME} \
              -c "cmdline=${ANDROID_BOOTIMG_CMDLINE}" \
              -c "kerneladdr=${ANDROID_BOOTIMG_KERNEL_RAM_BASE}" \
              -c "ramdiskaddr=${ANDROID_BOOTIMG_RAMDISK_RAM_BASE}" \

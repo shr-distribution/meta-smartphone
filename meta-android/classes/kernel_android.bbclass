@@ -12,10 +12,16 @@ KERNEL_OUTPUT ?= "${KERNEL_OUTPUT_DIR}/${KERNEL_IMAGETYPE}"
 do_compile[depends] += "initramfs-android-image:do_image_complete"
 DEPENDS += "abootimg-native"
 
+INITRAMFS_NAME = "initramfs-android-image-${MACHINE}${IMAGE_NAME_SUFFIX}.cpio.gz"
+
 do_compile_append() {
+    if [ ! -e ${DEPLOY_DIR_IMAGE}/${INITRAMFS_NAME} ] ; then
+        bbfatal "Required initramfs image ${DEPLOY_DIR_IMAGE}/${INITRAMFS_NAME} is not available!"
+    fi
+
     abootimg --create ${B}/boot.img \
              -k ${B}/${KERNEL_OUTPUT} \
-             -r ${DEPLOY_DIR_IMAGE}/initramfs-android-image-${MACHINE}.cpio.gz \
+             -r ${DEPLOY_DIR_IMAGE}/${INITRAMFS_NAME} \
              -c "cmdline=${CMDLINE}" \
              -c "kerneladdr=${KERNEL_RAM_BASE}" \
              -c "ramdiskaddr=${RAMDISK_RAM_BASE}" \
