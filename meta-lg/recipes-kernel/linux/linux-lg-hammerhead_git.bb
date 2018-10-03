@@ -8,6 +8,14 @@ COMPATIBLE_MACHINE = "hammerhead"
 DESCRIPTION = "Linux kernel for the LG Hammerhead (Nexus 5) device based on the offical \
 source from Google/LG"
 
+ANDROID_BOOTIMG_CMDLINE = "androidboot.hardware=hammerhead user_debug=31 maxcpus=2 msm_watchdog_v2.enable=1"
+ANDROID_BOOTIMG_KERNEL_RAM_BASE = "0x00008000"
+ANDROID_BOOTIMG_RAMDISK_RAM_BASE = "0x02900000"
+ANDROID_BOOTIMG_SECOND_RAM_BASE = "0x00f00000"
+ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x02700000"
+
+inherit kernel_android
+
 SRC_URI = " \
   git://github.com/Halium/android_kernel_lge_hammerhead.git;branch=halium-5.1 \
 "

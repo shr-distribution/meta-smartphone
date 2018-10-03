@@ -2,19 +2,19 @@
 # This class is used to create Android device compatible kernel images
 #
 
-KERNEL_RAM_BASE ?= "Please set to right value!"
-RAMDISK_RAM_BASE ?= "0x00000000"
-SECOND_RAM_BASE ?= "0x00000000"
-TAGS_RAM_BASE ?= "0x00000000"
-EXTRA_ABOOTIMG_ARGS ?= ""
-KERNEL_OUTPUT ?= "${KERNEL_OUTPUT_DIR}/${KERNEL_IMAGETYPE}"
+ANDROID_BOOTIMG_CMDLINE ?= ""
+ANDROID_BOOTIMG_KERNEL_RAM_BASE ?= "Please set to right value!"
+ANDROID_BOOTIMG_RAMDISK_RAM_BASE ?= "0x00000000"
+ANDROID_BOOTIMG_SECOND_RAM_BASE ?= "0x00000000"
+ANDROID_BOOTIMG_TAGS_RAM_BASE ?= "0x00000000"
+ANDROID_BOOTIMG_EXTRA_ABOOTIMG_ARGS ?= ""
 
-do_compile[depends] += "initramfs-android-image:do_image_complete"
-DEPENDS += "abootimg-native"
+KERNEL_OUTPUT ?= "${KERNEL_OUTPUT_DIR}/${KERNEL_IMAGETYPE}"
 
 INITRAMFS_NAME = "initramfs-android-image-${MACHINE}${IMAGE_NAME_SUFFIX}.cpio.gz"
 
-do_compile_append() {
+do_deploy[depends] += "initramfs-android-image:do_image_complete abootimg-native:do_populate_sysroot"
+do_deploy_append() {
     if [ ! -e ${DEPLOY_DIR_IMAGE}/${INITRAMFS_NAME} ] ; then
         bbfatal "Required initramfs image ${DEPLOY_DIR_IMAGE}/${INITRAMFS_NAME} is not available!"
     fi
@@ -22,50 +22,18 @@ do_compile_append() {
     abootimg --create ${B}/boot.img \
              -k ${B}/${KERNEL_OUTPUT} \
              -r ${DEPLOY_DIR_IMAGE}/${INITRAMFS_NAME} \
-             -c "cmdline=${CMDLINE}" \
-             -c "kerneladdr=${KERNEL_RAM_BASE}" \
-             -c "ramdiskaddr=${RAMDISK_RAM_BASE}" \
-             -c "secondaddr=${SECOND_RAM_BASE}" \
-             -c "tagsaddr=${TAGS_RAM_BASE}" \
-             ${EXTRA_ABOOTIMG_ARGS}
-}
+             -c "cmdline=${ANDROID_BOOTIMG_CMDLINE}" \
+             -c "kerneladdr=${ANDROID_BOOTIMG_KERNEL_RAM_BASE}" \
+             -c "ramdiskaddr=${ANDROID_BOOTIMG_RAMDISK_RAM_BASE}" \
+             -c "secondaddr=${ANDROID_BOOTIMG_SECOND_RAM_BASE}" \
+             -c "tagsaddr=${ANDROID_BOOTIMG_TAGS_RAM_BASE}" \
+             ${ANDROID_BOOTIMG_EXTRA_ABOOTIMG_ARGS}
 
-do_install_append() {
-    install -d ${D}/${KERNEL_IMAGEDEST}
-    install -m 0644 ${B}/boot.img ${D}/${KERNEL_IMAGEDEST}
-}
-
-do_deploy_append() {
     # We're probably interested only in zImage KERNEL_IMAGETYPE, but keep
     # the for loop for consistency with other bbclasses
     for type in ${KERNEL_IMAGETYPES} ; do
         cp ${B}/boot.img ${DEPLOYDIR}/${type}-${KERNEL_IMAGE_NAME}.fastboot
         ln -snvf ${type}-${KERNEL_IMAGE_NAME}.fastboot ${DEPLOYDIR}/${type}-${KERNEL_IMAGE_LINK_NAME}.fastboot
+        ln -snvf ${type}-${KERNEL_IMAGE_NAME}.fastboot ${DEPLOYDIR}/${type}.fastboot
     done
 }
-
-RDEPENDS_${KERNEL_PACKAGE_NAME}-image += "abootimg"
-
-pkg_postinst_ontarget_${KERNEL_PACKAGE_NAME}-image_append () {
-    if [ ! -e /boot/boot.img ] ; then
-        # if the boot image is not available here something went wrong and we don't
-        # continue with anything that can be dangerous
-        exit 1
-    fi
-
-    BOOT_PARTITION_NAMES="LNX boot KERNEL"
-    for i in $BOOT_PARTITION_NAMES; do
-        path=$(find /dev -name "$i"|grep disk| head -n 1)
-        [ -n "$path" ] && break
-    done
-
-    if [ -z "$path" ] ; then
-        echo "Boot partition does not exist!"
-        exit 1
-    fi
-
-    echo "Flashing the new kernel /boot/boot.img to $path"
-    dd if=/boot/boot.img of=$path
-}
-
-FILES_${KERNEL_PACKAGE_NAME}-image += "/${KERNEL_IMAGEDEST}/boot.img"

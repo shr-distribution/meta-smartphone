@@ -8,11 +8,19 @@ COMPATIBLE_MACHINE = "mako"
 DESCRIPTION = "Linux kernel for the LG Mako (Nexus 4) device based on the offical \
 source from Google/LG"
 
+ANDROID_BOOTIMG_CMDLINE = "console=ttyHSL0,115200,n8 androidboot.hardware=mako lpj=67677"
+ANDROID_BOOTIMG_KERNEL_RAM_BASE = "0x80208000"
+ANDROID_BOOTIMG_RAMDISK_RAM_BASE = "0x81800000"
+ANDROID_BOOTIMG_SECOND_RAM_BASE = "0x81100000"
+ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80200100"
+
+inherit kernel_android
+
 SRC_URI = " \
   git://github.com/ubports/android_kernel_google_msm.git;branch=ubp-5.1 \
   file://0001-compiler-gcc.h-Add-gcc-recommended-GCC_VERSION-macro.patch \
   file://0001-compiler-gcc-integrate-the-various-compiler-gcc-345-.patch \
-  file://0001-Force-WLAN-to-be-build-as-module.patch \  
+  file://0001-Force-WLAN-to-be-build-as-module.patch \
 "
 S = "${WORKDIR}/git"
 
