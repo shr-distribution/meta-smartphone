@@ -6,7 +6,6 @@ SRC_URI_append_mido = " \
     file://persist-wifi-mac-addr.sh \
     file://hciattach.service \
     file://hciattach.sh \
-    file://dev-ttyHS99.device \
 "
 SRC_URI_append_rosy = " \
     file://wifi-macaddr-persister.service \
@@ -20,7 +19,6 @@ do_install_append_mido() {
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/hciattach.service ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/dev-ttyHS99.device ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
 
     install -d ${D}${bindir}
@@ -42,7 +40,6 @@ SYSTEMD_SERVICE_${PN}_mido = " \
     wifi-macaddr-persister.service \
     wifi-module-load.service \
     hciattach.service \
-    dev-ttyHS99.device \
 "
 
 SRC_URI_append_tissot = " \
