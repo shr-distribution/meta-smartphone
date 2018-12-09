@@ -20,6 +20,8 @@ syspart=/dev/store/ext3fs
 if [ -e /dev/store/${distro_name}-root ]; then
     syspart=/dev/store/${distro_name}-root
 fi
+# Halium hesitates a bit between these two names: set them both.
+_syspart=$syspart
 
 if [ ! -e $syspart ]; then
     panic "Failed to find root partition !"
