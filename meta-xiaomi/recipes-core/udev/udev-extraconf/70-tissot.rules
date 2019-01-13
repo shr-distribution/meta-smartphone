@@ -242,3 +242,5 @@ ACTION=="add", KERNEL=="tun", OWNER="system", GROUP="vpn", MODE="0660"
 ACTION=="add", KERNEL=="ts0710mux*", OWNER="radio", GROUP="radio", MODE="0640"
 ACTION=="add", KERNEL=="ppp", OWNER="radio", GROUP="vpn", MODE="0660"
 ACTION=="add", KERNEL=="dvb*", OWNER="root", GROUP="system", MODE="0660"
+
+SUBSYSTEM=="input", KERNEL=="event[0-9]*", ATTRS{name}=="ft5435_ts", SYMLINK+="input/touchscreen0"
