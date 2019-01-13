@@ -251,3 +251,5 @@ ACTION=="add", KERNEL=="video32", SYMLINK+="video/venus_dec"
 ACTION=="add", KERNEL=="video33", SYMLINK+="video/venus_enc"
 ACTION=="add", KERNEL=="video34", SYMLINK+="video/q6_dec"
 ACTION=="add", KERNEL=="video35", SYMLINK+="video/q6_enc"
+
+SUBSYSTEM=="input", KERNEL=="event[0-9]*", ATTRS{name}=="fts_ts", SYMLINK+="input/touchscreen0"
