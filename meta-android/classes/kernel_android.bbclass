@@ -19,8 +19,15 @@ do_deploy_append() {
         bbfatal "Required initramfs image ${DEPLOY_DIR_IMAGE}/${INITRAMFS_NAME} is not available!"
     fi
 
+    kernel_with_dtb="${KERNEL_OUTPUT}"
+    # Handle the case when adding a dtb is needed
+    if [ -n "${KERNEL_DEVICETREE}" ] ; then
+        kernel_with_dtb="${KERNEL_OUTPUT_DIR}/${KERNEL_IMAGETYPE}-dtb"
+        cat ${B}/${KERNEL_OUTPUT} ${B}/${KERNEL_OUTPUT_DIR}/${KERNEL_DEVICETREE} > ${B}/$kernel_with_dtb
+    fi
+
     abootimg --create ${B}/boot.img \
-             -k ${B}/${KERNEL_OUTPUT} \
+             -k ${B}/$kernel_with_dtb \
              -r ${DEPLOY_DIR_IMAGE}/${INITRAMFS_NAME} \
              -c "cmdline=${ANDROID_BOOTIMG_CMDLINE}" \
              -c "kerneladdr=${ANDROID_BOOTIMG_KERNEL_RAM_BASE}" \
