@@ -8,7 +8,9 @@ COMPATIBLE_MACHINE = "hammerhead"
 DESCRIPTION = "Linux kernel for the LG Hammerhead (Nexus 5) device based on the offical \
 source from Google/LG"
 
-ANDROID_BOOTIMG_CMDLINE = "androidboot.hardware=hammerhead user_debug=31 maxcpus=2 msm_watchdog_v2.enable=1 console=ttyHSL0,115200,n8"
+#ANDROID_BOOTIMG_CMDLINE = "androidboot.hardware=hammerhead user_debug=31 maxcpus=2 msm_watchdog_v2.enable=1 console=ttyHSL0,115200,n8"
+ANDROID_BOOTIMG_CMDLINE = "gpt=enable lge.kcal=0|0|0|x lge.rev=rev_11 androidboot.laf androidboot.emmc=true fastboot=true androidboot.serialno=02c790c20937bd48 androidboot.bootloader=HHZ20h androidboot.baseband=msm androidboot.hardware.sku=D821 console=ttyHSL0,115200,n8"
+
 ANDROID_BOOTIMG_KERNEL_RAM_BASE = "0x00008000"
 ANDROID_BOOTIMG_RAMDISK_RAM_BASE = "0x02900000"
 ANDROID_BOOTIMG_SECOND_RAM_BASE = "0x00f00000"
