@@ -1,0 +1,31 @@
+From 03e63d9bf892d871148b6fc71873f01873c9c88f Mon Sep 17 00:00:00 2001
+From: Pierre Parent <pierre.parent@pparent.fr>
+Date: Tue, 2 Oct 2018 08:54:34 +0200
+Subject: [PATCH 1/1] Fix Hammerhead backlight
+
+---
+ drivers/video/backlight/lm3630a_bl.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/video/backlight/lm3630a_bl.c b/drivers/video/backlight/lm3630a_bl.c
+index 2030a6b77a09..b7c0ad50cb8d 100644
+--- a/drivers/video/backlight/lm3630a_bl.c
++++ b/drivers/video/backlight/lm3630a_bl.c
+@@ -398,11 +398,11 @@ static int lm3630a_probe(struct i2c_client *client,
+ 			return -ENOMEM;
+ 		/* default values */
+ 		pdata->leda_ctrl = LM3630A_LEDA_ENABLE;
+-		pdata->ledb_ctrl = LM3630A_LEDB_ENABLE;
++		pdata->ledb_ctrl = LM3630A_LEDB_ON_A;
+ 		pdata->leda_max_brt = LM3630A_MAX_BRIGHTNESS;
+ 		pdata->ledb_max_brt = LM3630A_MAX_BRIGHTNESS;
+-		pdata->leda_init_brt = LM3630A_MAX_BRIGHTNESS;
+-		pdata->ledb_init_brt = LM3630A_MAX_BRIGHTNESS;
++		pdata->leda_init_brt = 180;
++		pdata->ledb_init_brt = 180;
+ 	}
+ 	pchip->pdata = pdata;
+ 
+-- 
+2.11.0
+
