@@ -6,7 +6,10 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384
 
 ANDROID_EXTRA_INITRAMFS_IMAGE_INSTALL ?= ""
 
-IMAGE_INSTALL = "busybox base-passwd initramfs-boot-android android-tools bash"
+VIRTUAL-RUNTIME_android-initramfs-scripts ?= "initramfs-scripts-android"
+
+IMAGE_INSTALL = "busybox base-passwd android-tools bash"
+IMAGE_INSTALL += "${VIRTUAL-RUNTIME_android-initramfs-scripts}"
 IMAGE_INSTALL += "${ANDROID_EXTRA_INITRAMFS_IMAGE_INSTALL}"
 IMAGE_FEATURES = ""
 IMAGE_ROOTFS_SIZE = "8192"
