@@ -3,68 +3,36 @@
 . /machine.conf
 . /distro.conf
 
-setup_devtmpfs() {
-    mount -t devtmpfs -o mode=0755,nr_inodes=0 devtmpfs $1/dev
-    # Create additional nodes which devtmpfs does not provide
-    test -c $1/dev/fd || ln -sf /proc/self/fd $1/dev/fd
-    test -c $1/dev/stdin || ln -sf fd/0 $1/dev/stdin
-    test -c $1/dev/stdout || ln -sf fd/1 $1/dev/stdout
-    test -c $1/dev/stderr || ln -sf fd/2 $1/dev/stderr
-}
+. /init_functions.sh
+
+export PATH=$PATH:/sbin:/bin:/usr/sbin:/usr/bin
 
 echo "Mounting pseudo-filesystems"
 mkdir -m 0755 /proc
-mount -t proc proc /proc
 mkdir -m 0755 /sys
-mount -t sysfs sys /sys
 mkdir -p /dev
 
-setup_devtmpfs ""
+# mount basic virtual fs
+mount_proc_sys_dev ""
+# populate /dev thanks to mdev
+start_mdev
+# redirect log
+setup_log
 
-info() {
-    echo "$1" > /dev/ttyprintk
-}
+setup_framebuffer
 
-fail() {
-    echo "$distro_name initramfs failed:" > /dev/ttyprintk
-    echo "$1" > /dev/ttyprintk
-    echo "Waiting for 15 seconds before rebooting" > /dev/ttyprintk
-    sleep 15s
-    reboot
-}
+setup_usb_network 172.16.42.2/16
 
-# Check wether we need to start adbd for interactive debugging
-cat /proc/cmdline | grep enable_adb
-if [ $? -ne 1 ] ; then
-    /usr/bin/android-gadget-setup adb
-    /usr/bin/adbd
-fi
+mount_sdcard "/sdcard"
 
-
-sdcard_device=$( echo "$sdcard_partition" | sed -e 's/p[[:digit:]]\+$//' )
-while [ ! -e /sys/block/$sdcard_device ] ; do
-    info "Waiting for SD card/NAND"
-    sleep 1
-done
-
-# Try unpartitioned card
-if [ ! -e /sys/block/$sdcard_device/$sdcard_partition ] ; then
-    sdcard_partition=$sdcard_device
-fi
-
-SDCARD_DIR="/sdcard"
-info "Mounting SD card/NAND /dev/$sdcard_partition"
-mkdir -m 0777 $SDCARD_DIR
-mount -t auto -o rw,noatime,nodiratime /dev/$sdcard_partition $SDCARD_DIR
-[ $? -eq 0 ] || fail "Failed to mount SD card/NAND, cannot continue"
-
-
-ANDROID_MEDIA_DIR="$SDCARD_DIR/media"
+# Determine Android's media directory
+ANDROID_MEDIA_DIR="/sdcard/media"
 # Workaround for multi-user functionality in Android 4.2
-if [ -d $SDCARD_DIR/media/0 ] ; then
-    ANDROID_MEDIA_DIR="$SDCARD_DIR/media/0"
+if [ -d /sdcard/media/0 ] ; then
+    ANDROID_MEDIA_DIR="/sdcard/media/0"
 fi
 
+# Eventually run an installer hook, if available
 if [ -e $ANDROID_MEDIA_DIR/linux/installer ] ; then
     sh $ANDROID_MEDIA_DIR/linux/installer
 
@@ -73,39 +41,13 @@ if [ -e $ANDROID_MEDIA_DIR/linux/installer ] ; then
     rm $ANDROID_MEDIA_DIR/linux/installer
 fi
 
+mount_root_partition "/rfs"
 
-if [ -z "$rootfs_type" ] ; then
-    rootfs_type=ext2
-fi
-mkdir -m 0755 /rfs
-info "Checking for root filesystem image on SD card/NAND"
-if [ -e $ANDROID_MEDIA_DIR/linux/rootfs.$rootfs_type ] ; then
-    info "Mounting root filesystem image $ANDROID_MEDIA_DIR/linux/rootfs.$rootfs_type"
-    losetup /dev/loop2 $ANDROID_MEDIA_DIR/linux/rootfs.$rootfs_type
-    [ $? -eq 0 ] || fail "Failed to create loop device for root filesystem image!"
-    e2fsck -y /dev/loop2
-    mount -t $rootfs_type -o noatime,nodiratime,sync,rw /dev/loop2 /rfs
-    [ $? -eq 0 ] || fail "Failed to mount root filesystem image!"
-elif [ -d $ANDROID_MEDIA_DIR/linux/rootfs ] ; then
-    info "Chrooting into root filesystem folder $ANDROID_MEDIA_DIR/linux/rootfs"
-    mount -o bind,rw $ANDROID_MEDIA_DIR/linux/rootfs /rfs
-    [ $? -eq 0 ] || fail "Failed to bind mount $ANDROID_MEDIA_DIR/linux/rootfs"
-elif [ -d $SDCARD_DIR/$distro_name ] ; then
-    info "Chrooting into root filesystem folder $SDCARD_DIR/$distro_name"
-    mount -o bind,rw $SDCARD_DIR/$distro_name /rfs
-    [ $? -eq 0 ] || fail "Failed to bind mount $SDCARD_DIR/$distro_name"
-else
-    info "No root filesystem found on SD card/NAND; using /dev/$system_partition"
+mount_proc_sys_dev "/rfs"
 
-    # We don't have anything to boot from sdcard. Cleanup and boot
-    # from system partition.
-    umount $SDCARD_DIR
-
-    mount -t auto -o rw,noatime,nodiratime /dev/$system_partition /rfs
-    [ $? -eq 0 ] || fail "Failed to mount system partition /dev/$system_partition"
-fi
-
-setup_devtmpfs "/rfs"
+#info "Stopping debug services"
+#stop_telnetd
+stop_mdev
 
 info "Umounting unneeded filesystems"
 umount -l /proc
