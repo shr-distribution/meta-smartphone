@@ -1,0 +1,13 @@
+diff --git a/Makefile b/Makefile
+index a3a81d7..db216f6 100644
+--- a/Makefile
++++ b/Makefile
+@@ -2,7 +2,7 @@ OUT := qmic
+ 
+ CFLAGS ?= -Wall -g -O2
+ LDFLAGS ?=
+-prefix ?= /usr/local
++prefix ?= /usr
+ 
+ SRCS := accessor.c kernel.c parser.c qmic.c
+ OBJS := $(SRCS:.c=.o)
