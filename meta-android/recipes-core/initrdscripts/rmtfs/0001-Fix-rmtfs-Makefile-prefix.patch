@@ -1,0 +1,13 @@
+diff --git a/Makefile b/Makefile
+index 237b964..a158f7b 100644
+--- a/Makefile
++++ b/Makefile
+@@ -2,7 +2,7 @@ OUT := rmtfs
+ 
+ CFLAGS += -Wall -g -O2
+ LDFLAGS += -lqrtr -ludev
+-prefix = /usr/local
++prefix = /usr
+ 
+ SRCS := qmi_rmtfs.c rmtfs.c sharedmem.c storage.c util.c
+ OBJS := $(SRCS:.c=.o)
