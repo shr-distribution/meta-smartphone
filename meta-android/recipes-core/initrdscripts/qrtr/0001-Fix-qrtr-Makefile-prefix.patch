@@ -1,0 +1,13 @@
+diff --git a/Makefile b/Makefile
+index 237b964..a158f7b 100644
+--- a/Makefile
++++ b/Makefile
+@@ -6,7 +6,7 @@ proj-version := $(proj-major).$(proj-minor)
+ CFLAGS := -Wall -g
+ LDFLAGS :=
+ 
+-prefix := /usr/local
++prefix := /usr
+ bindir := $(prefix)/bin
+ libdir := $(prefix)/lib
+ includedir := $(prefix)/include
