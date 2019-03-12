@@ -5,6 +5,8 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 PACKAGES = "${PN}"
 
+RDEPENDS_${PN} = " udev e2fsprogs-e2fsck e2fsprogs-resize2fs "
+
 RPROVIDES_${PN} += "virtual/android-initramfs-scripts"
 
 SRC_URI += " \
