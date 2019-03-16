@@ -19,7 +19,7 @@ do_configure_prepend() {
     cp -v -f ${S}/arch/arm/configs/cyanogenmod_hammerhead_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "8bc4e3a577c3677e798f1f5ae2142ae57ad04a10"
+SRCREV = "17a8d0630b424d66981900e701ae2a452d4b8726"
 
 KV = "3.4.0"
 PV = "${KV}+gitr${SRCPV}"
