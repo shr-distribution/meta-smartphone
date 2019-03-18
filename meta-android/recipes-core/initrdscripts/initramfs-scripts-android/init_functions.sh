@@ -34,13 +34,20 @@ fail() {
 }
 
 # $1: root directory for mounts
-mount_proc_sys_dev() {
+mount_proc_sys_dev_configfs() {
 	# mdev
 	mount -t proc -o nodev,noexec,nosuid proc $1/proc
 	mount -t sysfs -o nodev,noexec,nosuid sysfs $1/sys
-
+	
 	mkdir $1/config
 	mount -t configfs -o nodev,noexec,nosuid configfs $1/config
+}
+
+# $1: root directory for mounts
+umount_proc_sys_dev_configfs() {
+	umount -l $1/config
+	umount -l $1/sys
+	umount -l $1/proc
 }
 
 start_mdev() {
@@ -128,7 +135,7 @@ setup_usb_network_android() {
 	# Only run, when we have the android usb driver
 	SYS=/sys/class/android_usb/android0
 	[ -e "$SYS" ] || return
-
+	
 	# Do the setup
 	printf "%s" "0" >"$SYS/enable"
 	printf "%s" "18D1" >"$SYS/idVendor"
@@ -142,19 +149,34 @@ setup_usb_network_configfs() {
 	CONFIGFS=/config/usb_gadget
 	[ -e "$CONFIGFS" ] || return
 
+	# Create new gadget module template
 	mkdir $CONFIGFS/g1
+	# Congifure vendor and product IDs
 	printf "%s" "0x18D1" >"$CONFIGFS/g1/idVendor"
 	printf "%s" "0xD001" >"$CONFIGFS/g1/idProduct"
 
+	# Setup english strings
 	mkdir $CONFIGFS/g1/strings/0x409
+	echo "0123456789" > $CONFIGFS/g1/strings/0x409/serialnumber
+	echo "LuneOS" > $CONFIGFS/g1/strings/0x409/manufacturer
+	echo "LuneOS device" > $CONFIGFS/g1/strings/0x409/product
 
-	mkdir $CONFIGFS/g1/functions/rndis.usb0
+	# Create function instances
+	mkdir $CONFIGFS/g1/functions/ffs.adb
+	mkdir $CONFIGFS/g1/functions/ffs.mtp
+	mkdir $CONFIGFS/g1/functions/ecm.usb0
 
+	# Create configuration instance
 	mkdir $CONFIGFS/g1/configs/c.1
 	mkdir $CONFIGFS/g1/configs/c.1/strings/0x409
+	echo "120" > $CONFIGFS/g1/configs/c.1/MaxPower
 	printf "%s" "rndis" > $CONFIGFS/g1/configs/c.1/strings/0x409/configuration
 
-	ln -s $CONFIGFS/g1/functions/rndis.usb0 $CONFIGFS/g1/configs/c.1
+	# Bind function instances and their configuration
+	# NOTE: binding ffs currently doesn't work and will disable ECM...
+	#ln -s $CONFIGFS/g1/functions/ffs.adb $CONFIGFS/g1/configs/c.1
+	#ln -s $CONFIGFS/g1/functions/ffs.mtp $CONFIGFS/g1/configs/c.1
+	ln -s $CONFIGFS/g1/functions/ecm.usb0 $CONFIGFS/g1/configs/c.1
 
 	echo "$(ls /sys/class/udc)" > $CONFIGFS/g1/UDC
 }
