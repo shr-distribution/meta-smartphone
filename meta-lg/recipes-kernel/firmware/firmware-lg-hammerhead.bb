@@ -11,18 +11,23 @@ PV = "20190316"
 SRC_URI = " \
     https://github.com/TheMuppets/proprietary_vendor_lge/raw/lineage-16.0/hammerhead/proprietary/vendor/firmware/a330_pfp.fw;name=a330pfp \
     https://github.com/TheMuppets/proprietary_vendor_lge/raw/lineage-16.0/hammerhead/proprietary/vendor/firmware/a330_pm4.fw;name=a330pm4 \
-    https://bshah.in/hammerhead-firmware.tar.gz;name=adspmodem;subdir=hammerhead-firmware \
+    https://github.com/wkennington/linux-firmware/raw/master/brcm/brcmfmac4339-sdio.bin;name=bcrm \
+    http://build.webos-ports.org/mainline-kernel-firmwares/hammerhead-firmware.tar.gz;name=adspmodem;subdir=hammerhead-firmware \
+    file://brcmfmac4339-sdio.txt \
 "
 SRC_URI[a330pfp.md5sum] = "d8b8333e3970aa2913d11ebb9470a7fc"
 SRC_URI[a330pfp.sha256sum] = "e4ee76b287961f56e6a606ed5baf7127d9fd9a0d421b516af32fa655f1fdb5de"
 SRC_URI[a330pm4.md5sum] = "71ce5efe6aafc8393c135b333d495c3d"
 SRC_URI[a330pm4.sha256sum] = "2057bff39ad2ab0b4d4ad755c52bf9d0c139293aa823bde992094ce27304b000"
+SRC_URI[bcrm.md5sum] = "8e5850cc8d55f0a439d093421038dee7"
+SRC_URI[bcrm.sha256sum] = "191ac3c79a1ad81ff664202d9f028d01e13673449b206423a75d5c226d343be5"
 SRC_URI[adspmodem.md5sum] = "ca602372db590d32ed4d15e97872cfe6"
 SRC_URI[adspmodem.sha256sum] = "dcf029fa03d1d67d30c1e7f9290e4230e7d8e8a8f3de5b0eba7bf429bc90151e"
 
 do_install() {
     install -d ${D}/lib/firmware
     install -d ${D}/lib/firmware/qcom
+    install -d ${D}/lib/firmware/brcm
     
     # Adreno a330 firmware
     install -m 0644 ${WORKDIR}/a330_pfp.fw ${D}/lib/firmware/qcom/a330_pfp.fw
@@ -36,6 +41,10 @@ do_install() {
 	for _i in ${WORKDIR}/hammerhead-firmware/adsp.*; do
 		install -m 0644 $_i ${D}/lib/firmware/$(basename $_i)
 	done
+    
+    # wifi firmware
+	install -m 0644 ${WORKDIR}/brcmfmac4339-sdio.txt ${D}/lib/firmware/brcm/brcmfmac4339-sdio.txt
+	install -m 0644 ${WORKDIR}/brcmfmac4339-sdio.bin ${D}/lib/firmware/brcm/brcmfmac4339-sdio.bin
 }
 
 INSANE_SKIP_${PN} += "arch"
