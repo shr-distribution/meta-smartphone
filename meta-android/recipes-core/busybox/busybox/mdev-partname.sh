@@ -3,7 +3,6 @@
 
 case "$ACTION" in
     add|"")
-        ACTION="add"
         [ -d /dev/disk/by-partname ] || mkdir -p /dev/disk/by-partname
         # find PARTNAME in /sys/class/block/$MDEV/uevent
         if [ -e "/sys/class/block/$MDEV/uevent" -a -e "/dev/$MDEV"  ]; then
