@@ -13,12 +13,12 @@ case "$ACTION" in
                 fi
 		;;
 	remove)
-                # find PARTNAME in /sys/class/block/$MDEV/uevent              
+                # find PARTNAME in /sys/class/block/$MDEV/uevent
                 if [ -e "/sys/class/block/$MDEV/uevent" -a -e "/dev/$MDEV"  ]; then
-                  source "/sys/class/block/$MDEV/uevent"                           
-                  # remove the symlink                                                                              
+                  source "/sys/class/block/$MDEV/uevent"
+                  # remove the symlink
                   [ -e /dev/disk/by-partname/"$PARTNAME" ] && rm /dev/disk/by-partname/"$PARTNAME"
-                fi                                      
+                fi
 		;;
 	*)
 		# Unexpected keyword
