@@ -12,6 +12,8 @@ SRC_URI = " \
 PACKAGES = "${PN}"
 FILES_${PN} = "/init /machine.conf /distro.conf"
 
+RDEPENDS_${PN} = "e2fsprogs-e2fsck e2fsprogs-resize2fs"
+
 do_install() {
     install -m 0755 ${WORKDIR}/init.sh ${D}/init
     install -m 0644 ${WORKDIR}/machine.conf ${D}/machine.conf
