@@ -9,6 +9,7 @@ case "$ACTION" in
              source "/sys/class/block/$MDEV/uevent"
              # create the symlink
              [ -e /dev/disk/by-partname/"$PARTNAME" ] || ln -s "../../$MDEV" /dev/disk/by-partname/"$PARTNAME"
+             [ -e /dev/disk/by-name/"$PARTNAME"     ] || ln -s "../../$MDEV" /dev/disk/by-name/"$PARTNAME"
         fi
         ;;
     remove)
