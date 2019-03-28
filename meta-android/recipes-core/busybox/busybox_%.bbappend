@@ -3,9 +3,9 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${BPN}:"
 
 SRC_URI += " \
     file://mdev.cfg \
-    file://mdev-partname.sh \
+    file://mdev-partlabel.sh \
 "
 
 do_install_append() {
-    install -m 0755 ${WORKDIR}/mdev-partname.sh ${D}${sysconfdir}/mdev
+    install -m 0755 ${WORKDIR}/mdev-partlabel.sh ${D}${sysconfdir}/mdev
 }
