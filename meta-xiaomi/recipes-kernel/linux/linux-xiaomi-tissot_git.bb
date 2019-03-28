@@ -15,8 +15,6 @@ SRC_URI = " \
 "
 S = "${WORKDIR}/git"
 
-CMDLINE = "${ANDROID_BOOTIMG_CMDLINE}"
-
 do_configure_prepend() {
     cp -v -f ${S}/arch/arm64/configs/tissot_defconfig ${WORKDIR}/defconfig
 }
