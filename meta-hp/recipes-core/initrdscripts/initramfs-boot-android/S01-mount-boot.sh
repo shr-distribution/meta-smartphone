@@ -32,12 +32,24 @@ ln -s media /dev/store/userdata
 
 # override process_bind_mounts(), because in our case userdata is vfat
 # So the symlinks won't be allowed in there
+# Therefore, don't move /home and /var out of the system partition.
+# Of course, it means the latter needs to be read-write on tenderloin.
 process_bind_mounts() {
     tell_kmsg "userdata is vfat: override process_bind_mounts"
-    datadir=${rootmnt}/android/userdata/$distro_name-data
-    mkdir -p $datadir/userdata/.cryptofs
+    datadir=${rootmnt}/userdata/$distro_name-data
+    tell_kmsg "Preparing $datadir"
+    if [ ! -e ${rootmnt}/.firstboot_done ] ; then
+        mkdir -p $datadir/userdata
+        # Copy initial media to userdata
+        cp -ra ${rootmnt}/media/internal/* $datadir/userdata/
 
-    # Copy initial media to userdata
-    mkdir -p $datadir/userdata
-    cp -ra ${rootmnt}/media/internal/* $datadir/userdata/
+        # setup cryptofs which is not a real cryptofs yet
+        if [ -d $datadir/userdata/.cryptofs ] ; then
+            rm -rf $datadir/userdata/.cryptofs
+        fi
+        mkdir -p $datadir/userdata/.cryptofs
+
+        # We're done with our first boot actions
+        touch ${rootmnt}/.firstboot_done
+    fi
 }
