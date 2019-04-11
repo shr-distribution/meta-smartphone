@@ -2,7 +2,7 @@
 
 # mount boot partition:
 mkdir -p /mnt/boot
-mount /dev/mmcblk0p13 /mnt/boot
+mount -o ro /dev/mmcblk0p13 /mnt/boot
 
 # use lvm.static binary file to initialize /dev/store
 [ ! -d /var/lock ] && mkdir -p /var/lock
