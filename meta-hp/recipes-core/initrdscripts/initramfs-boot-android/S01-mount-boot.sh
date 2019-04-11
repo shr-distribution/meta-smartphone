@@ -38,7 +38,7 @@ process_bind_mounts() {
     tell_kmsg "userdata is vfat: override process_bind_mounts"
     datadir=${rootmnt}/userdata/$distro_name-data
     tell_kmsg "Preparing $datadir"
-    if [ ! -e ${rootmnt}/.firstboot_done ] ; then
+    if [ ! -e $datadir/.firstboot_done ] ; then
         mkdir -p $datadir/userdata
         # Copy initial media to userdata
         cp -ra ${rootmnt}/media/internal/* $datadir/userdata/
@@ -50,6 +50,6 @@ process_bind_mounts() {
         mkdir -p $datadir/userdata/.cryptofs
 
         # We're done with our first boot actions
-        touch ${rootmnt}/.firstboot_done
+        touch $datadir/.firstboot_done
     fi
 }
