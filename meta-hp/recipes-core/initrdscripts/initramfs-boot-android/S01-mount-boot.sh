@@ -36,4 +36,8 @@ process_bind_mounts() {
     tell_kmsg "userdata is vfat: override process_bind_mounts"
     datadir=${rootmnt}/android/userdata/$distro_name-data
     mkdir -p $datadir/userdata/.cryptofs
+
+    # Copy initial media to userdata
+    mkdir -p $datadir/userdata
+    cp -ra ${rootmnt}/media/internal/* $datadir/userdata/
 }
