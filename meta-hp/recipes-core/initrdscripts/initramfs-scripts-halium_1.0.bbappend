@@ -1,9 +1,10 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 SRC_URI_append_tenderloin = "\
-    file://S01-mount-boot.sh\
-    file://K99-move-boot.sh\
-"
+                             file://Fix-userdata-mount-options.patch;patchdir=${WORKDIR}/git \
+                             file://S01-mount-boot.sh\
+                             file://K99-move-boot.sh\
+                             "
 
 COMPATIBLE_MACHINE_tenderloin = "tenderloin"
 
