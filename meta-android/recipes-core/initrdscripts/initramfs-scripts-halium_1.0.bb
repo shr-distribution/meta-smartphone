@@ -17,7 +17,9 @@ SRC_URI += " \
   file://functions \
 "
 
-SRCREV="37e2c80265e646169c8aee07acb1a9a3785ed699"
+S = "${WORKDIR}/git"
+
+SRCREV = "37e2c80265e646169c8aee07acb1a9a3785ed699"
 
 do_install_append() {
     install -m 0755 ${WORKDIR}/init.sh ${D}/init
