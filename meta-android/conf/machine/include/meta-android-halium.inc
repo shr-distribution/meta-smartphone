@@ -12,3 +12,5 @@ PREFERRED_PROVIDER_virtual/libgles2 ?= "libhybris"
 VIRTUAL-RUNTIME_android-initramfs-scripts = "initramfs-scripts-halium"
 
 PREFERRED_PROVIDER_virtual/android-headers = "android-headers-halium"
+
+MACHINEOVERRIDES =. "halium:"
