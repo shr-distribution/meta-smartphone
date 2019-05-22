@@ -23,14 +23,12 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x02700000"
 inherit kernel_android
 
 SRC_URI = " \
-  git://gitlab.com/postmarketOS/linux-postmarketos.git;branch=postmarketos-linux-qcom \
-  file://0001-Fix-Hammerhead-backlight.patch \
-  file://0002-Add-ramconsole.patch \
+  git://github.com/shr-distribution/linux.git;branch=hammerhead/4.16/postmarketos-linux-qcom \
   file://defconfig \
 "
 S = "${WORKDIR}/git"
 
-SRCREV = "e9fc9b4e4a83c8a9fba2230ac91d5c75b9fcd4d8"
+SRCREV = "49b3cbff652a8240f0470bd7d81e599234ab4d6e"
 
 KV = "4.17"
 PV = "${KV}+gitr${SRCPV}"
