@@ -1,9 +1,10 @@
-# build package busybox-mdev, needed by initramfs scripts
+# build package busybox-mdev and busybox's telnetd, needed by initramfs scripts
 FILESEXTRAPATHS_prepend := "${THISDIR}/${BPN}:"
 
 SRC_URI += " \
     file://mdev.cfg \
     file://mdev-partlabel.sh \
+    file://telnetd.cfg \
 "
 
 do_install_append() {
