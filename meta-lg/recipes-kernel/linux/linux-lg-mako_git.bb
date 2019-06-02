@@ -17,8 +17,8 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80200100"
 inherit kernel_android
 
 SRC_URI = " \
-  git://github.com/herrie82/android_kernel_google_msm.git;branch=ubp-5.1 \
-  file://0001-Force-WLAN-to-be-build-as-module.patch \
+    git://github.com/herrie82/android_kernel_google_msm.git;branch=cm-14.1 \
+    file://0001-Force-WLAN-to-be-build-as-module.patch \
 "
 S = "${WORKDIR}/git"
 
