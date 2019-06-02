@@ -17,7 +17,7 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x00000100"
 inherit kernel_android
 
 SRC_URI = " \
-  git://github.com/corpuscle/android_kernel_oneplus_onyx.git;branch=cm-14.1-wip \
+    git://github.com/corpuscle/android_kernel_oneplus_onyx.git;branch=luneos/cm-14.1-wip \
 "
 S = "${WORKDIR}/git"
 
