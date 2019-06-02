@@ -17,8 +17,7 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80200100"
 inherit kernel_android
 
 SRC_URI = " \
-    git://github.com/herrie82/android_kernel_google_msm.git;branch=cm-14.1 \
-    file://0001-Force-WLAN-to-be-build-as-module.patch \
+    git://github.com/shr-distribution/linux.git;branch=mako/3.4.0/ubp-5.1 \
 "
 S = "${WORKDIR}/git"
 
@@ -26,7 +25,7 @@ do_configure_prepend() {
     cp -v -f ${S}/arch/arm/configs/mako_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "c472fe80340f89c2b2c9498dd6e78e6317f4b389"
+SRCREV = "1a90dd89eb24596d31919e2d25be80a059c5fd73"
 
 KV = "3.4.0"
 PV = "${KV}+gitr${SRCPV}"
