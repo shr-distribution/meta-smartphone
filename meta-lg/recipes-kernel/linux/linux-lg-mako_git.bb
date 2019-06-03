@@ -25,7 +25,7 @@ do_configure_prepend() {
     cp -v -f ${S}/arch/arm/configs/mako_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "1a90dd89eb24596d31919e2d25be80a059c5fd73"
+SRCREV = "28921d0535c678140fdc5afd57b49ac6f1ce3b17"
 
 KV = "3.4.0"
 PV = "${KV}+gitr${SRCPV}"
