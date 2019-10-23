@@ -19,9 +19,11 @@ start_mdev
 # redirect log
 setup_log
 
-setup_framebuffer
+# setup_framebuffer
 
 setup_usb_network 172.16.42.2/16
+
+# start_telnetd
 
 mount_sdcard "/sdcard"
 
