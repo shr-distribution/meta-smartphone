@@ -3,6 +3,7 @@
 
 # Redirect stdout and stderr to logfile
 setup_log() {
+	sleep 5
 	# default redirect goes to /dev/kmsg
 	[ -e /dev/kmsg ] && exec >/dev/kmsg 2>&1
 	# Bail out if PMOS_NO_OUTPUT_REDIRECT is set
@@ -28,8 +29,8 @@ info() {
 fail() {
     echo "$distro_name initramfs failed:"
     echo "$1"
-    echo "Waiting for 15 seconds before rebooting"
-    sleep 15
+    echo "Waiting for 10 seconds before rebooting"
+    sleep 10
     reboot
 }
 
@@ -51,12 +52,15 @@ umount_proc_sys_dev_configfs() {
 }
 
 start_mdev() {
-	echo /sbin/mdev >/proc/sys/kernel/hotplug
-	mdev -s
+	echo "start mdev..."
+	echo /sbin/mdev > /sys/kernel/uevent_helper
+    /sbin/mdev -s
+    echo "mdev started."
 }
 
 stop_mdev() {
-	killall mdev
+    killall mdev
+    echo "" > /sys/kernel/uevent_helper
 }
 
 start_telnetd() {
@@ -76,22 +80,30 @@ stop_telnetd() {
 
 # $1: target directory of mount
 mount_sdcard() {
-	# Wait for sdcard device
-	sdcard_device=$( echo "$sdcard_partition" | sed -e 's/p[[:digit:]]\+$//' )
-	while [ ! -e /sys/block/$sdcard_device ] ; do
-		info "Waiting for SD card/NAND"
-		sleep 1
-	done
+	# First, try to find the device
+	info "Trying to find $sdcard_partition in /dev ..."
+	devicepath=$(find /dev -name $sdcard_partition -print -quit)
+	info "device path value: $devicepath"
+	
+	# Unlikely, but it might be that the sdcard hasn't appeared yet
+	if [ -z "$devicepath" -o ! -e "$devicepath" ] ; then
+		# Wait for sdcard device
+		sdcard_device=$( echo "$sdcard_partition" | sed -e 's/p[[:digit:]]\+$//' )
+		while [ ! -e /sys/block/$sdcard_device ] ; do
+			info "Waiting for SD card/NAND /sys/block/$sdcard_device"
+			sleep 1
+		done
 
-	# Try unpartitioned card
-	if [ ! -e /sys/block/$sdcard_device/$sdcard_partition ] ; then
-		sdcard_partition=$sdcard_device
+		# Try unpartitioned card
+		if [ ! -e /sys/block/$sdcard_device/$sdcard_partition ] ; then
+			sdcard_partition=$sdcard_device
+		fi
 	fi
 
 	SDCARD_DIR=$1
-	info "Mounting SD card/NAND /dev/$sdcard_partition to $SDCARD_DIR"
+	info "Mounting SD card/NAND $devicepath to $SDCARD_DIR"
 	mkdir -m 0777 $SDCARD_DIR
-	mount -t auto -o rw,noatime,nodiratime /dev/$sdcard_partition $SDCARD_DIR
+	mount -t auto -o rw,noatime,nodiratime $devicepath $SDCARD_DIR
 	[ $? -eq 0 ] || fail "Failed to mount SD card/NAND, cannot continue"
 }	
 
@@ -162,9 +174,10 @@ setup_usb_network_configfs() {
 	echo "LuneOS device" > $CONFIGFS/g1/strings/0x409/product
 
 	# Create function instances
-	mkdir $CONFIGFS/g1/functions/ffs.adb
-	mkdir $CONFIGFS/g1/functions/ffs.mtp
+	#mkdir $CONFIGFS/g1/functions/ffs.adb
+	#mkdir $CONFIGFS/g1/functions/ffs.mtp
 	mkdir $CONFIGFS/g1/functions/ecm.usb0
+	echo "FA:75:7F:BB:F4:E6" > $CONFIGFS/g1/functions/ecm.usb0/host_addr
 
 	# Create configuration instance
 	mkdir $CONFIGFS/g1/configs/c.1
