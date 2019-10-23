@@ -8,7 +8,7 @@ ANDROID_EXTRA_INITRAMFS_IMAGE_INSTALL ?= ""
 
 VIRTUAL-RUNTIME_android-initramfs-scripts ?= "initramfs-scripts-android"
 
-IMAGE_INSTALL = "busybox base-passwd android-tools bash"
+IMAGE_INSTALL = "busybox busybox-mdev base-passwd android-tools bash"
 IMAGE_INSTALL += "${VIRTUAL-RUNTIME_android-initramfs-scripts}"
 IMAGE_INSTALL += "${ANDROID_EXTRA_INITRAMFS_IMAGE_INSTALL}"
 IMAGE_FEATURES = ""
