@@ -25,7 +25,7 @@ do_configure_prepend() {
     cp -v -f ${S}/arch/arm64/configs/lineageos_rosy_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "6a422d49741b5e5d90a3f74b2f115854e1d0b05c"
+SRCREV = "df0e6705310102752eebebbd85d15cf529e316a9"
 
 KV = "3.18.31"
 PV = "${KV}+gitr${SRCPV}"
