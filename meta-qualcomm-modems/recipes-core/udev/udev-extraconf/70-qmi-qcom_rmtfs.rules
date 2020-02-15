@@ -1,0 +1,9 @@
+# check for mmcblk0 so that an SD card or something doesn't match
+KERNEL!="mmcblk0p[0-9]*", GOTO="qcom_rmtfs_end"
+
+ENV{ID_PART_ENTRY_NAME}=="modemst1",    SYMLINK+="disk/qcom_rmtfs/modem_fs1"
+ENV{ID_PART_ENTRY_NAME}=="modemst2",    SYMLINK+="disk/qcom_rmtfs/modem_fs2"
+ENV{ID_PART_ENTRY_NAME}=="fsc",         SYMLINK+="disk/qcom_rmtfs/modem_fsc"
+ENV{ID_PART_ENTRY_NAME}=="fsg",         SYMLINK+="disk/qcom_rmtfs/modem_fsg"
+
+LABEL="qcom_rmtfs_end"
