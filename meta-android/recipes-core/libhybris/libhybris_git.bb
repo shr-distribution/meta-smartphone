@@ -8,7 +8,9 @@ PV = "0.1.0+gitr${SRCPV}"
 PR = "r1"
 PE = "1"
 
-SRC_URI = "git://github.com/libhybris/libhybris"
+SRC_URI = "git://github.com/libhybris/libhybris \
+    file://0001-wayland-egl.pc.in-bump-Version-from-libhybris-s-0.1..patch;patchdir=.. \
+"
 
 S = "${WORKDIR}/git/hybris"
 

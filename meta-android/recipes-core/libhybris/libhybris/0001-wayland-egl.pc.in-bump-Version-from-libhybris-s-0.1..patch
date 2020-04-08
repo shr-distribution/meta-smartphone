@@ -1,0 +1,51 @@
+From 8483cf934d8d933b85cb4353edb11e68ef6eaa6b Mon Sep 17 00:00:00 2001
+From: Martin Jansa <Martin.Jansa@gmail.com>
+Date: Wed, 8 Apr 2020 19:56:15 +0200
+Subject: [PATCH] wayland-egl.pc.in: bump Version from libhybris's 0.1.0 to
+ 18.1.0
+
+* it's using libhybris's global @VERSION@ 0.1.0 since:
+  commit aca27dedbfca5be0170a81338b7b38598106c629
+  Author: Marko Saukko <marko.saukko@jollamobile.com>
+  Date:   Mon Sep 16 12:03:34 2013 +0300
+
+    Use @VERSION@ instead of hardcoded version numbers.
+
+* but e.g. gl plugin in gst-plugins-base is checking for wayland-egl > 1.0
+  for very long time since:
+  https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/commit/8d60fa23277eaf1079c46069c655fe33140f00e2#69452d651c553666f6ce330afec47119edc3050f_93_381
+  and it was ok with wayland-egl not found until recently when
+  wayland_egl_dep.found() was made mandatory in:
+  https://gitlab.freedesktop.org/gstreamer/gst-plugins-base/-/commit/17899dc9b6496c36a8ea0a95de8882fb447a4acf
+  and gstreamer1.0-plugins-base_1.16.2 build is now failing
+  when libhybris's wayland-egl is being used with:
+
+  Run-time dependency wayland-client found: YES 1.18.0
+  Run-time dependency wayland-cursor found: YES 1.18.0
+  Dependency wayland-egl found: NO found 0.1.0 but need: '>= 1.0'
+  Found CMake: NO
+  Run-time dependency wayland-egl found: NO (tried pkgconfig and cmake)
+  Run-time dependency wayland-protocols found: YES 1.20
+  Program wayland-scanner found: YES (/home/jenkins/workspace/luneos-unstable/webos-ports/tmp-glibc/work/aarch64-halium-webos-linux/gstreamer1.0-plugins-base/1.16.2-r0/recipe-sysroot-native/usr/bin/wayland-scanner)
+
+  gst-libs/gst/gl/meson.build:569:8: ERROR: Problem encountered: Could not find requested Wayland libraries
+
+  Use the same version as mesa's wayland-egl has in this build.
+
+Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+---
+ hybris/egl/platforms/common/wayland-egl.pc.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hybris/egl/platforms/common/wayland-egl.pc.in b/hybris/egl/platforms/common/wayland-egl.pc.in
+index 6631164..333742d 100644
+--- a/hybris/egl/platforms/common/wayland-egl.pc.in
++++ b/hybris/egl/platforms/common/wayland-egl.pc.in
+@@ -5,6 +5,6 @@ includedir=@includedir@
+ 
+ Name: wayland-egl
+ Description: libhybris wayland-egl library
+-Version: @VERSION@
++Version: 18.1.0
+ Libs: -L${libdir} -lwayland-egl
+ Cflags: -I${includedir}
