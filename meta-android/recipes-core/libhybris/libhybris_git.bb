@@ -10,6 +10,7 @@ PE = "1"
 
 SRC_URI = "git://github.com/libhybris/libhybris \
     file://0001-wayland-egl.pc.in-bump-Version-from-libhybris-s-0.1..patch;patchdir=.. \
+    file://0001-Add-EGL_OPENGL_ES3_BIT_KHR-define.patch;patchdir=.. \
 "
 
 S = "${WORKDIR}/git/hybris"

@@ -1,0 +1,24 @@
+From 6ada0c4cfc5affeeaf7a465e3f6739cdc5b3b801 Mon Sep 17 00:00:00 2001
+From: Christophe Chapuis <chris.chapuis@gmail.com>
+Date: Tue, 14 Apr 2020 18:00:32 +0000
+Subject: [PATCH] Add EGL_OPENGL_ES3_BIT_KHR define
+
+---
+ hybris/include/EGL/eglext.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/hybris/include/EGL/eglext.h b/hybris/include/EGL/eglext.h
+index 910455c..379cc9e 100644
+--- a/hybris/include/EGL/eglext.h
++++ b/hybris/include/EGL/eglext.h
+@@ -435,6 +435,7 @@ typedef EGLBoolean (EGLAPIENTRYP PFNEGLQUERYSTREAMTIMEKHRPROC)(EGLDisplay dpy, E
+ #define EGL_CONTEXT_OPENGL_ROBUST_ACCESS_BIT_KHR	    0x00000004
+ #define EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR		    0x00000001
+ #define EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT_KHR    0x00000002
++#define EGL_OPENGL_ES3_BIT_KHR            0x00000040
+ #endif
+ 
+ #ifndef EGL_KHR_surfaceless_context
+-- 
+2.17.0
+
