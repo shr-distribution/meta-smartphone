@@ -28,7 +28,7 @@ do_install() {
     install -d ${D}${sysconfdir}
     ln -sf /system/etc/wifi ${D}${sysconfdir}/wifi
     ln -sf /system/etc/media_codecs.xml ${D}${sysconfdir}/media_codecs.xml
-    ln -sf /system/etc/media_profiles ${D}${sysconfdir}/media_profiles.xml
+    ln -sf /system/etc/media_profiles.xml ${D}${sysconfdir}/media_profiles.xml
     # add a link for firmware, hardcoded in bluez5's hciattach for bcm43xx
     ln -sf /system/vendor/firmware ${D}${sysconfdir}/firmware
 
