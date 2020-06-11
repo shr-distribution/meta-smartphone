@@ -17,7 +17,7 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80000100"
 inherit kernel_android
 
 SRC_URI = " \
-  git://github.com/herrie82/android_kernel_xiaomi_msm8953.git;branch=pgz-14.1-eb8 \
+  git://github.com/shr-distribution/linux.git;branch=mido/3.18/halium-7.1 \
 "
 S = "${WORKDIR}/git"
 
