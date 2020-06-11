@@ -7,11 +7,14 @@ COMPATIBLE_MACHINE = "tenderloin"
 
 SRC_URI = " \
   git://github.com/shr-distribution/linux.git;branch=tenderloin/3.4/cm-12.1 \
-  file://defconfig \
 "
 S = "${WORKDIR}/git"
 
-SRCREV = "8371d6ee507ab3fd8ffcb68fdc814b24e71abd13"
+do_configure_prepend() {
+    cp -v -f ${S}/arch/arm/configs/tenderloin_android_defconfig ${WORKDIR}/defconfig
+}
+
+SRCREV = "a15c40737fbcb0a7915958263fd6552c80dc8fe0"
 
 do_deploy[depends] += "initramfs-android-image:do_image_complete"
 DEPENDS += "u-boot-mkimage-native"
