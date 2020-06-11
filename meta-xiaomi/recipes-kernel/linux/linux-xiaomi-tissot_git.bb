@@ -19,7 +19,7 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80000100"
 inherit kernel_android
 
 SRC_URI = " \
-  git://github.com/Tofee/tissot.git;branch=cm-14.1 \
+  git://github.com/shr-distribution/linux.git;branch=tissot/3.18/halium-7.1 \
 "
 S = "${WORKDIR}/git"
 
