@@ -17,7 +17,7 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80000100"
 inherit kernel_android
 
 SRC_URI = " \
-  git://github.com/herrie82/android_kernel_xiaomi_msm8953.git;branch=pgz-14.1-eb8 \
+  git://github.com/shr-distribution/linux.git;branch=mido/3.18/halium-7.1 \
 "
 S = "${WORKDIR}/git"
 
@@ -25,7 +25,7 @@ do_configure_prepend() {
     cp -v -f ${S}/arch/arm64/configs/mido_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "f974d591e9553d614fe4cc56b190f9aa598c8197"
+SRCREV = "4a6943a93484c7376b3c671a7f73e59d5fd5e548"
 
 KV = "3.18.85"
 PV = "${KV}+gitr${SRCPV}"
