@@ -7,6 +7,10 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 ANDROID_API ?= "19"
 PROVIDES += "virtual/android-headers"
 
+ANDROID_HEADERS_BRANCH ?= "master"
+SRC_URI = "git://github.com/Halium/android-headers.git;branch=${ANDROID_HEADERS_BRANCH};protocol=git"
+S = "${WORKDIR}"
+
 do_install() {
     install -d ${D}${includedir}/android
     cp -rv ${S}/git/* ${D}${includedir}/android/
