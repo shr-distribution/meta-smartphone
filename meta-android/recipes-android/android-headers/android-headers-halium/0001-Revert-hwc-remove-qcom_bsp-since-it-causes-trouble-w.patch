@@ -9,10 +9,10 @@ This reverts commit c5afd16f803a1ae5f7f1a5962a6cc14f237dd002.
  hardware/hwcomposer.h | 5 +++++
  1 file changed, 5 insertions(+)
 
-diff --git a/git/hardware/hwcomposer.h b/git/hardware/hwcomposer.h
+diff --git a/hardware/hwcomposer.h b/hardware/hwcomposer.h
 index 21045c1..e848d32 100644
---- a/git/hardware/hwcomposer.h
-+++ b/git/hardware/hwcomposer.h
+--- a/hardware/hwcomposer.h
++++ b/hardware/hwcomposer.h
 @@ -215,6 +215,11 @@ typedef struct hwc_layer_1 {
               */
              hwc_region_t visibleRegionScreen;
