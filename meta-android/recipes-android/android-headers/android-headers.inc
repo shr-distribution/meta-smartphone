@@ -7,7 +7,9 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 ANDROID_API ?= "19"
 PROVIDES += "virtual/android-headers"
 
-ANDROID_HEADERS_BRANCH ?= "master"
+SHRT_VER = "${PV}"
+
+ANDROID_HEADERS_BRANCH ?= "halium-${SHRT_VER}"
 SRC_URI = "git://github.com/Halium/android-headers.git;branch=${ANDROID_HEADERS_BRANCH};protocol=git"
 S = "${WORKDIR}/git"
 
