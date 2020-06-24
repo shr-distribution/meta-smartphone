@@ -1,5 +1,3 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
-
 require recipes-android/android-headers/android-headers.inc
 
 PV = "9.0+gitr${SRCPV}"
