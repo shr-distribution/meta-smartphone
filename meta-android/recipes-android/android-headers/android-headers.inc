@@ -9,16 +9,23 @@ PROVIDES += "virtual/android-headers"
 
 ANDROID_HEADERS_BRANCH ?= "master"
 SRC_URI = "git://github.com/Halium/android-headers.git;branch=${ANDROID_HEADERS_BRANCH};protocol=git"
-S = "${WORKDIR}"
+S = "${WORKDIR}/git"
 
+# Don't do anything even when there is a Makefile file in ${S}
+do_configure() {
+    :
+}
+do_compile() {
+    :
+}
 do_install() {
     install -d ${D}${includedir}/android
-    cp -rv ${S}/git/* ${D}${includedir}/android/
+    cp -rv ${S}/* ${D}${includedir}/android/
 
     if [ -n "${ANDROID_HEADERS_DEFINES}" ] ; then
         rm ${D}${includedir}/android/android-config.h
-        sed '/\/\* CONFIG GOES HERE/,$d' ${S}/git/android-config.h > android-config.h.pre
-        sed '0,/\/\* CONFIG GOES HERE/d' ${S}/git/android-config.h > android-config.h.post
+        sed '/\/\* CONFIG GOES HERE/,$d' ${S}/android-config.h > android-config.h.pre
+        sed '0,/\/\* CONFIG GOES HERE/d' ${S}/android-config.h > android-config.h.post
         for i in ${ANDROID_HEADERS_DEFINES}; do
           echo "#define $i 1" >> android-config_${MACHINE}.h
         done
@@ -27,7 +34,7 @@ do_install() {
     fi
 
     install -d ${D}${libdir}/pkgconfig
-    install -m 0644 ${S}/git/android-headers.pc ${D}${libdir}/pkgconfig/android-headers.pc
+    install -m 0644 ${S}/android-headers.pc ${D}${libdir}/pkgconfig/android-headers.pc
     ln -s android ${D}${includedir}/android-${ANDROID_API}
 }
 

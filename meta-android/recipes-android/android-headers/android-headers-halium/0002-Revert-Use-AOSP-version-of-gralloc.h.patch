@@ -5,13 +5,13 @@ Subject: [PATCH 2/2] Revert "Use AOSP version of gralloc.h"
 
 This reverts commit 0379b04e012b491ee87df9d129cc80f203dfb787.
 ---
- git/hardware/gralloc.h | 32 ++++++++++++++++++++++++++++++++
+ hardware/gralloc.h | 32 ++++++++++++++++++++++++++++++++
  1 file changed, 32 insertions(+)
 
-diff --git a/git/hardware/gralloc.h b/git/hardware/gralloc.h
+diff --git a/hardware/gralloc.h b/hardware/gralloc.h
 index 7d00114..34938d6 100644
---- a/git/hardware/gralloc.h
-+++ b/git/hardware/gralloc.h
+--- a/hardware/gralloc.h
++++ b/hardware/gralloc.h
 @@ -133,6 +133,19 @@ enum {
      GRALLOC_USAGE_PRIVATE_2             = 0x40000000,
      GRALLOC_USAGE_PRIVATE_3             = 0x80000000,
