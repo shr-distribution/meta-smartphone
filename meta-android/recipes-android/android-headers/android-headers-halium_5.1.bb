@@ -1,6 +1,6 @@
 require recipes-android/android-headers/android-headers.inc
 
-PV = "5.1+gitr${SRCPV}"
+PKGV .= "+gitr${SRCPV}"
 SRCREV = "eef30c5da666b324072c5b5b029eae71a51d9534"
 
 SRC_URI += " \
