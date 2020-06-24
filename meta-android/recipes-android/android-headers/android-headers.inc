@@ -37,5 +37,3 @@ do_install() {
     install -m 0644 ${S}/android-headers.pc ${D}${libdir}/pkgconfig/android-headers.pc
     ln -s android ${D}${includedir}/android-${ANDROID_API}
 }
-
-FILES_${PN}-dev += "${libdir}/pkg-config"
