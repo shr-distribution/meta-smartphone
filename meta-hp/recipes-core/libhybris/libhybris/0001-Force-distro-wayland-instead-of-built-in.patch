@@ -1,0 +1,83 @@
+From 76ccbb2077dfa2cf459232119d727bd91dead8c3 Mon Sep 17 00:00:00 2001
+From: Herman van Hazendonk <github.com@herrie.org>
+Date: Mon, 6 Jul 2020 15:23:37 +0200
+Subject: [PATCH] Force wayland-egl provided by wayland instead of one from libhybris
+
+---
+ hybris/configure.ac                     | 7 ++++++-
+ hybris/egl/platforms/common/Makefile.am | 5 ++++-
+ 2 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/hybris/configure.ac b/hybris/configure.ac
+index dac8bc9..f411dd2 100644
+--- a/hybris/configure.ac
++++ b/hybris/configure.ac
+@@ -72,11 +72,15 @@ AC_ARG_ENABLE(mesa,
+   [mesa="no"])
+ AM_CONDITIONAL( [WANT_MESA], [test x"$mesa" = x"yes"])
+ 
++WANT_WAYLAND_EGL="no"
++
+ AC_ARG_ENABLE(wayland,
+   [  --enable-wayland            Enable wayland support (default=disabled)],
+   [wayland=$enableval
+ 	PKG_CHECK_MODULES(WAYLAND_CLIENT, wayland-client,, exit)
+ 	PKG_CHECK_MODULES(WAYLAND_SERVER, wayland-server,, exit)
++	PKG_CHECK_MODULES(WAYLAND_EGL, [wayland-egl >= 1.15], , [WANT_WAYLAND_EGL="yes"])
++	AC_DEFINE(WANT_WAYLAND_EGL, [], [We use internal Wayland EGL support])
+ 	WAYLAND_PREFIX=`$PKG_CONFIG --variable=prefix wayland-client`
+ 
+ 	AC_PATH_PROG([WAYLAND_SCANNER], [wayland-scanner],, [${WAYLAND_PREFIX}/bin$PATH_SEPARATOR$PATH])
+@@ -84,6 +88,7 @@ AC_ARG_ENABLE(wayland,
+ ],
+   [wayland="no"])
+ AM_CONDITIONAL( [WANT_WAYLAND], [test x"$wayland" = x"yes"])
++AM_CONDITIONAL( [WANT_WAYLAND_EGL], [test x"$WANT_WAYLAND_EGL" = x"yes"])
+ 
+ AC_ARG_ENABLE(wayland_serverside_buffers,
+   [  --enable-wayland_serverside_buffers            Enable serverside buffer allocation for wayland (default=enabled)],
+@@ -286,7 +291,7 @@ AC_CONFIG_FILES([
+ 	tests/Makefile
+ ])
+ 
+-AM_COND_IF([WANT_WAYLAND], [AC_CONFIG_FILES([egl/platforms/common/wayland-egl.pc])])
++AM_COND_IF([WANT_WAYLAND_EGL], [AC_CONFIG_FILES([egl/platforms/common/wayland-egl.pc])])
+ AC_OUTPUT
+ 
+ echo
+diff --git a/hybris/egl/platforms/common/Makefile.am b/hybris/egl/platforms/common/Makefile.am
+index 3c3aa64..41d5002 100644
+--- a/hybris/egl/platforms/common/Makefile.am
++++ b/hybris/egl/platforms/common/Makefile.am
+@@ -11,10 +11,11 @@ pkgconfigdir = $(libdir)/pkgconfig
+ pkgconfig_DATA = hybris-egl-platform.pc
+ 
+ if WANT_WAYLAND
++if WANT_WAYLAND_EGL
+ lib_LTLIBRARIES += libwayland-egl.la
+ 
+ pkgconfig_DATA += wayland-egl.pc
+-
++endif
+ 
+ libhybris_eglplatformcommon_la_SOURCES += \
+ 	server_wlegl.cpp \
+@@ -35,6 +36,7 @@ BUILT_SOURCES = wayland-android-protocol.c \
+ %-client-protocol.h : %.xml
+ 	$(AM_V_GEN)$(WAYLAND_SCANNER) client-header < $< > $@
+ 
++if WANT_WAYLAND_EGL
+ libwayland_egl_la_SOURCES = wayland-egl.c
+ 
+ libwayland_egl_la_CFLAGS = -I. -I$(top_srcdir)/include $(ANDROID_HEADERS_CFLAGS) $(WAYLAND_CLIENT_CFLAGS) $(WAYLAND_SERVER_CFLAGS)
+@@ -56,6 +58,7 @@ libwayland_egl_la_LDFLAGS = \
+ 	-version-info "1":"0"
+ 
+ endif
++endif
+ 
+ libhybris_eglplatformcommon_la_CFLAGS = -I$(top_srcdir)/include $(ANDROID_HEADERS_CFLAGS) -I$(top_srcdir)/egl -I$(top_srcdir)/common/
+ if WANT_WAYLAND
+-- 
+2.17.1.windows.1
+
