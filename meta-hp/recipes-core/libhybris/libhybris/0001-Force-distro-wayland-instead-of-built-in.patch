@@ -1,12 +1,16 @@
-From 76ccbb2077dfa2cf459232119d727bd91dead8c3 Mon Sep 17 00:00:00 2001
+From e634b7bd729fb96d2f205eb3d4a292a85bc9347f Mon Sep 17 00:00:00 2001
 From: Herman van Hazendonk <github.com@herrie.org>
 Date: Mon, 6 Jul 2020 15:23:37 +0200
-Subject: [PATCH] Force wayland-egl provided by wayland instead of one from libhybris
+Subject: [PATCH] Force wayland-egl provided by wayland instead of one from
+ libhybris
 
 ---
- hybris/configure.ac                     | 7 ++++++-
- hybris/egl/platforms/common/Makefile.am | 5 ++++-
- 2 files changed, 10 insertions(+), 2 deletions(-)
+ hybris/configure.ac                              |  7 ++++++-
+ hybris/egl/platforms/common/Makefile.am          |  5 ++++-
+ .../platforms/wayland/eglplatform_wayland.cpp    |  4 ++--
+ hybris/egl/platforms/wayland/wayland_window.cpp  | 16 ++++++++--------
+ hybris/egl/platforms/wayland/wayland_window.h    |  2 +-
+ 5 files changed, 21 insertions(+), 13 deletions(-)
 
 diff --git a/hybris/configure.ac b/hybris/configure.ac
 index dac8bc9..f411dd2 100644
@@ -78,6 +82,98 @@ index 3c3aa64..41d5002 100644
  
  libhybris_eglplatformcommon_la_CFLAGS = -I$(top_srcdir)/include $(ANDROID_HEADERS_CFLAGS) -I$(top_srcdir)/egl -I$(top_srcdir)/common/
  if WANT_WAYLAND
+diff --git a/hybris/egl/platforms/wayland/eglplatform_wayland.cpp b/hybris/egl/platforms/wayland/eglplatform_wayland.cpp
+index 555ee01..9edd2cc 100644
+--- a/hybris/egl/platforms/wayland/eglplatform_wayland.cpp
++++ b/hybris/egl/platforms/wayland/eglplatform_wayland.cpp
+@@ -50,7 +50,7 @@ extern "C" {
+ 
+ #include "wayland_window.h"
+ #include "logging.h"
+-#include "wayland-egl-priv.h"
++#include "wayland-egl-backend.h"
+ #include "server_wlegl_buffer.h"
+ #include "wayland-android-client-protocol.h"
+ 
+@@ -205,7 +205,7 @@ extern "C" int waylandws_post(EGLNativeWindowType win, void *buffer)
+ {
+ 	struct wl_egl_window *eglwin = (struct wl_egl_window *) win;
+ 
+-	return ((WaylandNativeWindow *) eglwin->nativewindow)->postBuffer((ANativeWindowBuffer *) buffer);
++	return ((WaylandNativeWindow *) eglwin->driver_private)->postBuffer((ANativeWindowBuffer *) buffer);
+ }
+ 
+ extern "C" wl_buffer *waylandws_createWlBuffer(EGLDisplay dpy, EGLImageKHR image)
+diff --git a/hybris/egl/platforms/wayland/wayland_window.cpp b/hybris/egl/platforms/wayland/wayland_window.cpp
+index e60687d..5941e0e 100644
+--- a/hybris/egl/platforms/wayland/wayland_window.cpp
++++ b/hybris/egl/platforms/wayland/wayland_window.cpp
+@@ -27,7 +27,7 @@
+ 
+ #include <android-config.h>
+ #include "wayland_window.h"
+-#include "wayland-egl-priv.h"
++#include "wayland-egl-backend.h"
+ #include <assert.h>
+ #include <stdlib.h>
+ #include <string.h>
+@@ -97,12 +97,12 @@ void WaylandNativeWindow::resize(unsigned int width, unsigned int height)
+ void WaylandNativeWindow::resize_callback(struct wl_egl_window *egl_window, void *)
+ {
+     TRACE("%dx%d",egl_window->width,egl_window->height);
+-    ((WaylandNativeWindow *) egl_window->nativewindow)->resize(egl_window->width, egl_window->height);
++    ((WaylandNativeWindow *) egl_window->driver_private)->resize(egl_window->width, egl_window->height);
+ }
+ 
+-void WaylandNativeWindow::free_callback(struct wl_egl_window *egl_window, void *)
++void WaylandNativeWindow::destroy_window_callback(void *driver_private)
+ {
+-    ((WaylandNativeWindow*)(egl_window->nativewindow))->m_window = 0;
++    ((WaylandNativeWindow*)driver_private)->m_window = 0;
+ }
+ 
+ void WaylandNativeWindow::lock()
+@@ -179,14 +179,14 @@ WaylandNativeWindow::WaylandNativeWindow(struct wl_egl_window *window, struct wl
+ 
+     HYBRIS_TRACE_BEGIN("wayland-platform", "create_window", "");
+     this->m_window = window;
+-    this->m_window->nativewindow = (void *) this;
++    this->m_window->driver_private = (void *) this;
+     this->m_display = display;
+     this->m_width = window->width;
+     this->m_height = window->height;
+     this->m_defaultWidth = window->width;
+     this->m_defaultHeight = window->height;
+     this->m_window->resize_callback = resize_callback;
+-    this->m_window->free_callback = free_callback;
++    this->m_window->destroy_window_callback = destroy_window_callback;
+     this->frame_callback = NULL;
+     this->wl_queue = wl_display_create_queue(display);
+     this->m_format = 1;
+@@ -219,9 +219,9 @@ WaylandNativeWindow::~WaylandNativeWindow()
+         wl_callback_destroy(frame_callback);
+     wl_event_queue_destroy(wl_queue);
+    if (m_window) {
+-	    m_window->nativewindow = NULL;
++	    m_window->driver_private = NULL;
+ 	    m_window->resize_callback = NULL;
+-	    m_window->free_callback = NULL;
++	    m_window->destroy_window_callback = NULL;
+     }
+ }
+ 
+diff --git a/hybris/egl/platforms/wayland/wayland_window.h b/hybris/egl/platforms/wayland/wayland_window.h
+index 766f6d5..7bd3e6b 100644
+--- a/hybris/egl/platforms/wayland/wayland_window.h
++++ b/hybris/egl/platforms/wayland/wayland_window.h
+@@ -165,7 +165,7 @@ public:
+     static void registry_handle_global(void *data, struct wl_registry *registry, uint32_t name,
+                        const char *interface, uint32_t version);
+     static void resize_callback(struct wl_egl_window *egl_window, void *);
+-    static void free_callback(struct wl_egl_window *egl_window, void *);
++    static void destroy_window_callback(void *driver_private);
+     struct wl_event_queue *wl_queue;
+ 
+ protected:
 -- 
-2.17.1.windows.1
-
+2.17.0
