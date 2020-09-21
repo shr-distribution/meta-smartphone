@@ -26,8 +26,8 @@ PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 
-INITRAMFS_NAME = "initramfs-android-image-${MACHINE}${IMAGE_NAME_SUFFIX}.cpio.gz"
-INITRAMFS_UIMAGE = "initramfs-android-image-${MACHINE}${IMAGE_NAME_SUFFIX}.uImage"
+INITRAMFS_NAME = "initramfs-android-image-${MACHINE}.cpio.gz"
+INITRAMFS_UIMAGE = "initramfs-android-image-${MACHINE}.uImage"
 
 do_deploy_append() {
     if [ ! -e ${DEPLOY_DIR_IMAGE}/${INITRAMFS_NAME} ] ; then

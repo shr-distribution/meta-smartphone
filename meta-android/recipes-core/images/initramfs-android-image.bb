@@ -15,6 +15,7 @@ IMAGE_FEATURES = ""
 IMAGE_ROOTFS_SIZE = "8192"
 IMAGE_ROOTFS_EXTRA_SPACE = "0"
 export IMAGE_BASENAME = "initramfs-android-image"
+IMAGE_NAME_SUFFIX ?= ""
 IMAGE_LINGUAS = ""
 
 # NOTE we must use cpio.gz here as this is what mkbootimg requires

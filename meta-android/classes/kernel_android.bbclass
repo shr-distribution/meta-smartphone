@@ -11,7 +11,7 @@ ANDROID_BOOTIMG_EXTRA_ABOOTIMG_ARGS ?= ""
 
 KERNEL_OUTPUT ?= "${KERNEL_OUTPUT_DIR}/${KERNEL_IMAGETYPE}"
 
-INITRAMFS_NAME = "initramfs-android-image-${MACHINE}${IMAGE_NAME_SUFFIX}.cpio.gz"
+INITRAMFS_NAME = "initramfs-android-image-${MACHINE}.cpio.gz"
 
 do_deploy[depends] += "initramfs-android-image:do_image_complete abootimg-native:do_populate_sysroot"
 do_deploy_append() {
