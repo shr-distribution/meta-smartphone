@@ -10,7 +10,15 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 RDEPENDS_${PN} = "sed"
 
 # For running the container we're using lxc (>= 1.0 required)
-RDEPENDS_${PN} += "lxc"
+# we use this with lxc from meta-luneos:
+# https://github.com/webOS-ports/meta-webos-ports/tree/master/meta-luneos/recipes-containers/lxc
+# because we don't want to include whole meta-virtualization
+# https://github.com/webOS-ports/meta-webos-ports/commit/000ba06e2075e14ce9939f38e8dae9f4eea5824b
+# But the one form meta-virtualization should work as well.
+#
+# Not adding the runtime dependency here to keep yocto-check-layer happy
+# without this layer depending on whole meta-virtualization
+# RDEPENDS_${PN} += "lxc"
 
 # We're the former android-initscripts package
 RPROVIDES_${PN} = "android-initscripts"
