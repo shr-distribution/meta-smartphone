@@ -15,7 +15,6 @@ PREFERRED_PROVIDER_virtual/android-headers = "android-headers-halium"
 
 MACHINEOVERRIDES =. "halium:"
 
-PNBLACKLIST[virglrenderer] ?= "Depends on mesa and mesa isn't available because mesa-gl is preferred provider of virtual/libgl"
 PNBLACKLIST[cogl-1.0] ?= "Depends on libgles2 which isn't provided by libhybris"
 PNBLACKLIST[clutter-1.0] ?= "Depends on blacklisted cogl-1.0"
 PNBLACKLIST[mx-1.0] ?= "Depends on blacklisted clutter-1.0"
