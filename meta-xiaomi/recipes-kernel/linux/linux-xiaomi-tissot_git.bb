@@ -18,16 +18,14 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80000100"
 
 inherit kernel_android
 
-SRC_URI = " \
-  git://github.com/shr-distribution/linux.git;branch=tissot/3.18/halium-7.1 \
-"
+SRC_URI = "git://github.com/shr-distribution/linux.git;branch=tissot/3.18/halium-7.1"
 S = "${WORKDIR}/git"
 
 do_configure_prepend() {
     cp -v -f ${S}/arch/arm64/configs/tissot_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "a8412322dc34a81517cfdb9f4ef1c75bcf263ad0"
+SRCREV = "8c0cb019b0e12ce68134afdc639dba6bb15c4c5d"
 
 KV = "3.18.31"
 PV = "${KV}+gitr${SRCPV}"
