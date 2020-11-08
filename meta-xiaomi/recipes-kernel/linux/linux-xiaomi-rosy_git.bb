@@ -16,16 +16,14 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80000100"
 
 inherit kernel_android
 
-SRC_URI = " \
-  git://github.com/shr-distribution/linux.git;branch=rosy/3.18/halium-7.1 \
-"
+SRC_URI = "git://github.com/shr-distribution/linux.git;branch=rosy/3.18/halium-7.1"
 S = "${WORKDIR}/git"
 
 do_configure_prepend() {
     cp -v -f ${S}/arch/arm64/configs/lineageos_rosy_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "df0e6705310102752eebebbd85d15cf529e316a9"
+SRCREV = "a8ad46b5a8b54d0edd40bc52ea45ef993080d056"
 
 KV = "3.18.31"
 PV = "${KV}+gitr${SRCPV}"
