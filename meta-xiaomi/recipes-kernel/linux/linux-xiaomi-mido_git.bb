@@ -16,16 +16,14 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80000100"
 
 inherit kernel_android
 
-SRC_URI = " \
-  git://github.com/shr-distribution/linux.git;branch=mido/3.18/halium-7.1 \
-"
+SRC_URI = "git://github.com/shr-distribution/linux.git;branch=mido/3.18/halium-7.1"
 S = "${WORKDIR}/git"
 
 do_configure_prepend() {
     cp -v -f ${S}/arch/arm64/configs/mido_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "4a6943a93484c7376b3c671a7f73e59d5fd5e548"
+SRCREV = "e1ca249e49d0f3371d94dd9dbe28a58e3eae3c6d"
 
 KV = "3.18.85"
 PV = "${KV}+gitr${SRCPV}"
