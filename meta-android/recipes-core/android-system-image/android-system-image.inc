@@ -25,6 +25,17 @@ do_install() {
 
     install -m 0644 ${WORKDIR}/system.img ${D}${localstatedir}/lib/lxc/android/system.img
 
+    # convert the sparse android image into a regular ext4 image
+    if file ${WORKDIR}/vendor.img | grep -v ": Linux rev 1.0 ext4" >/dev/null; then
+        mv ${WORKDIR}/vendor.img ${WORKDIR}/vendor.img.sparse
+        simg2img ${WORKDIR}/vendor.img.sparse ${WORKDIR}/vendor.img
+        resize2fs -M ${WORKDIR}/vendor.img
+        rm ${WORKDIR}/vendor.img.sparse
+    fi
+
+    install -m 0644 ${WORKDIR}/vendor.img ${D}${localstatedir}/lib/lxc/android/vendor.img
+
+
     install -d ${D}${sysconfdir}
     ln -sf /system/etc/wifi ${D}${sysconfdir}/wifi
     ln -sf /system/etc/media_codecs.xml ${D}${sysconfdir}/media_codecs.xml
@@ -38,4 +49,4 @@ do_install() {
     ln -sf /system/vendor ${D}/vendor
 }
 
-FILES_${PN} = "${localstatedir}/lib/lxc/android/system.img ${sysconfdir} /android /cache /data /factory /firmware /persist /system /vendor /userdata"
+FILES_${PN} = "${localstatedir}/lib/lxc/android/system.img ${localstatedir}/lib/lxc/android/vendor.img ${sysconfdir} /android /cache /data /factory /firmware /persist /system /vendor /userdata"
