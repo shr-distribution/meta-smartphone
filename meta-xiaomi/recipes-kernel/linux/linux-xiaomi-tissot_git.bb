@@ -18,16 +18,16 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80000100"
 
 inherit kernel_android
 
-SRC_URI = "git://github.com/shr-distribution/linux.git;branch=tissot/3.18/halium-7.1"
+SRC_URI = "git://github.com/herrie82/android_kernel_xiaomi_msm8953-1.git;branch=halium-9.0"
 S = "${WORKDIR}/git"
 
 do_configure_prepend() {
     cp -v -f ${S}/arch/arm64/configs/tissot_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "a8d6e247fbaf37d8f118fbd77e3cb9a89b8b056a"
+SRCREV = "d8712840b10e12362268b1ee40d2faff466d4a19"
 
-KV = "3.18.31"
+KV = "4.9.188"
 PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
