@@ -29,13 +29,6 @@ panic() {
     #sleep 15s
     #reboot
 
-    #system partition is needed for accessing build.prop by android-gadget-setup
-    if [ -e /dev/$system_partition ]; then
-        /sbin/fsck.ext4 -p /dev/$system_partition
-        mkdir -p /system
-        mount -t auto -o rw,noatime,nodiratime,nodelalloc /dev/$system_partition /system
-    fi
-
     #below are now needed in order to use FunctionFS for ADB, tested to work with 3.4+ kernels
     mkdir -p /dev/usb-ffs/adb 
     mount -t functionfs adb /dev/usb-ffs/adb > /dev/kmsg
@@ -43,7 +36,19 @@ panic() {
     echo adb > /sys/class/android_usb/android0/f_ffs/aliases
     echo ffs > /sys/class/android_usb/android0/functions 
 
-    /usr/bin/android-gadget-setup adb
+    # get the device serial number from /proc/cmdline directly
+    serial="$(cat /proc/cmdline | sed 's/.*androidboot.serialno=//' | sed 's/ .*//')"
+
+    echo $serial > /sys/class/android_usb/android0/iSerial
+    echo "Halium" > /sys/class/android_usb/android0/iManufacturer
+    echo "Halium device" > /sys/class/android_usb/android0/iProduct
+
+    echo "0" > /sys/class/android_usb/android0/enable
+    echo "18d1" > /sys/class/android_usb/android0/idVendor
+    echo "D002" > /sys/class/android_usb/android0/idProduct
+    echo "adb" > /sys/class/android_usb/android0/functions
+    echo "1" >  /sys/class/android_usb/android0/enable
+
     /usr/bin/adbd
 }
 
@@ -67,16 +72,27 @@ process_bind_mounts() {
     # system so bind mount them from the outside into the rootfs. If we're
     # doing this the first time we have to remove the old data and copy the
     # initial data
+    
+    # NOTE: for /var it's a bit more complex, as halium can
+    # mount or extract some pieces to /var/lib/lxc/android/rootfs.
+    # So have to exclude that folder from the duplication.
     datadir=${rootmnt}/userdata/$distro_name-data
     tell_kmsg "Preparing $datadir"
+
     if [ ! -e $datadir/.firstboot_done ] ; then
+        tell_kmsg "First boot detected: binding /var and /home to a read-write copy"
+        
+        echo "var/lib/lxc/android" > /to_exclude.txt
         for dir in var home ; do
             rm -rf $datadir/$dir
             mkdir -p $datadir/$dir
 
             # Copy initial content to new location outside rootfs
-            cp -ra ${rootmnt}/$dir/* $datadir/$dir
+            # Use 'tar' to be able to exclude /var/lib/lxc/android 
+            tar -C ${rootmnt} -c -X /to_exclude.txt $dir | tar -x -C $datadir/
+            # cp -ra ${rootmnt}/$dir/* $datadir/$dir
         done
+        rm /to_exclude.txt
 
         mkdir -p $datadir/userdata
         # Copy initial media to userdata
@@ -90,6 +106,17 @@ process_bind_mounts() {
 
         # We're done with our first boot actions
         touch $datadir/.firstboot_done
+    fi
+
+    # before bind-mounting, keep a mount point to the original lxc-android copy
+    mkdir -p $datadir/luneos-lxc-android
+    mount -o bind ${rootmnt}/var/lib/lxc/android $datadir/luneos-lxc-android
+    # this is also needed, in the scenario of a system-as-root mount
+    mount --move ${rootmnt}/var/lib/lxc/android/rootfs $datadir/luneos-lxc-android/rootfs || true
+    # point lxc android container to the read-only folder containing the configuration and the rootfs
+    if [ ! -e $datadir/var/lib/lxc/android ]; then
+        mkdir -p $datadir/var/lib/lxc
+        ln -sf /userdata/luneos-data/luneos-lxc-android $datadir/var/lib/lxc/android
     fi
 
     tell_kmsg "Bind-mount the directories"
