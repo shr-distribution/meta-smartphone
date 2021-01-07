@@ -27,15 +27,15 @@ do_install() {
 
     install -m 0644 ${WORKDIR}/system.img ${D}${localstatedir}/lib/lxc/android/${ANDROID_SYSTEM_IMAGE_DESTNAME}
 
-    # convert the sparse android image into a regular ext4 image
-    if file ${WORKDIR}/vendor.img | grep -v ": Linux rev 1.0 ext" >/dev/null; then
-        mv ${WORKDIR}/vendor.img ${WORKDIR}/vendor.img.sparse
-        simg2img ${WORKDIR}/vendor.img.sparse ${WORKDIR}/vendor.img
-        resize2fs -M ${WORKDIR}/vendor.img
-        rm ${WORKDIR}/vendor.img.sparse
-    fi
-
     if [ -e ${WORKDIR}/vendor.img ]; then
+        # convert the sparse android image into a regular ext4 image
+        if file ${WORKDIR}/vendor.img | grep -v ": Linux rev 1.0 ext" >/dev/null; then
+            mv ${WORKDIR}/vendor.img ${WORKDIR}/vendor.img.sparse
+            simg2img ${WORKDIR}/vendor.img.sparse ${WORKDIR}/vendor.img
+            resize2fs -M ${WORKDIR}/vendor.img
+            rm ${WORKDIR}/vendor.img.sparse
+        fi
+
         install -m 0644 ${WORKDIR}/vendor.img ${D}${localstatedir}/lib/lxc/android/vendor.img
     fi
 
