@@ -13,13 +13,13 @@ SRC_URI += " \
   file://init.sh \
   file://machine.conf \
   file://distro.conf \
-  git://github.com/Tofee/initramfs-tools-halium.git;branch=tofe/ab-scheme \
+  git://github.com/Tofee/initramfs-tools-halium.git;branch=tofe/halium-9.0 \
   file://functions \
 "
 
 S = "${WORKDIR}/git"
 
-SRCREV = "37e2c80265e646169c8aee07acb1a9a3785ed699"
+SRCREV = "b1dae5a967d1da05e0c53b640c013e3bd3936375"
 
 do_install_append() {
     install -m 0755 ${WORKDIR}/init.sh ${D}/init
