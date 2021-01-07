@@ -35,7 +35,9 @@ do_install() {
         rm ${WORKDIR}/vendor.img.sparse
     fi
 
-    install -m 0644 ${WORKDIR}/vendor.img ${D}${localstatedir}/lib/lxc/android/vendor.img
+    if [ -e ${WORKDIR}/vendor.img ]; then
+        install -m 0644 ${WORKDIR}/vendor.img ${D}${localstatedir}/lib/lxc/android/vendor.img
+    fi
 
     # also install ramdisk image if any
     if [ -e ${WORKDIR}/ramdisk.img ]; then
