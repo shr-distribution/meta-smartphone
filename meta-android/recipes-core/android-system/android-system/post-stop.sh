@@ -16,4 +16,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Cleanup everything
-umount --recursive $LXC_ROOTFS_PATH
+if [ -e /android/init ]; then
+    echo "System-as-root, only umounting sub-mounts of rootfs"
+    cat /proc/self/mounts | while read line; do
+	set -- $line
+	# Skip any unwanted entry
+	echo $2 | egrep -q "^/android/" || continue
+	desired_mount=${2/\/android/}
+	umount $LXC_ROOTFS_PATH/$desired_mount
+    done
+else
+    umount --recursive $LXC_ROOTFS_PATH
+fi
+
