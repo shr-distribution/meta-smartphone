@@ -8,7 +8,7 @@ COMPATIBLE_MACHINE = "^rosy$"
 DESCRIPTION = "Linux kernel for the Xiaomi Rosy (Redmi 5, Snapdragon) device based on the offical \
 source from Xiaomi"
 
-ANDROID_BOOTIMG_CMDLINE = "androidboot.hardware=qcom msm_rtb.filter=0x237 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 androidboot.bootdevice=7824900.sdhci earlycon=msm_hsl_uart,0x78af000"
+ANDROID_BOOTIMG_CMDLINE = "androidboot.hardware=qcom msm_rtb.filter=0x237 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 androidboot.bootdevice=7824900.sdhci earlycon=msm_hsl_uart,0x78af000 firmware_class.path=/vendor/firmware_mnt/image"
 ANDROID_BOOTIMG_KERNEL_RAM_BASE = "0x80008000"
 ANDROID_BOOTIMG_RAMDISK_RAM_BASE = "0x81000000"
 ANDROID_BOOTIMG_SECOND_RAM_BASE = "0x00f00000"
