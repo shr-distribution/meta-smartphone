@@ -11,7 +11,7 @@ if [ -e /android/init ]; then
 	done
 	
 	mkdir -p /dev/__properties__
-	# what to do with /mnt/vendor/firmware ?...
+	mkdir -p /mnt/vendor/persist && mount /dev/disk/by-partlabel/persist /mnt/vendor/persist
 else
 	for mountpoint in /android/*; do
 		mount_name=$(basename $mountpoint)

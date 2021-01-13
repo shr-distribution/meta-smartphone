@@ -25,6 +25,8 @@ if [ -e /android/init ]; then
 	desired_mount=${2/\/android/}
 	umount $LXC_ROOTFS_PATH/$desired_mount
     done
+
+    umount /mnt/vendor/persist
 else
     umount --recursive $LXC_ROOTFS_PATH
 fi
