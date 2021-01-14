@@ -10,7 +10,7 @@ source from Xiaomi"
 
 DEPENDS += "openssl-native"
 
-ANDROID_BOOTIMG_CMDLINE = "androidboot.console=ttyHSL0 androidboot.hardware=qcom msm_rtb.filter=0x237 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 androidboot.bootdevice=7824900.sdhci earlycon=msm_hsl_uart,0x78af000 earlycon=msm_hsl_uart,0x78af000 androidboot.selinux=permissive --"
+ANDROID_BOOTIMG_CMDLINE = "androidboot.console=ttyHSL0 androidboot.hardware=qcom msm_rtb.filter=0x237 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 androidboot.bootdevice=7824900.sdhci earlycon=msm_hsl_uart,0x78af000 firmware_class.path=/vendor/firmware_mnt/image androidboot.usbconfigfs=true androidboot.selinux=permissive --"
 ANDROID_BOOTIMG_KERNEL_RAM_BASE = "0x80008000"
 ANDROID_BOOTIMG_RAMDISK_RAM_BASE = "0x81000000"
 ANDROID_BOOTIMG_SECOND_RAM_BASE = "0x00f00000"
@@ -18,16 +18,16 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80000100"
 
 inherit kernel_android
 
-SRC_URI = "git://github.com/herrie82/LuciferKernel.git;branch=halium-9.0"
+SRC_URI = "git://github.com/Tofee/tissot.git;branch=tissot/3.18/halium-9.0"
 S = "${WORKDIR}/git"
 
 do_configure_prepend() {
-    cp -v -f ${S}/arch/arm64/configs/lucifer-tissot_defconfig ${WORKDIR}/defconfig
+    cp -v -f ${S}/arch/arm64/configs/tissot-perf_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "0f3b8aa0dfb84bedfc07cebfbf7b965b5706875e"
+SRCREV = "4676c68687c9a8cca9a285d21ff711d5b248732e"
 
-KV = "4.9.249"
+KV = "3.18.140"
 PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
