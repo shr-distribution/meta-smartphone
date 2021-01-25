@@ -89,12 +89,31 @@ USERADD_PARAM_${PN} = " \
                        -u 1050 -M nvram; \
                        -u 1051 -M dns; \
                        -u 1052 -M dns_tether; \
+                       -u 1053 -M webview_zygote; \
+                       -u 1054 -M vehicle_network; \
+                       -u 1055 -M media_audio; \
+                       -u 1056 -M media_video; \
+                       -u 1057 -M media_image; \
+                       -u 1058 -M tombstoned; \
+                       -u 1059 -M media_obb; \
+                       -u 1060 -M ese; \
+                       -u 1061 -M ota_update; \
+                       -u 1062 -M automotive_evs; \
+                       -u 1063 -M lowpan; \
+                       -u 1064 -M hsm; \
+                       -u 1065 -M reserved_disk; \
+                       -u 1066 -M statsd; \
+                       -u 1067 -M incidentd; \
+                       -u 1068 -M secure_element; \
                        -u 2000 -M shell; \
                        -u 2001 -M cache; \
                        -u 2002 -M diag; \
-                       -u 2950 -M qcom_diag; \
-                       -u 2951 -M rfs; \
-                       -u 2952 -M rfs_shared; \
+                       -u 2901 -M vendor_qti_diag; \
+                       -u 2902 -M vendor_qdss; \
+                       -u 2903 -M vendor_rfs; \
+                       -u 2904 -M vendor_rfs_shared; \
+                       -u 2905 -M vendor_adpl_odl; \
+                       -u 2906 -M vendor_qrtr; \
                        -u 3001 -M net_bt_admin; \
                        -u 3002 -M net_bt; \
                        -u 3003 -M inet; \
@@ -105,7 +124,7 @@ USERADD_PARAM_${PN} = " \
                        -u 3008 -M net_bt_stack; \
                        -u 3009 -M readproc; \
                        -u 3010 -M wakelock; \
-                       -u 3011 -M sensors; \
+                       -u 3011 -M uhid; \
                        -u 9997 -M everybody; \
                        -u 9998 -M misc; \
                        -u 9999 -M nobody; "
