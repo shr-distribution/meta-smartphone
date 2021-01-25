@@ -105,6 +105,12 @@ USERADD_PARAM_${PN} = " \
                        -u 1066 -M statsd; \
                        -u 1067 -M incidentd; \
                        -u 1068 -M secure_element; \
+                       -u 1069 -M lmkd; \
+                       -u 1070 -M llkd; \
+                       -u 1071 -M iorapd; \
+                       -u 1072 -M gpu_service; \
+                       -u 1073 -M network_stack; \
+                       -u 1074 -M gsid; \
                        -u 2000 -M shell; \
                        -u 2001 -M cache; \
                        -u 2002 -M diag; \
