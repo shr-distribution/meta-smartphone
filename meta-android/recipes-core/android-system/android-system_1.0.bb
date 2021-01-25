@@ -111,6 +111,12 @@ USERADD_PARAM_${PN} = " \
                        -u 1072 -M gpu_service; \
                        -u 1073 -M network_stack; \
                        -u 1074 -M gsid; \
+                       -u 1075 -M fsverity_cert; \
+                       -u 1076 -M credstore; \
+                       -u 1077 -M external_storage; \
+                       -u 1078 -M ext_data_rw; \
+                       -u 1079 -M ext_obb_rw; \
+                       -u 1080 -M context_hub; \
                        -u 2000 -M shell; \
                        -u 2001 -M cache; \
                        -u 2002 -M diag; \
