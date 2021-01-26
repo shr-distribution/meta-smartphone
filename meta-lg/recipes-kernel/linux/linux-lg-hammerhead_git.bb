@@ -17,7 +17,8 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x02700000"
 inherit kernel_android
 
 SRC_URI = " \
-  git://github.com/Halium/android_kernel_lge_hammerhead.git;branch=halium-5.1 \
+    git://github.com/Halium/android_kernel_lge_hammerhead.git;branch=halium-5.1 \
+    file://0001-scripts-dtc-Remove-redundant-YYLOC-global-declaratio.patch \
 "
 S = "${WORKDIR}/git"
 
