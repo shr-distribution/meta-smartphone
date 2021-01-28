@@ -9,17 +9,17 @@ DESCRIPTION = "Linux kernel for the Volla Phone device based on the offical \
 source from Volla"
 
 ANDROID_BOOTIMG_CMDLINE = "bootopt=64S3,32N2,64N2"
-ANDROID_BOOTIMG_KERNEL_RAM_BASE = "0x00008000"
-ANDROID_BOOTIMG_RAMDISK_RAM_BASE = "0x14f88000"
+ANDROID_BOOTIMG_KERNEL_RAM_BASE = "0x40080000"
+ANDROID_BOOTIMG_RAMDISK_RAM_BASE = "0x55000000"
 ANDROID_BOOTIMG_SECOND_RAM_BASE = "0x00e88000"
-ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x13f88000"
+ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x54000000"
 
 inherit kernel_android
 
 SRC_URI = " \
     git://github.com/herrie82/android_kernel_volla_mt6763.git;branch=halium-9.0-LuneOS;      \
     "
-SRCREV = "eb5a7ed936d75f599388bd5640acde6e03e4c381"
+SRCREV = "a3bc162aa456ec4f5d07f275ee97093e9087e602"
 
 S = "${WORKDIR}/git"
 
