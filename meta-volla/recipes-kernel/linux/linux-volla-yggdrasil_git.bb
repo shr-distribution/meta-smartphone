@@ -19,12 +19,12 @@ inherit kernel_android
 SRC_URI = " \
     git://github.com/herrie82/android_kernel_volla_mt6763.git;branch=halium-9.0-LuneOS;      \
     "
-SRCREV = "fc15d35ae16f350c40b57c6d0b1bf880726c0124"
+SRCREV = "eb5a7ed936d75f599388bd5640acde6e03e4c381"
 
 S = "${WORKDIR}/git"
 
 do_configure_prepend() {
-    cp -v -f ${WORKDIR}/k63v2_64_bsp_defconfig ${WORKDIR}/defconfig
+    cp -v -f ${S}/arch/arm64/configs/k63v2_64_bsp_defconfig ${WORKDIR}/defconfig
 }
 
 
