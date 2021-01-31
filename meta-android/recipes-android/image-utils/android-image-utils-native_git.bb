@@ -13,7 +13,7 @@ SRC_URI = "\
 "
 S = "${WORKDIR}/git/android/image-utils"
 
-inherit autotools native deploy
+inherit autotools deploy native
 
 PARALLEL_MAKE = ""
 
