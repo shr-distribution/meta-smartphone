@@ -10,6 +10,65 @@
 . /functions
 . /halium-boot.sh
 
+# This sets up the USB with whatever USB_FUNCTIONS are set to via configfs
+USB_FUNCTIONS=adb
+ANDROID_USB=/sys/class/android_usb/android0
+GADGET_DIR=/config/usb_gadget
+
+write() {
+	echo -n "$2" >"$1"
+}
+
+usb_setup_configfs() {
+    mkdir -p /config
+    mount -t configfs none /config || true
+
+    mkdir $GADGET_DIR/g1
+    write $GADGET_DIR/g1/idVendor                   "0x18D1"
+    write $GADGET_DIR/g1/idProduct                  "0xD001"
+    mkdir $GADGET_DIR/g1/strings/0x409
+    write $GADGET_DIR/g1/strings/0x409/serialnumber "$1"
+    write $GADGET_DIR/g1/strings/0x409/manufacturer "Halium initrd"
+    write $GADGET_DIR/g1/strings/0x409/product      "Failed to boot"
+
+    if echo $USB_FUNCTIONS | grep -q "rndis"; then
+        mkdir $GADGET_DIR/g1/functions/rndis.usb0
+        mkdir $GADGET_DIR/g1/functions/rndis_bam.rndis
+    fi
+    echo $USB_FUNCTIONS | grep -q "mass_storage" && mkdir $GADGET_DIR/g1/functions/storage.0
+    echo $USB_FUNCTIONS | grep -q "adb" && mkdir $GADGET_DIR/g1/functions/ffs.adb
+
+    mkdir $GADGET_DIR/g1/configs/c.1
+    mkdir $GADGET_DIR/g1/configs/c.1/strings/0x409
+    write $GADGET_DIR/g1/configs/c.1/strings/0x409/configuration "$USB_FUNCTIONS"
+
+    if echo $USB_FUNCTIONS | grep -q "rndis"; then
+        ln -s $GADGET_DIR/g1/functions/rndis.usb0 $GADGET_DIR/g1/configs/c.1
+        ln -s $GADGET_DIR/g1/functions/rndis_bam.rndis $GADGET_DIR/g1/configs/c.1
+    fi
+    echo $USB_FUNCTIONS | grep -q "mass_storage" && ln -s $GADGET_DIR/g1/functions/storage.0 $GADGET_DIR/g1/configs/c.1
+    echo $USB_FUNCTIONS | grep -q "adb" && ln -s $GADGET_DIR/g1/functions/ffs.adb $GADGET_DIR/g1/configs/c.1
+}
+
+# This sets up the USB with whatever USB_FUNCTIONS are set to via android_usb
+usb_setup_android_usb() {
+    write $ANDROID_USB/enable          0
+    write $ANDROID_USB/functions       ""
+    write $ANDROID_USB/enable          1
+    usleep 500000 # 0.5 delay to attempt to remove rndis function
+    write $ANDROID_USB/enable          0
+    write $ANDROID_USB/idVendor        18D1
+    write $ANDROID_USB/idProduct       D001
+    write $ANDROID_USB/iManufacturer   "Halium initrd"
+    write $ANDROID_USB/iProduct        "Failed to boot"
+    write $ANDROID_USB/iSerial         "$1"
+    write $ANDROID_USB/f_ffs/aliases   adb
+    write $ANDROID_USB/functions       ffs
+    write $ANDROID_USB/enable          1
+}
+
+# This determines which USB setup method is going to be used
+
 setup_devtmpfs() {
     mount -t devtmpfs -o mode=0755,nr_inodes=0 devtmpfs $1/dev
     # Create additional nodes which devtmpfs does not provide
@@ -29,27 +88,25 @@ panic() {
     #sleep 15s
     #reboot
 
-    #below are now needed in order to use FunctionFS for ADB, tested to work with 3.4+ kernels
-    mkdir -p /dev/usb-ffs/adb 
-    mount -t functionfs adb /dev/usb-ffs/adb > /dev/kmsg
-    #android-gadget-setup doesn't provide below 2 and without them it won't work, so we provide them here.
-    echo adb > /sys/class/android_usb/android0/f_ffs/aliases
-    echo ffs > /sys/class/android_usb/android0/functions 
-
-    # get the device serial number from /proc/cmdline directly
-    serial="$(cat /proc/cmdline | sed 's/.*androidboot.serialno=//' | sed 's/ .*//')"
-
-    echo $serial > /sys/class/android_usb/android0/iSerial
-    echo "Halium" > /sys/class/android_usb/android0/iManufacturer
-    echo "Halium device" > /sys/class/android_usb/android0/iProduct
-
-    echo "0" > /sys/class/android_usb/android0/enable
-    echo "18d1" > /sys/class/android_usb/android0/idVendor
-    echo "D002" > /sys/class/android_usb/android0/idProduct
-    echo "adb" > /sys/class/android_usb/android0/functions
-    echo "1" >  /sys/class/android_usb/android0/enable
-
-    /usr/bin/adbd
+    if [ -d $ANDROID_USB ]; then
+        usb_setup_android_usb "Halium/LuneOS-initrd-functionfs"
+    else
+        usb_setup_configfs "Halium/LuneOS-initrd-configfs"
+    fi
+    
+    mkdir -p /dev/usb-ffs/adb
+    mount -o uid=2000,gid=2000 -t functionfs adb /dev/usb-ffs/adb
+    
+    usleep 500000
+    
+    # adbd has to be started before gadget is configured
+    /usr/bin/adbd &
+    
+    usleep 500000
+    
+    [ -e $GADGET_DIR/g1/UDC ] && write $GADGET_DIR/g1/UDC "$(ls /sys/class/udc)"
+    
+    /bin/sh
 }
 
 mount_kernel_modules() {
