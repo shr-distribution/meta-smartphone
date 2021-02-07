@@ -1,0 +1,110 @@
+#!/bin/sh
+
+[ ! -e /dev/pts ] && mkdir -p /dev/pts
+[ ! -e /dev/pts/0 ] && mount devpts /dev/pts -t devpts
+
+# This sets up the USB with whatever USB_FUNCTIONS are set to via configfs
+USB_FUNCTIONS=$1
+
+manufacturer="$(cat /system/build.prop | grep -o 'ro.product.manufacturer=.*' | cut -d'=' -f 2)"
+model="$(cat /system/build.prop | grep -o 'ro.product.model=.*' | cut -d'=' -f 2)"
+# get the device serial number from /proc/cmdline directly(since we have no getprop on
+# GNU/Linux)
+serial="$(cat /proc/cmdline | sed 's/.*androidboot.serialno=//' | sed 's/ .*//')"
+
+write() {
+    echo " === Writing $2 into $1"
+	echo -n "$2" >"$1"
+}
+
+# $1: IP address of usb interface
+setup_usb_network() {
+	# Run all usb network setup functions (add more below!)
+	setup_usb_network_configfs
+}
+
+usb_setup_configfs() {
+    GADGET_ROOT=$1
+    GADGET_DIR=$GADGET_ROOT/usb_gadget
+    
+    mkdir -p $GADGET_ROOT
+    mount -t configfs none $GADGET_ROOT || true
+
+    mkdir $GADGET_DIR/g1
+    write $GADGET_DIR/g1/idVendor                   "0x18D1"
+    write $GADGET_DIR/g1/idProduct                  "0xD001"
+    mkdir $GADGET_DIR/g1/strings/0x409
+    write $GADGET_DIR/g1/strings/0x409/serialnumber $serial
+    write $GADGET_DIR/g1/strings/0x409/manufacturer $manufacturer
+    write $GADGET_DIR/g1/strings/0x409/product      $model
+
+    if echo $USB_FUNCTIONS | grep -q "rndis"; then
+        mkdir $GADGET_DIR/g1/functions/rndis.usb0
+    fi
+    echo $USB_FUNCTIONS | grep -q "mass_storage" && mkdir $GADGET_DIR/g1/functions/storage.0
+    echo $USB_FUNCTIONS | grep -q "adb" && mkdir $GADGET_DIR/g1/functions/ffs.adb
+
+    mkdir $GADGET_DIR/g1/configs/c.1
+    mkdir $GADGET_DIR/g1/configs/c.1/strings/0x409
+    write $GADGET_DIR/g1/configs/c.1/strings/0x409/configuration "$USB_FUNCTIONS"
+
+    if echo $USB_FUNCTIONS | grep -q "rndis"; then
+        ln -s $GADGET_DIR/g1/functions/rndis.usb0 $GADGET_DIR/g1/configs/c.1
+    fi
+    echo $USB_FUNCTIONS | grep -q "mass_storage" && ln -s $GADGET_DIR/g1/functions/storage.0 $GADGET_DIR/g1/configs/c.1
+    echo $USB_FUNCTIONS | grep -q "adb" && ln -s $GADGET_DIR/g1/functions/ffs.adb $GADGET_DIR/g1/configs/c.1
+
+    if echo $USB_FUNCTIONS | grep -q "rndis"; then
+        write $GADGET_DIR/g1/UDC "$(ls /sys/class/udc)"
+        
+        # Setup usb IP address
+        IP=172.16.42.2/16
+        for INTERFACE in usb0 rndis0 eth0; do
+            # try to setup interface. If it fails, try the next one.
+            ip address add "$IP" dev $INTERFACE || continue
+            # It succeeded, now bring it up and exit
+            ip link set $INTERFACE up
+            break
+        done
+    elif echo $USB_FUNCTIONS | grep -q "adb"; then
+       (usleep 1000000 ; write $GADGET_DIR/g1/UDC "$(ls /sys/class/udc)")&
+    fi
+}
+
+# This sets up the USB with whatever USB_FUNCTIONS are set to via android_usb
+ANDROID_USB=/sys/class/android_usb/android0
+usb_setup_android_usb() {
+    write $ANDROID_USB/enable          0
+    write $ANDROID_USB/functions       ""
+    write $ANDROID_USB/enable          1
+    usleep 500000 # 0.5 delay to attempt to remove rndis function
+    write $ANDROID_USB/enable          0
+    write $ANDROID_USB/idVendor        18D1
+    write $ANDROID_USB/idProduct       D001
+    write $ANDROID_USB/iManufacturer   $manufacturer
+    write $ANDROID_USB/iProduct        $model
+    write $ANDROID_USB/iSerial         serial
+    write $ANDROID_USB/f_ffs/aliases   adb
+    write $ANDROID_USB/functions       ffs
+    write $ANDROID_USB/enable          1
+}
+
+# TODO enable the lines below once we have support for getprop
+# retrieve the product info from Android
+# manufacturer=$(getprop ro.product.manufacturer Android)
+# model=$(getprop ro.product.model Android)
+# serial=$(getprop ro.serialno 0123456789ABCDEF)
+
+
+if [ -d $ANDROID_USB ]; then
+    usb_setup_android_usb
+else
+    usb_setup_configfs /sys/kernel/config
+fi
+
+#below are now needed in order to use FunctionFS for ADB, tested to work with 3.4+ kernels
+if grep -q functionfs /proc/filesystems; then
+    mkdir -p /dev/usb-ffs/adb
+    mount -o uid=2000,gid=2000 -t functionfs adb /dev/usb-ffs/adb
+fi
+
