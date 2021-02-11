@@ -34,9 +34,9 @@ usb_setup_configfs() {
     write $GADGET_DIR/g1/idVendor                   "0x18D1"
     write $GADGET_DIR/g1/idProduct                  "0xD001"
     mkdir $GADGET_DIR/g1/strings/0x409
-    write $GADGET_DIR/g1/strings/0x409/serialnumber $serial
-    write $GADGET_DIR/g1/strings/0x409/manufacturer $manufacturer
-    write $GADGET_DIR/g1/strings/0x409/product      $model
+    write $GADGET_DIR/g1/strings/0x409/serialnumber "$serial"
+    write $GADGET_DIR/g1/strings/0x409/manufacturer "$manufacturer"
+    write $GADGET_DIR/g1/strings/0x409/product      "$model"
 
     if echo $USB_FUNCTIONS | grep -q "rndis"; then
         mkdir $GADGET_DIR/g1/functions/rndis.usb0
@@ -81,8 +81,8 @@ usb_setup_android_usb() {
     write $ANDROID_USB/enable          0
     write $ANDROID_USB/idVendor        18D1
     write $ANDROID_USB/idProduct       D001
-    write $ANDROID_USB/iManufacturer   $manufacturer
-    write $ANDROID_USB/iProduct        $model
+    write $ANDROID_USB/iManufacturer   "$manufacturer"
+    write $ANDROID_USB/iProduct        "$model"
     write $ANDROID_USB/iSerial         serial
     write $ANDROID_USB/f_ffs/aliases   adb
     write $ANDROID_USB/functions       ffs
