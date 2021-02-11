@@ -202,7 +202,7 @@ if [ $? -eq 1 ] && [ -f /recovery/init ] ; then
     echo "skip_initramfs not found in cmdline. Booting into recovery." > /dev/kmsg
 
     # mount --bind trick doesn't seem to work with switch_root, using tmpfs
-    mount -t tmpfs -o size=40M tmpfs ${rootmnt}
+    mount -t tmpfs -o size=100M tmpfs ${rootmnt}
     cp -rf /recovery/* ${rootmnt}/
     exec switch_root ${rootmnt} /init "$@"
 fi
