@@ -1,0 +1,25 @@
+The OpenEmbedded BSP layer for Volla devices
+This layer depends on:
+
+URI: git://github.com/openembedded/oe-core.git
+layers: meta
+branch: master
+revision: HEAD
+
+URI: git://github.com/openembedded/meta-oe.git
+layers: meta-oe
+branch: master
+revision: HEAD
+
+URI: git://github.com/shr-distribution/meta-smartphone.git
+layers: meta-android
+branch: master
+revision: HEAD
+
+If you want to contribute changes, please follow
+http://www.shr-project.org/trac/wiki/Howto%20get%20my%20application%20in%20the%20SHR%20feed
+and send patches or pull requests to shr-devel@lists.shr-project.org with prefix [meta-volla].
+
+If you want to discuss this layer join us on #webos-ports on FreeNode IRC network.
+
+Main layer maintainers: Luka Panio (luka177) <lukapanio@gmail.com>
