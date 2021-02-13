@@ -25,7 +25,7 @@ do_configure_prepend() {
     cp -v -f ${S}/arch/arm64/configs/tissot_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "2023941ad6a241699f12daa0a29eceefd1f54111"
+SRCREV = "28cfffc8ab361e49654bb376d385f425e017e357"
 
 KV = "4.9.188"
 PV = "${KV}+gitr${SRCPV}"
