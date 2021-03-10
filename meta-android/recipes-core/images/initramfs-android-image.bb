@@ -25,4 +25,4 @@ IMAGE_FSTYPES_forcevariable = "cpio.gz"
 KERNELDEPMODDEPEND = ""
 USE_DEPMOD = "0"
 
-inherit core-image
+inherit core-image nopackages
