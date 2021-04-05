@@ -171,9 +171,10 @@ process_bind_mounts() {
     # this is also needed, in the scenario of a system-as-root mount
     mount --move ${rootmnt}/var/lib/lxc/android/rootfs $datadir/luneos-lxc-android/rootfs || true
     # point lxc android container to the read-only folder containing the configuration and the rootfs
+    # NB: use a relative path, which will be valid both before and after chroot
     if [ ! -e $datadir/var/lib/lxc/android ]; then
         mkdir -p $datadir/var/lib/lxc
-        ln -sf /userdata/luneos-data/luneos-lxc-android $datadir/var/lib/lxc/android
+        ln -sf ../../../userdata/luneos-data/luneos-lxc-android $datadir/var/lib/lxc/android
     fi
 
     tell_kmsg "Bind-mount the directories"
