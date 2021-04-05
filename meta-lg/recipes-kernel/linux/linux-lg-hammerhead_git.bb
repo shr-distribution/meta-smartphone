@@ -8,7 +8,7 @@ COMPATIBLE_MACHINE = "hammerhead"
 DESCRIPTION = "Linux kernel for the LG Hammerhead (Nexus 5) device based on the offical \
 source from Google/LG"
 
-ANDROID_BOOTIMG_CMDLINE = "androidboot.hardware=hammerhead user_debug=31 maxcpus=2 msm_watchdog_v2.enable=1"
+ANDROID_BOOTIMG_CMDLINE = "androidboot.hardware=hammerhead user_debug=31 maxcpus=2 msm_watchdog_v2.enable=1 "
 ANDROID_BOOTIMG_KERNEL_RAM_BASE = "0x00008000"
 ANDROID_BOOTIMG_RAMDISK_RAM_BASE = "0x02900000"
 ANDROID_BOOTIMG_SECOND_RAM_BASE = "0x00f00000"
@@ -26,7 +26,8 @@ do_configure_prepend() {
     cp -v -f ${S}/arch/arm/configs/lineageos_hammerhead_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "9385fe3c112c59285ffa24c9972ffd9e18f9abdd"
+
+SRCREV = "ebfc050f3489141d5303d3b23ce0e99d36c502fc"
 
 KV = "3.4.0"
 PV = "${KV}+gitr${SRCPV}"
