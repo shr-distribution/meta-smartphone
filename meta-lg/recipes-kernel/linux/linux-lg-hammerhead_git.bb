@@ -17,8 +17,7 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x02700000"
 inherit kernel_android
 
 SRC_URI = " \
-  git://github.com/Tofee/android_kernel_lge_hammerhead.git;branch=hammerhead/3.4/halium-9.0 \
-  file://0001-scripts-dtc-Remove-redundant-YYLOC-global-declaratio.patch \
+    git://github.com/shr-distribution/linux.git;branch=hammerhead/3.4/halium-9.0 \
 "
 S = "${WORKDIR}/git"
 
@@ -26,8 +25,7 @@ do_configure_prepend() {
     cp -v -f ${S}/arch/arm/configs/lineageos_hammerhead_defconfig ${WORKDIR}/defconfig
 }
 
-
-SRCREV = "ebfc050f3489141d5303d3b23ce0e99d36c502fc"
+SRCREV = "dfcb2fdf2253e48c1151bd1c55b94838ec849368"
 
 KV = "3.4.0"
 PV = "${KV}+gitr${SRCPV}"
