@@ -6,7 +6,7 @@ DESCRIPTION = "Linux kernel for HP Touchpad"
 COMPATIBLE_MACHINE = "tenderloin"
 
 SRC_URI = " \
-  git://github.com/herrie82/android_kernel_htc_msm8960-1;branch=halium-9.0-defconfig-test \
+  git://github.com/herrie82/android_kernel_htc_msm8960-1;branch=halium-9.0 \
 "
 S = "${WORKDIR}/git"
 
@@ -14,7 +14,7 @@ do_configure_prepend() {
     cp -v -f ${S}/arch/arm/configs/tenderloin_android_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "69a7e9b0836c390850bdbcecfab7b9b56fce672f"
+SRCREV = "eb7dd706b7b93d861aeff0f783d821016fb75c61"
 
 do_deploy[depends] += "initramfs-android-image:do_image_complete"
 DEPENDS += "u-boot-mkimage-native"
