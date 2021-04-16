@@ -10,6 +10,8 @@ SRC_URI = " \
 "
 S = "${WORKDIR}/git"
 
+CMDLINE = "androidboot.selinux=permissive  androidboot.hardware=tenderloin"
+
 do_configure_prepend() {
     cp -v -f ${S}/arch/arm/configs/tenderloin_android_defconfig ${WORKDIR}/defconfig
 }
