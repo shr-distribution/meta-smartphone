@@ -9,9 +9,12 @@ if [ -e /android/init ]; then
 		desired_mount=${2/\/android/}
 		mount --bind $2 $LXC_ROOTFS_PATH/$desired_mount
 	done
-	
+
+	rm -rf /dev/__properties__
 	mkdir -p /dev/__properties__
-	mkdir -p /mnt/vendor/persist && mount /dev/disk/by-partlabel/persist /mnt/vendor/persist
+	if [ -e /dev/disk/by-partlabel/persist ]; then
+		mkdir -p /mnt/vendor/persist && mount /dev/disk/by-partlabel/persist /mnt/vendor/persist
+	fi
 else
 	for mountpoint in /android/*; do
 		mount_name=$(basename $mountpoint)
