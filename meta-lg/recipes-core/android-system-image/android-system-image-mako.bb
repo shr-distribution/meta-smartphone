@@ -2,8 +2,11 @@ require recipes-core/android-system-image/android-system-image.inc
 
 COMPATIBLE_MACHINE = "mako"
 
-PV = "20181023-19"
+PV = "20210419-1"
 
-SRC_URI = "http://build.webos-ports.org/halium-luneos-5.1/halium-luneos-5.1-${PV}-${MACHINE}.tar.bz2"
-SRC_URI[md5sum] = "f5056f6807e9df8faf5682fb467be30b"
-SRC_URI[sha256sum] = "3f3a6eaa56fdd138192cf30545b7c0cd6e720b4c4f49bd11d095be5713f85bb6"
+SRC_URI = "http://build.webos-ports.org/halium-luneos-9.0/halium-luneos-9.0-${PV}-${MACHINE}.tar.bz2"
+SRC_URI[md5sum] = "415aa2bbfd5f2085c1fe296cbf52bced"
+SRC_URI[sha256sum] = "70eb3334321fc3f42f035fda37323efa8b7bd1eb44d1e888b2fdd800d73d562e"
+
+# For Android 9+, it's highly recommended to use a rootfs system image
+ANDROID_SYSTEM_IMAGE_DESTNAME = "android-rootfs.img"
