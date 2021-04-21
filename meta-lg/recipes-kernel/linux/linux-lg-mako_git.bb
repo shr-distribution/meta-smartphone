@@ -25,7 +25,7 @@ do_configure_prepend() {
     cp -v -f ${S}/arch/arm/configs/lineageos_mako_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "2bba4cd20fa2339ac3ef2544098dd5c562364ddb"
+SRCREV = "efe7b0dde2473dc83033cd92bc814d6cbfa929eb"
 
 KV = "3.4.113"
 PV = "${KV}+gitr${SRCPV}"
