@@ -120,12 +120,12 @@ USERADD_PARAM_${PN} = " \
                        -u 2000 -M shell; \
                        -u 2001 -M cache; \
                        -u 2002 -M diag; \
-                       -u 2901 -M vendor_qti_diag; \
-                       -u 2902 -M vendor_qdss; \
-                       -u 2903 -M vendor_rfs; \
-                       -u 2904 -M vendor_rfs_shared; \
-                       -u 2905 -M vendor_adpl_odl; \
-                       -u 2906 -M vendor_qrtr; \
+                       -u 2901 -M oem_2901; \
+                       -u 2902 -M oem_2902; \
+                       -u 2903 -M oem_2903; \
+                       -u 2904 -M oem_2904; \
+                       -u 2905 -M oem_2905; \
+                       -u 2906 -M oem_2906; \
                        -u 3001 -M net_bt_admin; \
                        -u 3002 -M net_bt; \
                        -u 3003 -M inet; \
