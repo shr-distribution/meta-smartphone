@@ -16,16 +16,16 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80000100"
 
 inherit kernel_android
 
-SRC_URI = "git://github.com/herrie82/android_kernel_xiaomi_mido.git;branch=halium-9.0"
+SRC_URI = "git://github.com/shr-distribution/linux.git;branch=mido/4.9/halium-9.0"
 S = "${WORKDIR}/git"
 
 do_configure_prepend() {
     cp -v -f ${S}/arch/arm64/configs/mido_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "d4e8975d7e19d917d7e631c18e5243a1223ccd54"
+SRCREV = "b0511d20d6fcb33d14666e18412eea4f8fd34fb3"
 
-KV = "3.18.140"
+KV = "4.9.188"
 PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
