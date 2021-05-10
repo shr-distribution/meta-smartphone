@@ -21,7 +21,7 @@ SRC_URI = " \
     git://github.com/baunilla/android_qcom_opensource_wlan_prima.git;branch=wlan-driver.lnx.1.0.r30-rel;name=prima;destsuffix=git/drivers/staging/prima \
     file://lineageos_rosy_defconfig_7.1 \
 "
-SRCREV_kernel = "9cfaad198ec42a475c420e339450ab0c7e540bc5"
+SRCREV_kernel = "4dcf15ddaa13dd98e34aebd64371f94bdea41050"
 SRCREV_prima = "404995ddd576b4bad2ca7274f151fa2ed6243d5e"
 
 S = "${WORKDIR}/git"
