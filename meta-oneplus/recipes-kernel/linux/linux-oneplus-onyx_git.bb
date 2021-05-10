@@ -25,15 +25,9 @@ do_configure_prepend() {
     cp -v -f ${S}/arch/arm/configs/lineageos_onyx_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "c99869d11869473f5569136ffde64485178f67f7"
+SRCREV = "772228294370696c428383eae99c124e17d3f6f3"
 
 KV = "3.4.0"
 PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
-
-#Below was specifically for mido, might not be needed for onyx
-#do_install_append () {
-#    rm -rf ${D}/usr/src/usr
-#
-#}
