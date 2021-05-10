@@ -23,7 +23,7 @@ do_configure_prepend() {
     cp -v -f ${S}/arch/arm64/configs/mido_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "b0511d20d6fcb33d14666e18412eea4f8fd34fb3"
+SRCREV = "de9f779437b558413f61610a3b25ed13ba25df4d"
 
 KV = "4.9.188"
 PV = "${KV}+gitr${SRCPV}"
