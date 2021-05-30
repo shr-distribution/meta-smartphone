@@ -1,4 +1,4 @@
-From d66249db73df5fa5413d0ec11dbfe84f800ceb21 Mon Sep 17 00:00:00 2001
+From 1dccb96907c7a810ada884c8036f1d17c3c539cc Mon Sep 17 00:00:00 2001
 From: Christophe Chapuis <chris.chapuis@gmail.com>
 Date: Mon, 5 Apr 2021 13:46:41 +0000
 Subject: [PATCH] systemd-hostnamed: disable network protection
@@ -8,7 +8,7 @@ Subject: [PATCH] systemd-hostnamed: disable network protection
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/units/systemd-hostnamed.service.in b/units/systemd-hostnamed.service.in
-index d3d0efebd0..a675b69613 100644
+index 222700564e..8687d4b0ad 100644
 --- a/units/systemd-hostnamed.service.in
 +++ b/units/systemd-hostnamed.service.in
 @@ -23,7 +23,7 @@ LockPersonality=yes
@@ -22,7 +22,7 @@ index d3d0efebd0..a675b69613 100644
  ProtectControlGroups=yes
 @@ -34,7 +34,7 @@ ProtectKernelTunables=yes
  ProtectSystem=strict
- ReadWritePaths=/etc
+ ReadWritePaths=/etc /run/systemd
  RestrictAddressFamilies=AF_UNIX
 -RestrictNamespaces=yes
 +#RestrictNamespaces=yes
