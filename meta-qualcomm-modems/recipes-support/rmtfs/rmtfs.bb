@@ -17,10 +17,10 @@ S = "${WORKDIR}/git"
 inherit systemd
 
 SYSTEMD_PACKAGES = "${PN}"
-SYSTEMD_SERVICE_${PN} = "${PN}.service"
+SYSTEMD_SERVICE:${PN} = "${PN}.service"
 
 do_install() {
     oe_runmake install 'DESTDIR=${D}'
 }
 
-FILES_${PN} += "${systemd_system_unitdir}"
+FILES:${PN} += "${systemd_system_unitdir}"

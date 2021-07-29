@@ -11,7 +11,7 @@ SRC_URI = " \
   file://machine.conf"
 
 PACKAGES = "${PN}"
-FILES_${PN} = "/init /machine.conf"
+FILES:${PN} = "/init /machine.conf"
 
 do_install() {
     cp ${WORKDIR}/init.sh ${D}/init

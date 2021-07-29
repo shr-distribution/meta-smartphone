@@ -1,6 +1,6 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SRC_URI_append_angler = " \
+SRC_URI:append:angler = " \
     file://wifi-macaddr-persister.service \
     file://wifi-module-load.service \
     file://persist-wifi-mac-addr.sh \
@@ -9,7 +9,7 @@ SRC_URI_append_angler = " \
     file://dev-ttyHS99.device \
 "
 
-do_install_append_angler() {
+do_install:append:angler() {
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/hciattach.service ${D}${systemd_unitdir}/system
@@ -21,7 +21,7 @@ do_install_append_angler() {
     install -m 0755 ${WORKDIR}/hciattach.sh ${D}${bindir}
 }
 
-SYSTEMD_SERVICE_${PN}_angler = " \
+SYSTEMD_SERVICE:${PN}:angler = " \
     wifi-macaddr-persister.service \
     wifi-module-load.service \
     hciattach.service \

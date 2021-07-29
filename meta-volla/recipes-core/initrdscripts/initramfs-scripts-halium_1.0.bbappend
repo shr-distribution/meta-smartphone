@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-COMPATIBLE_MACHINE_yggdrasil = "^yggdrasil$"
+COMPATIBLE_MACHINE:yggdrasil = "^yggdrasil$"
 

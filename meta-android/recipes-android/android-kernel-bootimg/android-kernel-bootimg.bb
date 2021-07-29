@@ -16,7 +16,7 @@ do_install() {
     install -m 0644 ${DEPLOY_DIR_IMAGE}/${KERNEL_IMAGETYPE}.fastboot ${D}/${KERNEL_IMAGEDEST}/boot.img
 }
 
-pkg_postinst_ontarget_${PN} () {
+pkg_postinst_ontarget:${PN} () {
     if [ ! -e /boot/boot.img ] ; then
         # if the boot image is not available here something went wrong and we don't
         # continue with anything that can be dangerous
@@ -38,4 +38,4 @@ pkg_postinst_ontarget_${PN} () {
     dd if=/boot/boot.img of=$path
 }
 
-FILES_${PN} += "/${KERNEL_IMAGEDEST}/boot.img"
+FILES:${PN} += "/${KERNEL_IMAGEDEST}/boot.img"

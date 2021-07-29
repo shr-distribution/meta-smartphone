@@ -1,8 +1,8 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-COMPATIBLE_MACHINE_mido = "^mido$"
-COMPATIBLE_MACHINE_oxygen = "^oxygen$"
-COMPATIBLE_MACHINE_rosy = "^rosy$"
-COMPATIBLE_MACHINE_sagit = "^oxygen$"
-COMPATIBLE_MACHINE_tissot = "^tissot$"
+COMPATIBLE_MACHINE:mido = "^mido$"
+COMPATIBLE_MACHINE:oxygen = "^oxygen$"
+COMPATIBLE_MACHINE:rosy = "^rosy$"
+COMPATIBLE_MACHINE:sagit = "^oxygen$"
+COMPATIBLE_MACHINE:tissot = "^tissot$"
 

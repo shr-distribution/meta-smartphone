@@ -21,7 +21,7 @@ inherit kernel_android
 SRC_URI = "git://github.com/herrie82/android_kernel_xiaomi_oxygen.git;branch=LuneOS"
 S = "${WORKDIR}/git"
 
-do_configure_prepend() {
+do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/hybris_oxygen_defconfig ${WORKDIR}/defconfig
 }
 
@@ -32,6 +32,6 @@ PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 
-do_install_append () {
+do_install:append () {
     rm -rf ${D}/usr/src/usr
 }

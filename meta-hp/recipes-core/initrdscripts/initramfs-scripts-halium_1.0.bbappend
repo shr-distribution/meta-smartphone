@@ -1,14 +1,14 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SRC_URI_append_tenderloin = "\
+SRC_URI:append:tenderloin = "\
     file://0001-tenderloin-Fix-userdata-mount-options.patch \
     file://S01-mount-boot.sh \
     file://K99-move-boot.sh \
 "
 
-COMPATIBLE_MACHINE_tenderloin = "tenderloin"
+COMPATIBLE_MACHINE:tenderloin = "tenderloin"
 
-do_install_append_tenderloin() {
+do_install:append:tenderloin() {
     install -d ${D}/scripts/local-premount
     install -d ${D}/scripts/local-bottom
     install -m 0755 ${WORKDIR}/S01-mount-boot.sh ${D}/scripts/local-premount/S01-mount-boot.sh
@@ -17,4 +17,4 @@ do_install_append_tenderloin() {
     echo ". /scripts/local-bottom/K99-move-boot.sh" >> ${D}/scripts/local-bottom/ORDER
 }
 
-FILES_${PN} += "/scripts/local-premount /scripts/local-bottom"
+FILES:${PN} += "/scripts/local-premount /scripts/local-bottom"

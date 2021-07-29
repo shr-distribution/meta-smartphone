@@ -21,7 +21,7 @@ SRC_URI = " \
 "
 S = "${WORKDIR}/git"
 
-do_configure_prepend() {
+do_configure:prepend() {
     cp -v -f ${S}/arch/arm/configs/lineageos_mako_defconfig ${WORKDIR}/defconfig
 }
 

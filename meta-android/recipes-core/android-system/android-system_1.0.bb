@@ -7,7 +7,7 @@ PR = "r4"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 # For some of the operations inside our setup script we need "real" sed!
-RDEPENDS_${PN} = "sed"
+RDEPENDS:${PN} = "sed"
 
 # For running the container we're using lxc (>= 1.0 required)
 # we use this with lxc from meta-luneos:
@@ -18,12 +18,12 @@ RDEPENDS_${PN} = "sed"
 #
 # Not adding the runtime dependency here to keep yocto-check-layer happy
 # without this layer depending on whole meta-virtualization
-# RDEPENDS_${PN} += "lxc"
+# RDEPENDS:${PN} += "lxc"
 
 # We're the former android-initscripts package
-RPROVIDES_${PN} = "android-initscripts"
-RREPLACES_${PN} = "android-initscripts"
-RCONFLICTS_${PN} = "android-initscripts"
+RPROVIDES:${PN} = "android-initscripts"
+RREPLACES:${PN} = "android-initscripts"
+RCONFLICTS:${PN} = "android-initscripts"
 
 inherit systemd useradd
 
@@ -40,7 +40,7 @@ SRC_URI = " \
 
 # Create additional android users we need (need to have same UIDs as in android)
 USERADD_PACKAGES = "${PN}"
-USERADD_PARAM_${PN} = " \
+USERADD_PARAM:${PN} = " \
                        -u 1000 -M system; \
                        -u 1001 -M radio; \
                        -u 1002 -M bluetooth; \
@@ -166,4 +166,4 @@ do_install() {
         ${D}${sysconfdir}/systemd/system/basic.target.requires/android-system.service
 }
 
-SYSTEMD_SERVICE_${PN} = "android-system.service"
+SYSTEMD_SERVICE:${PN} = "android-system.service"

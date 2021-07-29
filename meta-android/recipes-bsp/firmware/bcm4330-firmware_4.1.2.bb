@@ -21,7 +21,7 @@ FIRMARE_PATH = "/lib/firmware"
 
 BCM4330_BASE_PATH = "${WORKDIR}/${HARDWARE_BROADCOM_NAME}/bcmdhd/firmware/bcm4330"
 
-do_install_append() {
+do_install:append() {
     install -d ${D}${FIRMARE_PATH}
     install -m 0644 ${BCM4330_BASE_PATH}/fw_bcm4330_bg.bin ${D}${FIRMARE_PATH}/fw_bcmdhd.bin
     install -m 0644 ${BCM4330_BASE_PATH}/fw_bcm4330_p2p_bg.bin ${D}${FIRMARE_PATH}/fw_bcmdhd_p2p.bin
@@ -29,7 +29,7 @@ do_install_append() {
 }
 
 PACKAGES = "${PN}"
-FILES_${PN} = " \
+FILES:${PN} = " \
     ${FIRMARE_PATH}/fw_bcmdhd.bin \
     ${FIRMARE_PATH}/fw_bcmdhd_p2p.bin \
     ${FIRMARE_PATH}/fw_bcmdhd_apsta.bin \

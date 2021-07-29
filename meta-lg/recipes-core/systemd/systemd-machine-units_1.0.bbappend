@@ -1,6 +1,6 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SRC_URI_append_mako = " \
+SRC_URI:append:mako = " \
     file://wifi-macaddr-persister.service \
     file://wifi-module-load.service \
     file://persist-wifi-mac-addr.sh \
@@ -9,7 +9,7 @@ SRC_URI_append_mako = " \
     file://dev-ttyHS99.device \
 "
 
-do_install_append_mako() {
+do_install:append:mako() {
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/hciattach.service ${D}${systemd_unitdir}/system
@@ -21,7 +21,7 @@ do_install_append_mako() {
     install -m 0755 ${WORKDIR}/hciattach.sh ${D}${bindir}
 }
 
-SYSTEMD_SERVICE_${PN}_mako = " \
+SYSTEMD_SERVICE:${PN}:mako = " \
     wifi-macaddr-persister.service \
     wifi-module-load.service \
     hciattach.service \
@@ -29,7 +29,7 @@ SYSTEMD_SERVICE_${PN}_mako = " \
 "
 
 
-SRC_URI_append_hammerhead = " \
+SRC_URI:append:hammerhead = " \
     file://wifi-macaddr-persister.service \
     file://wifi-module-load.service \
     file://persist-wifi-mac-addr.sh \
@@ -38,7 +38,7 @@ SRC_URI_append_hammerhead = " \
     file://dev-ttyHS99.device \
 "
 
-do_install_append_hammerhead() {
+do_install:append:hammerhead() {
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/hciattach.service ${D}${systemd_unitdir}/system
@@ -50,7 +50,7 @@ do_install_append_hammerhead() {
     install -m 0755 ${WORKDIR}/hciattach.sh ${D}${bindir}
 }
 
-SYSTEMD_SERVICE_${PN}_hammerhead = " \
+SYSTEMD_SERVICE:${PN}:hammerhead = " \
     wifi-macaddr-persister.service \
     wifi-module-load.service \
     hciattach.service \

@@ -3,7 +3,7 @@ SUBSYSTEM=="input", KERNEL=="event[0-9]*", ATTRS{modalias}=="input:b0006v0001p00
 
 ACTION=="add", KERNEL=="rtc0", OWNER="system", GROUP="system", MODE="0600"
 ACTION=="add", KERNEL=="btdiag", OWNER="radio", GROUP="radio", MODE="0660"
-ACTION=="add", KERNEL=="diag_arm9", OWNER="radio", GROUP="radio", MODE="0660"
+ACTION=="add", KERNEL=="diag:arm9", OWNER="radio", GROUP="radio", MODE="0660"
 ACTION=="add", KERNEL=="diag_mdm", OWNER="radio", GROUP="radio", MODE="0660"
 ACTION=="add", KERNEL=="htcdiag", OWNER="radio", GROUP="radio", MODE="0660"
 ACTION=="add", KERNEL=="genlock", OWNER="root", GROUP="root", MODE="0666"

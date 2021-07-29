@@ -27,4 +27,4 @@ do_install() {
     install -Dm644 ${S}/libsmdpkt_wrapper.so ${D}${libdir}/preload/libsmdpkt_wrapper.so
 }
 
-FILES_${PN} = "${libdir}/preload/libsmdpkt_wrapper.so"
+FILES:${PN} = "${libdir}/preload/libsmdpkt_wrapper.so"
