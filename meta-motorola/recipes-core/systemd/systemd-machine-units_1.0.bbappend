@@ -1,6 +1,6 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SRC_URI_append_athene = " \
+SRC_URI:append:athene = " \
     file://wifi-macaddr-persister.service \
     file://wifi-module-load.service \
     file://persist-wifi-mac-addr.sh \
@@ -9,7 +9,7 @@ SRC_URI_append_athene = " \
     file://dev-ttyHS99.device \
 "
 
-do_install_append_athene() {
+do_install:append:athene() {
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/hciattach.service ${D}${systemd_unitdir}/system
@@ -21,7 +21,7 @@ do_install_append_athene() {
     install -m 0755 ${WORKDIR}/hciattach.sh ${D}${bindir}
 }
 
-SYSTEMD_SERVICE_${PN}_athene = " \
+SYSTEMD_SERVICE:${PN}:athene = " \
     wifi-macaddr-persister.service \
     wifi-module-load.service \
     hciattach.service \

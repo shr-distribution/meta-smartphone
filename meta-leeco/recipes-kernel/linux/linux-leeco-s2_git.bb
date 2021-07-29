@@ -25,7 +25,7 @@ SRCREV = "5baf5356a021136340782582db601deff5f38149"
 
 S = "${WORKDIR}/git"
 
-do_configure_prepend() {
+do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/lineage_s2_defconfig ${WORKDIR}/defconfig
 }
 
@@ -35,6 +35,6 @@ PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 
-do_install_append () {
+do_install:append () {
     rm -rf ${D}/usr/src/usr
 }

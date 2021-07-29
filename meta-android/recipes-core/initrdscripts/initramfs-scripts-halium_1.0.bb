@@ -5,9 +5,9 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 PACKAGES = "${PN}"
 
-RDEPENDS_${PN} = "busybox-mdev e2fsprogs-e2fsck e2fsprogs-resize2fs"
+RDEPENDS:${PN} = "busybox-mdev e2fsprogs-e2fsck e2fsprogs-resize2fs"
 
-RPROVIDES_${PN} += "virtual/android-initramfs-scripts"
+RPROVIDES:${PN} += "virtual/android-initramfs-scripts"
 
 SRC_URI += " \
   file://init.sh \
@@ -21,7 +21,7 @@ S = "${WORKDIR}/git"
 
 SRCREV = "3d2006c66900ac70ef56dbb769aaba652f95b899"
 
-do_install_append() {
+do_install:append() {
     install -m 0755 ${WORKDIR}/init.sh ${D}/init
     install -m 0644 ${WORKDIR}/machine.conf ${D}/machine.conf
     install -m 0644 ${WORKDIR}/distro.conf ${D}/distro.conf
@@ -30,7 +30,7 @@ do_install_append() {
     install -m 0644 ${WORKDIR}/functions ${D}/functions
 }
 
-FILES_${PN} += " \
+FILES:${PN} += " \
     /init /machine.conf /distro.conf \
     /halium-boot.sh /functions \
 "

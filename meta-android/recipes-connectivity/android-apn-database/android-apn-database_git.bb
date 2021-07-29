@@ -17,4 +17,4 @@ do_install() {
 }
 
 PACKAGES = "${PN}"
-FILES_${PN} = "${datadir}/android-apn-database"
+FILES:${PN} = "${datadir}/android-apn-database"

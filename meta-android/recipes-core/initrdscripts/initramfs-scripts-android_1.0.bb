@@ -5,18 +5,18 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 PACKAGES = "${PN}"
 
-RDEPENDS_${PN} = " iproute2 busybox-mdev "
+RDEPENDS:${PN} = " iproute2 busybox-mdev "
 
-RPROVIDES_${PN} += "virtual/android-initramfs-scripts"
+RPROVIDES:${PN} += "virtual/android-initramfs-scripts"
 
 SRC_URI = " \
   file://init.sh \
   file://init_functions.sh \
   file://machine.conf"
 
-FILES_${PN} = "/init /init_functions.sh /machine.conf /distro.conf"
+FILES:${PN} = "/init /init_functions.sh /machine.conf /distro.conf"
 
-RDEPENDS_${PN} = "e2fsprogs-e2fsck e2fsprogs-resize2fs"
+RDEPENDS:${PN} = "e2fsprogs-e2fsck e2fsprogs-resize2fs"
 
 do_install() {
     install -m 0755 ${WORKDIR}/init.sh ${D}/init

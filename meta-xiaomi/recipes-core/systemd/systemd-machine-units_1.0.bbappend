@@ -1,6 +1,6 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SRC_URI_append_mido = " \
+SRC_URI:append:mido = " \
     file://wifi-macaddr-persister.service \
     file://wifi-module-load.service \
     file://persist-wifi-mac-addr.sh \
@@ -8,7 +8,7 @@ SRC_URI_append_mido = " \
     file://hciattach.sh \
 "
 
-SRC_URI_append_oxygen = " \
+SRC_URI:append:oxygen = " \
     file://wifi-macaddr-persister.service \
     file://wifi-module-load.service \
     file://persist-wifi-mac-addr.sh \
@@ -16,13 +16,13 @@ SRC_URI_append_oxygen = " \
     file://hciattach.sh \
 "
 
-SRC_URI_append_rosy = " \
+SRC_URI:append:rosy = " \
     file://wifi-macaddr-persister.service \
     file://wifi-module-load.service \
     file://persist-wifi-mac-addr.sh \
 "
 
-SRC_URI_append_sagit = " \
+SRC_URI:append:sagit = " \
     file://wifi-macaddr-persister.service \
     file://wifi-module-load.service \
     file://persist-wifi-mac-addr.sh \
@@ -30,13 +30,13 @@ SRC_URI_append_sagit = " \
     file://hciattach.sh \
 "
 
-SRC_URI_append_tissot = " \
+SRC_URI:append:tissot = " \
     file://wifi-macaddr-persister.service \
     file://wifi-module-load.service \
     file://persist-wifi-mac-addr.sh \
 "
 
-do_install_append_mido() {
+do_install:append:mido() {
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/hciattach.service ${D}${systemd_unitdir}/system
@@ -47,7 +47,7 @@ do_install_append_mido() {
     install -m 0755 ${WORKDIR}/hciattach.sh ${D}${bindir}
 }
 
-do_install_append_oxygen() {
+do_install:append:oxygen() {
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/hciattach.service ${D}${systemd_unitdir}/system
@@ -58,7 +58,7 @@ do_install_append_oxygen() {
     install -m 0755 ${WORKDIR}/hciattach.sh ${D}${bindir}
 }
 
-do_install_append_rosy() {
+do_install:append:rosy() {
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
@@ -67,7 +67,7 @@ do_install_append_rosy() {
     install -m 0755 ${WORKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
 }
 
-do_install_append_sagit() {
+do_install:append:sagit() {
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/hciattach.service ${D}${systemd_unitdir}/system
@@ -78,7 +78,7 @@ do_install_append_sagit() {
     install -m 0755 ${WORKDIR}/hciattach.sh ${D}${bindir}
 }
 
-do_install_append_tissot() {
+do_install:append:tissot() {
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
@@ -87,30 +87,30 @@ do_install_append_tissot() {
     install -m 0755 ${WORKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
 }
 
-SYSTEMD_SERVICE_${PN}_mido = " \
+SYSTEMD_SERVICE:${PN}:mido = " \
     wifi-macaddr-persister.service \
     wifi-module-load.service \
     hciattach.service \
 "
 
-SYSTEMD_SERVICE_${PN}_oxygen = " \
+SYSTEMD_SERVICE:${PN}:oxygen = " \
     wifi-macaddr-persister.service \
     wifi-module-load.service \
     hciattach.service \
 "
 
-SYSTEMD_SERVICE_${PN}_rosy = " \
+SYSTEMD_SERVICE:${PN}:rosy = " \
     wifi-macaddr-persister.service \
     wifi-module-load.service \
 "
 
-SYSTEMD_SERVICE_${PN}_sagit = " \
+SYSTEMD_SERVICE:${PN}:sagit = " \
     wifi-macaddr-persister.service \
     wifi-module-load.service \
     hciattach.service \
 "
 
-SYSTEMD_SERVICE_${PN}_tissot = " \
+SYSTEMD_SERVICE:${PN}:tissot = " \
     wifi-macaddr-persister.service \
     wifi-module-load.service \
 "

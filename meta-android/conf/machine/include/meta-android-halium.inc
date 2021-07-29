@@ -1,5 +1,5 @@
-TUNE_PKGARCH_append = "-halium"
-PACKAGE_EXTRA_ARCHS_append = " ${TUNE_PKGARCH}"
+TUNE_PKGARCH:append = "-halium"
+PACKAGE_EXTRA_ARCHS:append = " ${TUNE_PKGARCH}"
 
 PREFERRED_PROVIDER_virtual/libgl ?= "mesa-gl"
 PREFERRED_PROVIDER_virtual/libgbm ?= "mesa-gl"

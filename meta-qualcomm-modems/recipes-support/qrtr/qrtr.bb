@@ -19,7 +19,7 @@ do_install() {
 }
 
 SYSTEMD_PACKAGES = "${PN}"
-SYSTEMD_SERVICE_${PN} = "${PN}-ns.service"
+SYSTEMD_SERVICE:${PN} = "${PN}-ns.service"
 
 inherit systemd
-FILES_${PN} += "${systemd_system_unitdir}"
+FILES:${PN} += "${systemd_system_unitdir}"
