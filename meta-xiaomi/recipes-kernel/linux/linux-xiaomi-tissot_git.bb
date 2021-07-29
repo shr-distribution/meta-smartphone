@@ -21,7 +21,7 @@ inherit kernel_android
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=tissot/4.9/halium-9.0"
 S = "${WORKDIR}/git"
 
-do_configure_prepend() {
+do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/tissot_defconfig ${WORKDIR}/defconfig
 }
 
@@ -32,6 +32,6 @@ PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 
-do_install_append () {
+do_install:append () {
     rm -rf ${D}/usr/src/usr
 }

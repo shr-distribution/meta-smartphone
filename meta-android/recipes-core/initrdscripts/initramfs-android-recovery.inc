@@ -6,10 +6,10 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 DEPENDS += "abootimg-native"
 PROVIDES = "initramfs-android-recovery"
-RPROVIDES_${PN} = "initramfs-android-recovery"
+RPROVIDES:${PN} = "initramfs-android-recovery"
 
 PACKAGES = "${PN}"
-FILES_${PN} = "/recovery"
+FILES:${PN} = "/recovery"
 RECOVERY_IMG ?= "recovery.img"
 
 do_install() {

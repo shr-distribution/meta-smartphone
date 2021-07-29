@@ -9,18 +9,18 @@ PV = "0.1.0+git${SRCPV}"
 SRCREV = "bba6591408e788649600b20f794740716b5e6a13"
 
 COMPATIBLE_MACHINE = "tenderloin"
-PACKAGE_ARCH_tenderloin = "${MACHINE_ARCH}"
+PACKAGE_ARCH:tenderloin = "${MACHINE_ARCH}"
 
 inherit cmake
 
 SRC_URI = "git://github.com/webOS-ports/utilities.git;protocol=git;branch=master"
 S = "${WORKDIR}/git"
 
-do_install_append_tenderloin() {
+do_install:append:tenderloin() {
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${S}/tenderloin/bcattach/files/systemd/tenderloin-bluetooth.service ${D}${systemd_unitdir}/system
     install -d ${D}${sysconfdir}/udev/rules.d
     install -m 0644 ${S}/tenderloin/bcattach/files/udev/tenderloin-bluetooth.rules ${D}${sysconfdir}/udev/rules.d
 }
 
-FILES_${PN}_tenderloin += "${base_libdir} ${sbindir} ${sysconfdir}/udev/rules.d"
+FILES:${PN}:tenderloin += "${base_libdir} ${sbindir} ${sysconfdir}/udev/rules.d"

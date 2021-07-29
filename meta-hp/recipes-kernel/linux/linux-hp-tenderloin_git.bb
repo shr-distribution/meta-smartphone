@@ -12,7 +12,7 @@ S = "${WORKDIR}/git"
 
 CMDLINE = "androidboot.selinux=permissive  androidboot.hardware=tenderloin"
 
-do_configure_prepend() {
+do_configure:prepend() {
     cp -v -f ${S}/arch/arm/configs/tenderloin_android_defconfig ${WORKDIR}/defconfig
 }
 
@@ -31,7 +31,7 @@ inherit machine_kernel_pr
 INITRAMFS_NAME = "initramfs-android-image-${MACHINE}.cpio.gz"
 INITRAMFS_UIMAGE = "initramfs-android-image-${MACHINE}.uImage"
 
-do_deploy_append() {
+do_deploy:append() {
     if [ ! -e ${DEPLOY_DIR_IMAGE}/${INITRAMFS_NAME} ] ; then
         bbfatal "Required initramfs image ${DEPLOY_DIR_IMAGE}/${INITRAMFS_NAME} is not available!"
     fi

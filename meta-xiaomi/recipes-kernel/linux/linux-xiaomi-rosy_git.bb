@@ -26,7 +26,7 @@ SRCREV_prima = "404995ddd576b4bad2ca7274f151fa2ed6243d5e"
 
 S = "${WORKDIR}/git"
 
-do_configure_prepend() {
+do_configure:prepend() {
     cp -v -f ${WORKDIR}/lineageos_rosy_defconfig_7.1 ${WORKDIR}/defconfig
 }
 
@@ -36,6 +36,6 @@ PV = "${KV}+gitr9cfaad"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 
-do_install_append () {
+do_install:append () {
     rm -rf ${D}/usr/src/usr
 }

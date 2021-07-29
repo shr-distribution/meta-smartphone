@@ -20,11 +20,11 @@ inherit kernel_android
 SRC_URI = "git://github.com/herrie82/android_kernel_xiaomi_msm8998.git;branch=halium-9.0-LuneOS"
 S = "${WORKDIR}/git"
 
-do_configure_prepend() {
+do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/sagit_defconfig ${WORKDIR}/defconfig
 }
 
-do_configure_append() {
+do_configure:append() {
   kernel_conf_variable_fixup() {
       sed -i "/CONFIG_$1[ =]/d" ${B}/.config
       kernel_conf_variable $1 $2 ${B}/.config
@@ -57,6 +57,6 @@ PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 
-do_install_append () {
+do_install:append () {
     rm -rf ${D}/usr/src/usr
 }

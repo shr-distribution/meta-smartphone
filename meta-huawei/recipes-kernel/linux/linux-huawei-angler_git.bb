@@ -5,9 +5,9 @@ SECTION = "kernel"
 # Mark archs/machines that this kernel supports
 COMPATIBLE_MACHINE = "angler"
 
-DEPENDS_append_aarch64 = " libgcc"
-KERNEL_CC_append_aarch64 = " ${TOOLCHAIN_OPTIONS}"
-KERNEL_LD_append_aarch64 = " ${TOOLCHAIN_OPTIONS}"
+DEPENDS:append:aarch64 = " libgcc"
+KERNEL_CC:append:aarch64 = " ${TOOLCHAIN_OPTIONS}"
+KERNEL_LD:append:aarch64 = " ${TOOLCHAIN_OPTIONS}"
 
 DESCRIPTION = "Linux kernel for the Google Nexus 6P (Huawei) device based on the offical \
 source from Google"
@@ -25,7 +25,7 @@ SRC_URI = " \
 "
 S = "${WORKDIR}/git"
 
-do_configure_prepend() {
+do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/lineageos_angler_defconfig ${WORKDIR}/defconfig
 }
 
@@ -36,6 +36,6 @@ PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 
-do_install_append () {
+do_install:append () {
     rm -rf ${D}/usr/src/usr
 }

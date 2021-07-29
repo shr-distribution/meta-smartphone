@@ -1,6 +1,6 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SRC_URI_append_onyx = " \
+SRC_URI:append:onyx = " \
     file://wifi-macaddr-persister.service \
     file://wifi-module-load.service \
     file://persist-wifi-mac-addr.sh \
@@ -9,7 +9,7 @@ SRC_URI_append_onyx = " \
     file://dev-ttyHS99.device \
 "
 
-do_install_append_onyx() {
+do_install:append:onyx() {
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/hciattach.service ${D}${systemd_unitdir}/system
@@ -21,7 +21,7 @@ do_install_append_onyx() {
     install -m 0755 ${WORKDIR}/hciattach.sh ${D}${bindir}
 }
 
-SYSTEMD_SERVICE_${PN}_onyx = " \
+SYSTEMD_SERVICE:${PN}:onyx = " \
     wifi-macaddr-persister.service \
     wifi-module-load.service \
     hciattach.service \

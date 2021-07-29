@@ -6,7 +6,7 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 DEPENDS = "android-tools-native e2fsprogs-native"
 
-RPROVIDES_${PN} += "virtual/android-system-image"
+RPROVIDES:${PN} += "virtual/android-system-image"
 
 INC_PR = "r6"
 
@@ -62,7 +62,7 @@ do_install() {
     fi
 }
 
-FILES_${PN} = "${localstatedir}/lib/lxc/android \
+FILES:${PN} = "${localstatedir}/lib/lxc/android \
                ${sysconfdir} \
                /android /cache /data /factory /firmware /persist /system /vendor /userdata \
 "
