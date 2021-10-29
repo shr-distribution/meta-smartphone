@@ -14,9 +14,11 @@ ANDROID_BOOTIMG_RAMDISK_RAM_BASE = "0x01000000"
 ANDROID_BOOTIMG_SECOND_RAM_BASE = "0x00f00000"
 ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x00000100"
 
-inherit kernel_android
+inherit kernel_android pkgconfig
 
-SRC_URI = "git://github.com/shr-distribution/linux.git;branch=sargo/${KV}/lune;protocol=https"
+SRC_URI = "git://github.com/shr-distribution/linux.git;branch=sargo/${KV}/lune;protocol=https \
+    file://0001-scripts-use-pkg-config-to-locate-libcrypto.patch \
+"
 SRCREV = "20f655295a5fe56188ebef997671bc16a004a084"
 
 S = "${WORKDIR}/git"
@@ -26,7 +28,7 @@ PV = "${KV}+git${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 
-DEPENDS += "dtc-native python3-dtschema-wrapper-native"
+DEPENDS += "dtc-native python3-dtschema-wrapper-native openssl-native"
 
 do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/lineageos_bonito_defconfig ${WORKDIR}/defconfig
