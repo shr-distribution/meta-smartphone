@@ -7,7 +7,7 @@ DEPENDS = "util-linux udev"
 
 PV = "1.0"
 
-SRC_URI = "git://github.com/andersson/rpmsgexport.git;protocol=git;branch=master"
+SRC_URI = "git://github.com/andersson/rpmsgexport.git;protocol=https;branch=master"
 
 EXTRA_OEMAKE = "prefix=${prefix} bindir=${bindir} libdir=${libdir} includedir=${includedir} servicedir=${systemd_system_unitdir} LDFLAGS='${LDFLAGS}'"
 

@@ -17,7 +17,7 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x54000000"
 inherit kernel_android
 
 SRC_URI = " \
-    git://github.com/herrie82/android_kernel_volla_mt6763.git;branch=halium-9.0-LuneOS;      \
+    git://github.com/herrie82/android_kernel_volla_mt6763.git;branch=halium-9.0-LuneOS;     ;protocol=https \
     "
 SRCREV = "a3bc162aa456ec4f5d07f275ee97093e9087e602"
 

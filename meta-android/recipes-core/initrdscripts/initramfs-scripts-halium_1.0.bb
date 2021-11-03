@@ -13,7 +13,7 @@ SRC_URI += " \
   file://init.sh \
   file://machine.conf \
   file://distro.conf \
-  git://github.com/Tofee/initramfs-tools-halium.git;branch=tofe/halium-9.0 \
+  git://github.com/Tofee/initramfs-tools-halium.git;branch=tofe/halium-9.0;protocol=https \
   file://functions \
 "
 
