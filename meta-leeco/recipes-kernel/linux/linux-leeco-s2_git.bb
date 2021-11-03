@@ -19,7 +19,7 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x00000100"
 inherit kernel_android
 
 SRC_URI = " \
-    git://github.com/herrie82/android_kernel_leeco_msm8976.git;branch=halium-7.1;      \
+    git://github.com/herrie82/android_kernel_leeco_msm8976.git;branch=halium-7.1;     ;protocol=https \
     "
 SRCREV = "5baf5356a021136340782582db601deff5f38149"
 

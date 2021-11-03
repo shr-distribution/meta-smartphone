@@ -13,7 +13,7 @@ PACKAGE_ARCH:tenderloin = "${MACHINE_ARCH}"
 
 inherit cmake
 
-SRC_URI = "git://github.com/webOS-ports/utilities.git;protocol=git;branch=master"
+SRC_URI = "git://github.com/webOS-ports/utilities.git;protocol=https;branch=master"
 S = "${WORKDIR}/git"
 
 do_install:append:tenderloin() {

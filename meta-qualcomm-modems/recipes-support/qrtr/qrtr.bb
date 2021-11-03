@@ -7,7 +7,7 @@ DEPENDS = "util-linux"
 
 PV = "1.0"
 
-SRC_URI = "git://github.com/andersson/qrtr.git;protocol=git;branch=master"
+SRC_URI = "git://github.com/andersson/qrtr.git;protocol=https;branch=master"
 
 SRCREV = "cd6bedd5d00f211e6c1e3803ff2f9f53c246435e"
 S = "${WORKDIR}/git"

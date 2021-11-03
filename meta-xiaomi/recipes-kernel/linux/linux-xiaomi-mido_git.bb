@@ -16,7 +16,7 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80000100"
 
 inherit kernel_android pkgconfig
 
-SRC_URI = "git://github.com/shr-distribution/linux.git;branch=mido/4.9/halium-9.0 \
+SRC_URI = "git://github.com/shr-distribution/linux.git;branch=mido/4.9/halium-9.0;protocol=https \
     file://0001-scripts-use-pkg-config-to-locate-libcrypto.patch \
 "
 S = "${WORKDIR}/git"

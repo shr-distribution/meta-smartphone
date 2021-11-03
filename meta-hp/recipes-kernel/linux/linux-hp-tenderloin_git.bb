@@ -6,7 +6,7 @@ DESCRIPTION = "Linux kernel for HP Touchpad"
 COMPATIBLE_MACHINE = "tenderloin"
 
 SRC_URI = " \
-  git://github.com/herrie82/android_kernel_htc_msm8960-1;branch=halium-9.0 \
+  git://github.com/herrie82/android_kernel_htc_msm8960-1;branch=halium-9.0;protocol=https \
 "
 S = "${WORKDIR}/git"
 
