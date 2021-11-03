@@ -7,7 +7,7 @@ DEPENDS = "util-linux"
 
 PV = "1.0"
 
-SRC_URI = "git://github.com/andersson/qmic.git;protocol=git;branch=master"
+SRC_URI = "git://github.com/andersson/qmic.git;protocol=https;branch=master"
 
 EXTRA_OEMAKE = "prefix=${prefix} bindir=${bindir} libdir=${libdir} includedir=${includedir} servicedir=${systemd_system_unitdir} LDFLAGS='${LDFLAGS}'"
 

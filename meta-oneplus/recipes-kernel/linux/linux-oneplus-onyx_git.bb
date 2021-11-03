@@ -17,7 +17,7 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x00000100"
 inherit kernel_android
 
 SRC_URI = " \
-    git://github.com/shr-distribution/linux.git;branch=onyx/3.4.0/cm-14.1-los \
+    git://github.com/shr-distribution/linux.git;branch=onyx/3.4.0/cm-14.1-los;protocol=https \
 "
 S = "${WORKDIR}/git"
 

@@ -17,7 +17,7 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80200100"
 inherit kernel_android
 
 SRC_URI = " \
-    git://github.com/herrie82/android_kernel_lge_mako.git;branch=halium-9.0 \
+    git://github.com/herrie82/android_kernel_lge_mako.git;branch=halium-9.0;protocol=https \
 "
 S = "${WORKDIR}/git"
 

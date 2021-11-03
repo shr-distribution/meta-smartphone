@@ -17,7 +17,7 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80000100"
 inherit kernel_android
 
 SRC_URI = " \
-  git://github.com/herrie82/android_kernel_motorola_msm8952.git;branch=cm-14.1 \
+  git://github.com/herrie82/android_kernel_motorola_msm8952.git;branch=cm-14.1;protocol=https \
 "
 S = "${WORKDIR}/git"
 

@@ -17,8 +17,8 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80000100"
 inherit kernel_android
 
 SRC_URI = " \
-    git://github.com/shr-distribution/linux.git;branch=rosy/3.18/halium-9.0;name=kernel \
-    git://github.com/baunilla/android_qcom_opensource_wlan_prima.git;branch=wlan-driver.lnx.1.0.r30-rel;name=prima;destsuffix=git/drivers/staging/prima \
+    git://github.com/shr-distribution/linux.git;branch=rosy/3.18/halium-9.0;name=kernel;protocol=https \
+    git://github.com/baunilla/android_qcom_opensource_wlan_prima.git;branch=wlan-driver.lnx.1.0.r30-rel;name=prima;destsuffix=git/drivers/staging/prima;protocol=https \
     file://lineageos_rosy_defconfig_7.1 \
 "
 SRCREV_kernel = "4dcf15ddaa13dd98e34aebd64371f94bdea41050"
