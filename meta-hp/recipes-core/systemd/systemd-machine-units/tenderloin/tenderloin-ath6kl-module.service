@@ -1,5 +1,7 @@
 [Unit]
 Description=Load the ath6kl WiFi kernel module
+After=android-system.service
+Requires=android-system.service
 
 [Service]
 Type=oneshot
