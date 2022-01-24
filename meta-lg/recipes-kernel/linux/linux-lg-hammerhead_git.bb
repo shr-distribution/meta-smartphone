@@ -16,9 +16,7 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x02700000"
 
 inherit kernel_android
 
-SRC_URI = " \
-    git://github.com/shr-distribution/linux.git;branch=hammerhead/3.4/halium-9.0;protocol=https \
-"
+SRC_URI = "git://github.com/shr-distribution/linux.git;branch=hammerhead/3.4/halium-9.0;protocol=https"
 S = "${WORKDIR}/git"
 
 do_configure:prepend() {

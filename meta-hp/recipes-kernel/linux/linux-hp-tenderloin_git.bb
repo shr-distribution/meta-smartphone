@@ -5,9 +5,7 @@ DESCRIPTION = "Linux kernel for HP Touchpad"
 # Mark archs/machines that this kernel supports
 COMPATIBLE_MACHINE = "tenderloin"
 
-SRC_URI = " \
-  git://github.com/herrie82/android_kernel_htc_msm8960-1;branch=halium-9.0;protocol=https \
-"
+SRC_URI = "git://github.com/shr-distribution/linux.git;branch=tenderloin/3.4/halium-9.0;protocol=https"
 S = "${WORKDIR}/git"
 
 CMDLINE = "androidboot.selinux=permissive  androidboot.hardware=tenderloin"
@@ -16,11 +14,11 @@ do_configure:prepend() {
     cp -v -f ${S}/arch/arm/configs/tenderloin_android_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "eb7dd706b7b93d861aeff0f783d821016fb75c61"
-
 do_deploy[depends] += "initramfs-android-image:do_image_complete"
 DEPENDS += "u-boot-mkimage-native"
 KERNEL_OUTPUT ?= "${KERNEL_OUTPUT_DIR}/${KERNEL_IMAGETYPE}"
+
+SRCREV = "eb7dd706b7b93d861aeff0f783d821016fb75c61"
 
 KV = "3.4.113"
 PV = "${KV}+gitr${SRCPV}"

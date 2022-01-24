@@ -16,11 +16,7 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x54000000"
 
 inherit kernel_android
 
-SRC_URI = " \
-    git://github.com/herrie82/android_kernel_volla_mt6763.git;branch=halium-9.0-LuneOS;     ;protocol=https \
-    "
-SRCREV = "a3bc162aa456ec4f5d07f275ee97093e9087e602"
-
+SRC_URI = "git://github.com/shr-distribution/linux.git;branch=yggdrasil/4.4/halium-9.0;protocol=https"
 S = "${WORKDIR}/git"
 
 do_configure:prepend() {
@@ -53,8 +49,10 @@ do_configure:append() {
   oe_runmake oldnoconfig
 }
 
+SRCREV = "a3bc162aa456ec4f5d07f275ee97093e9087e602"
+
 KV = "4.4.243"
-PV = "${KV}+gitr9cfaad"
+PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 
