@@ -21,8 +21,6 @@ SRC_URI = " \
     git://github.com/baunilla/android_qcom_opensource_wlan_prima.git;branch=wlan-driver.lnx.1.0.r30-rel;name=prima;destsuffix=git/drivers/staging/prima;protocol=https \
     file://lineageos_rosy_defconfig_7.1 \
 "
-SRCREV_kernel = "4dcf15ddaa13dd98e34aebd64371f94bdea41050"
-SRCREV_prima = "404995ddd576b4bad2ca7274f151fa2ed6243d5e"
 
 S = "${WORKDIR}/git"
 
@@ -30,9 +28,12 @@ do_configure:prepend() {
     cp -v -f ${WORKDIR}/lineageos_rosy_defconfig_7.1 ${WORKDIR}/defconfig
 }
 
+SRCREV_kernel = "4dcf15ddaa13dd98e34aebd64371f94bdea41050"
+SRCREV_prima = "404995ddd576b4bad2ca7274f151fa2ed6243d5e"
+SRCREV_FORMAT = "kernel-prima"
 
 KV = "3.18.31"
-PV = "${KV}+gitr9cfaad"
+PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 

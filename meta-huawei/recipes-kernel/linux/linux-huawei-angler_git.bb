@@ -20,9 +20,7 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x00000100"
 
 inherit kernel_android
 
-SRC_URI = " \
-  git://github.com/herrie82/android_kernel_huawei_angler.git;branch=cm-14.1;protocol=https \
-"
+SRC_URI = "git://github.com/shr-distribution/linux.git;branch=angler/3.10/cm-14.1;protocol=https"
 S = "${WORKDIR}/git"
 
 do_configure:prepend() {

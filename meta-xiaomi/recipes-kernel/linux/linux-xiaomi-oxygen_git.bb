@@ -18,7 +18,7 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80000100"
 
 inherit kernel_android
 
-SRC_URI = "git://github.com/herrie82/android_kernel_xiaomi_oxygen.git;branch=LuneOS;protocol=https"
+SRC_URI = "git://github.com/shr-distribution/linux.git;branch=oxygen/3.18/halium-7.1;protocol=https"
 S = "${WORKDIR}/git"
 
 do_configure:prepend() {
