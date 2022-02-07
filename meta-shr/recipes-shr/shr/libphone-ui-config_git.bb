@@ -10,7 +10,7 @@ PR = "r5"
 INHIBIT_DEFAULT_DEPS = "1"
 
 SRC_URI = " \
- git://git.shr-project.org/repo/libphone-ui.git;protocol=http;branch=master \
+ git://github.com/shr-distribution/libphone-ui;protocol=https;branch=master \
 "
 
 S = "${WORKDIR}/git"

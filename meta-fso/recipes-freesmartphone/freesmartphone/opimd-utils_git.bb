@@ -34,7 +34,7 @@ RRECOMMENDS_${PN} = "\
   ${PN}-cli \
 "
 
-SRC_URI = "git://git.shr-project.org/repo/opimd-utils.git;protocol=http"
+SRC_URI = "git://github.com/shr-distribution/opimd-utils;protocol=https"
 S = "${WORKDIR}/git"
 
 FILES_${PN} += "${sysconfdir}/X11/Xsession.d/89opimd-notifier"

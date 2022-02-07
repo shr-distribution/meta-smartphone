@@ -12,7 +12,7 @@ RCONFLICTS_${PN} = "e-wm-sysactions"
 RPROVIDES_${PN} = "e-wm-sysactions"
 RREPLACES_${PN} = "e-wm-sysactions"
 
-SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http \
+SRC_URI = "git://github.com/shr-distribution/shr-themes;protocol=https \
 "
 S = "${WORKDIR}/git/e-wm/${PN}"
 

@@ -13,7 +13,7 @@ PR = "r18"
 inherit autotools
 
 SRC_URI = "\
-    git://git.shr-project.org/repo/shr-e-gadgets.git;protocol=http;branch=master \
+    git://github.com/shr-distribution/shr-e-gadgets;protocol=https;branch=master \
 "
 S = "${WORKDIR}/git"
 

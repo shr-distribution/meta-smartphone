@@ -10,7 +10,7 @@ PV = "0.1+gitr${SRCPV}"
 PR = "r2"
 
 SRC_URI = "\
-    git://git.shr-project.org/repo/ffphonelog.git;protocol=http;branch=master \
+    git://github.com/shr-distribution/ffphonelog;protocol=https;branch=master \
 "
 
 export XDG_DATA_DIRS = "${STAGING_DATADIR}"

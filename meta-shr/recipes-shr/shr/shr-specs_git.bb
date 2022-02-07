@@ -9,7 +9,7 @@ SECTION = "devel/specifications"
 SRCREV = "04394bad2ee838a9e5cc2035571f25e7d02772d8"
 PV = "2011.03.08.2+gitr${SRCPV}"
 
-SRC_URI = "git://git.shr-project.org/repo/shr-specs.git;protocol=http;branch=master"
+SRC_URI = "git://github.com/shr-distribution/shr-specs;protocol=https;branch=master"
 S = "${WORKDIR}/git"
 
 inherit autotools pkgconfig

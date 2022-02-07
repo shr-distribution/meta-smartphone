@@ -11,7 +11,7 @@ PR = "r1"
 
 inherit setuptools
 
-SRC_URI = "git://git.shr-project.org/repo/shr-installer.git;protocol=http"
+SRC_URI = "git://github.com/shr-distribution/shr-installer;protocol=https"
 S = "${WORKDIR}/git"
 
 FILES_${PN} += "${prefix}/share/pixmaps"

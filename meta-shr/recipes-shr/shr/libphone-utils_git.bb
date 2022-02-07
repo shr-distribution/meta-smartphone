@@ -11,7 +11,7 @@ DEPENDS="glib-2.0"
 inherit pkgconfig autotools autotools
 
 CONFFILES_${PN} = "${sysconfdir}/phone-utils.conf"
-SRC_URI = "git://git.shr-project.org/repo/libphone-utils.git;protocol=http;branch=master"
+SRC_URI = "git://github.com/shr-distribution/libphone-utils;protocol=https;branch=master"
 S="${WORKDIR}/git"
 
 PACKAGES =+ " ${PN}-test"

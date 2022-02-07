@@ -8,7 +8,7 @@ SRCREV = "19f0f1cee865b721b58c93ab51bba02ed517cf4d"
 PV = "0.0.0+gitr${SRCPV}"
 PR = "r0"
 
-SRC_URI = "git://git.shr-project.org/repo/phonefsod.git;protocol=http;branch=master \
+SRC_URI = "git://github.com/shr-distribution/phonefsod;protocol=https;branch=master \
   file://${PN}.service \
 "
 S = "${WORKDIR}/git"

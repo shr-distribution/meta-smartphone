@@ -14,7 +14,7 @@ PR = "r2"
 #disable as-needed for now, fails on many undefined symbols otherwise
 ASNEEDED = ""
 
-SRC_URI = "git://git.shr-project.org/repo/ffalarms.git;protocol=http;branch=master \
+SRC_URI = "git://github.com/shr-distribution/ffalarms;protocol=https;branch=master \
 "
 
 SRCREV = "679a1e54f4993d16b4f048b80b0c970d92a54052"

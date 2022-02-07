@@ -10,7 +10,7 @@ PR = "r2"
 
 inherit autotools
 
-SRC_URI = "git://git.shr-project.org/repo/libshr-glib.git;protocol=http;branch=master"
+SRC_URI = "git://github.com/shr-distribution/libshr-glib;protocol=https;branch=master"
 S = "${WORKDIR}/git"
 
 do_configure_prepend() {

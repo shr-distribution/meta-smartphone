@@ -10,7 +10,7 @@ PR = "r0"
 DEPENDS="glib-2.0 libshr-glib libfso-glib libfsoframework libphone-utils alsa-lib"
 
 SRC_URI = " \
- git://git.shr-project.org/repo/libphone-ui.git;protocol=http;branch=master \
+ git://github.com/shr-distribution/libphone-ui;protocol=https;branch=master \
 "
 
 S = "${WORKDIR}/git"

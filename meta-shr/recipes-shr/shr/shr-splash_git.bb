@@ -11,7 +11,7 @@ RRECOMMENDS_${PN} = "${SHR_SPLASH_THEME}"
 
 inherit update-rc.d gettext
 
-SRC_URI = "git://git.shr-project.org/repo/shr.git;protocol=http;branch=master \
+SRC_URI = "git://github.com/shr-distribution/shr;protocol=https;branch=master \
 "
 S = "${WORKDIR}/git/${PN}"
 

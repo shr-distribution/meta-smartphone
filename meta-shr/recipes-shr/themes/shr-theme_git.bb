@@ -10,7 +10,7 @@ PR = "r2"
 
 inherit autotools gettext allarch
 
-SRC_URI = "git://git.shr-project.org/repo/shr.git;protocol=http;branch=master"
+SRC_URI = "git://github.com/shr-distribution/shr;protocol=https;branch=master"
 S = "${WORKDIR}/git/${PN}"
 
 pkg_postinst_shr-theme () {

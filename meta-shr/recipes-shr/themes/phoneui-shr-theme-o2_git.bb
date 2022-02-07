@@ -12,7 +12,7 @@ PV = "0.1+gitr${SRCPV}"
 PR = "r3"
 inherit allarch update-alternatives
 
-SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http;branch=master"
+SRC_URI = "git://github.com/shr-distribution/shr-themes;protocol=https;branch=master"
 
 S = "${WORKDIR}/git/phoneui-shr/${PN}"
 

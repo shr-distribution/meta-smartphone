@@ -26,7 +26,7 @@ do_install_append() {
   install -m 0755 "${WORKDIR}/elementary.sh" "${D}/${sysconfdir}/profile.d/elementary.sh"
 }
 
-SRC_URI = "git://git.shr-project.org/repo/shr-settings.git;protocol=http;branch=master \
+SRC_URI = "git://github.com/shr-distribution/shr-settings;protocol=https;branch=master \
            file://elementary.sh"
 S = "${WORKDIR}/git"
 FILES_${PN} += "${sysconfdir}/profile.d/elementary.sh"

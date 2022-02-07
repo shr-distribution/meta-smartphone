@@ -10,7 +10,7 @@ PR = "r1"
 
 inherit pkgconfig autotools
 
-SRC_URI = "git://git.shr-project.org/repo/phoneui-apps.git;protocol=http;branch=master"
+SRC_URI = "git://github.com/shr-distribution/phoneui-apps;protocol=https;branch=master"
 S = "${WORKDIR}/git"
 
 PACKAGES =+ "${PN}-dialer ${PN}-messages ${PN}-contacts ${PN}-quick-settings ${PN}-phone-log"

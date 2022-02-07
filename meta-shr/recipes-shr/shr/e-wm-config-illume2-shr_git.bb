@@ -9,7 +9,7 @@ PV = "1.2+gitr${SRCPV}"
 
 inherit e
 
-SRC_URI = "git://git.shr-project.org/repo/shr-themes.git;protocol=http;branch=master \
+SRC_URI = "git://github.com/shr-distribution/shr-themes;protocol=https;branch=master \
 "
 
 S = "${WORKDIR}/git/e-wm/${PN}"

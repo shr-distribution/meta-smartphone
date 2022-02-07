@@ -11,7 +11,7 @@ PR = "r13"
 
 inherit autotools
 
-SRC_URI = "git://git.shr-project.org/repo/shr-wizard.git;protocol=http;branch=master"
+SRC_URI = "git://github.com/shr-distribution/shr-wizard;protocol=https;branch=master"
 S = "${WORKDIR}/git"
 
 FILES_${PN} += "${libdir}/enlightenment/modules/wizard/*/page_900.so"
