@@ -4,5 +4,5 @@ LICENSE = "GPLv2"
 PE = "1"
 
 FSO_PYTHONHELPERS_SRCREV ?= "63b1dff1bc8ac22efabcee8a90e957c3b2423317"
-SRC_URI = "${FREESMARTPHONE_GIT}/python-helpers.git;protocol=git;branch=master"
+SRC_URI = "git://github.com/freesmartphone/python-helpers;protocol=https;branch=master"
 S = "${WORKDIR}/git"

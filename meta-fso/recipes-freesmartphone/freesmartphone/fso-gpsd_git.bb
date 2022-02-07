@@ -9,7 +9,7 @@ PE = "1"
 PR = "r9"
 
 SRC_URI = "\
-  ${FREESMARTPHONE_GIT}/fso-gpsd.git;protocol=git;branch=master \
+  git://github.com/freesmartphone/fso-gpsd;protocol=https;branch=master \
   file://${PN} \
   file://${PN}.service \
 "

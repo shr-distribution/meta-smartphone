@@ -8,7 +8,7 @@ PE = "1"
 PR = "r3"
 
 SRC_URI = "\
-  ${FREESMARTPHONE_GIT}/artwork.git;protocol=git;branch=master \
+  git://github.com/freesmartphone/artwork;protocol=https;branch=master \
 "
 S = "${WORKDIR}/git/sounds"
 

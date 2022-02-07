@@ -10,7 +10,7 @@ PV = "1.0.1+gitr${SRCPV}"
 PE = "1"
 PR = "r1"
 
-SRC_URI = "${FREESMARTPHONE_GIT}/dbus-hlid.git;protocol=git;branch=master"
+SRC_URI = "git://github.com/freesmartphone/dbus-hlid;protocol=https;branch=master"
 S = "${WORKDIR}/git"
 
 inherit autotools

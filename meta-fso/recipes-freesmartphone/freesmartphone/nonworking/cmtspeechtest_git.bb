@@ -8,7 +8,7 @@ PV = "0.0+gitr${SRCPV}"
 PR = "r0"
 
 SRC_URI = "\
-  ${FREESMARTPHONE_GIT}/utilities.git;protocol=git;branch=master \
+  git://github.com/freesmartphone/utilities;protocol=https;branch=master \
 "
 S = "${WORKDIR}/git/nokian900/cmtspeechtest"
 

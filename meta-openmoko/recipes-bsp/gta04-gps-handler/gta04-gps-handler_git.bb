@@ -13,7 +13,7 @@ PV = "0.0.0+gitr${SRCPV}"
 
 SRCREV = "0920464d6d8caa74abcb3dfacafd846ae5d0620b"
 
-SRC_URI = "${FREESMARTPHONE_GIT}/utilities.git;protocol=git;branch=master \
+SRC_URI = "git://github.com/freesmartphone/utilities;protocol=https;branch=master \
            file://gps-handler.service \
            file://gps-handler \
 "

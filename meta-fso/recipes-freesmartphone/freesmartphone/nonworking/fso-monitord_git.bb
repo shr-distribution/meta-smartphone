@@ -8,7 +8,7 @@ PV = "0.0.0+gitr${SRCPV}"
 PE = "1"
 PR = "r1"
 
-SRC_URI = "${FREESMARTPHONE_GIT}/fso-monitord.git;protocol=git;branch=master"
+SRC_URI = "git://github.com/freesmartphone/fso-monitord;protocol=https;branch=master"
 S = "${WORKDIR}/git"
 
 inherit autotools update-rc.d vala

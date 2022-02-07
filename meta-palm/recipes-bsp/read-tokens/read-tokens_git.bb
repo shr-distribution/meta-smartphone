@@ -10,7 +10,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
 
 SRCREV = "704b7965ad1936bf935b576d4663590bdaab09b1"
 SRC_URI = " \
- ${FREESMARTPHONE_GIT}/utilities.git;protocol=git;branch=master \
+ git://github.com/freesmartphone/utilities;protocol=https;branch=master \
  file://read_tokens \
 "
 S = "${WORKDIR}/git/palmpre/read_tokens"

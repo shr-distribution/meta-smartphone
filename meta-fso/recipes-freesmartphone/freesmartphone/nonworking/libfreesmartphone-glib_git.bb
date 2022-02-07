@@ -8,7 +8,7 @@ PV = "2011.04.15.1+gitr${SRCPV}"
 
 inherit autotools pkgconfig
 
-SRC_URI = "${FREESMARTPHONE_GIT}/libfreesmartphone-glib.git;protocol=git;branch=master"
+SRC_URI = "git://github.com/freesmartphone/libfreesmartphone-glib;protocol=https;branch=master"
 S = "${WORKDIR}/git"
 
 do_configure_prepend() {

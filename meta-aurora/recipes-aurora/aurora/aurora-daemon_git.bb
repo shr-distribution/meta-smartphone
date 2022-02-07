@@ -19,7 +19,7 @@ PV = "0.1+gitr${SRCPV}"
 # http://lists.linuxtogo.org/pipermail/openembedded-core/2013-April/038746.html
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 
-SRC_URI = "${FREESMARTPHONE_GIT}/aurora.git;protocol=git;branch=master"
+SRC_URI = "git://github.com/freesmartphone/aurora;protocol=https;branch=master"
 SRCREV = "${AURORA_SRCREV}"
 S = "${WORKDIR}/git/aurora-daemon"
 

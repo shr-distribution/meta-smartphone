@@ -9,7 +9,7 @@ PV = "0.9.3.1+gitr${SRCPV}"
 PE = "1"
 PR = "r1"
 
-SRC_URI = "${FREESMARTPHONE_GIT}/gsm0710muxd.git;protocol=git;branch=master"
+SRC_URI = "git://github.com/freesmartphone/gsm0710muxd;protocol=https;branch=master"
 S = "${WORKDIR}/git"
 
 inherit autotools

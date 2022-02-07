@@ -10,7 +10,7 @@ PE = "1"
 PR = "r1"
 
 SRC_URI = "\
-  ${FREESMARTPHONE_GIT}/${PN};protocol=git;branch=mickey \
+  git://github.com/freesmartphone/${PN};protocol=https;branch=mickey \
 "
 S = "${WORKDIR}/git"
 

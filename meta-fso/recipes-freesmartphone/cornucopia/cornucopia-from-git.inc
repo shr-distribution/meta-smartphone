@@ -5,5 +5,5 @@ DEFAULT_PREFERENCE = "-1"
 
 FSO_CORNUCOPIA_SRCREV ?= "fd67082900ca1dc04e6fc827d05ad4106a1c838e"
 FSO_CORNUCOPIA_BRANCH ?= "master"
-SRC_URI = "${FREESMARTPHONE_GIT}/cornucopia;protocol=git;branch=${FSO_CORNUCOPIA_BRANCH}"
+SRC_URI = "git://github.com/freesmartphone/cornucopia;protocol=https;branch=${FSO_CORNUCOPIA_BRANCH}"
 S = "${WORKDIR}/git/${PN}"

@@ -9,7 +9,7 @@ PV = "0.1.0+gitr${SRCPV}"
 PE = "1"
 PR = "r1"
 
-SRC_URI = "${FREESMARTPHONE_GIT}/artwork.git;protocol=git;branch=master"
+SRC_URI = "git://github.com/freesmartphone/artwork;protocol=https;branch=master"
 S = "${WORKDIR}/git/illume"
 
 do_compile() {

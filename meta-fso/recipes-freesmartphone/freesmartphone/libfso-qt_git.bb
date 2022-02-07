@@ -8,7 +8,7 @@ PV = "2012.06.01.1+gitr${SRCPV}"
 
 inherit autotools pkgconfig
 
-SRC_URI = "${FREESMARTPHONE_GIT}/libfso-qt.git;protocol=git;branch=master"
+SRC_URI = "git://github.com/freesmartphone/libfso-qt;protocol=https;branch=master"
 S = "${WORKDIR}/git"
 
 do_configure_prepend() {

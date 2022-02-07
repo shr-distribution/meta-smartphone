@@ -11,7 +11,7 @@ PR = "r4"
 PE = "1"
 
 SRC_URI = "\
-  ${FREESMARTPHONE_GIT}/aurora.git;protocol=git;branch=master \
+  git://github.com/freesmartphone/aurora;protocol=https;branch=master \
   http://www.linuxtogo.org/~mickeyl/misc/splash;name=splash \
   file://zhone2 \
 "

@@ -8,7 +8,7 @@ PV = "0.0.2+gitr${SRCPV}"
 PE = "1"
 PR = "r17"
 
-SRC_URI = "${FREESMARTPHONE_GIT}/zhone.git;protocol=git;branch=master \
+SRC_URI = "git://github.com/freesmartphone/zhone;protocol=https;branch=master \
            file://80zhone"
 S = "${WORKDIR}/git"
 

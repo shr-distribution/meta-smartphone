@@ -8,7 +8,7 @@ INC_PR = "r1"
 
 SRCREV = "de705c0b633c612aedb1273340c36fae59be9511"
 
-SRC_URI = "${FREESMARTPHONE_GIT}/qfsodbusxml2cpp.git;protocol=git;branch=master"
+SRC_URI = "git://github.com/freesmartphone/qfsodbusxml2cpp;protocol=https;branch=master"
 S = "${WORKDIR}/git"
 
 inherit autotools

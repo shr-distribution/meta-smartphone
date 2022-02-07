@@ -8,7 +8,7 @@ PV = "0.1.0+gitr${SRCPV}"
 PR = "${INC_PR}.3"
 
 SRC_URI = " \
-  ${FREESMARTPHONE_GIT}/aurora.git;protocol=git;branch=master \
+  git://github.com/freesmartphone/aurora;protocol=https;branch=master \
   file://aurora-systemmanager \
 "
 SRCREV = "${AURORA_SRCREV}"

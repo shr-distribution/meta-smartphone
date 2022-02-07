@@ -13,7 +13,7 @@ PV = "1.0.0+gitr${SRCPV}"
 
 SRCREV = "25729581e06241a5fb41b2b4f6c80e7067ae4a28"
 SRC_URI = " \
- ${FREESMARTPHONE_GIT}/utilities.git;protocol=git;branch=master \
+ git://github.com/freesmartphone/utilities;protocol=https;branch=master \
  file://tsmd \
  file://tsmd_control \
 "
