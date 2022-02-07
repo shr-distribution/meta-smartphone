@@ -12,7 +12,7 @@ PARALLEL_MAKE = ""
 COMPATIBLE_MACHINE = "(om-gta01|om-gta02|om-gta03)"
 SRCREV = "aa934abb5e8771100240e344411ddebacca33ece"
 SRC_URI = "\
-  git://git.openmoko.org/git/qi.git;protocol=git;branch=master \
+  git://github.com/shr-distribution/qi;protocol=https;branch=master \
   file://0001-use-rootwait-instead-of-rootdelay.patch \
   file://0002-Glamo-242-timings.patch \
   file://0004-Makefile-sanitize-use-values-provided-by-recipe.patch \
