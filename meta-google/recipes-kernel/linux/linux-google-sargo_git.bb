@@ -16,10 +16,8 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x00000100"
 
 inherit kernel_android pkgconfig
 
-SRC_URI = "git://github.com/shr-distribution/linux.git;branch=sargo/${KV}/lune;protocol=https \
-    file://0001-scripts-use-pkg-config-to-locate-libcrypto.patch \
-"
-SRCREV = "20f655295a5fe56188ebef997671bc16a004a084"
+SRC_URI = "git://github.com/shr-distribution/linux.git;branch=sargo/${KV}/lune;protocol=https"
+SRCREV = "bab7c00fdebbd217a6ef5b90e58af508c2c5ec42"
 
 S = "${WORKDIR}/git"
 
