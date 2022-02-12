@@ -18,16 +18,14 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80000100"
 
 inherit kernel_android pkgconfig
 
-SRC_URI = "git://github.com/shr-distribution/linux.git;branch=tissot/4.9/halium-9.0;protocol=https \
-    file://0001-scripts-use-pkg-config-to-locate-libcrypto.patch \
-"
+SRC_URI = "git://github.com/shr-distribution/linux.git;branch=tissot/4.9/halium-9.0;protocol=https"
 S = "${WORKDIR}/git"
 
 do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/tissot_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "1ef326cef2550d31755a6581b0cb0c78aa25fc5f"
+SRCREV = "0757ebf0855750ef9f8d83571be8577e8a83e6e7"
 
 KV = "4.9.188"
 PV = "${KV}+gitr${SRCPV}"

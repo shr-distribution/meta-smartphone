@@ -16,16 +16,14 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80000100"
 
 inherit kernel_android pkgconfig
 
-SRC_URI = "git://github.com/shr-distribution/linux.git;branch=mido/4.9/halium-9.0;protocol=https \
-    file://0001-scripts-use-pkg-config-to-locate-libcrypto.patch \
-"
+SRC_URI = "git://github.com/shr-distribution/linux.git;branch=mido/4.9/halium-9.0;protocol=https"
 S = "${WORKDIR}/git"
 
 do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/mido_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "de9f779437b558413f61610a3b25ed13ba25df4d"
+SRCREV = "409f7adf4a862e439b5bec04739b67713e08b8ba"
 
 KV = "4.9.188"
 PV = "${KV}+gitr${SRCPV}"
