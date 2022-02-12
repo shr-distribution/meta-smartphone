@@ -16,19 +16,21 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x00000100"
 
 inherit kernel_android
 
-SRC_URI = " \
-    git://github.com/erikinkinen/linux-android-google-sargo.git;branch=lune \
-    "
+SRC_URI = "git://github.com/shr-distribution/linux.git;branch=sargo/${KV}/lune;protocol=https"
 SRCREV = "20f655295a5fe56188ebef997671bc16a004a084"
 
 S = "${WORKDIR}/git"
+
+KV = "4.9.124"
+PV = "${KV}+git${SRCPV}"
+# for bumping PR bump MACHINE_KERNEL_PR in the machine config
+inherit machine_kernel_pr
 
 DEPENDS += "dtc-native python3-dtschema-wrapper-native"
 
 do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/lineageos_bonito_defconfig ${WORKDIR}/defconfig
 }
-
 
 do_configure:append() {
   kernel_conf_variable_fixup() {
@@ -54,11 +56,6 @@ do_configure:append() {
   kernel_conf_variable_fixup USB_CONFIGFS y
   oe_runmake oldnoconfig
 }
-
-KV = "4.9.124"
-PV = "${KV}+git978c025"
-# for bumping PR bump MACHINE_KERNEL_PR in the machine config
-inherit machine_kernel_pr
 
 do_install:append () {
     rm -rf ${D}/usr/src/usr
