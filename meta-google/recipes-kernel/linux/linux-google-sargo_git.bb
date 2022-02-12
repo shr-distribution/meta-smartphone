@@ -17,7 +17,7 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x00000100"
 inherit kernel_android pkgconfig
 
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=sargo/${KV}/lune;protocol=https"
-SRCREV = "bab7c00fdebbd217a6ef5b90e58af508c2c5ec42"
+SRCREV = "19e6d60c09c505aa2bf71194739243a56c847b82"
 
 S = "${WORKDIR}/git"
 
