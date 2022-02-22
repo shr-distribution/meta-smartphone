@@ -1,6 +1,6 @@
 SUMMARY = "A tool to read/write/update android boot images"
 HOMEPAGE = "https://gitorious.org/ac100/abootimg"
-LICENSE = "GPL-2.0"
+LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 
 DEPENDS = "util-linux"
