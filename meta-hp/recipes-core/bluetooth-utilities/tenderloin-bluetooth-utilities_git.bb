@@ -1,5 +1,5 @@
 DESCRIPTION = "Utility programs for machine specific support"
-LICENSE = "GPLv2+"
+LICENSE = "GPL-2.0-or-later"
 LIC_FILES_CHKSUM = " \
     file://tenderloin/bcattach/COPYING;md5=12f884d2ae1ff87c09e5b7ccc2c4ca7e \
     file://tenderloin/bcattach/COPYING.LIB;md5=fb504b67c50331fc78734fed90fb0e09 \
