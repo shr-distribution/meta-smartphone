@@ -17,6 +17,7 @@ S = "${WORKDIR}/git"
 do_configure() {
     :
 }
+
 do_compile() {
     :
 }
@@ -36,6 +37,11 @@ do_install() {
     fi
 
     install -d ${D}${libdir}/pkgconfig
-    install -m 0644 ${S}/android-headers.pc ${D}${libdir}/pkgconfig/android-headers.pc
+    if [ -f ${S}/android-headers.pc ] ; then
+        install -m 0644 ${S}/android-headers.pc ${D}${libdir}/pkgconfig/android-headers.pc
+    elif [ -f ${S}/android-headers.pc.in ] ; then
+        install -m 0644 ${S}/android-headers.pc.in ${D}${libdir}/pkgconfig/android-headers.pc
+    fi
+    
     ln -s android ${D}${includedir}/android-${ANDROID_API}
 }
