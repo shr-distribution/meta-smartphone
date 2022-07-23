@@ -3,7 +3,7 @@ require recipes-kernel/linux/linux.inc
 SECTION = "kernel"
 
 # Mark archs/machines that this kernel supports
-COMPATIBLE_MACHINE = "hammerhead"
+COMPATIBLE_MACHINE = "hammerhead-halium"
 
 DESCRIPTION = "Linux kernel for the LG Hammerhead (Nexus 5) device based on the offical \
 source from Google/LG"

@@ -29,7 +29,7 @@ SYSTEMD_SERVICE:${PN}:mako = " \
 "
 
 
-SRC_URI:append:hammerhead = " \
+SRC_URI:append:hammerhead-halium = " \
     file://wifi-macaddr-persister.service \
     file://wifi-module-load.service \
     file://persist-wifi-mac-addr.sh \
@@ -38,7 +38,7 @@ SRC_URI:append:hammerhead = " \
     file://dev-ttyHS99.device \
 "
 
-do_install:append:hammerhead() {
+do_install:append:hammerhead-halium() {
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/hciattach.service ${D}${systemd_unitdir}/system
@@ -50,7 +50,7 @@ do_install:append:hammerhead() {
     install -m 0755 ${WORKDIR}/hciattach.sh ${D}${bindir}
 }
 
-SYSTEMD_SERVICE:${PN}:hammerhead = " \
+SYSTEMD_SERVICE:${PN}:hammerhead-halium = " \
     wifi-macaddr-persister.service \
     wifi-module-load.service \
     hciattach.service \
