@@ -18,23 +18,24 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x02700000"
 
 inherit kernel_android
 
-LINUX_VERSION ?= "5.6"
+LINUX_VERSION ?= "5.19-rc7"
 LINUX_VERSION_EXTENSION = "-luneos"
-LINUX_KMETA_BRANCH = "yocto-${LINUX_VERSION}"
+#LINUX_KMETA_BRANCH = "yocto-${LINUX_VERSION}"
+LINUX_KMETA_BRANCH = "master"
 KMETA = "kernel-meta"
 
-SRCREV_machine = "6492858d6e15dbe2b06d4129158bdc52c161af60"
-SRCREV_meta = "b152cd93ea7046a835c869a76085aefdb6ce7421"
+SRCREV_machine = "9614aacfbfb7a407f4646a4af6d4d529f1228550"
+SRCREV_meta = "f55df88ad1b189c955984ead7f91389e2676e413"
 
 SRC_URI = " \
-    git://github.com/shr-distribution/linux.git;branch=hammerhead/5.6/mainline;protocol=https;name=machine \
+    git://github.com/shr-distribution/linux.git;branch=hammerhead/5.19/mainline;protocol=https;name=machine \
     git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=${LINUX_KMETA_BRANCH};destsuffix=${KMETA};name=meta \
-    file://reversed-disable-gold-linker.patch \
     file://defconfig \
 "
+
 S = "${WORKDIR}/git"
 
-KV = "5.6"
+KV = "5.19-rc7"
 PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
