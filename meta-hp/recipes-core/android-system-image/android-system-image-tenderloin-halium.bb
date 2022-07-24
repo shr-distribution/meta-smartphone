@@ -1,6 +1,6 @@
 require recipes-core/android-system-image/android-system-image.inc
 
-COMPATIBLE_MACHINE = "tenderloin"
+COMPATIBLE_MACHINE = "tenderloin-halium"
 
 PV = "20210506-2"
 

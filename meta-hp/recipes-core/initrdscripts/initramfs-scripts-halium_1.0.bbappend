@@ -1,14 +1,14 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SRC_URI:append:tenderloin = "\
+SRC_URI:append:tenderloin-halium = "\
     file://0001-tenderloin-Fix-userdata-mount-options.patch \
     file://S01-mount-boot.sh \
     file://K99-move-boot.sh \
 "
 
-COMPATIBLE_MACHINE:tenderloin = "tenderloin"
+COMPATIBLE_MACHINE:tenderloin-halium = "tenderloin-halium"
 
-do_install:append:tenderloin() {
+do_install:append:tenderloin-halium() {
     install -d ${D}/scripts/local-premount
     install -d ${D}/scripts/local-bottom
     install -m 0755 ${WORKDIR}/S01-mount-boot.sh ${D}/scripts/local-premount/S01-mount-boot.sh
