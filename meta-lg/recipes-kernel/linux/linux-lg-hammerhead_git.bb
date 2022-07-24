@@ -27,7 +27,7 @@ SRCREV_machine = "6492858d6e15dbe2b06d4129158bdc52c161af60"
 SRCREV_meta = "b152cd93ea7046a835c869a76085aefdb6ce7421"
 
 SRC_URI = " \
-    git://github.com/masneyb/linux.git;branch=v5.6-nexus5;protocol=https;name=machine \
+    git://github.com/shr-distribution/linux.git;branch=hammerhead/5.6/mainline;protocol=https;name=machine \
     git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=${LINUX_KMETA_BRANCH};destsuffix=${KMETA};name=meta \
     file://reversed-disable-gold-linker.patch \
     file://defconfig \
