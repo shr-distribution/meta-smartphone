@@ -1,6 +1,6 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SRC_URI:append:tenderloin-halium = " \
+SRC_URI:append:tenderloin = " \
     file://tenderloin-ath6kl-module.service \
     file://tenderloin-swap.service \
 "
