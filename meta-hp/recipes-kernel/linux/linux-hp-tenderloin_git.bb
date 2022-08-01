@@ -41,7 +41,7 @@ do_deploy[depends] += "initramfs-uboot-image:do_image_complete"
 DEPENDS += "u-boot-mkimage-native"
 KERNEL_OUTPUT ?= "${KERNEL_OUTPUT_DIR}/${KERNEL_IMAGETYPE}"
 
-INITRAMFS_UIMAGE = "initramfs-uboot-image-${MACHINE}.cpio.gz.u-boot"
+INITRAMFS_UIMAGE = "initramfs-uboot-image-${MACHINE}.rootfs.cpio.gz.u-boot"
 
 do_deploy:append() {
     if [ ! -e ${DEPLOY_DIR_IMAGE}/${INITRAMFS_UIMAGE} ] ; then
