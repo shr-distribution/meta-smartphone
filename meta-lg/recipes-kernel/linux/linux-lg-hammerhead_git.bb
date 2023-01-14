@@ -18,24 +18,23 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x02700000"
 
 inherit kernel_android
 
-LINUX_VERSION ?= "5.19"
+LINUX_VERSION ?= "6.1"
 LINUX_VERSION_EXTENSION = "-luneos"
-#LINUX_KMETA_BRANCH = "yocto-${LINUX_VERSION}"
-LINUX_KMETA_BRANCH = "master"
+LINUX_KMETA_BRANCH = "yocto-${LINUX_VERSION}"
 KMETA = "kernel-meta"
 
-SRCREV_machine = "d28670e3eca48fc632d31941e715e13ca555a893"
-SRCREV_meta = "f55df88ad1b189c955984ead7f91389e2676e413"
+SRCREV_machine = "39fddf7d0fb7908797cc828126c510f4e9f6931e"
+SRCREV_meta = "142fcf0b8fcf1643d80e39e2c2f9c4a3bb528fcc"
 
 SRC_URI = " \
-    git://github.com/Tofee/shr-linux.git;branch=hammerhead/5.19/mainline;protocol=https;name=machine \
+    git://github.com/Tofee/shr-linux.git;branch=hammerhead/${LINUX_VERSION}/mainline;protocol=https;name=machine \
     git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=${LINUX_KMETA_BRANCH};destsuffix=${KMETA} \
     file://defconfig \
 "
 
 S = "${WORKDIR}/git"
 
-KV = "5.19"
+KV = "${LINUX_VERSION}"
 PV = "${KV}+gitr${SRCPV}"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
