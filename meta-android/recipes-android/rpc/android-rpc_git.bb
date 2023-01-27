@@ -10,7 +10,7 @@ PV = "1.1+gitr${SRCPV}"
 PR = "r1"
 
 SRC_URI = "\
-  ${FREESMARTPHONE_GIT}/utilities.git;protocol=git;branch=master \
+  ${FREESMARTPHONE_GIT}/utilities.git;protocol=https;branch=master \
 "
 S = "${WORKDIR}/git/android/rpc"
 

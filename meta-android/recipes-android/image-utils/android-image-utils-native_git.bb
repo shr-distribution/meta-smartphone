@@ -9,7 +9,7 @@ SRCREV = "40a6c924a2f5031dfabfbf0a70d1e1435c9bc832"
 PV = "1.0+gitr${SRCPV}"
 PR = "r4"
 SRC_URI = "\
-  ${FREESMARTPHONE_GIT}/utilities.git;protocol=git;branch=master \
+  ${FREESMARTPHONE_GIT}/utilities.git;protocol=https;branch=master \
 "
 S = "${WORKDIR}/git/android/image-utils"
 
