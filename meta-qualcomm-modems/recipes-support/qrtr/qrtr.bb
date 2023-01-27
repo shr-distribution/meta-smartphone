@@ -1,6 +1,6 @@
 SUMMARY = "QIPCRTR Name Service"
 HOMEPAGE = "https://github.com/andersson/rpmsgexport"
-LICENSE = "BSD"
+LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=15329706fbfcb5fc5edcc1bc7c139da5"
 
 DEPENDS = "util-linux"
