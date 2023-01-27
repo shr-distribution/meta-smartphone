@@ -1,6 +1,6 @@
 DESCRIPTION = "Android Image Creation and Booting Utilities"
 SECTION = "console/utils"
-LICENSE = "BSD"
+LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://COPYING;md5=c19179f3430fd533888100ab6616e114"
 
 DEPENDS = "zlib-native"
