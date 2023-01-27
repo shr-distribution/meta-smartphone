@@ -1,6 +1,6 @@
 SUMMARY = "Qualcomm Remote Filesystem Service Implementation"
 HOMEPAGE = "https://github.com/andersson/rpmsgexport"
-LICENSE = "BSD"
+LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=ff273e1fd41fa52668171e0817c89724"
 
 DEPENDS = "util-linux udev"
