@@ -1,6 +1,6 @@
 SUMMARY = "QMI IDL compiler"
 HOMEPAGE = "https://github.com/andersson/qmic"
-LICENSE = "BSD"
+LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=ca25dbf5ebfc1a058bfc657c895aac2f"
 
 DEPENDS = "util-linux"
