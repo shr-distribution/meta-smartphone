@@ -23,7 +23,7 @@ LINUX_VERSION_EXTENSION = "-luneos"
 LINUX_KMETA_BRANCH = "yocto-${LINUX_VERSION}"
 KMETA = "kernel-meta"
 
-SRCREV_machine = "39fddf7d0fb7908797cc828126c510f4e9f6931e"
+SRCREV_machine = "da71f988f97df0023776f45738d3e93a481d721c"
 SRCREV_meta = "142fcf0b8fcf1643d80e39e2c2f9c4a3bb528fcc"
 
 SRC_URI = " \
