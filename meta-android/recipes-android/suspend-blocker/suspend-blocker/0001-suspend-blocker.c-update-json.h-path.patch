@@ -7,6 +7,7 @@ Subject: [PATCH] suspend-blocker.c: update json.h path
   and doesn't install json -> json-c symlink
 
 Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
+Upstream-Status: Pending
 ---
  suspend-blocker.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
