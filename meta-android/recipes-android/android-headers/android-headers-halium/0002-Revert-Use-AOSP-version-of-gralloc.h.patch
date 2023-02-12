@@ -4,6 +4,7 @@ Date: Thu, 14 Sep 2017 12:53:14 +0200
 Subject: [PATCH 2/2] Revert "Use AOSP version of gralloc.h"
 
 This reverts commit 0379b04e012b491ee87df9d129cc80f203dfb787.
+Upstream-Status: Pending
 ---
  hardware/gralloc.h | 32 ++++++++++++++++++++++++++++++++
  1 file changed, 32 insertions(+)
