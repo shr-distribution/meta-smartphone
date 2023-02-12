@@ -5,6 +5,7 @@ Subject: [PATCH] Implement cmake based build script for builds outside of
  Android
 
 Signed-off-by: Simon Busch <morphis@gravedo.de>
+Upstream-Status: Pending
 ---
  CMakeLists.txt       |    4 ++++
  mlsdk/CMakeLists.txt |   28 ++++++++++++++++++++++++++++

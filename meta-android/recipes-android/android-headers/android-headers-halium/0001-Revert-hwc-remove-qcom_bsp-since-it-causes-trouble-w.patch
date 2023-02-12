@@ -5,6 +5,7 @@ Subject: [PATCH 1/2] Revert "[hwc] remove qcom_bsp since it causes trouble
  with libhybris"
 
 This reverts commit c5afd16f803a1ae5f7f1a5962a6cc14f237dd002.
+Upstream-Status: Pending
 ---
  hardware/hwcomposer.h | 5 +++++
  1 file changed, 5 insertions(+)
