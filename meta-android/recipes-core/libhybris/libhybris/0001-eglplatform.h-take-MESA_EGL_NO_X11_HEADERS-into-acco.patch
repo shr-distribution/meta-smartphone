@@ -10,7 +10,7 @@ As before commit d31230d854c7041a48be64047b939b09dd23f580 ,
 take into account MESA_EGL_NO_X11_HEADERS to exclude X11.
 
 Signed-off-by: Christophe Chapuis <chris.chapuis@gmail.com>
-Upstream-Status: Pending
+Upstream-Status: Submitted [https://github.com/libhybris/libhybris/pull/530]
 ---
  hybris/include/EGL/eglplatform.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
