@@ -5,7 +5,7 @@ Subject: [PATCH] tenderloin: Fix userdata mount options
 
 Signed-off-by: Christophe Chapuis <chris.chapuis@gmail.com>
 Signed-off-by: Martin Jansa <Martin.Jansa@gmail.com>
-Upstream-Status: Pending
+Upstream-Status: Inappropriate [specific to tenderloin usecase]
 ---
  scripts/halium | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

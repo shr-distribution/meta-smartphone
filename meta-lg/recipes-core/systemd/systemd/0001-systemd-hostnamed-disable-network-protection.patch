@@ -3,7 +3,8 @@ From: Christophe Chapuis <chris.chapuis@gmail.com>
 Date: Mon, 5 Apr 2021 13:46:41 +0000
 Subject: [PATCH] systemd-hostnamed: disable network protection
 
-Upstream-Status: Pending
+Upstream-Status: Inappropriate [kernel version not supported anymore by systemd]
+
 ---
  units/systemd-hostnamed.service.in | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
