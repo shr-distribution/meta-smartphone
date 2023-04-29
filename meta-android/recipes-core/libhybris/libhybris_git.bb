@@ -1,7 +1,7 @@
 DESCRIPTION = "Hybris is a solution that commits hybris, by allowing us to use \
 bionic-based HW adaptations in glibc systems"
 LICENSE = "Apache-2.0"
-LIC_FILES_CHKSUM = "file://../LICENSE.Apache2;md5=3b83ef96387f14655fc854ddc3c6bd57"
+LIC_FILES_CHKSUM = "file://COPYING;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 SRCREV = "c3a76b4a32c19812c3eebd41d34dfed2430e6d7d"
 PV = "0.1.0+gitr${SRCPV}"
@@ -9,7 +9,6 @@ PR = "r1"
 PE = "1"
 
 SRC_URI = "git://github.com/libhybris/libhybris;branch=master;protocol=https \
-           file://0001-eglplatform.h-take-MESA_EGL_NO_X11_HEADERS-into-acco.patch;patchdir=.. \
 "
 
 S = "${WORKDIR}/git/hybris"
