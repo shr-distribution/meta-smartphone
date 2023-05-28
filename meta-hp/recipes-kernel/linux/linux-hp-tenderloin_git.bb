@@ -21,7 +21,7 @@ LINUX_VERSION_EXTENSION = "-luneos"
 LINUX_KMETA_BRANCH = "master"
 KMETA = "kernel-meta"
 
-SRCREV_machine = "d7b1b2798140393df7745849a871ce8cd880d712"
+SRCREV_machine = "c5919ef4ebceaca325e97b8d9bba554fea8cd31d"
 SRCREV_meta = "f55df88ad1b189c955984ead7f91389e2676e413"
 
 SRC_URI = " \
