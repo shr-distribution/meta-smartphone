@@ -9,6 +9,7 @@ IMAGE_FEATURES = ""
 IMAGE_ROOTFS_SIZE = "8192"
 IMAGE_ROOTFS_EXTRA_SPACE = "0"
 export IMAGE_BASENAME = "initramfs-uboot-image"
+IMAGE_NAME_SUFFIX ?= ""
 IMAGE_LINGUAS = ""
 
 IMAGE_FSTYPES:forcevariable = "cpio.gz.u-boot"
