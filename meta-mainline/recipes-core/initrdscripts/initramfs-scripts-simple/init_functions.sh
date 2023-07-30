@@ -91,6 +91,27 @@ mount_root_partition() {
 		partname="luneos-root"
 	fi
 
+	# when booting with systemd-boot, it if possible to know from which partition the EFI binary was used.
+	# if available, use that to better guess where the rootfs partition should be
+	if grep -q efivarfs /proc/filesystems; then
+		mount -t efivarfs efivarfs /sys/firmware/efi/efivars
+		efi_partition=$(cat /sys/firmware/efi/efivars/LoaderDevicePartUUID-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f | tr -d '\x0-\x20' | tr A-Z a-z)
+		umount /sys/firmware/efi/efivars
+
+		# use util-linux's blkid, without cache, to find the corresponding device, as
+		# busybox's blkid doesn't output PARTUUID information
+		efi_mmcblk=$(/sbin/blkid.util-linux -c /dev/null -t "PARTUUID=$efi_partition" -o device)
+		info "Booting from: $efi_mmcblk (PARTUUID=$efi_partition)"
+		if [ -b ${efi_mmcblk::-2} ]; then
+			info "Detected boot from $efi_mmcblk, using same MMC for rootfs !"
+			partname_detected=$(blkid -t LABEL=$partname -o device | grep ${efi_mmcblk::-2})
+			if [ -n "$partname_detected" ] ; then
+				partname=$(basename $partname_detected)
+				info "... using $partname"
+			fi
+		fi
+	fi
+
     part=$(find /dev -name $partname* | tail -1)
     if [ -n "$part" ]; then
 		rootfs_path=$(readlink -f $part)
