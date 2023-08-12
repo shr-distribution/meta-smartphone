@@ -26,7 +26,14 @@ if [ -f /scripts/local-premount/ORDER ]; then
     . /scripts/local-premount/ORDER
 fi
 
-if grep -q bootmode=recovery /proc/cmdline; then
+# extract input device for key testing
+# if recovery_trigger_input is empty, key-state will exit with an error
+recovery_trigger_input=$(cat /proc/cmdline | grep recovery_trigger_input= | sed -E 's/.*recovery_trigger_input=([^ ]+).*/\1/')
+if [ -n "$recovery_trigger_input" ]; then
+    echo "Recovery trigger input: $recovery_trigger_input"
+fi
+
+if grep -q bootmode=recovery /proc/cmdline || key-state $recovery_trigger_input ; then
     # Add root user
     cat > /etc/passwd << "EOF"
 root::0:0:root:/root:/bin/sh
