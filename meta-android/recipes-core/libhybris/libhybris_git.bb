@@ -24,7 +24,7 @@ DEPENDS += "virtual/android-headers wayland-native"
 # Only MACHINEs which provide virtual/android-headers can build this
 COMPATIBLE_MACHINE = "^halium$"
 
-PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/egl virtual/mesa"
+PROVIDES += "virtual/libgles1 virtual/libgles2 virtual/libgles3 virtual/egl virtual/mesa"
 
 # most MACHINEs don't use libhybris and depend on mesa to provide *gl*
 # Multiple .bb files are due to be built which each provide virtual/libgles1 (virtual/libgles2, virtual/egl)
