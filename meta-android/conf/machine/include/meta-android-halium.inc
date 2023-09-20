@@ -7,6 +7,7 @@ PREFERRED_PROVIDER_virtual/egl ?= "libhybris"
 PREFERRED_PROVIDER_virtual/mesa ?= "libhybris"
 PREFERRED_PROVIDER_virtual/libgles1 ?= "libhybris"
 PREFERRED_PROVIDER_virtual/libgles2 ?= "libhybris"
+PREFERRED_PROVIDER_virtual/libgles3 ?= "libhybris"
 
 # Use Halium-based init scripts
 VIRTUAL-RUNTIME_android-initramfs-scripts = "initramfs-scripts-halium"
