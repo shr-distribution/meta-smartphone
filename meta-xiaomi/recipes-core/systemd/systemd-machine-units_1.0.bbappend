@@ -1,6 +1,6 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SRC_URI:append:mido = " \
+SRC_URI:append:mido-halium = " \
     file://wifi-macaddr-persister.service \
     file://wifi-module-load.service \
     file://persist-wifi-mac-addr.sh \
@@ -36,7 +36,7 @@ SRC_URI:append:tissot = " \
     file://persist-wifi-mac-addr.sh \
 "
 
-do_install:append:mido() {
+do_install:append:mido-halium() {
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/hciattach.service ${D}${systemd_unitdir}/system
@@ -87,7 +87,7 @@ do_install:append:tissot() {
     install -m 0755 ${WORKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
 }
 
-SYSTEMD_SERVICE:${PN}:mido = " \
+SYSTEMD_SERVICE:${PN}:mido-halium = " \
     wifi-macaddr-persister.service \
     wifi-module-load.service \
     hciattach.service \
