@@ -1,5 +1,5 @@
-CFLAGS:append:mido = " -DQTI_BSP -DQCOM_HARDWARE"
-CXXFLAGS:append:mido = " -DQTI_BSP -DQCOM_HARDWARE"
+CFLAGS:append:mido-halium = " -DQTI_BSP -DQCOM_HARDWARE"
+CXXFLAGS:append:mido-halium = " -DQTI_BSP -DQCOM_HARDWARE"
 
 CFLAGS:append:oxygen = " -DQTI_BSP -DQCOM_HARDWARE"
 CXXFLAGS:append:oxygen = " -DQTI_BSP -DQCOM_HARDWARE"
