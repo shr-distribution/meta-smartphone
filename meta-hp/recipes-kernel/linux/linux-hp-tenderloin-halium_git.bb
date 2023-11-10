@@ -18,7 +18,7 @@ do_deploy[depends] += "initramfs-android-image:do_image_complete"
 DEPENDS += "u-boot-mkimage-native"
 KERNEL_OUTPUT ?= "${KERNEL_OUTPUT_DIR}/${KERNEL_IMAGETYPE}"
 
-SRCREV = "57a74cc9b4b63d3f6a198dcc3215a0cbf3c657e1"
+SRCREV = "d4d4caea8869c3af31fd484012f4383cdf03b73d"
 
 KV = "3.4.113"
 PV = "${KV}+gitr${SRCPV}"
