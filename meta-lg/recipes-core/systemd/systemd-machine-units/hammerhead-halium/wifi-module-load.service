@@ -6,10 +6,10 @@ Conflicts=shutdown.target actdead.target
 [Service]
 Type=simple
 RemainAfterExit=yes
-ExecStart=/sbin/modprobe brcmfmac
+ExecStart=/sbin/modprobe bcmdhd
 ExecStartPost=/bin/sleep 2
 ExecStartPost=/usr/sbin/rfkill unblock wifi
-ExecStop=/sbin/rmmod brcmfmac
+ExecStop=/sbin/rmmod bcmdhd
 Restart=on-failure
 RestartSec=2
 
