@@ -7,8 +7,6 @@ PACKAGES = "${PN}"
 
 RDEPENDS:${PN} = " iproute2 busybox-mdev "
 
-RPROVIDES:${PN} += "virtual/android-initramfs-scripts"
-
 SRC_URI = " \
   file://init.sh \
   file://init_functions.sh \

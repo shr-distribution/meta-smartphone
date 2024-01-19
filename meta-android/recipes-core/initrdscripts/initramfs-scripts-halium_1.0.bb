@@ -7,8 +7,6 @@ PACKAGES = "${PN}"
 
 RDEPENDS:${PN} = "busybox-mdev e2fsprogs-e2fsck e2fsprogs-resize2fs"
 
-RPROVIDES:${PN} += "virtual/android-initramfs-scripts"
-
 SRC_URI += " \
   file://init.sh \
   file://machine.conf \
