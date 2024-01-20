@@ -6,8 +6,6 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 DEPENDS = "android-tools-native e2fsprogs-native"
 
-RPROVIDES:${PN} += "virtual/android-system-image"
-
 INC_PR = "r6"
 
 ANDROID_SYSTEM_IMAGE_DESTNAME ?= "system.img"
