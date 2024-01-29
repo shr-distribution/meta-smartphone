@@ -120,6 +120,14 @@ USERADD_PARAM:${PN} = " \
                        -u 1081 -M virtmanager; \
                        -u 1082 -M artd; \
                        -u 1083 -M uwb; \
+                       -u 1084 -M thread_network; \
+                       -u 1085 -M diced; \
+                       -u 1086 -M dmesgd; \
+                       -u 1087 -M jc_weaver; \
+                       -u 1088 -M jc_strongbox; \
+                       -u 1089 -M jc_identitycred; \
+                       -u 1090 -M sdk_sandbox; \
+                       -u 1091 -M security_log_writer; \
                        -u 2000 -M shell; \
                        -u 2001 -M cache; \
                        -u 2002 -M diag; \
@@ -140,6 +148,7 @@ USERADD_PARAM:${PN} = " \
                        -u 3009 -M readproc; \
                        -u 3010 -M wakelock; \
                        -u 3011 -M uhid; \
+                       -u 3012 -M readtracefs; \
                        -u 9997 -M everybody; \
                        -u 9998 -M misc; \
                        -u 9999 -M nobody; "
