@@ -128,6 +128,7 @@ USERADD_PARAM:${PN} = " \
                        -u 1089 -M jc_identitycred; \
                        -u 1090 -M sdk_sandbox; \
                        -u 1091 -M security_log_writer; \
+                       -u 1092 -M prng_seeder; \
                        -u 2000 -M shell; \
                        -u 2001 -M cache; \
                        -u 2002 -M diag; \
