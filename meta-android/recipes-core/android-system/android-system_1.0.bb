@@ -117,6 +117,9 @@ USERADD_PARAM:${PN} = " \
                        -u 1078 -M ext_data_rw; \
                        -u 1079 -M ext_obb_rw; \
                        -u 1080 -M context_hub; \
+                       -u 1081 -M virtmanager; \
+                       -u 1082 -M artd; \
+                       -u 1083 -M uwb; \
                        -u 2000 -M shell; \
                        -u 2001 -M cache; \
                        -u 2002 -M diag; \
