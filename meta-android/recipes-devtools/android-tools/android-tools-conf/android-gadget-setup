@@ -83,7 +83,7 @@ usb_setup_android_usb() {
     write $ANDROID_USB/idProduct       D001
     write $ANDROID_USB/iManufacturer   "$manufacturer"
     write $ANDROID_USB/iProduct        "$model"
-    write $ANDROID_USB/iSerial         serial
+    write $ANDROID_USB/iSerial         "$serial"
     write $ANDROID_USB/f_ffs/aliases   adb
     write $ANDROID_USB/functions       ffs
     write $ANDROID_USB/enable          1
