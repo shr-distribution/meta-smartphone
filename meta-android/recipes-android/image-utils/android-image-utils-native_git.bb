@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=c19179f3430fd533888100ab6616e114"
 DEPENDS = "zlib-native"
 
 SRCREV = "40a6c924a2f5031dfabfbf0a70d1e1435c9bc832"
-PV = "1.0+gitr${SRCPV}"
+PV = "1.0+git"
 PR = "r4"
 SRC_URI = "\
   ${FREESMARTPHONE_GIT}/utilities.git;protocol=https;branch=master \

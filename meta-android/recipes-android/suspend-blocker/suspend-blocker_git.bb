@@ -5,7 +5,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 
 DEPENDS = "json-c"
 
-PV = "0.1.22+gitr${SRCPV}"
+PV = "0.1.22+git"
 
 SRC_URI = "git://kernel.ubuntu.com/cking/suspend-blocker.git;branch=master \
     file://0001-suspend-blocker.c-update-json.h-path.patch \

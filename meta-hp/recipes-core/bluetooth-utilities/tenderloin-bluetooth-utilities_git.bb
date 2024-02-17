@@ -5,7 +5,7 @@ LIC_FILES_CHKSUM = " \
     file://tenderloin-halium/bcattach/COPYING.LIB;md5=fb504b67c50331fc78734fed90fb0e09 \
 "
 
-PV = "0.1.0+git${SRCPV}"
+PV = "0.1.0+git"
 SRCREV = "4ece753d4109c92497474b2acb5fabb34c6cbd12"
 
 COMPATIBLE_MACHINE = "tenderloin-halium"

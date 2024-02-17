@@ -4,7 +4,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://etc/apns-full-conf.xml;beginline=2;endline=18;md5=54cbe40b444b82eb6a61614ce7d98dfb"
 
 SRCREV = "10fa2dc40b8e37409bec84267628df8c19838b99"
-PV = "4.2.2+gitr${SRCPV}"
+PV = "4.2.2+git"
 
 SRC_URI = "git://android.googlesource.com/device/sample;protocol=https;branch=master"
 S = "${WORKDIR}/git"

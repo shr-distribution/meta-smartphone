@@ -53,7 +53,7 @@ do_configure:append() {
 SRCREV = "917d5d898766594acef1bffc2f661db06032863b"
 
 KV = "4.4.249"
-PV = "${KV}+gitr${SRCPV}"
+PV = "${KV}+git"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 

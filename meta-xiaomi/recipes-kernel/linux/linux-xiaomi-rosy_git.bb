@@ -33,7 +33,7 @@ SRCREV_prima = "404995ddd576b4bad2ca7274f151fa2ed6243d5e"
 SRCREV_FORMAT = "kernel-prima"
 
 KV = "3.18.31"
-PV = "${KV}+gitr${SRCPV}"
+PV = "${KV}+git"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 

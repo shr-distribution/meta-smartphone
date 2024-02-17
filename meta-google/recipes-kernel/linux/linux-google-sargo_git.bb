@@ -22,7 +22,7 @@ SRCREV = "19e6d60c09c505aa2bf71194739243a56c847b82"
 S = "${WORKDIR}/git"
 
 KV = "4.9.124"
-PV = "${KV}+git${SRCPV}"
+PV = "${KV}+git"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 

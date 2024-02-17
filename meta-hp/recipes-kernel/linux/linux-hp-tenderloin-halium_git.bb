@@ -21,7 +21,7 @@ KERNEL_OUTPUT ?= "${KERNEL_OUTPUT_DIR}/${KERNEL_IMAGETYPE}"
 SRCREV = "d4d4caea8869c3af31fd484012f4383cdf03b73d"
 
 KV = "3.4.113"
-PV = "${KV}+gitr${SRCPV}"
+PV = "${KV}+git"
 
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr

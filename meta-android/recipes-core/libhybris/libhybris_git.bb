@@ -4,7 +4,7 @@ LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://../LICENSE.Apache2;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
 SRCREV = "c3a76b4a32c19812c3eebd41d34dfed2430e6d7d"
-PV = "0.1.0+gitr${SRCPV}"
+PV = "0.1.0+git"
 PR = "r1"
 PE = "1"
 

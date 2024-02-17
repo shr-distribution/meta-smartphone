@@ -33,7 +33,7 @@ SRC_URI = " \
 S = "${WORKDIR}/git"
 
 KV = "5.19-rc7"
-PV = "${KV}+gitr${SRCPV}"
+PV = "${KV}+git"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 
