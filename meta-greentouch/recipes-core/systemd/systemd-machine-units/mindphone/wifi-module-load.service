@@ -1,0 +1,18 @@
+[Unit]
+Description=Load wifi module
+Before=android-system.service
+Conflicts=shutdown.target actdead.target
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+ExecStart=/sbin/modprobe bcmdhd
+ExecStartPost=/bin/sleep 2
+ExecStartPost=/usr/sbin/rfkill unblock wifi
+ExecStop=/sbin/rmmod bcmdhd
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=basic.target
+
