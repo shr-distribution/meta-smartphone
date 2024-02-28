@@ -5,7 +5,7 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 PACKAGES = "${PN}"
 
-RDEPENDS:${PN} = " iproute2 busybox-mdev "
+RDEPENDS:${PN} = " iproute2 busybox-mdev e2fsprogs e2fsprogs-resize2fs parted"
 
 SRC_URI = " \
   file://init.sh \

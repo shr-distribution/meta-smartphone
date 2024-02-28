@@ -81,6 +81,48 @@ stop_telnetd() {
 	umount /dev/pts
 }
 
+
+resize_rootfs_if_needed() {
+
+	# See if the filesystem on the rootfs partition needs resizing (usually on first boot).
+	# If the difference between the partition size and the filesystem size is above a small
+	# threshold, assume it needs resizing to fill the partition.
+	path=$(readlink -f $1)
+
+	# Partition size in 1k blocks
+	case $path in
+	/dev/mmcblk*)
+		# First enlarge the partition
+		
+		# split path between partition device and partition number
+		# /dev/mmcblk1p2 gives "/dev/mmcblk1" and "2"
+		subpaths=( $(grep -Eo '/dev/mmcblk[[:digit:]]+|[[:digit:]]+$' <<< "$path") )
+		devrootfs=${subpaths[0]}
+		partrootfs=${subpaths[1]}
+		
+		# Thanks to lsblk, compute the space that isn't used by any partition
+		freespace=$(grep -E $(basename $devrootfs)'(p|$)' /proc/partitions | awk '{if(left==0) left=$3; else left-=$3} END{print left}')
+		if [ ${freespace} -gt 100000 ]; then
+			echo "... issuing: parted -s -f -a opt $devrootfs \"resizepart $partrootfs 100%\""
+			parted -s -f -a opt $devrootfs "resizepart $partrootfs 100%"
+		fi
+
+		# Then, enlarge the filesystem
+
+		# read the updated partition info
+		pblocks=$(grep $(basename $path) /proc/partitions | awk {'print $3'})
+		;;
+	esac
+	# Filesystem size in 4k blocks
+	fsblocks=$(dumpe2fs -h $path | grep "Block count" | awk {'print $3'})
+	# Difference between the reported sizes in 1k blocks
+	dblocks=$((pblocks - 4 * fsblocks))
+	if [ $dblocks -gt 10000 ]; then
+		echo "... issuing: resize2fs -f $path"
+		resize2fs -f $path && echo "INFO: resized rootfs filesystem to fill $path"
+	fi
+}
+
 # $1: label of the partition
 # $2: target directory of mount
 mount_root_partition() {
@@ -116,6 +158,9 @@ mount_root_partition() {
     if [ -n "$part" ]; then
 		rootfs_path=$(readlink -f $part)
     fi
+
+	info "Eventually resize $rootfs_path to fill the available space..."
+	resize_rootfs_if_needed $rootfs_path
 
 	mkdir -p $rfs
 	mount -t ext4 -o rw,noatime,nodiratime $rootfs_path $rfs
