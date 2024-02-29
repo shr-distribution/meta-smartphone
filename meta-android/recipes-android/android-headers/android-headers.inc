@@ -40,7 +40,7 @@ do_install() {
     if [ -f ${S}/android-headers.pc ] ; then
         install -m 0644 ${S}/android-headers.pc ${D}${libdir}/pkgconfig/android-headers.pc
     elif [ -f ${S}/android-headers.pc.in ] ; then
-        install -m 0644 ${S}/android-headers.pc.in ${D}${libdir}/pkgconfig/android-headers.pc
+        sed -e "s;@includedir@;${includedir}/android;g" ${S}/android-headers.pc.in > ${D}${libdir}/pkgconfig/android-headers.pc
     fi
     
     ln -s android ${D}${includedir}/android-${ANDROID_API}
