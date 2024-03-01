@@ -16,13 +16,13 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x00000100"
 
 inherit kernel_android pkgconfig
 
-SRC_URI = "git://github.com/shr-distribution/linux.git;branch=sargo/${KV}/lune;protocol=https"
+SRC_URI = "git://github.com/shr-distribution/linux.git;branch=sargo/${LINUX_VERSION}/lune;protocol=https"
 SRCREV = "19e6d60c09c505aa2bf71194739243a56c847b82"
 
 S = "${WORKDIR}/git"
 
-KV = "4.9.124"
-PV = "${KV}+git"
+LINUX_VERSION = "4.9.124"
+PV = "${LINUX_VERSION}+git"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 
