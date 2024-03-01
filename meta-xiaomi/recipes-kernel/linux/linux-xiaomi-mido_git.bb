@@ -35,7 +35,6 @@ KBUILD_DEFCONFIG = ""
 
 S = "${WORKDIR}/git"
 
-KV = "${LINUX_VERSION}"
-PV = "${KV}+git"
+PV = "${LINUX_VERSION}+git"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr

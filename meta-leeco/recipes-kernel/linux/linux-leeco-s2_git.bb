@@ -27,8 +27,8 @@ do_configure:prepend() {
 
 SRCREV = "5baf5356a021136340782582db601deff5f38149"
 
-KV = "3.10.84"
-PV = "${KV}+git"
+LINUX_VERSION = "3.10.84"
+PV = "${LINUX_VERSION}+git"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 

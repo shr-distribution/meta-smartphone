@@ -15,7 +15,6 @@ ANDROID_BOOTIMG_CMDLINE = "LUNEOS_NO_OUTPUT_REDIRECT console=ttyMSM0,115200,n8"
 
 inherit kernel
 
-LINUX_VERSION ?= "5.19-rc7"
 LINUX_VERSION_EXTENSION = "-luneos"
 #LINUX_KMETA_BRANCH = "yocto-${LINUX_VERSION}"
 LINUX_KMETA_BRANCH = "master"
@@ -32,8 +31,8 @@ SRC_URI = " \
 
 S = "${WORKDIR}/git"
 
-KV = "5.19-rc7"
-PV = "${KV}+git"
+LINUX_VERSION = "5.19-rc7"
+PV = "${LINUX_VERSION}+git"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
 
