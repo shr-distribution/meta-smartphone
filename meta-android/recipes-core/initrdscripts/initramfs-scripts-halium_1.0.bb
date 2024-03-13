@@ -17,7 +17,7 @@ SRC_URI += " \
 
 S = "${WORKDIR}/git"
 
-SRCREV = "3d2006c66900ac70ef56dbb769aaba652f95b899"
+SRCREV = "0a2275aafe651d19e9eb3aa7a801c4d28550298f"
 
 do_install:append() {
     install -m 0755 ${WORKDIR}/init.sh ${D}/init
