@@ -20,20 +20,27 @@ start_mdev
 echo "/proc/cmdline:"
 cat /proc/cmdline
 
-setup_usb_network 172.16.42.2/16
-
-if [ -f /scripts/local-premount/ORDER ]; then
-    . /scripts/local-premount/ORDER
-fi
-
+### Detect recovery mode ###
+RECOVERYMODE=no
 # extract input device for key testing
 # if recovery_trigger_input is empty, key-state will exit with an error
 recovery_trigger_input=$(cat /proc/cmdline | grep recovery_trigger_input= | sed -E 's/.*recovery_trigger_input=([^ ]+).*/\1/')
 if [ -n "$recovery_trigger_input" ]; then
     echo "Recovery trigger input: $recovery_trigger_input"
 fi
-
 if grep -q bootmode=recovery /proc/cmdline || key-state $recovery_trigger_input ; then
+    RECOVERYMODE=yes
+fi
+echo "Recovery mode: $RECOVERYMODE"
+###
+
+setup_usb_network 172.16.42.2/16
+
+if [ -f /scripts/local-premount/ORDER ]; then
+    . /scripts/local-premount/ORDER
+fi
+
+if [ "$RECOVERYMODE" = "yes" ] ; then
     # Add root user
     cat > /etc/passwd << "EOF"
 root::0:0:root:/root:/bin/sh
@@ -43,7 +50,7 @@ EOF
     start_telnetd 172.16.42.2
     
     # start minimalist recovery UI, and have a shell as fallback
-    /usr/bin/luneos_recovery_ui &
+    /usr/bin/luneos_recovery_ui ||
     /sbin/getty -L ttyS0 115200 linux
    
 else
