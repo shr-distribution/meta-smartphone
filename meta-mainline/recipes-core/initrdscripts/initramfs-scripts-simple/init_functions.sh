@@ -197,7 +197,7 @@ setup_usb_network_configfs() {
 	echo 250 > $CONFIGFS/g1/configs/c.$C/MaxPower 
 	ln -s $CONFIGFS/g1/functions/ecm.$N          $CONFIGFS/g1/configs/c.$C/
 
-    if grep -q bootmode=recovery /proc/cmdline; then
+    if grep -q bootmode=recovery /proc/cmdline || [ "$RECOVERYMODE" = "yes" ]; then
 		# recovery mode: expose sdcard
 		FILE=/dev/mmcblk0
 		
