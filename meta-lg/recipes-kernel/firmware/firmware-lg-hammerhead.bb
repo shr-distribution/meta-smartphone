@@ -21,27 +21,27 @@ SRC_URI[bcrm.sha256sum] = "191ac3c79a1ad81ff664202d9f028d01e13673449b206423a75d5
 SRC_URI[adspmodem.sha256sum] = "dcf029fa03d1d67d30c1e7f9290e4230e7d8e8a8f3de5b0eba7bf429bc90151e"
 
 do_install() {
-    install -d ${D}/lib/firmware
-    install -d ${D}/lib/firmware/qcom
-    install -d ${D}/lib/firmware/brcm
+    install -d ${D}/${nonarch_base_libdir}/firmware
+    install -d ${D}/${nonarch_base_libdir}/firmware/qcom
+    install -d ${D}/${nonarch_base_libdir}/firmware/brcm
     
     # Adreno a330 firmware
-    install -m 0644 ${WORKDIR}/a330_pfp.fw ${D}/lib/firmware/qcom/a330_pfp.fw
-    install -m 0644 ${WORKDIR}/a330_pm4.fw ${D}/lib/firmware/qcom/a330_pm4.fw
+    install -m 0644 ${WORKDIR}/a330_pfp.fw ${D}/${nonarch_base_libdir}/firmware/qcom/a330_pfp.fw
+    install -m 0644 ${WORKDIR}/a330_pm4.fw ${D}/${nonarch_base_libdir}/firmware/qcom/a330_pm4.fw
     
     # modem firmware
 	for _i in ${WORKDIR}/hammerhead-firmware/modem.* ${WORKDIR}/hammerhead-firmware/mba.*; do
-		install -m 0644 $_i ${D}/lib/firmware/$(basename $_i)
+		install -m 0644 $_i ${D}/${nonarch_base_libdir}/firmware/$(basename $_i)
 	done
     # adsp firmware
 	for _i in ${WORKDIR}/hammerhead-firmware/adsp.*; do
-		install -m 0644 $_i ${D}/lib/firmware/$(basename $_i)
+		install -m 0644 $_i ${D}/${nonarch_base_libdir}/firmware/$(basename $_i)
 	done
     
     # wifi firmware
-	install -m 0644 ${WORKDIR}/brcmfmac4339-sdio.txt ${D}/lib/firmware/brcm/brcmfmac4339-sdio.txt
-	install -m 0644 ${WORKDIR}/brcmfmac4339-sdio.bin ${D}/lib/firmware/brcm/brcmfmac4339-sdio.bin
+	install -m 0644 ${WORKDIR}/brcmfmac4339-sdio.txt ${D}/${nonarch_base_libdir}/firmware/brcm/brcmfmac4339-sdio.txt
+	install -m 0644 ${WORKDIR}/brcmfmac4339-sdio.bin ${D}/${nonarch_base_libdir}/firmware/brcm/brcmfmac4339-sdio.bin
 }
 
 INSANE_SKIP:${PN} += "arch"
-FILES:${PN} = "/lib"
+FILES:${PN} = "${nonarch_base_libdir}"
