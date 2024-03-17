@@ -23,7 +23,7 @@ do_configure:prepend() {
     cp -v -f ${S}/arch/arm/configs/lineageos_mako_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "efe7b0dde2473dc83033cd92bc814d6cbfa929eb"
+SRCREV = "e9a16300be458cee9f1fbcd054b054c853dfd898"
 
 LINUX_VERSION = "3.4.113"
 PV = "${LINUX_VERSION}+git"
