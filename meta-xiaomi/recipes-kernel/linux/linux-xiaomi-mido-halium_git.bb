@@ -23,7 +23,7 @@ do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/mido_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "409f7adf4a862e439b5bec04739b67713e08b8ba"
+SRCREV = "98abf251ce44c3c5f372a1a0feab6d784b006b04"
 
 LINUX_VERSION = "4.9.188"
 PV = "${LINUX_VERSION}+git"
