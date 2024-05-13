@@ -16,12 +16,35 @@ SRCREV = "bc001cbb255a0ded2b58af07b93f712cd9322483"
 S = "${WORKDIR}/git"
 
 do_install() {
-    install -d ${D}/lib/firmware
+    install -d ${D}${libdir}/firmware
     
     # Adreno a506 firmware
-    install -m 0644 ${S}/firmware/a506_zap.mdt ${D}/lib/firmware/a506_zap.mdt
-    install -m 0644 ${S}/firmware/a506_zap.b02 ${D}/lib/firmware/a506_zap.b02
+    install -m 0644 ${S}/firmware/a506_* ${D}${libdir}/firmware/
+    
+    # wifi firmware
+    install -d ${D}${libdir}/firmware/wlan/prima
+    install -m 0644 ${S}/firmware/wlan/prima/* ${D}${libdir}/firmware/wlan/prima/
+    install -m 0644 ${S}/apnhlos/wcnss.* ${D}${libdir}/firmware/
+    
+    # cameras
+    install -m 0644 ${S}/firmware/cpp_firmware_* ${D}${libdir}/firmware/
+    install -m 0644 ${S}/firmware/leia_* ${D}${libdir}/firmware/
+
+    install -m 0644 ${S}/apnhlos/venus.* ${D}${libdir}/firmware/
+    
+    # modems
+    install -m 0644 ${S}/modem/modem.* ${D}${libdir}/firmware/
+    install -m 0644 ${S}/modem/mb* ${D}${libdir}/firmware/
+    install -m 0644 ${S}/modem/qdsp6m.qdb ${D}${libdir}/firmware/
+    # maybe modem_pr/ subfolder should be copied too?
+
+    # sound
+    install -m 0644 ${S}/modem/adsp.* ${D}${libdir}/firmware/
+    
+    # other
+    install -m 0644 ${S}/firmware/nvm_* ${D}${libdir}/firmware/
+    install -m 0644 ${S}/firmware/rampatch_* ${D}${libdir}/firmware/
 }
 
 INSANE_SKIP:${PN} += "arch"
-FILES:${PN} = "/lib"
+FILES:${PN} = "${libdir}"
