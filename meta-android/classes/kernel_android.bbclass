@@ -23,6 +23,7 @@ do_deploy:append() {
     # Handle the case when adding a dtb is needed
     if [ -n "${KERNEL_DEVICETREE}" ] ; then
         kernel_with_dtb="${KERNEL_OUTPUT_DIR}/${KERNEL_IMAGETYPE}-dtb"
+        bbnote "DTB kernel: Creating ${B}/$kernel_with_dtb using ${B}/${KERNEL_OUTPUT} and ${B}/${KERNEL_OUTPUT_DIR}/dts/${KERNEL_DEVICETREE}..."
         cat ${B}/${KERNEL_OUTPUT} ${B}/${KERNEL_OUTPUT_DIR}/dts/${KERNEL_DEVICETREE} > ${B}/$kernel_with_dtb
     fi
 
