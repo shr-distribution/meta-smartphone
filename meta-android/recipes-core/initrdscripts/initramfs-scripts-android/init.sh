@@ -52,7 +52,7 @@ mount_proc_sys_dev_configfs "/rfs"
 stop_mdev
 
 info "Umounting unneeded filesystems"
-mount_proc_sys_dev_configfs ""
+umount_proc_sys_dev_configfs ""
 
 info "Switching to root filesystem"
 exec switch_root /rfs /sbin/init
