@@ -1,4 +1,4 @@
-DESCRIPTION = "Firmware for Xiaomi Redmi Note 4X"
+DESCRIPTION = "Firmware for Xiaomi Redmi 5 (rosy)"
 LICENSE = "Proprietary"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Proprietary;md5=0557f9d92cf58f2ccdd50f62f8ac0b28"
 
@@ -20,6 +20,7 @@ do_install() {
     
     # Adreno a506 firmware
     install -m 0644 ${S}/proprietary/vendor/firmware/a506_* ${D}${libdir}/firmware/
+    install -m 0644 ${S}/proprietary/vendor/firmware/a530* ${D}${libdir}/firmware/
     
     # wifi firmware
 #    install -d ${D}${libdir}/firmware/wlan/prima
