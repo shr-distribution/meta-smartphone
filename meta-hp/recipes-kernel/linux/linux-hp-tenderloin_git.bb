@@ -37,10 +37,16 @@ PV = "${LINUX_VERSION}+git"
 inherit machine_kernel_pr
 
 do_deploy[depends] += "initramfs-uboot-image:do_image_complete"
-DEPENDS += "u-boot-mkimage-native"
+DEPENDS += "u-boot-mkimage-native libyaml-native python3-yamllint-native coreutils-native python3-dtschema-native"
 KERNEL_OUTPUT ?= "${KERNEL_OUTPUT_DIR}/${KERNEL_IMAGETYPE}"
 
 INITRAMFS_UIMAGE = "initramfs-uboot-image-${MACHINE}.cpio.gz.u-boot"
+
+EXTRA_OEMAKE += "CHECK_DTBS=y"
+
+do_compile:prepend() {
+    oe_runmake dtbs_check 
+}
 
 do_deploy:append() {
     if [ ! -e ${DEPLOY_DIR_IMAGE}/${INITRAMFS_UIMAGE} ] ; then
