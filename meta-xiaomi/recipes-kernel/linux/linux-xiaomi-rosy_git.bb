@@ -1,4 +1,4 @@
-require linux-mainline-8953.inc
+inherit linux-mainline-8953
 
 # Mark archs/machines that this kernel supports
 COMPATIBLE_MACHINE = "rosy"
