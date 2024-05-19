@@ -7,11 +7,11 @@ DEPENDS = "util-linux"
 
 PV = "1.0"
 
-SRC_URI = "git://github.com/andersson/qmic.git;protocol=https;branch=master"
+SRC_URI = "git://github.com/linux-msm/qmic.git;protocol=https;branch=master"
 
 EXTRA_OEMAKE = "prefix=${prefix} bindir=${bindir} libdir=${libdir} includedir=${includedir} servicedir=${systemd_system_unitdir} LDFLAGS='${LDFLAGS}'"
 
-SRCREV = "815dd495eb087b3b3ea02a8ed43716efac43db1c"
+SRCREV = "4574736afce75aa5eec1e1069a19563410167c9f"
 S = "${WORKDIR}/git"
 
 BBCLASSEXTEND = "native"
