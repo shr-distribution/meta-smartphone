@@ -11,7 +11,7 @@ SRC_URI = "git://github.com/andersson/rmtfs.git;protocol=https;branch=master"
 
 EXTRA_OEMAKE = "prefix=${prefix} bindir=${bindir} libdir=${libdir} includedir=${includedir} servicedir=${systemd_system_unitdir}"
 
-SRCREV = "df6c19d0330d251af0a7c812bf5ddb847962ce2c"
+SRCREV = "33e1e40615efc59b17a515afe857c51b8b8c1ad1"
 S = "${WORKDIR}/git"
 
 inherit systemd
