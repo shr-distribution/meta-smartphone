@@ -5,21 +5,13 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=15329706fbfcb5fc5edcc1bc7c139da5"
 
 DEPENDS = "util-linux"
 
-PV = "1.0"
+PV = "1.1"
 
-SRC_URI = "git://github.com/andersson/qrtr.git;protocol=https;branch=master"
+SRC_URI = "git://github.com/linux-msm/qrtr.git;protocol=https;branch=master"
 
-SRCREV = "cd6bedd5d00f211e6c1e3803ff2f9f53c246435e"
+SRCREV = "b6b586f3d099dff7c56b69c824a1931ddad170a4"
 S = "${WORKDIR}/git"
 
-EXTRA_OEMAKE = "prefix=${prefix} bindir=${bindir} libdir=${libdir} includedir=${includedir} servicedir=${systemd_system_unitdir} LDFLAGS='${LDFLAGS}'"
+inherit meson
 
-do_install() {
-    oe_runmake install 'DESTDIR=${D}'
-}
-
-SYSTEMD_PACKAGES = "${PN}"
-SYSTEMD_SERVICE:${PN} = "${PN}-ns.service"
-
-inherit systemd
-FILES:${PN} += "${systemd_system_unitdir}"
+EXTRA_OEMESON = "-Dqrtr-ns=disabled -Dsystemd-service=disabled"
