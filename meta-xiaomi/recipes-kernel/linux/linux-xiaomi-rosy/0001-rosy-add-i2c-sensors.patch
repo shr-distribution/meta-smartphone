@@ -1,0 +1,64 @@
+From da1265599d625a71264f0371ac72c26b42e9c8f1 Mon Sep 17 00:00:00 2001
+From: Christophe Chapuis <chris.chapuis@gmail.com>
+Date: Sun, 19 May 2024 14:13:34 +0000
+Subject: [PATCH] rosy: add i2c sensors
+
+Upstream-Status: Submitted
+
+Signed-off-by: Christophe Chapuis <chris.chapuis@gmail.com>
+---
+ .../boot/dts/qcom/sdm450-xiaomi-rosy.dts      | 41 +++++++++++++++++++
+ 1 file changed, 41 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/qcom/sdm450-xiaomi-rosy.dts b/arch/arm64/boot/dts/qcom/sdm450-xiaomi-rosy.dts
+index 74aec8001c4c..7fc2e6c5b437 100644
+--- a/arch/arm64/boot/dts/qcom/sdm450-xiaomi-rosy.dts
++++ b/arch/arm64/boot/dts/qcom/sdm450-xiaomi-rosy.dts
+@@ -31,6 +31,47 @@ cont_splash_mem: cont-splash@90001000 {
+ 			no-map;
+ 		};
+ 	};
++
++	i2c-sensors {
++		compatible = "i2c-gpio";
++		sda-gpios = <&tlmm 14 (GPIO_ACTIVE_HIGH|GPIO_OPEN_DRAIN)>;
++		scl-gpios = <&tlmm 15 (GPIO_ACTIVE_HIGH|GPIO_OPEN_DRAIN)>;
++		i2c-gpio,delay-us = <2>; /* ~100 kHz */
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		ak09918: magnetometer@c {
++			compatible = "asahi-kasei,ak09918";
++			reg = <0x0c>;
++
++			vdd-supply = <&pm8953_l10>;
++			vid-supply = <&pm8953_l6>;
++		};
++
++		/*
++		 * Driver still missing
++		 * Just for general information
++		 */
++		ltr579: light@53 {
++			compatible = "liteon,ltr579";
++			reg = <0x53>;
++
++			vdd-supply = <&pm8953_l10>;
++			vid-supply = <&pm8953_l6>;
++		};
++
++		bmi120: imu@68 {
++			compatible = "bosch,bmi120";
++			reg = <0x68>;
++
++			vdd-supply = <&pm8953_l10>;
++			vddio-supply = <&pm8953_l6>;
++
++			mount-matrix = "0", "1", "0",
++					"1", "0", "0",
++					"0", "0", "1";
++		};
++	};
+ };
+ 
+ &aw2013_led {

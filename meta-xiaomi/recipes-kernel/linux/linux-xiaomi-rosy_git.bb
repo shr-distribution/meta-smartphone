@@ -15,4 +15,5 @@ do_deploy[depends] += " lk2nd-msm8953:do_deploy"
 
 SRC_URI += " \
     file://defconfig \
+    file://0001-rosy-add-i2c-sensors.patch \
 "
