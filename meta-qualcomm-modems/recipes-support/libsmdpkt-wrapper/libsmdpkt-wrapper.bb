@@ -5,7 +5,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
 
 DEPENDS = "util-linux"
 
-PV = "0.1"
+PV = "0.2"
 
 SRC_URI = "git://github.com/scintill/libsmdpkt_wrapper.git;protocol=https;branch=master"
 
