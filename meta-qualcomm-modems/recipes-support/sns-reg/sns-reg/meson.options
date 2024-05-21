@@ -1,0 +1,4 @@
+option('systemd_system_unit_dir',
+  type: 'string',
+  description: 'Directory for systemd system unit files'
+)
