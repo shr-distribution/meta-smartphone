@@ -3,7 +3,7 @@ require recipes-kernel/linux/linux.inc
 SECTION = "kernel"
 
 # Mark archs/machines that this kernel supports
-COMPATIBLE_MACHINE = "^tissot$"
+COMPATIBLE_MACHINE = "^tissot-halium$"
 
 DESCRIPTION = "Linux kernel for the Xiaomi A1 (tissot) device based on the offical \
 source from Xiaomi"

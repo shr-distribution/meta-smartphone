@@ -24,7 +24,7 @@ SRC_URI:append:sagit = " \
     file://hciattach.sh \
 "
 
-SRC_URI:append:tissot = " \
+SRC_URI:append:tissot-halium = " \
     file://wifi-macaddr-persister.service \
     file://wifi-module-load.service \
     file://persist-wifi-mac-addr.sh \
@@ -63,7 +63,7 @@ do_install:append:sagit() {
     install -m 0755 ${WORKDIR}/hciattach.sh ${D}${bindir}
 }
 
-do_install:append:tissot() {
+do_install:append:tissot-halium() {
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
     install -m 0644 ${WORKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
@@ -90,7 +90,7 @@ SYSTEMD_SERVICE:${PN}:sagit = " \
     hciattach.service \
 "
 
-SYSTEMD_SERVICE:${PN}:tissot = " \
+SYSTEMD_SERVICE:${PN}:tissot-halium = " \
     wifi-macaddr-persister.service \
     wifi-module-load.service \
 "
