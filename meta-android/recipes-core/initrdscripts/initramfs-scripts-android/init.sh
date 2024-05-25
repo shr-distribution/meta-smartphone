@@ -23,7 +23,31 @@ setup_log
 
 setup_usb_network 172.16.42.2/16
 
-# start_telnetd
+# Check whether we need to boot recovery
+if grep -qv skip_initramfs /proc/cmdline ; then
+    # If there is a recovery image embedded, and we're *not* using lk2nd, boot it
+    if grep -qv lk2nd /proc/cmdline && [ -f /recovery/init ] ; then
+        echo "skip_initramfs not found in cmdline. Booting into recovery." > /dev/kmsg
+
+        # mount --bind trick doesn't seem to work with switch_root, using tmpfs
+        mount -t tmpfs -o size=100M tmpfs ${rootmnt}
+        cp -rf /recovery/* ${rootmnt}/
+        exec switch_root ${rootmnt} /init "$@"
+    else
+    # otherwise fallback to luneos-recovery-ui and telnet shell
+    
+        # Add root user
+        cat > /etc/passwd << "EOF"
+root::0:0:root:/root:/bin/sh
+EOF
+        # start telnetd for this IP
+        start_telnetd 172.16.42.2
+        
+        # start minimalist recovery UI, and have a shell as fallback
+        /usr/bin/luneos_recovery_ui ||
+        /sbin/getty -L ttyS0 115200 linux
+    fi
+fi
 
 mount_sdcard "/sdcard"
 
