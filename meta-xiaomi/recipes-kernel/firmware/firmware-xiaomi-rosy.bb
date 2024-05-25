@@ -4,7 +4,7 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Proprietary;md5=0557f9d92cf58f2
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-COMPATIBLE_MACHINE = "rosy"
+COMPATIBLE_MACHINE = "^rosy$"
 
 PV = "20200802"
 
@@ -22,29 +22,9 @@ do_install() {
     install -m 0644 ${S}/proprietary/vendor/firmware/a506_* ${D}${libdir}/firmware/
     install -m 0644 ${S}/proprietary/vendor/firmware/a530* ${D}${libdir}/firmware/
     
-    # wifi firmware
-#    install -d ${D}${libdir}/firmware/wlan/prima
-#    install -m 0644 ${S}/proprietary/vendor/firmware/wlan/prima/* ${D}${libdir}/firmware/wlan/prima/
-#    install -m 0644 ${S}/apnhlos/wcnss.* ${D}${libdir}/firmware/
-    
     # cameras
     install -m 0644 ${S}/proprietary/vendor/firmware/cpp_firmware_* ${D}${libdir}/firmware/
     install -m 0644 ${S}/proprietary/vendor/firmware/leia_* ${D}${libdir}/firmware/
-
-#    install -m 0644 ${S}/apnhlos/venus.* ${D}${libdir}/firmware/
-    
-    # modems
-#    install -m 0644 ${S}/modem/modem.* ${D}${libdir}/firmware/
-#    install -m 0644 ${S}/modem/mb* ${D}${libdir}/firmware/
-#    install -m 0644 ${S}/modem/qdsp6m.qdb ${D}${libdir}/firmware/
-    # maybe modem_pr/ subfolder should be copied too?
-
-    # sound
-#    install -m 0644 ${S}/modem/adsp.* ${D}${libdir}/firmware/
-    
-    # other
-#    install -m 0644 ${S}/firmware/nvm_* ${D}${libdir}/firmware/
-#    install -m 0644 ${S}/firmware/rampatch_* ${D}${libdir}/firmware/
 }
 
 INSANE_SKIP:${PN} += "arch"
