@@ -13,7 +13,7 @@ FILES:${PN} = "/recovery"
 RECOVERY_IMG ?= "recovery.img"
 
 do_install() {
-    cd ${WORKDIR}
+    cd ${UNPACKDIR}
     abootimg -x ${RECOVERY_IMG}
     abootimg-unpack-initrd initrd.img ${D}/recovery
 }
