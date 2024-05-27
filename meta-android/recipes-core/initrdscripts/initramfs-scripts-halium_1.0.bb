@@ -20,12 +20,12 @@ S = "${WORKDIR}/git"
 SRCREV = "0a2275aafe651d19e9eb3aa7a801c4d28550298f"
 
 do_install:append() {
-    install -m 0755 ${WORKDIR}/init.sh ${D}/init
-    install -m 0644 ${WORKDIR}/machine.conf ${D}/machine.conf
-    install -m 0644 ${WORKDIR}/distro.conf ${D}/distro.conf
+    install -m 0755 ${UNPACKDIR}/init.sh ${D}/init
+    install -m 0644 ${UNPACKDIR}/machine.conf ${D}/machine.conf
+    install -m 0644 ${UNPACKDIR}/distro.conf ${D}/distro.conf
 
-    install -m 0644 ${WORKDIR}/git/scripts/halium ${D}/halium-boot.sh
-    install -m 0644 ${WORKDIR}/functions ${D}/functions
+    install -m 0644 ${S}/scripts/halium ${D}/halium-boot.sh
+    install -m 0644 ${UNPACKDIR}/functions ${D}/functions
 }
 
 FILES:${PN} += " \
