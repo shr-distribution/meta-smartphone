@@ -14,7 +14,6 @@ PACKAGES = "${PN}"
 FILES:${PN} = "/init /machine.conf"
 
 do_install() {
-    cp ${WORKDIR}/init.sh ${D}/init
-    install -m 0755 ${WORKDIR}/init.sh ${D}/init
-    install -m 0644 ${WORKDIR}/machine.conf ${D}/machine.conf
+    install -m 0755 ${UNPACKDIR}/init.sh ${D}/init
+    install -m 0644 ${UNPACKDIR}/machine.conf ${D}/machine.conf
 }
