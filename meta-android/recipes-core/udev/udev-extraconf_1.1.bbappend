@@ -1,7 +1,7 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
 LICENSES += "GPL-3.0-only"
-LIC_FILES_CHKSUM += "file://${WORKDIR}/65-android.rules;beginline=4;endline=17;md5=534bfbe4a9959287b397927ee891ea85"
+LIC_FILES_CHKSUM += "file://65-android.rules;beginline=4;endline=17;md5=534bfbe4a9959287b397927ee891ea85"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
@@ -13,7 +13,7 @@ SRC_URI += " \
 
 do_install:append() {
     install -d ${D}${sysconfdir}/udev/rules.d
-    install -m 0644 ${WORKDIR}/65-android.rules ${D}${sysconfdir}/udev/rules.d/
-    install -m 0644 ${WORKDIR}/50-firmware.rules ${D}${sysconfdir}/udev/rules.d/
-    install -m 0644 ${WORKDIR}/60-persistent-v4l.rules ${D}${sysconfdir}/udev/rules.d/
+    install -m 0644 ${UNPACKDIR}/65-android.rules ${D}${sysconfdir}/udev/rules.d/
+    install -m 0644 ${UNPACKDIR}/50-firmware.rules ${D}${sysconfdir}/udev/rules.d/
+    install -m 0644 ${UNPACKDIR}/60-persistent-v4l.rules ${D}${sysconfdir}/udev/rules.d/
 }
