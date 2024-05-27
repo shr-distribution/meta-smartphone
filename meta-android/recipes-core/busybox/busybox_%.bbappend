@@ -8,5 +8,5 @@ SRC_URI += " \
 "
 
 do_install:append() {
-    install -m 0755 ${WORKDIR}/mdev-partlabel.sh ${D}${sysconfdir}/mdev
+    install -m 0755 ${UNPACKDIR}/mdev-partlabel.sh ${D}${sysconfdir}/mdev
 }
