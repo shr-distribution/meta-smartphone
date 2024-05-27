@@ -15,6 +15,6 @@ SRC_URI = " \
 FILES:${PN} = "/init /init_functions.sh"
 
 do_install() {
-    install -m 0755 ${WORKDIR}/init.sh ${D}/init
-    install -m 0644 ${WORKDIR}/init_functions.sh ${D}/init_functions.sh
+    install -m 0755 ${UNPACKDIR}/init.sh ${D}/init
+    install -m 0644 ${UNPACKDIR}/init_functions.sh ${D}/init_functions.sh
 }
