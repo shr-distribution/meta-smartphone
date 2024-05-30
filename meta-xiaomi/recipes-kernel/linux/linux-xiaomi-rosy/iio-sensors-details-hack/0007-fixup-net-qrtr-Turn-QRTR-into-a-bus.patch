@@ -1,0 +1,24 @@
+From c175b46da13297e783960c818ff4ab8b582f1c18 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Barnab=C3=A1s=20Cz=C3=A9m=C3=A1n?= <trabarni@gmail.com>
+Date: Mon, 20 May 2024 21:27:12 +0200
+Subject: [PATCH 7/7] fixup! net: qrtr: Turn QRTR into a bus
+
+Upstream-Status: Pending
+
+---
+ net/qrtr/smd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/qrtr/smd.c b/net/qrtr/smd.c
+index bbe00c65d99c..78c0c8677f87 100644
+--- a/net/qrtr/smd.c
++++ b/net/qrtr/smd.c
+@@ -322,7 +322,7 @@ static void __exit qcom_smd_qrtr_exit(void)
+ subsys_initcall(qcom_smd_qrtr_init);
+ module_exit(qcom_smd_qrtr_exit);
+ 
+-module_rpmsg_driver(qcom_smd_qrtr_driver);
++//module_rpmsg_driver(qcom_smd_qrtr_driver);
+ 
+ MODULE_ALIAS("rpmsg:IPCRTR");
+ MODULE_DESCRIPTION("Qualcomm IPC-Router SMD interface driver");
