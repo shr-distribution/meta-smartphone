@@ -1,0 +1,24 @@
+From 0f001232ac7791796497e0abfb2213914fada19c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Barnab=C3=A1s=20Cz=C3=A9m=C3=A1n?= <trabarni@gmail.com>
+Date: Mon, 20 May 2024 21:26:13 +0200
+Subject: [PATCH 6/7] fixup! WIP: iio: Add Qualcomm Sensor Manager driver
+
+Upstream-Status: Pending
+
+---
+ drivers/iio/common/qcom_smgr/qmi/sns_smgr.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/iio/common/qcom_smgr/qmi/sns_smgr.h b/drivers/iio/common/qcom_smgr/qmi/sns_smgr.h
+index 610f692a97b8..2a10ff2c2b71 100644
+--- a/drivers/iio/common/qcom_smgr/qmi/sns_smgr.h
++++ b/drivers/iio/common/qcom_smgr/qmi/sns_smgr.h
+@@ -26,7 +26,7 @@
+ /* TODO: find actual maximums */
+ #define SNS_SMGR_ALL_SENSOR_INFO_MAX_LEN	0xf
+ #define SNS_SMGR_SENSOR_TYPE_MAX_LEN		0xf
+-#define SNS_SMGR_DATA4_MAX_LEN			0xf
++#define SNS_SMGR_DATA4_MAX_LEN			0x14
+ #define SNS_SMGR_SAMPLES_MAX_LEN		0xff
+ 
+ enum sns_smgr_buffering_action {

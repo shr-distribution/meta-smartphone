@@ -1,0 +1,66 @@
+From 53703373d782d75156aa0f65d074af432f8bef81 Mon Sep 17 00:00:00 2001
+From: Yassine Oudjana <y.oudjana@protonmail.com>
+Date: Sat, 12 Feb 2022 12:06:58 +0400
+Subject: [PATCH 1/7] DEBUG: QMI TX/RX monitor
+
+Print TX/RX to the kernel log.
+
+Upstream-Status: Pending
+---
+ drivers/soc/qcom/qmi_encdec.c    | 2 ++
+ drivers/soc/qcom/qmi_interface.c | 8 ++++++++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/drivers/soc/qcom/qmi_encdec.c b/drivers/soc/qcom/qmi_encdec.c
+index bb09eff85cff..ea32d7c8f085 100644
+--- a/drivers/soc/qcom/qmi_encdec.c
++++ b/drivers/soc/qcom/qmi_encdec.c
+@@ -618,6 +618,8 @@ static int qmi_decode(const struct qmi_elem_info *ei_array, void *out_c_struct,
+ 			temp_ei = find_ei(ei_array, tlv_type);
+ 			if (!temp_ei && tlv_type < OPTIONAL_TLV_TYPE_START) {
+ 				pr_err("%s: Inval element info\n", __func__);
++				pr_err("decoded_bytes 0x%02x, tlv_type 0x%02x\n",
++					decoded_bytes, tlv_type);
+ 				return -EINVAL;
+ 			} else if (!temp_ei) {
+ 				UPDATE_DECODE_VARIABLES(buf_src,
+diff --git a/drivers/soc/qcom/qmi_interface.c b/drivers/soc/qcom/qmi_interface.c
+index bb98b06e87f8..da4bc7e68ac2 100644
+--- a/drivers/soc/qcom/qmi_interface.c
++++ b/drivers/soc/qcom/qmi_interface.c
+@@ -477,6 +477,7 @@ static void qmi_handle_message(struct qmi_handle *qmi,
+ 	struct qmi_txn tmp_txn;
+ 	struct qmi_txn *txn = NULL;
+ 	int ret;
++	// size_t i;
+ 
+ 	if (len < sizeof(*hdr)) {
+ 		pr_err("ignoring short QMI packet\n");
+@@ -485,6 +486,9 @@ static void qmi_handle_message(struct qmi_handle *qmi,
+ 
+ 	hdr = buf;
+ 
++	// for (i = 0; i < len; i++)
++	// 	pr_info("RX 0x%02x\n", *(u8*)(buf + i));
++
+ 	/* If this is a response, find the matching transaction handle */
+ 	if (hdr->type == QMI_RESPONSE) {
+ 		mutex_lock(&qmi->txn_lock);
+@@ -746,6 +750,7 @@ static ssize_t qmi_send_message(struct qmi_handle *qmi,
+ 	struct kvec iv;
+ 	void *msg;
+ 	int ret;
++	// size_t i;
+ 
+ 	msg = qmi_encode_message(type,
+ 				 msg_id, &len,
+@@ -754,6 +759,9 @@ static ssize_t qmi_send_message(struct qmi_handle *qmi,
+ 	if (IS_ERR(msg))
+ 		return PTR_ERR(msg);
+ 
++	// for (i = 0; i < len; i++)
++	// 	pr_info("TX 0x%02x\n", *(u8*)(msg + i));
++
+ 	iv.iov_base = msg;
+ 	iv.iov_len = len;
+ 
