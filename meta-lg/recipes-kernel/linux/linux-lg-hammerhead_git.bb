@@ -18,16 +18,16 @@ ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x02700000"
 
 inherit kernel_android
 
-LINUX_VERSION ?= "6.1"
+LINUX_VERSION ?= "6.9.1"
 LINUX_VERSION_EXTENSION = "-luneos"
-LINUX_KMETA_BRANCH = "yocto-${LINUX_VERSION}"
+LINUX_KMETA_BRANCH = "yocto-6.6"
 KMETA = "kernel-meta"
 
-SRCREV_machine = "da71f988f97df0023776f45738d3e93a481d721c"
-SRCREV_meta = "142fcf0b8fcf1643d80e39e2c2f9c4a3bb528fcc"
+SRCREV_machine = "1504b85622093bb70427f1f37d1036c7f9497507"
+SRCREV_meta = "4146b93ecdc92b420f16e5564806cd0fc9b09d13"
 
 SRC_URI = " \
-    git://github.com/shr-distribution/linux.git;branch=hammerhead/${LINUX_VERSION}/mainline;protocol=https;name=machine \
+    git://github.com/msm8974-mainline/linux.git;branch=qcom-msm8974-6.9.y;protocol=https;name=machine \
     git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=${LINUX_KMETA_BRANCH};destsuffix=${KMETA} \
     file://defconfig \
 "
