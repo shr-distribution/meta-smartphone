@@ -1,0 +1,524 @@
+From 132f72d8ab65c83acd904227f3df5a0c58d1a836 Mon Sep 17 00:00:00 2001
+From: Yassine Oudjana <y.oudjana@protonmail.com>
+Date: Thu, 25 May 2023 14:40:06 +0300
+Subject: [PATCH 2/7] net: qrtr: Turn QRTR into a bus
+
+Implement a QRTR bus to allow for creating drivers for individual QRTR services.
+With this in place, devices are dynamically registered for QRTR services as they
+become available, and drivers for these devices are matched using service and
+instance IDs.
+
+In smd.c, replace all current occurences of qdev with qsdev in order to distinguish
+between the newly added QRTR device which represents a QRTR service with the existing
+QRTR SMD device which represents the endpoint through which services are provided.
+
+Upstream-Status: Pending
+
+Signed-off-by: Yassine Oudjana <y.oudjana@protonmail.com>
+---
+ include/linux/mod_devicetable.h   |   9 ++
+ include/linux/soc/qcom/qrtr.h     |  34 ++++
+ net/qrtr/af_qrtr.c                |  23 ++-
+ net/qrtr/qrtr.h                   |   5 +
+ net/qrtr/smd.c                    | 250 ++++++++++++++++++++++++++++--
+ scripts/mod/devicetable-offsets.c |   4 +
+ scripts/mod/file2alias.c          |  12 ++
+ 7 files changed, 316 insertions(+), 21 deletions(-)
+ create mode 100644 include/linux/soc/qcom/qrtr.h
+
+diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+index 7a9a07ea451b..cc087ef0c260 100644
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -549,6 +549,15 @@ struct spmi_device_id {
+ 	kernel_ulong_t driver_data;	/* Data private to the driver */
+ };
+ 
++#define QRTR_NAME_SIZE	32
++#define QRTR_MODULE_PREFIX "qrtr:"
++
++struct qrtr_device_id {
++	__u16 service;
++	__u16 instance;
++	kernel_ulong_t driver_data;	/* Data private to the driver */
++};
++
+ /* dmi */
+ enum dmi_field {
+ 	DMI_NONE,
+diff --git a/include/linux/soc/qcom/qrtr.h b/include/linux/soc/qcom/qrtr.h
+new file mode 100644
+index 000000000000..4d7f25c64c56
+--- /dev/null
++++ b/include/linux/soc/qcom/qrtr.h
+@@ -0,0 +1,34 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++
++#ifndef __QCOM_QRTR_H__
++#define __QCOM_QRTR_H__
++
++struct qrtr_device {
++	struct device dev;
++	unsigned int node;
++	unsigned int port;
++	u16 service;
++	u16 instance;
++};
++
++#define to_qrtr_device(d) container_of(d, struct qrtr_device, dev)
++
++struct qrtr_driver {
++	int (*probe)(struct qrtr_device *qdev);
++	void (*remove)(struct qrtr_device *qdev);
++	const struct qrtr_device_id *id_table;
++	struct device_driver driver;
++};
++
++#define to_qrtr_driver(d) container_of(d, struct qrtr_driver, driver)
++
++#define qrtr_driver_register(drv) __qrtr_driver_register(drv, THIS_MODULE)
++
++int __qrtr_driver_register(struct qrtr_driver *drv, struct module *owner);
++void qrtr_driver_unregister(struct qrtr_driver *drv);
++
++#define module_qrtr_driver(__qrtr_driver) \
++	module_driver(__qrtr_driver, qrtr_driver_register, \
++			qrtr_driver_unregister)
++
++#endif /* __QCOM_QRTR_H__ */
+diff --git a/net/qrtr/af_qrtr.c b/net/qrtr/af_qrtr.c
+index 41ece61eb57a..ded64235398e 100644
+--- a/net/qrtr/af_qrtr.c
++++ b/net/qrtr/af_qrtr.c
+@@ -435,6 +435,7 @@ static void qrtr_node_assign(struct qrtr_node *node, unsigned int nid)
+ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
+ {
+ 	struct qrtr_node *node = ep->node;
++	const struct qrtr_ctrl_pkt *pkt;
+ 	const struct qrtr_hdr_v1 *v1;
+ 	const struct qrtr_hdr_v2 *v2;
+ 	struct qrtr_sock *ipc;
+@@ -443,6 +444,7 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
+ 	size_t size;
+ 	unsigned int ver;
+ 	size_t hdrlen;
++	int ret = 0;
+ 
+ 	if (len == 0 || len & 3)
+ 		return -EINVAL;
+@@ -516,12 +518,24 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
+ 
+ 	qrtr_node_assign(node, cb->src_node);
+ 
++	pkt = data + hdrlen;
++
+ 	if (cb->type == QRTR_TYPE_NEW_SERVER) {
+ 		/* Remote node endpoint can bridge other distant nodes */
+-		const struct qrtr_ctrl_pkt *pkt;
+-
+-		pkt = data + hdrlen;
+ 		qrtr_node_assign(node, le32_to_cpu(pkt->server.node));
++
++		/* Create a QRTR device */
++		ret = qcom_smd_qrtr_add_device(ep, le32_to_cpu(pkt->server.node),
++					       le32_to_cpu(pkt->server.port),
++					       le32_to_cpu(pkt->server.service),
++					       le32_to_cpu(pkt->server.instance));
++		if (ret)
++			goto err;
++	} else if (cb->type == QRTR_TYPE_DEL_SERVER) {
++		/* Remove QRTR device corresponding to service */
++		ret = qcom_smd_qrtr_del_device(ep, le32_to_cpu(pkt->server.port));
++		if (ret)
++			goto err;
+ 	}
+ 
+ 	if (cb->type == QRTR_TYPE_RESUME_TX) {
+@@ -543,8 +557,7 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
+ 
+ err:
+ 	kfree_skb(skb);
+-	return -EINVAL;
+-
++	return ret ? ret : -EINVAL;
+ }
+ EXPORT_SYMBOL_GPL(qrtr_endpoint_post);
+ 
+diff --git a/net/qrtr/qrtr.h b/net/qrtr/qrtr.h
+index 3f2d28696062..222c061a518c 100644
+--- a/net/qrtr/qrtr.h
++++ b/net/qrtr/qrtr.h
+@@ -33,4 +33,9 @@ int qrtr_ns_init(void);
+ 
+ void qrtr_ns_remove(void);
+ 
++int qcom_smd_qrtr_add_device(struct qrtr_endpoint *parent, unsigned int node, unsigned int port,
++			     u16 service, u16 instance);
++
++int qcom_smd_qrtr_del_device(struct qrtr_endpoint *parent, unsigned int port);
++
+ #endif
+diff --git a/net/qrtr/smd.c b/net/qrtr/smd.c
+index c91bf030fbc7..bbe00c65d99c 100644
+--- a/net/qrtr/smd.c
++++ b/net/qrtr/smd.c
+@@ -7,6 +7,7 @@
+ #include <linux/module.h>
+ #include <linux/skbuff.h>
+ #include <linux/rpmsg.h>
++#include <linux/soc/qcom/qrtr.h>
+ 
+ #include "qrtr.h"
+ 
+@@ -16,19 +17,212 @@ struct qrtr_smd_dev {
+ 	struct device *dev;
+ };
+ 
++struct qrtr_new_server {
++	struct qrtr_smd_dev *parent;
++	unsigned int node;
++	unsigned int port;
++	u16 service;
++	u16 instance;
++
++	struct work_struct work;
++};
++
++struct qrtr_del_server {
++	struct qrtr_smd_dev *parent;
++	unsigned int port;
++
++	struct work_struct work;
++};
++
++static int qcom_smd_qrtr_device_match(struct device *dev, struct device_driver *drv)
++{
++	struct qrtr_device *qdev = to_qrtr_device(dev);
++	struct qrtr_driver *qdrv = to_qrtr_driver(drv);
++	const struct qrtr_device_id *id = qdrv->id_table;
++
++	if (!id)
++		return 0;
++
++	while (id->service != 0) {
++		if (id->service == qdev->service && id->instance == qdev->instance)
++			return 1;
++		id++;
++	}
++
++	return 0;
++}
++
++static int qcom_smd_qrtr_uevent(const struct device *dev, struct kobj_uevent_env *env)
++{
++	const struct qrtr_device *qdev = to_qrtr_device(dev);
++
++	return add_uevent_var(env, "MODALIAS=%s%x:%x", QRTR_MODULE_PREFIX, qdev->service,
++			      qdev->instance);
++}
++
++static int qcom_smd_qrtr_device_probe(struct device *dev)
++{
++	struct qrtr_device *qdev = to_qrtr_device(dev);
++	struct qrtr_driver *qdrv = to_qrtr_driver(dev->driver);
++
++	return qdrv->probe(qdev);
++}
++
++static void qcom_smd_qrtr_device_remove(struct device *dev)
++{
++	struct qrtr_device *qdev = to_qrtr_device(dev);
++	struct qrtr_driver *qdrv = to_qrtr_driver(dev->driver);
++
++	if (qdrv->remove)
++		qdrv->remove(qdev);
++}
++
++struct bus_type qrtr_bus = {
++	.name		= "qrtr",
++	.match		= qcom_smd_qrtr_device_match,
++	.uevent		= qcom_smd_qrtr_uevent,
++	.probe		= qcom_smd_qrtr_device_probe,
++	.remove		= qcom_smd_qrtr_device_remove,
++};
++EXPORT_SYMBOL_GPL(qrtr_bus);
++
++int __qrtr_driver_register(struct qrtr_driver *drv, struct module *owner)
++{
++	drv->driver.bus = &qrtr_bus;
++	drv->driver.owner = owner;
++
++	return driver_register(&drv->driver);
++}
++EXPORT_SYMBOL_GPL(__qrtr_driver_register);
++
++void qrtr_driver_unregister(struct qrtr_driver *drv)
++{
++	driver_unregister(&drv->driver);
++}
++EXPORT_SYMBOL_GPL(qrtr_driver_unregister);
++
++static void qcom_smd_qrtr_dev_release(struct device *dev)
++{
++	struct qrtr_device *qdev = to_qrtr_device(dev);
++
++	kfree(qdev);
++}
++
++static int qcom_smd_qrtr_match_device_by_port(struct device *dev, void *data)
++{
++	struct qrtr_device *qdev = to_qrtr_device(dev);
++	unsigned int port = *(unsigned int *)data;
++
++	return qdev->port == port;
++}
++
++static void qcom_smd_qrtr_add_device_worker(struct work_struct *work)
++{
++	struct qrtr_new_server *new_server = container_of(work, struct qrtr_new_server, work);
++	struct qrtr_smd_dev *qsdev = new_server->parent;
++	struct qrtr_device *qdev;
++	int ret;
++
++	qdev = kzalloc(sizeof(*qdev), GFP_KERNEL);
++	if (!qdev)
++		return;
++
++	qdev->node = new_server->node;
++	qdev->port = new_server->port;
++	qdev->service = new_server->service;
++	qdev->instance = new_server->instance;
++
++	devm_kfree(qsdev->dev, new_server);
++
++	dev_set_name(&qdev->dev, "%d-%d", qdev->node, qdev->port);
++
++	qdev->dev.bus = &qrtr_bus;
++	qdev->dev.parent = qsdev->dev;
++	qdev->dev.release = qcom_smd_qrtr_dev_release;
++	qdev->dev.driver = NULL;
++
++	ret = device_register(&qdev->dev);
++	if (ret) {
++		dev_err(qsdev->dev, "Failed to register QRTR device: %pe\n", ERR_PTR(ret));
++		put_device(&qdev->dev);
++	}
++}
++
++static void qcom_smd_qrtr_del_device_worker(struct work_struct *work)
++{
++	struct qrtr_del_server *del_server = container_of(work, struct qrtr_del_server, work);
++	struct qrtr_smd_dev *qsdev = del_server->parent;
++	struct device *dev = device_find_child(qsdev->dev, &del_server->port,
++					       qcom_smd_qrtr_match_device_by_port);
++
++	devm_kfree(qsdev->dev, del_server);
++
++	if (dev)
++		device_unregister(dev);
++}
++
++int qcom_smd_qrtr_add_device(struct qrtr_endpoint *parent, unsigned int node, unsigned int port,
++			     u16 service, u16 instance)
++{
++	struct qrtr_smd_dev *qsdev = container_of(parent, struct qrtr_smd_dev, ep);
++	struct qrtr_new_server *new_server;
++
++	new_server = devm_kzalloc(qsdev->dev, sizeof(struct qrtr_new_server), GFP_KERNEL);
++	if (!new_server)
++		return -ENOMEM;
++
++	new_server->parent = qsdev;
++	new_server->node = node;
++	new_server->port = port;
++	new_server->service = service;
++	new_server->instance = instance;
++
++	INIT_WORK(&new_server->work, qcom_smd_qrtr_add_device_worker);
++	schedule_work(&new_server->work);
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(qcom_smd_qrtr_add_device);
++
++int qcom_smd_qrtr_del_device(struct qrtr_endpoint *parent, unsigned int port)
++{
++	struct qrtr_smd_dev *qsdev = container_of(parent, struct qrtr_smd_dev, ep);
++	struct qrtr_del_server *del_server;
++
++	del_server = devm_kzalloc(qsdev->dev, sizeof(struct qrtr_del_server), GFP_KERNEL);
++	if (!del_server)
++		return -ENOMEM;
++
++	del_server->parent = qsdev;
++	del_server->port = port;
++
++	INIT_WORK(&del_server->work, qcom_smd_qrtr_del_device_worker);
++	schedule_work(&del_server->work);
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(qcom_smd_qrtr_del_device);
++
++static int qcom_smd_qrtr_device_unregister(struct device *dev, void *data)
++{
++	device_unregister(dev);
++
++	return 0;
++}
++
+ /* from smd to qrtr */
+ static int qcom_smd_qrtr_callback(struct rpmsg_device *rpdev,
+ 				  void *data, int len, void *priv, u32 addr)
+ {
+-	struct qrtr_smd_dev *qdev = dev_get_drvdata(&rpdev->dev);
++	struct qrtr_smd_dev *qsdev = dev_get_drvdata(&rpdev->dev);
+ 	int rc;
+ 
+-	if (!qdev)
++	if (!qsdev)
+ 		return -EAGAIN;
+ 
+-	rc = qrtr_endpoint_post(&qdev->ep, data, len);
++	rc = qrtr_endpoint_post(&qsdev->ep, data, len);
+ 	if (rc == -EINVAL) {
+-		dev_err(qdev->dev, "invalid ipcrouter packet\n");
++		dev_err(qsdev->dev, "invalid ipcrouter packet\n");
+ 		/* return 0 to let smd drop the packet */
+ 		rc = 0;
+ 	}
+@@ -39,14 +233,14 @@ static int qcom_smd_qrtr_callback(struct rpmsg_device *rpdev,
+ /* from qrtr to smd */
+ static int qcom_smd_qrtr_send(struct qrtr_endpoint *ep, struct sk_buff *skb)
+ {
+-	struct qrtr_smd_dev *qdev = container_of(ep, struct qrtr_smd_dev, ep);
++	struct qrtr_smd_dev *qsdev = container_of(ep, struct qrtr_smd_dev, ep);
+ 	int rc;
+ 
+ 	rc = skb_linearize(skb);
+ 	if (rc)
+ 		goto out;
+ 
+-	rc = rpmsg_send(qdev->channel, skb->data, skb->len);
++	rc = rpmsg_send(qsdev->channel, skb->data, skb->len);
+ 
+ out:
+ 	if (rc)
+@@ -58,22 +252,22 @@ static int qcom_smd_qrtr_send(struct qrtr_endpoint *ep, struct sk_buff *skb)
+ 
+ static int qcom_smd_qrtr_probe(struct rpmsg_device *rpdev)
+ {
+-	struct qrtr_smd_dev *qdev;
++	struct qrtr_smd_dev *qsdev;
+ 	int rc;
+ 
+-	qdev = devm_kzalloc(&rpdev->dev, sizeof(*qdev), GFP_KERNEL);
+-	if (!qdev)
++	qsdev = devm_kzalloc(&rpdev->dev, sizeof(*qsdev), GFP_KERNEL);
++	if (!qsdev)
+ 		return -ENOMEM;
+ 
+-	qdev->channel = rpdev->ept;
+-	qdev->dev = &rpdev->dev;
+-	qdev->ep.xmit = qcom_smd_qrtr_send;
++	qsdev->channel = rpdev->ept;
++	qsdev->dev = &rpdev->dev;
++	qsdev->ep.xmit = qcom_smd_qrtr_send;
+ 
+-	rc = qrtr_endpoint_register(&qdev->ep, QRTR_EP_NID_AUTO);
++	rc = qrtr_endpoint_register(&qsdev->ep, QRTR_EP_NID_AUTO);
+ 	if (rc)
+ 		return rc;
+ 
+-	dev_set_drvdata(&rpdev->dev, qdev);
++	dev_set_drvdata(&rpdev->dev, qsdev);
+ 
+ 	dev_dbg(&rpdev->dev, "Qualcomm SMD QRTR driver probed\n");
+ 
+@@ -82,9 +276,11 @@ static int qcom_smd_qrtr_probe(struct rpmsg_device *rpdev)
+ 
+ static void qcom_smd_qrtr_remove(struct rpmsg_device *rpdev)
+ {
+-	struct qrtr_smd_dev *qdev = dev_get_drvdata(&rpdev->dev);
++	struct qrtr_smd_dev *qsdev = dev_get_drvdata(&rpdev->dev);
+ 
+-	qrtr_endpoint_unregister(&qdev->ep);
++	device_for_each_child(qsdev->dev, NULL, qcom_smd_qrtr_device_unregister);
++
++	qrtr_endpoint_unregister(&qsdev->ep);
+ 
+ 	dev_set_drvdata(&rpdev->dev, NULL);
+ }
+@@ -104,6 +300,28 @@ static struct rpmsg_driver qcom_smd_qrtr_driver = {
+ 	},
+ };
+ 
++static int __init qcom_smd_qrtr_init(void)
++{
++	int ret;
++
++	ret = bus_register(&qrtr_bus);
++	if (!ret)
++		ret = register_rpmsg_driver(&qcom_smd_qrtr_driver);
++	else
++		bus_unregister(&qrtr_bus);
++
++	return ret;
++}
++
++static void __exit qcom_smd_qrtr_exit(void)
++{
++	bus_unregister(&qrtr_bus);
++	unregister_rpmsg_driver(&qcom_smd_qrtr_driver);
++}
++
++subsys_initcall(qcom_smd_qrtr_init);
++module_exit(qcom_smd_qrtr_exit);
++
+ module_rpmsg_driver(qcom_smd_qrtr_driver);
+ 
+ MODULE_ALIAS("rpmsg:IPCRTR");
+diff --git a/scripts/mod/devicetable-offsets.c b/scripts/mod/devicetable-offsets.c
+index 518200813d4e..6173f2f95b9c 100644
+--- a/scripts/mod/devicetable-offsets.c
++++ b/scripts/mod/devicetable-offsets.c
+@@ -277,5 +277,9 @@ int main(void)
+ 	DEVID(coreboot_device_id);
+ 	DEVID_FIELD(coreboot_device_id, tag);
+ 
++	DEVID(qrtr_device_id);
++	DEVID_FIELD(qrtr_device_id, service);
++	DEVID_FIELD(qrtr_device_id, instance);
++
+ 	return 0;
+ }
+diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
+index 5d1c61fa5a55..c377ef1be160 100644
+--- a/scripts/mod/file2alias.c
++++ b/scripts/mod/file2alias.c
+@@ -1503,6 +1503,17 @@ static int do_coreboot_entry(const char *filename, void *symval, char *alias)
+ 	return 1;
+ }
+ 
++/* Looks like: qrtr:N:N */
++static int do_qrtr_entry(const char *filename, void *symval,
++			char *alias)
++{
++	DEF_FIELD(symval, qrtr_device_id, service);
++	DEF_FIELD(symval, qrtr_device_id, instance);
++
++	sprintf(alias, "qrtr:%x:%x", service, instance);
++	return 1;
++}
++
+ /* Does namelen bytes of name exactly match the symbol? */
+ static bool sym_is(const char *name, unsigned namelen, const char *symbol)
+ {
+@@ -1585,6 +1596,7 @@ static const struct devtable devtable[] = {
+ 	{"cdx", SIZE_cdx_device_id, do_cdx_entry},
+ 	{"vchiq", SIZE_vchiq_device_id, do_vchiq_entry},
+ 	{"coreboot", SIZE_coreboot_device_id, do_coreboot_entry},
++	{"qrtr", SIZE_qrtr_device_id, do_qrtr_entry},
+ };
+ 
+ /* Create MODULE_ALIAS() statements.

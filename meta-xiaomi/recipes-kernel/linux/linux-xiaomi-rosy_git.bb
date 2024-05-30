@@ -17,3 +17,16 @@ SRC_URI += " \
     file://defconfig \
     file://0001-rosy-add-i2c-sensors.patch \
 "
+
+# This patchset is a set of hacks dedicated to listing iio sensors
+# present on the device. It needs the 'sns-reg' recipe to be run
+# in userland to list the sensors in dmesg.
+SRC_URI_disabled += "\
+    file://iio-sensors-details-hack/0001-DEBUG-QMI-TX-RX-monitor.patch \
+    file://iio-sensors-details-hack/0002-net-qrtr-Turn-QRTR-into-a-bus.patch \
+    file://iio-sensors-details-hack/0003-net-qrtr-Define-macro-to-convert-QMI-version-and-ins.patch \
+    file://iio-sensors-details-hack/0004-WIP-iio-Add-Qualcomm-Sensor-Manager-driver.patch \
+    file://iio-sensors-details-hack/0005-WIP-iio-accel-Add-driver-for-Qualcomm-Sensor-Manager.patch \
+    file://iio-sensors-details-hack/0006-fixup-WIP-iio-Add-Qualcomm-Sensor-Manager-driver.patch \
+    file://iio-sensors-details-hack/0007-fixup-net-qrtr-Turn-QRTR-into-a-bus.patch \
+"
