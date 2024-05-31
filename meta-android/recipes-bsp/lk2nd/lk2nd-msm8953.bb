@@ -12,7 +12,6 @@ PV = "0.3.8+git"
 BRANCH = "main"
 SRCREV ?= "9100613e03a4f609915e54ad4a957bed3555795a"
 SRC_URI = "git://github.com/msm8953-mainline/lk2nd.git;protocol=https;branch=${BRANCH} \
-           file://0001-lk2nd_update_device_tree-improve-lk2nd-self-test.patch \
 "
 
 S = "${WORKDIR}/git"
