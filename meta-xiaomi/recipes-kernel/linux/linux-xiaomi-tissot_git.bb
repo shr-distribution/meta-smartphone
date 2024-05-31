@@ -5,7 +5,6 @@ COMPATIBLE_MACHINE = "^tissot$"
 
 # parameters for the fastboot image
 inherit kernel_android
-ANDROID_BOOTIMG_CMDLINE = "androidboot.hardware=qcom msm_rtb.filter=0x237 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 androidboot.bootdevice=7824900.sdhci "
 ANDROID_BOOTIMG_KERNEL_RAM_BASE = "0x80008000"
 ANDROID_BOOTIMG_RAMDISK_RAM_BASE = "0x81000000"
 ANDROID_BOOTIMG_SECOND_RAM_BASE = "0x80f00000"
