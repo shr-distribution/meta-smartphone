@@ -9,8 +9,8 @@ SRC_URI:append:tenderloin = " \
 
 do_install:append:tenderloin() {
     install -d ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/tenderloin-ath6kl-module.service ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/tenderloin-swap.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/tenderloin-ath6kl-module.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/tenderloin-swap.service ${D}${systemd_unitdir}/system
 }
 
 SYSTEMD_SERVICE:${PN}:tenderloin = "tenderloin-ath6kl-module.service tenderloin-swap.service"
@@ -25,8 +25,8 @@ RDEPENDS:${PN}:tenderloin-halium += "tenderloin-bluetooth-utilities"
 
 do_install:append:tenderloin-halium() {
     install -d ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/tenderloin-ath6kl-module.service ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/tenderloin-swap.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/tenderloin-ath6kl-module.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/tenderloin-swap.service ${D}${systemd_unitdir}/system
 }
 
 SYSTEMD_SERVICE:${PN}:tenderloin-halium = "tenderloin-ath6kl-module.service tenderloin-swap.service"

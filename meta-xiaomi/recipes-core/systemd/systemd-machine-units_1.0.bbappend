@@ -32,44 +32,44 @@ SRC_URI:append:tissot-halium = " \
 
 do_install:append:mido-halium() {
     install -d ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/hciattach.service ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/hciattach.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
 
     install -d ${D}${bindir}
-    install -m 0755 ${WORKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
-    install -m 0755 ${WORKDIR}/hciattach.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/hciattach.sh ${D}${bindir}
 }
 
 do_install:append:oxygen() {
     install -d ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/hciattach.service ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/hciattach.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
 
     install -d ${D}${bindir}
-    install -m 0755 ${WORKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
-    install -m 0755 ${WORKDIR}/hciattach.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/hciattach.sh ${D}${bindir}
 }
 
 do_install:append:sagit() {
     install -d ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/hciattach.service ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/hciattach.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
 
     install -d ${D}${bindir}
-    install -m 0755 ${WORKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
-    install -m 0755 ${WORKDIR}/hciattach.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/hciattach.sh ${D}${bindir}
 }
 
 do_install:append:tissot-halium() {
     install -d ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
 
     install -d ${D}${bindir}
-    install -m 0755 ${WORKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
 }
 
 SYSTEMD_SERVICE:${PN}:mido-halium = " \

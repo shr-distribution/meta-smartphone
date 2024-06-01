@@ -11,14 +11,14 @@ SRC_URI:append:mako = " \
 
 do_install:append:mako() {
     install -d ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/hciattach.service ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/dev-ttyHS99.device ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/hciattach.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/dev-ttyHS99.device ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
 
     install -d ${D}${bindir}
-    install -m 0755 ${WORKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
-    install -m 0755 ${WORKDIR}/hciattach.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/hciattach.sh ${D}${bindir}
 }
 
 SYSTEMD_SERVICE:${PN}:mako = " \
@@ -40,14 +40,14 @@ SRC_URI:append:hammerhead = " \
 
 do_install:append:hammerhead() {
     install -d ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/hciattach.service ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/dev-ttyHS99.device ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/hciattach.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/dev-ttyHS99.device ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
 
     install -d ${D}${bindir}
-    install -m 0755 ${WORKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
-    install -m 0755 ${WORKDIR}/hciattach.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/hciattach.sh ${D}${bindir}
 }
 
 SYSTEMD_SERVICE:${PN}:hammerhead = " \
@@ -69,14 +69,14 @@ SRC_URI:append:hammerhead-halium = " \
 
 do_install:append:hammerhead-halium() {
     install -d ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/hciattach.service ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/dev-ttyHS99.device ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/hciattach.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/dev-ttyHS99.device ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
 
     install -d ${D}${bindir}
-    install -m 0755 ${WORKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
-    install -m 0755 ${WORKDIR}/hciattach.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/hciattach.sh ${D}${bindir}
 }
 
 SYSTEMD_SERVICE:${PN}:hammerhead-halium = " \
