@@ -26,21 +26,21 @@ do_install() {
     install -d ${D}/${nonarch_base_libdir}/firmware/brcm
     
     # Adreno a330 firmware
-    install -m 0644 ${WORKDIR}/a330_pfp.fw ${D}/${nonarch_base_libdir}/firmware/qcom/a330_pfp.fw
-    install -m 0644 ${WORKDIR}/a330_pm4.fw ${D}/${nonarch_base_libdir}/firmware/qcom/a330_pm4.fw
+    install -m 0644 ${UNPACKDIR}/a330_pfp.fw ${D}/${nonarch_base_libdir}/firmware/qcom/a330_pfp.fw
+    install -m 0644 ${UNPACKDIR}/a330_pm4.fw ${D}/${nonarch_base_libdir}/firmware/qcom/a330_pm4.fw
     
     # modem firmware
-	for _i in ${WORKDIR}/hammerhead-firmware/modem.* ${WORKDIR}/hammerhead-firmware/mba.*; do
+	for _i in ${UNPACKDIR}/hammerhead-firmware/modem.* ${UNPACKDIR}/hammerhead-firmware/mba.*; do
 		install -m 0644 $_i ${D}/${nonarch_base_libdir}/firmware/$(basename $_i)
 	done
     # adsp firmware
-	for _i in ${WORKDIR}/hammerhead-firmware/adsp.*; do
+	for _i in ${UNPACKDIR}/hammerhead-firmware/adsp.*; do
 		install -m 0644 $_i ${D}/${nonarch_base_libdir}/firmware/$(basename $_i)
 	done
     
     # wifi firmware
-	install -m 0644 ${WORKDIR}/brcmfmac4339-sdio.txt ${D}/${nonarch_base_libdir}/firmware/brcm/brcmfmac4339-sdio.txt
-	install -m 0644 ${WORKDIR}/brcmfmac4339-sdio.bin ${D}/${nonarch_base_libdir}/firmware/brcm/brcmfmac4339-sdio.bin
+	install -m 0644 ${UNPACKDIR}/brcmfmac4339-sdio.txt ${D}/${nonarch_base_libdir}/firmware/brcm/brcmfmac4339-sdio.txt
+	install -m 0644 ${UNPACKDIR}/brcmfmac4339-sdio.bin ${D}/${nonarch_base_libdir}/firmware/brcm/brcmfmac4339-sdio.bin
 }
 
 INSANE_SKIP:${PN} += "arch"
