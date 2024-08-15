@@ -23,11 +23,11 @@ LINUX_VERSION_EXTENSION = "-luneos"
 LINUX_KMETA_BRANCH = "yocto-6.6"
 KMETA = "kernel-meta"
 
-SRCREV_machine = "1504b85622093bb70427f1f37d1036c7f9497507"
+SRCREV_machine = "26f1d324c6edafd9c353f8cea734443f96073ef5"
 SRCREV_meta = "4146b93ecdc92b420f16e5564806cd0fc9b09d13"
 
 SRC_URI = " \
-    git://github.com/msm8974-mainline/linux.git;branch=qcom-msm8974-6.9.y;protocol=https;name=machine \
+    git://github.com/shr-distribution/linux.git;branch=msm8974-mainline/qcom-msm8974-6.9.y/main;protocol=https;name=machine \
     git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=${LINUX_KMETA_BRANCH};destsuffix=${KMETA} \
     file://defconfig \
 "
