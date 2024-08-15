@@ -12,11 +12,11 @@ LINUX_VERSION_EXTENSION = "-luneos"
 LINUX_KMETA_BRANCH = "yocto-6.6"
 KMETA = "kernel-meta"
 
-SRCREV_machine = "61d2d19648d09009eb97b8b44770c9b972699d75"
+SRCREV_machine = "82f8cf539b252be46352cd34fce51c2007edc2b1"
 SRCREV_meta = "4146b93ecdc92b420f16e5564806cd0fc9b09d13"
 
 SRC_URI = " \
-    git://github.com/msm8953-mainline/linux.git;branch=${LINUX_VERSION}/main;protocol=https;name=machine \
+    git://github.com/shr-distribution/linux.git;branch=msm8953-mainline/${LINUX_VERSION}/main;protocol=https;name=machine \
     git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=${LINUX_KMETA_BRANCH};destsuffix=${KMETA} \
 "
 
