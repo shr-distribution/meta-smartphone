@@ -23,7 +23,7 @@ do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/k39tv1_64_bsp_defconfig_luneos ${WORKDIR}/defconfig
 }
 
-SRCREV = "39e40e1cf59b1d2aa05f9a45f8db25e0044b236c"
+SRCREV = "72b58542f616d2738ededeb147d426a8fd712c13"
 
 KV = "4.14.186"
 PV = "${KV}+git"
