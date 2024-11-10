@@ -9,29 +9,26 @@ COMPATIBLE_MACHINE = "tenderloin"
 
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
-CMDLINE = "LUNEOS_NO_OUTPUT_REDIRECT console=ttyMSM0,115200,n8"
-#ANDROID_BOOTIMG_CMDLINE = "msm.vram=200m cma=300m g_mass_storage.removable=y LUNEOS_NO_OUTPUT_REDIRECT g_ffs.idVendor=0x18d1 g_ffs.idProduct=0xd001"
-ANDROID_BOOTIMG_CMDLINE = "LUNEOS_NO_OUTPUT_REDIRECT console=ttyMSM0,115200,n8"
+# Note: cmdline is given via our DTS
 
 inherit kernel
 
 LINUX_VERSION_EXTENSION = "-luneos"
-#LINUX_KMETA_BRANCH = "yocto-${LINUX_VERSION}"
-LINUX_KMETA_BRANCH = "master"
+LINUX_KMETA_BRANCH = "yocto-${LINUX_VERSION}"
 KMETA = "kernel-meta"
 
-SRCREV_machine = "c5919ef4ebceaca325e97b8d9bba554fea8cd31d"
+SRCREV_machine = "dbd71e7d2afa360362cd29c30423b4f709818081"
 SRCREV_meta = "f55df88ad1b189c955984ead7f91389e2676e413"
 
 SRC_URI = " \
-    git://github.com/shr-distribution/linux.git;branch=tenderloin/5.19/mainline;protocol=https;name=machine \
+    git://github.com/Tofee/shr-linux.git;branch=tenderloin/6.10/mainline-squashed;protocol=https;name=machine \
     git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=${LINUX_KMETA_BRANCH};destsuffix=${KMETA} \
     file://defconfig \
 "
 
 S = "${WORKDIR}/git"
 
-LINUX_VERSION = "5.19-rc7"
+LINUX_VERSION = "6.10"
 PV = "${LINUX_VERSION}+git"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
@@ -42,11 +39,17 @@ KERNEL_OUTPUT ?= "${KERNEL_OUTPUT_DIR}/${KERNEL_IMAGETYPE}"
 
 INITRAMFS_UIMAGE = "initramfs-uboot-image-${MACHINE}.cpio.gz.u-boot"
 
-EXTRA_OEMAKE += "CHECK_DTBS=y"
+#EXTRA_OEMAKE += "CHECK_DTBS=y"
 
-do_compile:prepend() {
-    oe_runmake dtbs_check 
+#do_compile:prepend() {
+#    oe_runmake dtbs_check
+#}
+
+do_recompile_dtb() {
+    cd ${B}
+    oe_runmake ${KERNEL_DEVICETREE}
 }
+addtask recompile_dtb before do_compile after do_configure
 
 do_deploy:append() {
     if [ ! -e ${DEPLOY_DIR_IMAGE}/${INITRAMFS_UIMAGE} ] ; then
