@@ -14,21 +14,21 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 inherit kernel
 
 LINUX_VERSION_EXTENSION = "-luneos"
-LINUX_KMETA_BRANCH = "yocto-${LINUX_VERSION}"
+LINUX_KMETA_BRANCH = "yocto-6.12"
 KMETA = "kernel-meta"
 
-SRCREV_machine = "f07c40c74e5f83b16cd38a4128be8f5036e93b42"
-SRCREV_meta = "f55df88ad1b189c955984ead7f91389e2676e413"
+SRCREV_machine = "532aa0eb4b23a3d9b2dddae33bbdc23ae8cddeaa"
+SRCREV_meta = "cbe89aee4d05e11b15a928dfbc216fbdbdf062d2"
 
 SRC_URI = " \
-    git://github.com/Tofee/shr-linux.git;branch=tenderloin/6.10/mainline-squashed;protocol=https;name=machine \
+    git://github.com/Tofee/shr-linux.git;branch=tenderloin/6.13/mainline-for-upstream;protocol=https;name=machine \
     git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=${LINUX_KMETA_BRANCH};destsuffix=${KMETA} \
     file://defconfig \
 "
 
 S = "${WORKDIR}/git"
 
-LINUX_VERSION = "6.10"
+LINUX_VERSION = "6.13"
 PV = "${LINUX_VERSION}+git"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
