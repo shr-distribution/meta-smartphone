@@ -41,11 +41,6 @@ if [ -f /scripts/local-premount/ORDER ]; then
 fi
 
 if [ "$RECOVERYMODE" = "yes" ] ; then
-    # Add root user
-    cat > /etc/passwd << "EOF"
-root::0:0:root:/root:/bin/sh
-EOF
-    
     # start telnetd for this IP
     start_telnetd 172.16.42.2
     
