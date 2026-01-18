@@ -14,19 +14,20 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 inherit kernel
 
 LINUX_VERSION_EXTENSION = "-luneos"
-LINUX_KMETA_BRANCH = "yocto-6.12"
+LINUX_KMETA_BRANCH = "yocto-6.18"
 KMETA = "kernel-meta"
+KBUILD_DEFCONFIG:tenderloin = "tenderloin_debug_defconfig"
+KCONFIG_MODE = "alldefconfig"
 
-SRCREV_machine = "532aa0eb4b23a3d9b2dddae33bbdc23ae8cddeaa"
-SRCREV_meta = "cbe89aee4d05e11b15a928dfbc216fbdbdf062d2"
+SRCREV_machine = "77b0c4fe6ce0774b986cb5c70fb758f8f09a9570"
+SRCREV_meta = "8ac9b1baf5d3cc1cb53a87a449b52f253dc32cab"
 
 SRC_URI = " \
-    git://github.com/Tofee/shr-linux.git;branch=tenderloin/6.13/mainline-for-upstream;protocol=https;name=machine \
+    git://github.com/shr-distribution/linux.git;branch=tenderloin/6.18/upstream-patches;protocol=https;name=machine \
     git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=${LINUX_KMETA_BRANCH};destsuffix=${KMETA} \
-    file://defconfig \
 "
 
-LINUX_VERSION = "6.13"
+LINUX_VERSION = "6.18"
 PV = "${LINUX_VERSION}+git"
 # for bumping PR bump MACHINE_KERNEL_PR in the machine config
 inherit machine_kernel_pr
