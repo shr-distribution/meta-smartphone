@@ -71,6 +71,11 @@ start_telnetd() {
 	mkdir /dev/pts
 	mount -t devpts none /dev/pts
 	
+  # Add root user
+  cat > /etc/passwd << "EOF"
+root::0:0:root:/root:/bin/sh
+EOF
+    	
 	echo "Starting telnetd..."
 	/usr/sbin/telnetd -b $1
 	echo "Pidof telnetd: $(pidof telnetd)"
@@ -223,7 +228,7 @@ setup_usb_network() {
 
 	# Setup usb IP address
 	IP=$1
-	for INTERFACE in usb0 rndis0 eth0; do
+	for INTERFACE in usb0 rndis0 eth0 usb1; do
 		# try to setup interface. If it fails, try the next one.
 		ip address add "$IP" dev $INTERFACE || continue
 		# It succeeded, now bring it up and exit
