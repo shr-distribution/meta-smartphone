@@ -21,20 +21,37 @@ setup_log() {
 	echo "======= LuneOS initrd ==========="
 }
 
-info() {
+tell_kmsg() {
+    echo "$1" > /dev/kmsg 2>/dev/null
     echo "$1"
 }
 
-fail() {
-    echo "$distro_name initramfs failed:"
+info() {
     echo "$1"
-    echo "Waiting for 5 seconds before rebooting"
-    sleep 5
-    mkdir -p /boottmp
-    #mount /dev/mmcblk0p1 /boottmp
-    [ -e /LuneOS_init.log ] && cp /LuneOS_init.log /boottmp/LuneOS_init.log
-    dmesg >> /boottmp/LuneOS_init.log
-    #umount /boottmp
+    # Also write to kmsg for serial console visibility
+    echo "initramfs: $1" > /dev/kmsg 2>/dev/null
+}
+
+fail() {
+    echo "========================================"
+    echo "LuneOS initramfs FAILED:"
+    echo "$1"
+    echo "========================================"
+    tell_kmsg "initramfs FAILED: $1"
+
+    # Dump debug info
+    echo "--- Block devices ---"
+    ls -la /dev/mmcblk* /dev/store/ /dev/mapper/ /dev/dm-* 2>/dev/null
+    echo "--- Mount points ---"
+    mount
+    echo "--- dmesg (last 50 lines) ---"
+    dmesg | tail -50
+
+    # Start telnet so the failure can be debugged remotely
+    echo "Starting telnetd for debug access..."
+    start_telnetd 172.16.42.2
+    tell_kmsg "initramfs: telnet available at 172.16.42.2 (configure host USB interface first)"
+
     loop_forever
 }
 
@@ -56,13 +73,13 @@ umount_proc_sys_dev_configfs() {
 }
 
 start_mdev() {
-    echo /sbin/mdev > /sys/kernel/uevent_helper
+    echo /sbin/mdev > /sys/kernel/uevent_helper 2>/dev/null
 	mdev -s
 }
 
 stop_mdev() {
-	killall mdev
-    echo "" > /sys/kernel/uevent_helper
+	killall mdev 2>/dev/null
+    echo "" > /sys/kernel/uevent_helper 2>/dev/null
 }
 
 # $1: IP address to listen to
