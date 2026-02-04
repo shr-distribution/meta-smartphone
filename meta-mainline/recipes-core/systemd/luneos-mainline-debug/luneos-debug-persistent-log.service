@@ -1,0 +1,14 @@
+[Unit]
+Description=Persistent boot debug logging
+DefaultDependencies=no
+After=local-fs.target
+Before=basic.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh -c 'mkdir -p /root/debug-logs && dmesg > /root/debug-logs/dmesg-early.log && journalctl -b --no-pager > /root/debug-logs/journal-early.log 2>&1; echo "early log captured at $(date)" >> /root/debug-logs/timeline.log'
+ExecStop=/bin/sh -c 'dmesg > /root/debug-logs/dmesg-final.log && journalctl -b --no-pager > /root/debug-logs/journal-final.log 2>&1; echo "final log captured at $(date)" >> /root/debug-logs/timeline.log'
+
+[Install]
+WantedBy=basic.target

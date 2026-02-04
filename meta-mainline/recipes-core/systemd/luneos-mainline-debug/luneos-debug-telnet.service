@@ -1,0 +1,16 @@
+[Unit]
+Description=Debug telnet server on USB network
+DefaultDependencies=no
+After=luneos-debug-usbnet.service
+Wants=luneos-debug-usbnet.service
+Before=basic.target
+
+[Service]
+Type=simple
+ExecStartPre=-/usr/bin/killall telnetd
+ExecStart=/usr/sbin/telnetd -F -l /bin/sh
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=basic.target
