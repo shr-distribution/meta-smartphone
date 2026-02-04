@@ -21,20 +21,39 @@ setup_log() {
 	echo "======= LuneOS initrd ==========="
 }
 
-info() {
+tell_kmsg() {
+    echo "$1" > /dev/kmsg 2>/dev/null
     echo "$1"
 }
 
-fail() {
-    echo "$distro_name initramfs failed:"
+info() {
     echo "$1"
-    echo "Waiting for 5 seconds before rebooting"
-    sleep 5
-    mkdir -p /boottmp
-    #mount /dev/mmcblk0p1 /boottmp
-    [ -e /LuneOS_init.log ] && cp /LuneOS_init.log /boottmp/LuneOS_init.log
-    dmesg >> /boottmp/LuneOS_init.log
-    #umount /boottmp
+    # Also write to kmsg for serial console visibility
+    echo "initramfs: $1" > /dev/kmsg 2>/dev/null
+    # Write to persistent debug log if available
+    [ -n "$DEBUGLOG" ] && echo "$(cat /proc/uptime 2>/dev/null | cut -d' ' -f1) $1" >> $DEBUGLOG 2>/dev/null
+}
+
+fail() {
+    echo "========================================"
+    echo "LuneOS initramfs FAILED:"
+    echo "$1"
+    echo "========================================"
+    tell_kmsg "initramfs FAILED: $1"
+
+    # Dump debug info
+    echo "--- Block devices ---"
+    ls -la /dev/mmcblk* /dev/store/ /dev/mapper/ /dev/dm-* 2>/dev/null
+    echo "--- Mount points ---"
+    mount
+    echo "--- dmesg (last 50 lines) ---"
+    dmesg | tail -50
+
+    # Start telnet so the failure can be debugged remotely
+    echo "Starting telnetd for debug access..."
+    start_telnetd 172.16.42.2
+    tell_kmsg "initramfs: telnet available at 172.16.42.2 (configure host USB interface first)"
+
     loop_forever
 }
 
@@ -56,13 +75,13 @@ umount_proc_sys_dev_configfs() {
 }
 
 start_mdev() {
-    echo /sbin/mdev > /sys/kernel/uevent_helper
+    echo /sbin/mdev > /sys/kernel/uevent_helper 2>/dev/null
 	mdev -s
 }
 
 stop_mdev() {
-	killall mdev
-    echo "" > /sys/kernel/uevent_helper
+	killall mdev 2>/dev/null
+    echo "" > /sys/kernel/uevent_helper 2>/dev/null
 }
 
 # $1: IP address to listen to
@@ -175,8 +194,26 @@ mount_root_partition() {
 setup_usb_network_configfs() {
 	# Only run, when we have the gadget usb driver
 	CONFIGFS=/config/usb_gadget
-	[ -e "$CONFIGFS" ] || return
 
+	info "USB gadget setup: checking $CONFIGFS..."
+
+	# Debug: check if configfs is mounted
+	if ! mount | grep -q "configfs on /config"; then
+		info "USB gadget: ERROR - configfs not mounted at /config!"
+		info "USB gadget: Mount info:"
+		mount 2>&1 | head -10
+		return
+	fi
+
+	if [ ! -e "$CONFIGFS" ]; then
+		info "USB gadget: ERROR - $CONFIGFS does not exist after configfs mount!"
+		info "USB gadget: Contents of /config:"
+		ls -la /config/ 2>&1
+		info "USB gadget: Kernel USB_CONFIGFS might not be enabled"
+		return
+	fi
+
+	info "USB gadget: $CONFIGFS exists, creating gadget..."
 	mkdir -p $CONFIGFS/g1
 
 	echo 0x1d6b > $CONFIGFS/g1/idVendor # Linux Foundation
@@ -218,7 +255,19 @@ setup_usb_network_configfs() {
     fi
 
 	# this lists available UDC drivers
-	echo "$(ls /sys/class/udc)" > $CONFIGFS/g1/UDC
+	UDC_LIST=$(ls /sys/class/udc 2>/dev/null)
+	if [ -z "$UDC_LIST" ]; then
+		info "USB gadget: ERROR - No UDC found in /sys/class/udc!"
+		info "USB gadget: Check kernel has USB_CHIPIDEA_UDC or similar"
+		return
+	fi
+	info "USB gadget: Available UDC: $UDC_LIST"
+	echo "$UDC_LIST" > $CONFIGFS/g1/UDC
+	if [ $? -eq 0 ]; then
+		info "USB gadget: Successfully bound to UDC"
+	else
+		info "USB gadget: ERROR - Failed to bind to UDC!"
+	fi
 }
 
 # $1: IP address of usb interface
@@ -228,13 +277,26 @@ setup_usb_network() {
 
 	# Setup usb IP address
 	IP=$1
+	info "USB network: Looking for interfaces to configure with IP $IP..."
+	info "USB network: Available interfaces:"
+	ip link show 2>&1 | grep -E "^[0-9]+:" | head -10
+
+	IFACE_FOUND=""
 	for INTERFACE in usb0 rndis0 eth0 usb1; do
 		# try to setup interface. If it fails, try the next one.
-		ip address add "$IP" dev $INTERFACE || continue
-		# It succeeded, now bring it up and exit
-		ip link set $INTERFACE up
-		break
+		if ip address add "$IP" dev $INTERFACE 2>/dev/null; then
+			# It succeeded, now bring it up and exit
+			ip link set $INTERFACE up
+			info "USB network: Successfully configured $INTERFACE with $IP"
+			IFACE_FOUND="$INTERFACE"
+			break
+		fi
 	done
+
+	if [ -z "$IFACE_FOUND" ]; then
+		info "USB network: ERROR - Could not configure any interface!"
+		info "USB network: Check USB gadget setup above for errors"
+	fi
 }
 
 # $1: path to ppm.gz file
