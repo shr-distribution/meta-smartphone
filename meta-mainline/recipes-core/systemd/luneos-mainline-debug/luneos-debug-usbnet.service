@@ -1,0 +1,11 @@
+[Unit]
+Description=Re-apply USB gadget network IP after switch_root
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/libexec/usb-network-setup.sh
+
+[Install]
+WantedBy=sysinit.target

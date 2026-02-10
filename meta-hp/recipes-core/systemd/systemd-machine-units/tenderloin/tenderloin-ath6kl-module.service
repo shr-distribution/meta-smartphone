@@ -1,11 +1,14 @@
 [Unit]
-Description=Load the ath6kl WiFi kernel module
-After=android-system.service
-Requires=android-system.service
+Description=Load ath6kl WiFi module for HP TouchPad
+After=systemd-modules-load.service
+Before=network-pre.target
 
 [Service]
 Type=oneshot
-ExecStart=/sbin/modprobe ath6kl
+RemainAfterExit=yes
+# Load ath6kl_sdio which pulls in ath6kl_core automatically
+# Prefix with '-' so boot continues if WiFi module is missing
+ExecStart=-/sbin/modprobe ath6kl_sdio
 
 [Install]
-WantedBy=basic.target
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+[Unit]
+Description=USB gadget state watchdog
+DefaultDependencies=no
+After=luneos-debug-usbnet.service
+Before=basic.target
+
+[Service]
+Type=simple
+ExecStart=/usr/libexec/usb-watchdog.sh
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=basic.target
