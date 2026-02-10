@@ -1,15 +1,11 @@
 [Unit]
 Description=Re-apply USB gadget network IP after switch_root
 DefaultDependencies=no
-Before=network-pre.target
-Wants=network-pre.target
-After=systemd-udevd.service
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-# Use 'replace' so it succeeds even if the IP was already set in initramfs
-ExecStart=-/sbin/ip address replace 172.16.42.2/16 dev usb0
+ExecStart=/usr/libexec/usb-network-setup.sh
 
 [Install]
 WantedBy=sysinit.target

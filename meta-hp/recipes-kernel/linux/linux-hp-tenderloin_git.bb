@@ -19,7 +19,7 @@ KMETA = "kernel-meta"
 KBUILD_DEFCONFIG:tenderloin = "tenderloin_debug_defconfig"
 KCONFIG_MODE = "alldefconfig"
 
-SRCREV_machine = "51e099a2f81d2357dfda1ae2818cad32413c3b84"
+SRCREV_machine = "bb70a5933a300f206bb7276d57fef2c99368f170"
 SRCREV_meta = "8ac9b1baf5d3cc1cb53a87a449b52f253dc32cab"
 
 SRC_URI = " \
