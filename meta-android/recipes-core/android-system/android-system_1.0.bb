@@ -156,20 +156,20 @@ USERADD_PARAM:${PN} = " \
 
 do_install() {
     install -d ${D}${systemd_unitdir}/system
-    install -m 0644 ${WORKDIR}/android-system.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/android-system.service ${D}${systemd_unitdir}/system
 
     install -d ${D}${bindir}
-    install -m 0755 ${WORKDIR}/wait-for-android.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/wait-for-android.sh ${D}${bindir}
 
     install -d ${D}${localstatedir}/lib/lxc/android
-    install -m 0644 ${WORKDIR}/lxc-config ${D}${localstatedir}/lib/lxc/android/config
-    install -m 0755 ${WORKDIR}/pre-start.sh ${D}${localstatedir}/lib/lxc/android/
-    install -m 0755 ${WORKDIR}/post-stop.sh ${D}${localstatedir}/lib/lxc/android/
+    install -m 0644 ${UNPACKDIR}/lxc-config ${D}${localstatedir}/lib/lxc/android/config
+    install -m 0755 ${UNPACKDIR}/pre-start.sh ${D}${localstatedir}/lib/lxc/android/
+    install -m 0755 ${UNPACKDIR}/post-stop.sh ${D}${localstatedir}/lib/lxc/android/
 
     install -d ${D}${localstatedir}/lib/lxc/android/pre-start.d
-    install -m 0755 ${WORKDIR}/10-boot-marker ${D}${localstatedir}/lib/lxc/android/pre-start.d/
-    install -m 0755 ${WORKDIR}/30-mount-nothing ${D}${localstatedir}/lib/lxc/android/pre-start.d/
-    install -m 0755 ${WORKDIR}/40-rootfs-rw ${D}${localstatedir}/lib/lxc/android/pre-start.d/
+    install -m 0755 ${UNPACKDIR}/10-boot-marker ${D}${localstatedir}/lib/lxc/android/pre-start.d/
+    install -m 0755 ${UNPACKDIR}/30-mount-nothing ${D}${localstatedir}/lib/lxc/android/pre-start.d/
+    install -m 0755 ${UNPACKDIR}/40-rootfs-rw ${D}${localstatedir}/lib/lxc/android/pre-start.d/
 
     install -d ${D}${localstatedir}/lib/lxc/android/rootfs
 

@@ -25,6 +25,6 @@ SYSTEMD_SERVICE:${PN} = "${PN}.service"
 EXTRA_OEMESON += "-Dsystemd_system_unit_dir=${systemd_system_unitdir}"
 
 do_configure:prepend() {
-    cp ${WORKDIR}/meson.build ${S}
-    cp ${WORKDIR}/meson.options ${S}
+    cp ${UNPACKDIR}/meson.build ${S}
+    cp ${UNPACKDIR}/meson.options ${S}
 }
