@@ -9,5 +9,5 @@ inherit allarch
 
 do_install() {
     install -d ${D}${sysconfdir}/udev/rules.d
-    install -m 0644 ${WORKDIR}/android-system-devs.rules ${D}${sysconfdir}/udev/rules.d
+    install -m 0644 ${UNPACKDIR}/android-system-devs.rules ${D}${sysconfdir}/udev/rules.d
 }

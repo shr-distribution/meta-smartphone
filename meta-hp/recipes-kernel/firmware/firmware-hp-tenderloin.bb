@@ -13,7 +13,7 @@ SRC_URI = " \
 "
 SRCREV = "d235aa8c15cc5fc45efe6a00922867eccc4724ac"
 
-S = "${WORKDIR}/firmware"
+S = "${UNPACKDIR}/firmware"
 
 do_install() {
     install -d ${D}${libdir}/firmware/qcom
