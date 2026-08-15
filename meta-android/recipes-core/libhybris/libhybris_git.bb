@@ -9,6 +9,7 @@ PR = "r1"
 PE = "1"
 
 SRC_URI = "git://github.com/libhybris/libhybris;branch=master;protocol=https \
+    file://0001-tests-build-test_audio-as-gnu99-for-strdup.patch \
 "
 
 S = "${UNPACKDIR}/${BB_GIT_DEFAULT_DESTSUFFIX}/hybris"
@@ -43,3 +44,20 @@ EXTRA_OECONF = "--with-android-headers=${STAGING_INCDIR}/android"
 
 # brokensep because configure creates include/android symlink to with-android-headers in ${S} not ${B}
 inherit autotools-brokensep pkgconfig
+
+# --with-android-headers makes configure set ANDROID_HEADERS_CFLAGS to -I$withval
+# literally, and every .pc.in ends its Cflags with @ANDROID_HEADERS_CFLAGS@, so the
+# absolute recipe-sysroot path is baked into the installed pkgconfig files. wrynose
+# makes that fatal:
+#   QA Issue: File /usr/lib/pkgconfig/libhardware.pc in package libhybris-dev
+#   contains reference to TMPDIR [buildpaths]
+# The headers install to ${includedir}/android, so point the .pc files there.
+#
+# Dropping --with-android-headers would take configure's other branch, which sets
+# Requires: android-headers and needs no rewriting - but that branch also skips the
+# AM_CONDITIONALs for the libnfc-nxp, hardware_legacy/wifi, hwcomposer2, gralloc1
+# and vibrator headers, silently dropping those backends. Not worth it here.
+do_install:append() {
+    sed -i -e 's|${STAGING_INCDIR}/android|${includedir}/android|g' \
+        ${D}${libdir}/pkgconfig/*.pc
+}
