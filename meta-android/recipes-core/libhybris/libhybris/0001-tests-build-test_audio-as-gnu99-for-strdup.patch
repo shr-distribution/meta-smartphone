@@ -1,0 +1,38 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Herman van Hazendonk <github.com@herrie.org>
+Date: Fri, 15 Aug 2026 00:00:00 +0000
+Subject: [PATCH] tests: build test_audio as gnu99 so strdup() is declared
+
+test_audio is the one target here built with -std=c99. Strict ANSI mode defines
+__STRICT_ANSI__, under which glibc's string.h hides strdup() - it is POSIX,
+not ISO C - so the strdup() call in Android's system/audio.h has no
+declaration:
+
+    system/audio.h: In function 'audio_device_address_to_parameter':
+    system/audio.h:1002:12: error: implicit declaration of function 'strdup'
+
+That was a warning until GCC 15, which defaults to -std=gnu23 and treats
+implicit declarations as errors. It was never harmless: without a declaration
+strdup() is assumed to return int, so the returned pointer was truncated to 32
+bits on a 64-bit target.
+
+test_audio pulls in Android hardware headers that use POSIX interfaces
+throughout, so ask for the GNU dialect of the same standard.
+
+Upstream-Status: Pending
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+---
+ tests/Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/tests/Makefile.am
++++ b/tests/Makefile.am
+@@ -47,7 +47,7 @@
+ endif
+ 
+ test_audio_SOURCES = test_audio.c
+-test_audio_CFLAGS = -std=c99\
++test_audio_CFLAGS = -std=gnu99\
+ 	-I$(top_srcdir)/include \
+ 	-I$(top_srcdir)/include/android
+ test_audio_LDADD = \
