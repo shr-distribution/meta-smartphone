@@ -12,17 +12,17 @@ SRC_URI:append:tissot-halium = " file://70-tissot-halium.rules"
 
 
 do_install:append:mido-halium() {
-    install -m 0644 ${WORKDIR}/70-mido-halium.rules ${D}${sysconfdir}/udev/rules.d/70-mido-halium.rules
+    install -m 0644 ${UNPACKDIR}/70-mido-halium.rules ${D}${sysconfdir}/udev/rules.d/70-mido-halium.rules
 }
 
 do_install:append:oxygen() {
-    install -m 0644 ${WORKDIR}/70-oxygen.rules ${D}${sysconfdir}/udev/rules.d/70-oxygen.rules
+    install -m 0644 ${UNPACKDIR}/70-oxygen.rules ${D}${sysconfdir}/udev/rules.d/70-oxygen.rules
 }
 
 do_install:append:sagit() {
-    install -m 0644 ${WORKDIR}/70-sagit.rules ${D}${sysconfdir}/udev/rules.d/70-sagit.rules
+    install -m 0644 ${UNPACKDIR}/70-sagit.rules ${D}${sysconfdir}/udev/rules.d/70-sagit.rules
 }
 
 do_install:append:tissot-halium() {
-    install -m 0644 ${WORKDIR}/70-tissot-halium.rules ${D}${sysconfdir}/udev/rules.d/70-tissot-halium.rules
+    install -m 0644 ${UNPACKDIR}/70-tissot-halium.rules ${D}${sysconfdir}/udev/rules.d/70-tissot-halium.rules
 }

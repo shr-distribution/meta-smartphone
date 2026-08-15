@@ -11,7 +11,7 @@ PACKAGE_ARCH:tenderloin = "${MACHINE_ARCH}"
 SRC_URI = "git://github.com/Evervolv/android_device_hp_tenderloin-common.git;protocol=https;branch=p-9.0;subpath=hardware/touchscreen \
            file://0001-remove-android-dependencies-and-fix-warnings.patch;striplevel=3 \
 "
-S = "${WORKDIR}/touchscreen"
+S = "${UNPACKDIR}/touchscreen"
 
 do_compile() {
 	${CC} -Wall -lm -g ${LDFLAGS} -o ts_srv digitizer.c ts_srv.c
