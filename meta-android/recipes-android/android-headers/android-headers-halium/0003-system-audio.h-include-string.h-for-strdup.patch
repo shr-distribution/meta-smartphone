@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Herman van Hazendonk <github.com@herrie.org>
+Date: Fri, 15 Aug 2026 00:00:00 +0000
+Subject: [PATCH] system/audio.h: include string.h for strdup()
+
+audio_device_address_to_parameter() is a static inline in this header and
+calls strdup(), but the header only includes stdio.h, so every consumer
+compiled as C picks up an implicit declaration. GCC 15 defaults to -std=gnu23,
+where that is an error rather than a warning, and libhybris stops building:
+
+    system/audio.h:1001:12: error: implicit declaration of function 'strdup';
+                            did you mean 'strcmp'? [-Wimplicit-function-declaration]
+    system/audio.h:1001:12: error: returning 'int' from a function with return
+                            type 'char *' makes pointer from integer without a cast
+
+Include what the header uses.
+
+Upstream-Status: Pending
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+---
+ system/audio.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/system/audio.h
++++ b/system/audio.h
+@@ -21,6 +21,7 @@
+ #include <stdbool.h>
+ #include <stdint.h>
+ #include <stdio.h>
++#include <string.h>
+ #include <sys/cdefs.h>
+ #include <sys/types.h>
+ 
