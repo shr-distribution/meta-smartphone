@@ -222,8 +222,68 @@ start_mdev
 # Disable busybox's over-restrictive behavior with cpio extraction
 export EXTRACT_UNSAFE_SYMLINKS=1
 
+
+# When no vendor.img is shipped in the rootfs (the GSI case), Halium's mountroot
+# leaves /android/vendor as the empty directory the generic system image carries:
+# it mounts a real vendor only from /android-vendor, which is set up solely when
+# a vendor.img exists, and the fstab it would otherwise consult lives inside the
+# Android image - a device-agnostic GSI has none. Without this the container
+# comes up with no HALs at all.
+#
+# Mount the device's own vendor partition there instead. Partitions are found by
+# parsing PARTNAME out of sysfs rather than relying on /dev/disk/by-partlabel,
+# so this does not depend on mdev having populated those symlinks yet.
+find_partition_by_name() {
+    want=$1
+    for blk in /sys/class/block/*; do
+        [ -f "$blk/uevent" ] || continue
+        pn=$(sed -n 's/^PARTNAME=//p' "$blk/uevent")
+        if [ "$pn" = "$want" ]; then
+            echo "/dev/$(basename $blk)"
+            return 0
+        fi
+    done
+    return 1
+}
+
+mount_device_vendor() {
+    # Already populated - a vendor.img was shipped, nothing to do.
+    if [ -e ${rootmnt}/android/vendor/etc ] || [ -e ${rootmnt}/android/vendor/build.prop ]; then
+        tell_kmsg "/android/vendor already populated, not mounting device vendor"
+        return 0
+    fi
+
+    slot=$(grep -o 'androidboot\.slot_suffix=..' /proc/cmdline | cut -d "=" -f2)
+    [ -n "$slot" ] && tell_kmsg "A/B slot suffix is $slot"
+
+    vpart=""
+    for name in vendor$slot vendor; do
+        vpart=$(find_partition_by_name "$name") && [ -n "$vpart" ] && break
+        vpart=""
+    done
+
+    if [ -z "$vpart" ]; then
+        tell_kmsg "WARNING: no vendor partition found; Android HALs will be missing"
+        return 1
+    fi
+
+    tell_kmsg "mounting device vendor $vpart at /android/vendor"
+    if mount -o ro "$vpart" ${rootmnt}/android/vendor; then
+        # The real vendor carries its own fstab (firmware, persist, dsp ...);
+        # mountroot already ran this against an empty directory, so run it again
+        # now that there is something to read.
+        mount_android_partitions "${rootmnt}/android/vendor/etc/fstab*" ${rootmnt}/android ${rootmnt}/userdata
+    else
+        tell_kmsg "WARNING: failed to mount $vpart at /android/vendor"
+        return 1
+    fi
+}
+
 # Call Halium's mount script
 mountroot
+
+# GSI case: bring in the device's own /vendor (no-op when a vendor.img shipped)
+mount_device_vendor
 
 tell_kmsg "Stopping mdev"
 stop_mdev
