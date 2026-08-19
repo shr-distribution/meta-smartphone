@@ -13,6 +13,15 @@ COMPATIBLE_MACHINE = "sargo"
 # the recovered-tarball problem described below go away.
 SARGO_ANDROID_SYSTEM ?= "gsi"
 
+# Which vendor to use. "device" ships the sargo-specific vendor.img built
+# alongside the old system image; "none" ships no vendor at all, so the phone's
+# own /vendor partition is mounted instead - which is the actual Treble goal and
+# what Test B checks. mount_device_vendor() in initramfs-scripts-halium does the
+# mounting; Halium's own mountroot cannot, because it only ever mounts a vendor
+# from a shipped vendor.img and otherwise reads an fstab out of the Android
+# image, which a device-agnostic GSI does not carry.
+SARGO_ANDROID_VENDOR ?= "device"
+
 # Device-specific build.
 #
 # This version was never published to webOS-ports/halium-images - neither the
@@ -57,5 +66,19 @@ ANDROID_SYSTEM_IMAGE_DESTNAME = "android-rootfs.img"
 # do_install idempotent.
 do_install:prepend() {
     cp ${UNPACKDIR}/${SARGO_ANDROID_SYSTEM}/system.img ${UNPACKDIR}/system.img
-    cp ${UNPACKDIR}/device/vendor.img ${UNPACKDIR}/vendor.img
+    # Remove first so a re-run cannot leave a stale vendor.img behind when
+    # switching to SARGO_ANDROID_VENDOR = "none".
+    rm -f ${UNPACKDIR}/vendor.img
+    if [ "${SARGO_ANDROID_VENDOR}" = "device" ]; then
+        cp ${UNPACKDIR}/device/vendor.img ${UNPACKDIR}/vendor.img
+    fi
+}
+
+# Without a vendor.img the .inc points /vendor at /system/vendor, which is empty
+# in a GSI. The device vendor gets mounted at /android/vendor, so point there -
+# the same place the vendor.img case uses.
+do_install:append() {
+    if [ "${SARGO_ANDROID_VENDOR}" != "device" ]; then
+        ln -sf /android/vendor ${D}/vendor
+    fi
 }
