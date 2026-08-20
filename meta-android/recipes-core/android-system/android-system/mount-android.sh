@@ -101,18 +101,36 @@ fi
 # --- dynamic partitions -----------------------------------------------------
 # From Android 10, system/vendor/product are logical partitions inside 'super',
 # described by a custom header rather than LVM. Map them to /dev/mapper/dynpart-*.
-super=$(find_partition_path super)
-if [ -e "$super" ]; then
-    if [ -e /dev/mapper/dynpart-vendor ] || [ -e "/dev/mapper/dynpart-vendor$ab_slot_suffix" ]; then
-        log "super already mapped"
-    elif command -v parse-android-dynparts >/dev/null 2>&1; then
-        log "mapping super partition at $super"
-        table=$(parse-android-dynparts "$super") && [ -n "$table" ] && \
-            dmsetup create --concise "$table" || \
-            log "WARNING: failed to map super; vendor will not be found"
-    else
-        log "WARNING: super present but parse-android-dynparts missing; cannot map dynamic partitions"
-    fi
+# Two layouts to cope with. Devices that launched on Android 10+ have a single
+# dedicated "super" partition. Devices that launched earlier and were upgraded
+# use *retrofit* dynamic partitions, where the logical partitions are spread
+# across the pre-existing physical ones and there is no partition called super
+# at all - the Pixel 3a is one of these:
+#
+#   BOARD_SUPER_PARTITION_METADATA_DEVICE := system
+#   BOARD_SUPER_PARTITION_BLOCK_DEVICES   := system vendor
+#
+# so also try the usual metadata devices. On a pre-dynamic device those hold an
+# ordinary filesystem, parse-android-dynparts finds no LP metadata and fails,
+# and we simply move on - which makes this self-detecting rather than something
+# that has to be configured per device.
+if [ -e /dev/mapper/dynpart-vendor ] || [ -e "/dev/mapper/dynpart-vendor$ab_slot_suffix" ]; then
+    log "dynamic partitions already mapped"
+elif ! command -v parse-android-dynparts >/dev/null 2>&1; then
+    log "parse-android-dynparts missing; cannot map dynamic partitions"
+else
+    for meta in super "system$ab_slot_suffix" system; do
+        metadev=$(find_partition_path "$meta")
+        [ -e "$metadev" ] || continue
+        table=$(parse-android-dynparts "$metadev" 2>/dev/null) || continue
+        [ -n "$table" ] || continue
+        if dmsetup create --concise "$table"; then
+            log "mapped dynamic partitions from $metadev"
+        else
+            log "WARNING: found LP metadata on $metadev but dmsetup failed"
+        fi
+        break
+    done
 fi
 
 # --- vendor -----------------------------------------------------------------

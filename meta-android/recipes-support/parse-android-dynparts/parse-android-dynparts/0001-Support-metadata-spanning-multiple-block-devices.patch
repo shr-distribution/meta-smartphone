@@ -1,0 +1,149 @@
+From: LuneOS <webos-ports@googlegroups.com>
+Date: Thu, 20 Aug 2026 00:00:00 +0000
+Subject: [PATCH] Support metadata spanning multiple block devices
+
+Devices that launched before Android 10 and were later upgraded use *retrofit*
+dynamic partitions: rather than one dedicated "super", the logical partitions
+are spread across the pre-existing physical ones. The Pixel 3a is a case in
+point - its board config sets
+
+    BOARD_SUPER_PARTITION_METADATA_DEVICE := system
+    BOARD_SUPER_PARTITION_BLOCK_DEVICES   := system vendor
+
+so there is no partition named "super" at all, and extents reference two
+different block devices.
+
+The tool refused this outright:
+
+    if (extent.target_source != 0) {
+      cerr << "This utility does not yet support multiple block devices";
+      return 1;
+    }
+
+and hardcoded argv[1] as the device in every linear target, so even the first
+device was only correct by coincidence.
+
+Resolve each extent's target_source through metadata->block_devices instead.
+Index 0 keeps using the path the metadata was read from, so the common
+single-super case is byte-for-byte unchanged. Other indices are looked up by
+their metadata name beside that path, inheriting its A/B slot suffix
+(/dev/disk/by-partlabel/system_a therefore finds .../vendor_a), and an optional
+name=path argument overrides that for porting and testing.
+
+Upstream-Status: Pending
+---
+--- a/main.cpp
++++ b/main.cpp
+@@ -1,8 +1,11 @@
+ #include <liblp/liblp.h>
+ 
+ #include <iostream>
++#include <map>
+ #include <sstream>
++#include <string>
+ #include <string_view>
++#include <vector>
+ 
+ using namespace android::fs_mgr;
+ 
+@@ -12,19 +15,78 @@
+ 
+ constexpr std::string_view kDmPrefix = "dynpart-";
+ 
++namespace {
++
++// Split a hint like "/dev/disk/by-partlabel/system_a" into the directory it
++// lives in and the A/B slot suffix its name carries, so that sibling block
++// devices can be found next to it.
++void SplitDeviceHint(const std::string& path, std::string* dir,
++                     std::string* slot_suffix) {
++  const auto slash = path.rfind('/');
++  *dir = (slash == std::string::npos) ? std::string(".") : path.substr(0, slash);
++  const std::string base =
++      (slash == std::string::npos) ? path : path.substr(slash + 1);
++  if (base.size() > 2) {
++    const std::string tail = base.substr(base.size() - 2);
++    if (tail == "_a" || tail == "_b") *slot_suffix = tail;
++  }
++}
++
++}  // namespace
++
+ int main(int argc, char* argv[]) {
+-  if (argc != 2) {
+-    cerr << "Usage: dmsetup create --concise \"$(" << argv[0] << " device)\""
++  if (argc < 2) {
++    cerr << "Usage: dmsetup create --concise \"$(" << argv[0]
++         << " device [name=path ...])\"" << endl;
++    cerr << "  device     block device holding the LP metadata. On a normal"
++         << " layout that is the" << endl;
++    cerr << "             super partition; with retrofit dynamic partitions"
++         << " it is the metadata" << endl;
++    cerr << "             device, e.g. /dev/disk/by-partlabel/system_a."
+          << endl;
++    cerr << "  name=path  override for a block device named in the metadata."
++         << " Without one," << endl;
++    cerr << "             siblings are looked up beside the device above,"
++         << " keeping its slot" << endl;
++    cerr << "             suffix." << endl;
+     return 1;
+   }
+ 
++  std::string device_dir, slot_suffix;
++  SplitDeviceHint(argv[1], &device_dir, &slot_suffix);
++
++  std::map<std::string, std::string> overrides;
++  for (int i = 2; i < argc; i++) {
++    const std::string arg = argv[i];
++    const auto eq = arg.find('=');
++    if (eq == std::string::npos || eq == 0) {
++      cerr << "Malformed override \"" << arg << "\", expected name=path"
++           << endl;
++      return 1;
++    }
++    overrides[arg.substr(0, eq)] = arg.substr(eq + 1);
++  }
++
+   auto metadata = ReadMetadata(argv[1], 0);
+   if (!metadata) {
+     cerr << "Failed to parse metadata from \"" << argv[1] << "\"" << endl;
+     return 1;
+   }
+ 
++  // Retrofit dynamic partitions spread the "super" across several pre-existing
++  // partitions instead of one dedicated device, so an extent can live on a
++  // block device other than the one the metadata was read from. Resolve each
++  // extent's source index to a path.
++  const auto device_path_for = [&](uint32_t source) -> std::string {
++    if (source == 0) return argv[1];
++    if (source >= metadata->block_devices.size()) return std::string();
++    const std::string name =
++        GetBlockDevicePartitionName(metadata->block_devices[source]);
++    const auto it = overrides.find(name);
++    if (it != overrides.end()) return it->second;
++    return device_dir + "/" + name + slot_suffix;
++  };
++
+   std::string table;
+ 
+   // Code structure taken from Android's system/core/fs_mgr/fs_mgr_dm_linear.cpp
+@@ -53,14 +115,16 @@
+           line << "," << sector << " " << extent.num_sectors << " zero";
+           break;
+         case LP_TARGET_TYPE_LINEAR: {
+-          if (extent.target_source != 0) {
+-            cerr << "This utility does not yet support multiple block devices"
++          const std::string device = device_path_for(extent.target_source);
++          if (device.empty()) {
++            cerr << "Extent references block device index "
++                 << extent.target_source << ", which is not in the metadata"
+                  << endl;
+             return 1;
+           }
+ 
+           line << "," << sector << " " << extent.num_sectors << " linear "
+-               << argv[1] << " " << extent.target_data;
++               << device << " " << extent.target_data;
+           break;
+         }
+         default:

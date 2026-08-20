@@ -11,7 +11,9 @@ SECTION = "base"
 
 DEPENDS = "openssl"
 
-SRC_URI = "git://github.com/droidian/parse-android-dynparts.git;branch=droidian;protocol=https"
+SRC_URI = "git://github.com/droidian/parse-android-dynparts.git;branch=droidian;protocol=https \
+           file://0001-Support-metadata-spanning-multiple-block-devices.patch \
+"
 
 PV = "0.1+git${SRCPV}"
 SRCREV = "b776ff276f20b91c8df4e2c84cf314ba7b7a3fb5"
