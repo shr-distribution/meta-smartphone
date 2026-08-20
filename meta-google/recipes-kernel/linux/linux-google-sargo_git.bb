@@ -1,4 +1,6 @@
 require recipes-kernel/linux/linux.inc
+# Options every Halium target needs; see the file for what and why.
+require recipes-kernel/linux/halium-kernel.inc
 
 SECTION = "kernel"
 
