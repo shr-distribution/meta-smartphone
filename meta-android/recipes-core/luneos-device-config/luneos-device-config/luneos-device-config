@@ -1,0 +1,131 @@
+#!/bin/sh
+# Derive this device's configuration at runtime, so one rootfs boots anywhere.
+#
+# Three tiers, in order of preference (see the plan doc, section 6.6):
+#
+#   Tier 0  derived from the device itself - the Android properties and the
+#           kernel's own view of the hardware. No per-device data at all.
+#   Tier 1  /usr/share/luneos/adaptations/<codename>/deviceinfo, a small
+#           declarative file for the few things that cannot be derived.
+#   Tier 2  .../sparse/, a file tree overlaid onto the rootfs. Last resort;
+#           every file here is a device we have not really ported yet.
+#
+# Nothing is ever copied into the rootfs. A universal image that has been
+# rewritten to suit the first device it booted on is no longer universal, so
+# adaptations are applied by overlay or bind mount and re-derived every boot.
+
+set -u
+
+ADAPT_ROOT=/usr/share/luneos/adaptations
+RUN=/run/luneos-device
+GETPROP=/android/system/bin/getprop
+
+log() { echo "luneos-device-config: $*"; }
+prop() { [ -x "$GETPROP" ] && "$GETPROP" "$1" 2>/dev/null || echo ""; }
+
+mkdir -p "$RUN"
+
+# ---------------------------------------------------------------- Tier 0 ----
+
+# Codename. The vendor's own idea of the device is the one that matters: on a
+# GSI, ro.product.device is the GSI's (halium_arm64), not the phone's.
+codename=$(prop ro.product.vendor.device)
+[ -n "$codename" ] || codename=$(prop ro.vendor.product.device)
+[ -n "$codename" ] || codename=$(prop ro.product.device)
+[ -n "$codename" ] || codename=unknown
+
+# Vendor API level: which GSI generation this vendor expects to talk to.
+api_level=$(prop ro.board.api_level)
+[ -n "$api_level" ] || api_level=$(prop ro.vndk.version)
+[ -n "$api_level" ] || api_level=$(prop ro.build.version.sdk)
+
+density=$(prop ro.sf.lcd_density)
+
+# Touchscreen. Exactly one input device advertises ID_INPUT_TOUCHSCREEN, so
+# this needs no per-device knowledge.
+touchscreen=
+for d in /sys/class/input/event*; do
+    [ -e "$d" ] || continue
+    n=$(basename "$d")
+    if udevadm info --query=property --name="/dev/input/$n" 2>/dev/null |
+           grep -q '^ID_INPUT_TOUCHSCREEN=1$'; then
+        touchscreen="/dev/input/$n"
+        break
+    fi
+done
+
+# Key devices. Derivation only narrows this to a superset: on sargo the power
+# key (qpnp_pon) and the fingerprint sensor (uinput-fpc) are both virtual
+# devices advertising KEY_POWER, so neither the virtual/physical split nor the
+# capability bits separate them. Tier 1 can override; otherwise take everything
+# that claims power or volume and let the consumer ignore the rest.
+keydevs=
+for d in /sys/class/input/event*; do
+    [ -e "$d" ] || continue
+    n=$(basename "$d")
+    props=$(udevadm info --query=property --name="/dev/input/$n" 2>/dev/null)
+    echo "$props" | grep -q '^ID_INPUT_KEY=1$' || continue
+    echo "$props" | grep -q '^ID_INPUT_TOUCHSCREEN=1$' && continue
+    keydevs="${keydevs}/dev/input/$n;"
+done
+
+# ---------------------------------------------------------------- Tier 1 ----
+
+adaptation="$ADAPT_ROOT/$codename"
+if [ -f "$adaptation/deviceinfo" ]; then
+    log "using adaptation $codename"
+    # shellcheck disable=SC1090
+    . "$adaptation/deviceinfo"
+    [ -n "${deviceinfo_touchscreen_device:-}" ] && touchscreen=$deviceinfo_touchscreen_device
+    [ -n "${deviceinfo_key_devices:-}" ] && keydevs=$deviceinfo_key_devices
+    [ -n "${deviceinfo_display_density:-}" ] && density=$deviceinfo_display_density
+else
+    log "no adaptation for '$codename', running on derived values alone"
+fi
+
+cat > "$RUN/device.env" <<EOF
+LUNEOS_DEVICE_CODENAME=$codename
+LUNEOS_VENDOR_API_LEVEL=$api_level
+LUNEOS_DISPLAY_DENSITY=$density
+LUNEOS_TOUCHSCREEN_DEVICE=$touchscreen
+LUNEOS_KEY_DEVICES=$keydevs
+EOF
+log "codename=$codename api=$api_level density=$density touch=$touchscreen keys=$keydevs"
+
+# ---------------------------------------------------------------- Tier 2 ----
+# Apply the file tree. overlayfs in one mount where the kernel has it, else a
+# bind mount per file - equally non-destructive, just noisier.
+apply_sparse() {
+    sparse="$adaptation/sparse"
+    [ -d "$sparse" ] || return 0
+    if grep -qw overlay /proc/filesystems 2>/dev/null; then
+        for sub in etc usr/lib/luneos/device; do
+            [ -d "$sparse/$sub" ] || continue
+            mkdir -p "$RUN/work/$sub" "$RUN/upper/$sub"
+            if mount -t overlay overlay \
+                 -o "lowerdir=$sparse/$sub:/$sub,upperdir=$RUN/upper/$sub,workdir=$RUN/work/$sub" \
+                 "/$sub" 2>/dev/null; then
+                log "overlaid $sparse/$sub onto /$sub"
+                continue
+            fi
+            log "overlay of /$sub failed, falling back to bind mounts"
+            bind_tree "$sparse/$sub" "/$sub"
+        done
+    else
+        log "kernel has no overlayfs, using bind mounts"
+        bind_tree "$sparse" ""
+    fi
+}
+
+bind_tree() {
+    src=$1; prefix=$2
+    find "$src" -type f 2>/dev/null | while read -r f; do
+        rel=${f#"$src"}
+        target="$prefix$rel"
+        [ -e "$target" ] || { log "skipping $target (no such file to shadow)"; continue; }
+        mount --bind "$f" "$target" && log "bound $target"
+    done
+}
+
+apply_sparse
+exit 0

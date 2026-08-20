@@ -1,0 +1,16 @@
+[Unit]
+Description=Derive LuneOS device configuration
+DefaultDependencies=no
+# Needs the container's property service to read the *vendor's* idea of which
+# device this is, and must land before anything that consumes the result.
+After=android-system.service
+Requires=android-system.service
+Before=surface-manager-daemon.service sensorfwd.service ofono.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/luneos-device-config
+
+[Install]
+RequiredBy=basic.target
