@@ -41,22 +41,38 @@ SARGO_ANDROID_VENDOR ?= "device"
 # simg2img conversion - and vendor.img passes a full e2fsck.
 PV = "20240301-3"
 
-# Device-agnostic halium_arm64 build, from the same halium-9.0 tree, so the same
-# VNDK level as the vendor.img above. Unlike the device tarball this one is
-# published and its .sha256sum is served alongside it. It ships system.img only:
-# a GSI has no business carrying a vendor.
-GSI_PV = "20240228-1"
+# Device-agnostic halium_arm64 build. It ships system.img only: a GSI has no
+# business carrying a vendor. The release tag and the asset name are the same
+# string on webOS-ports/halium-images, hence the doubled component in the URL.
+#
+# Which GSI generation to use is selectable, because moving sargo onto a modern
+# Android base is the whole point of the GSI work (plan doc Phase 2). The
+# published halium_arm64 builds are:
+#
+#   9.0   halium-luneos-9.0-20240228-1-halium_arm64.tar.bz2
+#           sha256 7469662bb4d8440359dacee9edcae7d8ee7e9536ac8899a37c49c0f5ca1500c4
+#   10.0  halium-luneos-10.0-20230130-1-halium_arm64.tar.bz2
+#           sha256 not published as an asset; compute before first use
+#   11.0  halium-luneos-11.0-20240219-1-halium_arm64.tar.bz2
+#           sha256 355805c5bca803a386065c30408cfffb6024c7dfc34768a0ba61039747fe3976
+#
+# NB: the GSI's VNDK level has to match the vendor it runs against. Pointing
+# this at the 11.0 GSI while the phone still carries an Android 9 vendor will
+# not boot - it needs stock Android 11 or 12 flashed first, and dynamic
+# partition support in mount-android.sh, which is why these two land together.
+SARGO_GSI_TARBALL ?= "halium-luneos-9.0-20240228-1-halium_arm64.tar.bz2"
+SARGO_GSI_SHA256 ?= "7469662bb4d8440359dacee9edcae7d8ee7e9536ac8899a37c49c0f5ca1500c4"
 
 SRC_URI = "\
     https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-9.0-${PV}-${MACHINE}.tar.bz2/halium-luneos-9.0-${PV}-${MACHINE}.tar.bz2;name=device;subdir=device \
-    https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-9.0-${GSI_PV}-halium_arm64.tar.bz2/halium-luneos-9.0-${GSI_PV}-halium_arm64.tar.bz2;name=gsi;subdir=gsi \
+    https://github.com/webOS-ports/halium-images/releases/download/${SARGO_GSI_TARBALL}/${SARGO_GSI_TARBALL};name=gsi;subdir=gsi \
 "
 # Checksum of the repacked device tarball, which is not byte-identical to
 # whatever was originally intended for this version - the images inside are the
 # shipped ones, but the bzip2 stream around them is new. It only resolves on a
 # machine that already has it in DL_DIR until that asset is published.
 SRC_URI[device.sha256sum] = "c96011207034cab2f0a44b61a009b1c6d64a32c93beb6a9b87291d664bdd22de"
-SRC_URI[gsi.sha256sum] = "7469662bb4d8440359dacee9edcae7d8ee7e9536ac8899a37c49c0f5ca1500c4"
+SRC_URI[gsi.sha256sum] = "${SARGO_GSI_SHA256}"
 
 ANDROID_SYSTEM_IMAGE_DESTNAME = "android-rootfs.img"
 
