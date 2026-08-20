@@ -1,0 +1,28 @@
+From: LuneOS <webos-ports@googlegroups.com>
+Date: Thu, 20 Aug 2026 00:00:00 +0000
+Subject: [PATCH] Exit non-zero on an unknown extent target type
+
+The unknown-target-type arm of the switch does "return false" from main(),
+which is an int, so false converts to 0 and the process reports success. The
+caller then does
+
+    dmsetup create --concise "$(parse-android-dynparts ...)"
+
+with a truncated table and no indication anything went wrong, which is a
+considerably worse failure than exiting non-zero would be.
+
+Every other error path in main() returns 1; make this one match.
+
+Upstream-Status: Pending
+---
+--- a/main.cpp
++++ b/main.cpp
+@@ -130,7 +130,7 @@
+         default:
+           cerr << "Unknown target type in metadata: " << extent.target_type
+                << endl;
+-          return false;
++          return 1;
+       }
+       sector += extent.num_sectors;
+     }
