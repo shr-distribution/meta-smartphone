@@ -41,6 +41,20 @@ api_level=$(prop ro.board.api_level)
 
 density=$(prop ro.sf.lcd_density)
 
+# Panel geometry from DRM. There is no fbdev on a modern Halium device - sargo
+# has no /sys/class/graphics/fb0 at all - and the virtual connector reports a
+# nonsense 4096x2160, so take the first mode of a genuinely connected one.
+panel_w= panel_h=
+for c in /sys/class/drm/card*-*/status; do
+    [ -e "$c" ] || continue
+    [ "$(cat "$c" 2>/dev/null)" = "connected" ] || continue
+    case "$c" in */card*-Virtual-*) continue ;; esac
+    mode=$(head -n1 "${c%/status}/modes" 2>/dev/null)
+    case "$mode" in
+        [0-9]*x[0-9]*) panel_w=${mode%%x*}; panel_h=${mode##*x}; break ;;
+    esac
+done
+
 # Touchscreen. Exactly one input device advertises ID_INPUT_TOUCHSCREEN, so
 # this needs no per-device knowledge.
 touchscreen=
@@ -87,10 +101,12 @@ cat > "$RUN/device.env" <<EOF
 LUNEOS_DEVICE_CODENAME=$codename
 LUNEOS_VENDOR_API_LEVEL=$api_level
 LUNEOS_DISPLAY_DENSITY=$density
+LUNEOS_PANEL_WIDTH=$panel_w
+LUNEOS_PANEL_HEIGHT=$panel_h
 LUNEOS_TOUCHSCREEN_DEVICE=$touchscreen
 LUNEOS_KEY_DEVICES=$keydevs
 EOF
-log "codename=$codename api=$api_level density=$density touch=$touchscreen keys=$keydevs"
+log "codename=$codename api=$api_level density=$density panel=${panel_w}x${panel_h} touch=$touchscreen keys=$keydevs"
 
 # ------------------------------------------------------- generators ----
 # Each concern is a small script under generators/, run in name order with the
@@ -110,7 +126,11 @@ GENERATORS=/usr/lib/luneos-device-config/generators
 rm -rf "$GEN"; mkdir -p "$GEN/files" "$GEN/configd"
 
 export GEN ADAPT_ROOT RUN
-export codename api_level density touchscreen keydevs adaptation
+export codename api_level density touchscreen keydevs adaptation panel_w panel_h
+# Tier 1 values too, so a generator can prefer a declared value over a derived one.
+for v in $(set | sed -n 's/^\(deviceinfo_[A-Za-z0-9_]*\)=.*/\1/p'); do
+    export "$v"
+done
 
 if [ -d "$GENERATORS" ]; then
     for g in "$GENERATORS"/*; do

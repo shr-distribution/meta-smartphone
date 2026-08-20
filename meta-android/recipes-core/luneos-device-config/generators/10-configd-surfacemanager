@@ -1,16 +1,34 @@
 #!/bin/sh
 # Display scaling for webApps, into the configd override layer.
 #
-# webapp-mgr.sh passes --force-device-scale-factor from
-# com.webos.surfacemanager.devicePixelRatio. That value has been maintained by
-# hand per device and drifted: sargo carried 2.4 where the natural ratio is
-# 2.75, giving a 1080px panel a 450px CSS viewport against the 393px stock
-# Android gives, so web content laid out about 15% small. sagit was further out
-# still, 1.9 against 2.67.
+# NOT derived from density. That was tried and is wrong for this stack: webOS
+# apps are fixed-layout Enyo pages with no viewport meta, so they do not adapt
+# to the device pixel ratio, they simply receive however many CSS pixels the
+# scale factor leaves them. Measured over the remote inspector on sargo at
+# DPR 2.4, every app reports innerWidth=450 and zoom=1, and Calendar's own
+# layout is built for roughly that. Raising the ratio to the "natural"
+# density/160 of 2.75 narrows the viewport to 393px and the apps inflate and
+# clip off the right edge - confirmed on device.
 #
-# density/160 is the ratio Android itself uses, so derive it.
-[ -n "${density:-}" ] || exit 0
+# The per-device values are therefore a tuned compromise, not a derivable
+# constant. Across LuneOS devices they all land in a 380-450 CSS px band:
+#
+#   sargo               1080 / 2.4 = 450
+#   hammerhead/mido/tissot 1080 / 2.6 = 415
+#   rosy, pinephone      720 / 1.9 = 379
+#   sagit               1080 / 1.9 = 568   (the one real outlier)
+#
+# So: take the declared value when there is one, and for an unknown device fall
+# back to whatever ratio puts the viewport in that band. That keeps a new phone
+# usable on first boot without pretending the number is physics.
+TARGET_CSS_WIDTH=${deviceinfo_target_css_width:-450}
 
-dpr=$(awk -v d="$density" 'BEGIN { printf "%.2f", d / 160 }')
+dpr=${deviceinfo_device_pixel_ratio:-}
+if [ -z "$dpr" ]; then
+    [ -n "${panel_w:-}" ] || exit 0
+    dpr=$(awk -v w="$panel_w" -v t="$TARGET_CSS_WIDTH" 'BEGIN { printf "%.2f", w / t }')
+    echo "luneos-device-config: no declared devicePixelRatio, derived $dpr for a ${TARGET_CSS_WIDTH}px viewport"
+fi
+
 printf '{\n    "devicePixelRatio": "%s"\n}\n' "$dpr" > "$GEN/configd/com.webos.surfacemanager.json"
-echo "luneos-device-config: devicePixelRatio=$dpr (density $density)"
+echo "luneos-device-config: devicePixelRatio=$dpr"

@@ -15,3 +15,9 @@
 # The headset jack's volume keys may well be worth having; that is a behaviour
 # change to test deliberately, not to acquire by accident.
 deviceinfo_key_devices="/dev/input/event0;/dev/input/event2;"
+
+# Tuned by eye, not derived. webOS apps are fixed-layout Enyo pages, so the
+# ratio decides how many CSS pixels they get: 1080/2.4 = 450, which is what
+# they are built for. The "natural" density/160 of 2.75 gives 393 and they
+# inflate and clip - verified on device.
+deviceinfo_device_pixel_ratio="2.4"
