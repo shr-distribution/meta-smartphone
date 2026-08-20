@@ -5,7 +5,9 @@ DefaultDependencies=no
 # device this is, and must land before anything that consumes the result.
 After=android-system.service
 Requires=android-system.service
-Before=surface-manager-daemon.service sensorfwd.service ofono.service
+# Before configd, so the generated layer is in place and the stale cache is
+# gone before it builds its merged view.
+Before=surface-manager-daemon.service sensorfwd.service ofono.service configd.service
 
 [Service]
 Type=oneshot
