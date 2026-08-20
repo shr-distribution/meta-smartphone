@@ -28,8 +28,16 @@ do_install() {
 
     install -d ${D}${datadir}/luneos/adaptations
     cp -r ${THISDIR}/adaptations/* ${D}${datadir}/luneos/adaptations/
+
+    install -d ${D}${libdir}/luneos-device-config/generators
+    install -m 0755 ${THISDIR}/generators/* ${D}${libdir}/luneos-device-config/generators/
+
+    # Ship the configd override layer directory empty. /etc/configd/layers.json
+    # already declares it at priority 900; shipping the mount point means the
+    # runtime bind does not have to mkdir into the rootfs.
+    install -d ${D}${sysconfdir}/configd/layers/overlay
 }
 
-FILES:${PN} += "${datadir}/luneos/adaptations"
+FILES:${PN} += "${datadir}/luneos/adaptations ${libdir}/luneos-device-config ${sysconfdir}/configd/layers/overlay"
 
 SYSTEMD_SERVICE:${PN} = "luneos-device-config.service"

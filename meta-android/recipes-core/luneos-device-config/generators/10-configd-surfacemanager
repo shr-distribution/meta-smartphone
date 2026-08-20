@@ -1,0 +1,16 @@
+#!/bin/sh
+# Display scaling for webApps, into the configd override layer.
+#
+# webapp-mgr.sh passes --force-device-scale-factor from
+# com.webos.surfacemanager.devicePixelRatio. That value has been maintained by
+# hand per device and drifted: sargo carried 2.4 where the natural ratio is
+# 2.75, giving a 1080px panel a 450px CSS viewport against the 393px stock
+# Android gives, so web content laid out about 15% small. sagit was further out
+# still, 1.9 against 2.67.
+#
+# density/160 is the ratio Android itself uses, so derive it.
+[ -n "${density:-}" ] || exit 0
+
+dpr=$(awk -v d="$density" 'BEGIN { printf "%.2f", d / 160 }')
+printf '{\n    "devicePixelRatio": "%s"\n}\n' "$dpr" > "$GEN/configd/com.webos.surfacemanager.json"
+echo "luneos-device-config: devicePixelRatio=$dpr (density $density)"

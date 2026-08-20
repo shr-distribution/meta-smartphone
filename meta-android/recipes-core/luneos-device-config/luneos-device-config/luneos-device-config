@@ -92,50 +92,68 @@ LUNEOS_KEY_DEVICES=$keydevs
 EOF
 log "codename=$codename api=$api_level density=$density touch=$touchscreen keys=$keydevs"
 
-# ------------------------------------------------------ configd overlay ----
-# webOS components read their settings from configd, which is a layered store:
-# /etc/configd/layers.json already declares an "Override configs" layer at
-# priority 900 intended for exactly this. Feeding derived values in there beats
+# ------------------------------------------------------- generators ----
+# Each concern is a small script under generators/, run in name order with the
+# derived values in the environment. A generator writes files and never mounts
+# anything; this script does all the mounting, so the contract is one-way and a
+# generator can be added, dropped or upstreamed on its own.
+#
+#   $GEN/files/<absolute target path>   shadow an existing rootfs file
+#   $GEN/configd/<name>.json            a configd override layer entry
+#
+# Everything lands under /run: the rootfs is never written to, or a universal
+# image would stop being universal after its first boot.
+
+GEN=$RUN/gen
+GENERATORS=/usr/lib/luneos-device-config/generators
+
+rm -rf "$GEN"; mkdir -p "$GEN/files" "$GEN/configd"
+
+export GEN ADAPT_ROOT RUN
+export codename api_level density touchscreen keydevs adaptation
+
+if [ -d "$GENERATORS" ]; then
+    for g in "$GENERATORS"/*; do
+        [ -x "$g" ] || continue
+        "$g" || log "WARNING: generator $(basename "$g") failed"
+    done
+fi
+
+# Shadow generated files over their targets. A target that does not exist is
+# skipped rather than created: creating it would mean writing to the rootfs.
+find "$GEN/files" -type f 2>/dev/null | while read -r f; do
+    target=${f#"$GEN/files"}
+    if [ ! -e "$target" ]; then
+        log "skipping $target (nothing to shadow)"
+        continue
+    fi
+    mountpoint -q "$target" 2>/dev/null && continue
+    if mount --bind "$f" "$target"; then
+        log "generated $target"
+    else
+        log "WARNING: could not bind $target"
+    fi
+done
+
+# configd is a layered store: /etc/configd/layers.json already declares an
+# "Override configs" layer at priority 900 for exactly this. Feeding it beats
 # rewriting the OWO/OSE config files, which are upstream-owned, and it is the
 # same shape as Sailfish's dconf vendor.d overrides.
 #
-# The layer directory is bind-mounted from /run rather than written to, so the
-# rootfs stays untouched and the image stays universal.
-#
-# configd caches its merged view in /var/preferences/configd_db.json and will
-# not notice a new layer until that is gone - discovered the hard way: adding
-# the layer and restarting configd alone changes nothing.
-configd_overlay() {
-    layer=/etc/configd/layers/overlay
-    [ -d /etc/configd/layers ] || return 0
-
-    gen="$RUN/configd"
-    mkdir -p "$gen"
-
-    # Chromium's --force-device-scale-factor, via com.webos.surfacemanager.
-    # Density/160 is the ratio Android itself uses, so web content lays out at
-    # the size it was designed for. Hand-maintained per-device values had
-    # drifted badly - sargo carried 2.4 against a natural 2.75, which renders
-    # everything about 15% small.
-    if [ -n "$density" ]; then
-        dpr=$(awk -v d="$density" 'BEGIN { printf "%.2f", d / 160 }')
-        printf '{\n    "devicePixelRatio": "%s"\n}\n' "$dpr" \
-            > "$gen/com.webos.surfacemanager.json"
-        log "configd devicePixelRatio=$dpr (from density $density)"
-    fi
-
-    [ -n "$(ls -A "$gen" 2>/dev/null)" ] || return 0
-
-    mkdir -p "$layer"
-    if mount --bind "$gen" "$layer"; then
-        log "bound generated configd layer onto $layer"
+# configd caches its merged view and will not notice a new layer until the
+# cache is gone - adding the layer and restarting configd alone changes
+# nothing. The layer directory itself is shipped by this package so that
+# mounting onto it does not modify the rootfs either.
+if [ -n "$(ls -A "$GEN/configd" 2>/dev/null)" ] && [ -d /etc/configd/layers/overlay ]; then
+    if mountpoint -q /etc/configd/layers/overlay 2>/dev/null; then
+        log "configd overlay layer already mounted"
+    elif mount --bind "$GEN/configd" /etc/configd/layers/overlay; then
+        log "bound generated configd layer"
         rm -f /var/preferences/configd_db.json /var/preferences/configd_debug_db.json
     else
         log "WARNING: could not bind configd overlay layer"
     fi
-}
-
-configd_overlay
+fi
 
 # ---------------------------------------------------------------- Tier 2 ----
 # Apply the file tree. overlayfs in one mount where the kernel has it, else a
