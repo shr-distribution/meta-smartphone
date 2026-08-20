@@ -44,6 +44,26 @@ else
 	sed -i "/swapon_all /d" $LXC_ROOTFS_PATH/init.*.rc
 	sed -i "/on nonencrypted/d" $LXC_ROOTFS_PATH/init.rc
 
-	# Config snippet scripts
-	run-parts /var/lib/lxc/android/pre-start.d || true
 fi
+
+# Config snippet scripts.
+#
+# These used to live inside the legacy branch above, so on a system-as-root
+# image - which is what every GSI is - none of them ran at all. Ubuntu Touch
+# runs seven hooks here on every layout (no-adbd, no-surface-flinger,
+# process-overrides and friends) and Droidian does the same; LuneOS silently ran
+# zero. Device adaptations have nowhere else to hook in, so run them in both
+# layouts.
+#
+# Hooks that rewrite init.rc can only work when the Android image is writable.
+# A GSI is loop-mounted read-only unless .writable_device_image is set, so tell
+# the hooks which case they are in rather than letting each one fail at sed.
+if [ -w "$LXC_ROOTFS_PATH/init.rc" ]; then
+    LXC_ROOTFS_WRITABLE=1
+else
+    LXC_ROOTFS_WRITABLE=0
+    echo "Android rootfs is read-only; hooks that patch init.rc will skip"
+fi
+export LXC_ROOTFS_WRITABLE LXC_ROOTFS_PATH
+
+run-parts /var/lib/lxc/android/pre-start.d || true

@@ -1,5 +1,21 @@
 #!/bin/sh
 
-# Do not mount anything
+# init.rc is inside the Android image, which is read-only for a GSI. pre-start.sh
+# works out which case we are in; skip cleanly rather than failing at sed.
+if [ "${LXC_ROOTFS_WRITABLE:-0}" != "1" ]; then
+    echo "$(basename "$0"): Android rootfs read-only, skipping"
+    exit 0
+fi
+
+# Do not mount anything - Halium's initramfs and LuneOS have already done it.
 sed -i "/mount_all /d" $LXC_ROOTFS_PATH/init.*.rc
-sed -i "/on nonencrypted/d" $LXC_ROOTFS_PATH/init.rc
+
+# Leave "on nonencrypted" alone on a system-as-root image. It is one of only two
+# actions that ever run class_start (main + late_start), and Halium reaches it
+# from its patched mount_all via queue_fs_event(FS_MGR_MNTALL_DEV_NOT_ENCRYPTED);
+# init.rc says as much itself: "Never gets called, since Mer does its own
+# mount_all". Deleting it on a GSI removes that path for good. The legacy layout
+# keeps the old behaviour.
+if [ ! -e /android/init ]; then
+    sed -i "/on nonencrypted/d" $LXC_ROOTFS_PATH/init.rc
+fi
