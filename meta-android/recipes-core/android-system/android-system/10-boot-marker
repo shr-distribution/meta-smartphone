@@ -1,8 +1,15 @@
 #!/bin/sh
 
+# init.rc is inside the Android image, which is read-only for a GSI. pre-start.sh
+# works out which case we are in; skip cleanly rather than failing at sed.
+if [ "${LXC_ROOTFS_WRITABLE:-0}" != "1" ]; then
+    echo "$(basename "$0"): Android rootfs read-only, skipping"
+    exit 0
+fi
+
 # Install an additional late start script to indicate to the outer system that we're done
 # with booting
-echo ""
+echo "" >> $LXC_ROOTFS_PATH/init.rc
 echo "service bootdone /system/bin/touch /dev/.android_boot_done" >> $LXC_ROOTFS_PATH/init.rc
 echo "    class late_start" >> $LXC_ROOTFS_PATH/init.rc
 echo "    oneshot" >> $LXC_ROOTFS_PATH/init.rc
