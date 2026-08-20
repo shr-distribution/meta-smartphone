@@ -7,7 +7,9 @@ PR = "r4"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 # For some of the operations inside our setup script we need "real" sed!
-RDEPENDS:${PN} = "sed"
+# parse-android-dynparts + dmsetup are what map the Android "super" partition;
+# mandatory from Android 10 and needed by mount-android.sh.
+RDEPENDS:${PN} = "sed parse-android-dynparts libdevmapper"
 
 # For running the container we're using lxc (>= 1.0 required)
 # we use this with lxc from meta-luneos:
@@ -31,6 +33,7 @@ SRC_URI = " \
     file://android-system.service \
     file://wait-for-android.sh \
     file://start-android-hals.sh \
+    file://mount-android.sh \
     file://lxc-config \
     file://pre-start.sh \
     file://post-stop.sh \
@@ -161,6 +164,7 @@ do_install() {
 
     install -d ${D}${bindir}
     install -m 0755 ${UNPACKDIR}/wait-for-android.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/mount-android.sh ${D}${bindir}
     install -m 0755 ${UNPACKDIR}/start-android-hals.sh ${D}${bindir}
 
     install -d ${D}${localstatedir}/lib/lxc/android

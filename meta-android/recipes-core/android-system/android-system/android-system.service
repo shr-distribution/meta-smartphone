@@ -12,6 +12,10 @@ Before=surface-manager-daemon.service
 
 [Service]
 Type=simple
+# Map and mount the device's own Android partitions (super/dynamic partitions,
+# vendor, vendor_dlkm, odm, and whatever the vendor's fstab asks for) before the
+# container's init can look for them.
+ExecStartPre=/usr/bin/mount-android.sh
 ExecStart=/usr/bin/lxc-start -n android -l DEBUG -- /init
 ExecStartPost=/usr/bin/start-android-hals.sh
 ExecStartPost=/usr/bin/wait-for-android.sh
