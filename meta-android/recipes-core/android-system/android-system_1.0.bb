@@ -9,7 +9,9 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 # For some of the operations inside our setup script we need "real" sed!
 # parse-android-dynparts + dmsetup are what map the Android "super" partition;
 # mandatory from Android 10 and needed by mount-android.sh.
-RDEPENDS:${PN} = "sed parse-android-dynparts libdevmapper"
+# python3-core/-misc: mount-apexes.py. Only reached on Android 10+ images,
+# but the interpreter has to be present for it to run at all.
+RDEPENDS:${PN} = "sed parse-android-dynparts libdevmapper python3-core python3-misc"
 
 # For running the container we're using lxc (>= 1.0 required)
 # we use this with lxc from meta-luneos:
@@ -29,11 +31,22 @@ RCONFLICTS:${PN} = "android-initscripts"
 
 inherit systemd useradd
 
+# LXC uses Debian-style architecture names, Yocto does not. Kept as a function
+# rather than an inline dict literal: bitbake expands ${@...} up to the first
+# closing brace, so a dict inside one would be cut short.
+def lxc_arch(d):
+    mapping = {"aarch64": "arm64", "arm": "armhf", "x86_64": "x86_64", "i686": "i686"}
+    target = d.getVar("TARGET_ARCH") or ""
+    return mapping.get(target, target)
+
+LXC_ARCH = "${@lxc_arch(d)}"
+
 SRC_URI = " \
     file://android-system.service \
     file://wait-for-android.sh \
     file://start-android-hals.sh \
     file://mount-android.sh \
+    file://mount-apexes.py \
     file://lxc-config \
     file://pre-start.sh \
     file://post-stop.sh \
@@ -165,10 +178,12 @@ do_install() {
     install -d ${D}${bindir}
     install -m 0755 ${UNPACKDIR}/wait-for-android.sh ${D}${bindir}
     install -m 0755 ${UNPACKDIR}/mount-android.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/mount-apexes.py ${D}${bindir}
     install -m 0755 ${UNPACKDIR}/start-android-hals.sh ${D}${bindir}
 
     install -d ${D}${localstatedir}/lib/lxc/android
     install -m 0644 ${UNPACKDIR}/lxc-config ${D}${localstatedir}/lib/lxc/android/config
+    sed -i -e "s|@LXC_ARCH@|${LXC_ARCH}|" ${D}${localstatedir}/lib/lxc/android/config
     install -m 0755 ${UNPACKDIR}/pre-start.sh ${D}${localstatedir}/lib/lxc/android/
     install -m 0755 ${UNPACKDIR}/post-stop.sh ${D}${localstatedir}/lib/lxc/android/
 
