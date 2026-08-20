@@ -80,6 +80,24 @@ try_mount_validated() {
     return 1
 }
 
+# --- binderfs ---------------------------------------------------------------
+# From Android 11 (kernel 5.x) the binder nodes come from binderfs rather than
+# static /dev/binder* devices. Mount it on the host so the container config's
+# optional bind of /dev/binderfs has something to bind. Older kernels have no
+# CONFIG_ANDROID_BINDERFS and simply skip this.
+if grep -qw binder /proc/filesystems 2>/dev/null; then
+    if ! mountpoint -q /dev/binderfs 2>/dev/null; then
+        mkdir -p /dev/binderfs
+        if mount -t binder binder /dev/binderfs 2>/dev/null; then
+            log "mounted binderfs at /dev/binderfs"
+        else
+            log "WARNING: binder filesystem available but mounting /dev/binderfs failed"
+        fi
+    fi
+else
+    log "no binderfs support in this kernel, using static binder nodes"
+fi
+
 # --- dynamic partitions -----------------------------------------------------
 # From Android 10, system/vendor/product are logical partitions inside 'super',
 # described by a custom header rather than LVM. Map them to /dev/mapper/dynpart-*.
@@ -198,5 +216,22 @@ cat "$fstab" | while read -r src dst fstype flags _rest; do
     mount "$path" "$target" -t "$fstype" -o "$(parse_mount_flags "$flags")" 2>/dev/null \
         || log "WARNING: failed to mount $path at $target"
 done
+
+# --- APEX (Android 10+) -----------------------------------------------------
+# The GSI's linker needs /apex/com.android.runtime for bionic, and linkerconfig
+# aborts if the VNDK apex is missing or mounted under the wrong name, so these
+# have to be in place before the container's init runs.
+#
+# Only a minimal set is mounted, following UBports: runtime, art, i18n and the
+# VNDK. Mounting everything is unnecessary and pulls in modules that expect a
+# running apexd.
+#
+# Android 9 has no APEX at all, so on those images /android/apex does not exist
+# and this is skipped entirely.
+if [ -d "$ANDROID_ROOT/apex" ] && command -v mount-apexes.py >/dev/null 2>&1; then
+    log "mounting APEX modules"
+    mount-apexes.py "com.android.runtime" "com.android.art" "com.android.i18n" "com.android.vndk.*" \
+        || log "WARNING: APEX mounting reported errors"
+fi
 
 exit 0

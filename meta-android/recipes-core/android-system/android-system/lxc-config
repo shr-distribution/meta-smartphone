@@ -1,10 +1,10 @@
 lxc.rootfs.path = /var/lib/lxc/android/rootfs
-lxc.uts.name = armhf
+lxc.uts.name = android
 
 lxc.tty.dir = lxc
 lxc.tty.max  = 4
 lxc.pty.max = 1024
-lxc.arch = armhf
+lxc.arch = @LXC_ARCH@
 lxc.cap.drop = mac_admin mac_override
 
 lxc.hook.pre-start = /var/lib/lxc/android/pre-start.sh
@@ -17,10 +17,15 @@ lxc.net.0.type = none
 
 lxc.init.cmd = /init
 
+lxc.apparmor.profile = unconfined
 lxc.autodev = 0
 
 lxc.mount.entry = tmpfs dev tmpfs nosuid 0 0
 lxc.mount.entry = /dev/__properties__ dev/__properties__ bind bind,create=dir 0 0
+# binderfs replaces the static /dev/binder* nodes from Android 11 / kernel 5.x.
+# Marked optional so this config stays valid on older kernels without
+# CONFIG_ANDROID_BINDERFS, where mount-android.sh will not have created it.
+lxc.mount.entry = /dev/binderfs dev/binderfs bind bind,create=dir,optional 0 0
 lxc.mount.entry = /dev/socket dev/socket bind bind,create=dir 0 0
 lxc.mount.entry = proc proc proc nodev,noexec,nosuid 0 0
 lxc.mount.entry = sysfs sys sysfs nodev,noexec,nosuid 0 0
