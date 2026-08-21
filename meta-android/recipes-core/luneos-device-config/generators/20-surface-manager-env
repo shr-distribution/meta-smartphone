@@ -1,0 +1,23 @@
+#!/bin/sh
+# The compositor's touchscreen node.
+#
+# surface-manager.env is almost entirely generic - QT_IM_MODULE, EGL_PLATFORM,
+# WEBOS_COMPOSITOR_PLATFORM and the highdpi flag are the same on every Halium
+# device. The single device-specific part is the evdev node in
+# WEBOS_COMPOSITOR_EXTRA_OPTIONS, and that is exactly derivable: precisely one
+# input device advertises ID_INPUT_TOUCHSCREEN.
+#
+# Substitute into the shipped file rather than emitting a whole copy, so the
+# generic content stays owned by luna-surfacemanager-conf and does not go stale
+# here when upstream changes it.
+SRC=/etc/surface-manager.d/surface-manager.env
+[ -f "$SRC" ] || exit 0
+[ -n "${touchscreen:-}" ] || exit 0
+
+grep -q "evdevtouch:" "$SRC" || exit 0
+grep -q "evdevtouch:$touchscreen\b" "$SRC" && exit 0   # already correct, nothing to shadow
+
+mkdir -p "$GEN/files/etc/surface-manager.d"
+sed "s|evdevtouch:/dev/input/event[0-9]*|evdevtouch:$touchscreen|" "$SRC" \
+    > "$GEN/files/etc/surface-manager.d/surface-manager.env"
+echo "luneos-device-config: compositor touchscreen -> $touchscreen"
