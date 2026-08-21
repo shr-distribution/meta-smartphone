@@ -16,10 +16,25 @@ for c in lshal /android/system/bin/lshal /system/bin/lshal; do
 done
 [ -n "$LSHAL" ] || exit 0
 
-slots=$($LSHAL 2>/dev/null |
-        grep -oE 'android\.hardware\.radio@[0-9.]+::IRadio/slot[0-9]+' |
-        sed 's|.*/||' | sort -u)
-[ -n "$slots" ] || exit 0
+# The RIL registers asynchronously once init's gates are open, so poll rather
+# than sample once. Getting this wrong is not harmless: with no slots we write
+# nothing, ofono falls back to the shipped generic ril_subscription.conf which
+# still uses socket=/dev/socket/rild, and on a binder device that means an
+# abort-restart loop.
+slots=
+i=0
+while [ $i -lt 30 ]; do
+    slots=$($LSHAL 2>/dev/null |
+            grep -oE 'android\.hardware\.radio@[0-9.]+::IRadio/slot[0-9]+' |
+            sed 's|.*/||' | sort -u)
+    [ -n "$slots" ] && break
+    i=$((i + 1))
+    sleep 0.5
+done
+if [ -z "$slots" ]; then
+    echo "luneos-device-config: WARNING: no IRadio slots after 15s; leaving the shipped ofono config in place"
+    exit 0
+fi
 
 mkdir -p "$GEN/files/etc/ofono"
 
