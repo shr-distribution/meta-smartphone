@@ -14,7 +14,10 @@ SRC=/etc/surface-manager.d/surface-manager.env
 [ -f "$SRC" ] || exit 0
 [ -n "${touchscreen:-}" ] || exit 0
 
-grep -q "evdevtouch:" "$SRC" || exit 0
+if ! grep -q "evdevtouch:" "$SRC"; then
+    echo "luneos-device-config: WARNING: no evdevtouch anchor in $SRC; cannot set this value"
+    exit 0
+fi
 grep -q "evdevtouch:$touchscreen\b" "$SRC" && exit 0   # already correct, nothing to shadow
 
 mkdir -p "$GEN/files/etc/surface-manager.d"

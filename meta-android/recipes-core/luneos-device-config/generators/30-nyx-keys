@@ -13,7 +13,10 @@ SRC=/etc/nyx.conf
 [ -f "$SRC" ] || exit 0
 [ -n "${keydevs:-}" ] || exit 0
 
-grep -q "^paths=" "$SRC" || exit 0
+if ! grep -q "^paths=" "$SRC"; then
+    echo "luneos-device-config: WARNING: no paths= anchor in $SRC; cannot set this value"
+    exit 0
+fi
 grep -q "^paths=$keydevs\$" "$SRC" && exit 0   # already correct
 
 target=${SRC#/}
