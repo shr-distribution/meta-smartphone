@@ -1,0 +1,59 @@
+#!/bin/sh
+# Display geometry for luna-sysmgr.
+#
+# DisplayWidth/DisplayHeight come straight from the connected DRM connector, and
+# DPI from the panel's own density, so none of the three needs per-device data.
+#
+# GridUnit is the interesting one. It is the base layout unit, and across
+# LuneOS devices it works out to a roughly constant *physical* size rather than
+# a fixed pixel count:
+#
+#   sargo      DPI 441  GU 25  -> 1.44 mm      mido/tissot DPI 480 GU 26 -> 1.38 mm
+#   hammerhead DPI 445  GU 26  -> 1.48 mm      rosy/pinephone DPI 282 GU 19 -> 1.71 mm
+#   sagit      DPI 428  GU 19  -> 1.13 mm      (an outlier, as it is for devicePixelRatio)
+#
+# Deriving it as a constant 1.44 mm keeps touch targets the same physical size
+# on any panel, and reproduces sargo's shipped 25 exactly. It is within one or
+# two units on the others and well out on sagit, so the shipped values are not
+# perfectly consistent - a device that cares pins deviceinfo_grid_unit.
+SRC=/etc/palm/luna-platform.conf
+[ -f "$SRC" ] || exit 0
+
+GRID_UNIT_MM=${deviceinfo_grid_unit_mm:-1.44}
+
+# DPI here is the panel's true physical PPI, which is NOT derivable: it needs
+# the panel's physical dimensions, and an internal DSI panel exposes no EDID.
+# ro.sf.lcd_density is Android's density *bucket* (440 on sargo where the panel
+# is 441 PPI) - close, but writing it would make the value slightly less
+# accurate than what is shipped. So prefer the file's own DPI, fall back to the
+# density bucket only when the file has nothing, and let deviceinfo override.
+dpi=${deviceinfo_display_dpi:-}
+[ -n "$dpi" ] || dpi=$(sed -n 's/^DPI=\([0-9][0-9]*\).*/\1/p' "$SRC" | head -n1)
+[ -n "$dpi" ] || dpi=$density
+[ -n "$dpi" ] || exit 0
+
+grid=${deviceinfo_grid_unit:-}
+if [ -z "$grid" ]; then
+    grid=$(awk -v d="$dpi" -v mm="$GRID_UNIT_MM" 'BEGIN { printf "%d", (d * mm / 25.4) + 0.5 }')
+fi
+
+changed=0
+tmp=$(mktemp)
+cp "$SRC" "$tmp"
+set_kv() {
+    grep -q "^$1=" "$tmp" || { echo "luneos-device-config: WARNING: no $1= anchor in $SRC"; return; }
+    grep -q "^$1=$2\$" "$tmp" && return
+    sed -i "s|^$1=.*|$1=$2|" "$tmp"
+    changed=1
+}
+[ -n "${panel_w:-}" ] && set_kv DisplayWidth "$panel_w"
+[ -n "${panel_h:-}" ] && set_kv DisplayHeight "$panel_h"
+set_kv DPI "$dpi"
+set_kv GridUnit "$grid"
+
+if [ "$changed" = "1" ]; then
+    mkdir -p "$GEN/files/etc/palm"
+    cp "$tmp" "$GEN/files/etc/palm/luna-platform.conf"
+    echo "luneos-device-config: luna-platform ${panel_w}x${panel_h} dpi=$dpi gridUnit=$grid"
+fi
+rm -f "$tmp"
