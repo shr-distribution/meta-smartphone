@@ -21,3 +21,8 @@ deviceinfo_key_devices="/dev/input/event0;/dev/input/event2;"
 # they are built for. The "natural" density/160 of 2.75 gives 393 and they
 # inflate and clip - verified on device.
 deviceinfo_device_pixel_ratio="2.4"
+
+# The panel's true physical PPI. Not derivable: it needs the panel's physical
+# dimensions, which an internal DSI panel does not report, and Android's
+# density bucket (440) is close but not the same number. sargo shipped 441.
+deviceinfo_display_dpi="441"
