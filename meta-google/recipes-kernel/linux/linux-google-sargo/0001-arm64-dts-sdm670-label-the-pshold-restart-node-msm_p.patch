@@ -1,0 +1,39 @@
+From: LuneOS <webos-ports@googlegroups.com>
+Date: Sat, 22 Aug 2026 00:00:00 +0000
+Subject: [PATCH] arm64: dts: sdm670: label the pshold restart node msm_poweroff
+
+Every one of the ten device tree overlays in a Pixel 3a's stock Android 11
+dtbo partition references the symbol "msm_poweroff". This tree declares the
+node but gives it no label, so it never reaches __symbols__ and the overlay's
+phandle cannot be resolved. The bootloader gives up before starting the
+kernel:
+
+    Booting  FAILED (remote: 'Error verifying the received boot.img:
+                              Invalid Parameter')
+    Error boot prepare
+
+which is what a LuneOS boot image did on a Pixel 3a after flashing stock
+Android 11, while an otherwise identical image carrying Google's own device
+tree booted. Comparing __symbols__ between the two trees showed four
+differences, and msm_poweroff was the only one the dtbo actually references.
+
+Google's own sdm670.dtsi labels this node; this restores the label so the
+stock overlays apply against a kernel built from these sources. It costs one
+symbol table entry and changes nothing else.
+
+Upstream-Status: Inappropriate [device tree matches a vendor blob]
+---
+ arch/arm64/boot/dts/qcom/sdm670.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/arch/arm64/boot/dts/qcom/sdm670.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm670.dtsi
+@@ -1005,7 +1005,7 @@
+ 		};
+ 	};
+ 
+-	restart@10ac000 {
++	msm_poweroff: restart@10ac000 {
+ 		compatible = "qcom,pshold";
+ 		reg = <0xC264000 0x4>,
+ 		      <0x1fd3000 0x4>;

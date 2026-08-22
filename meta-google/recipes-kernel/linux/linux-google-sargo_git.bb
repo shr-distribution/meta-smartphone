@@ -16,13 +16,25 @@ ANDROID_BOOTIMG_RAMDISK_RAM_BASE = "0x01000000"
 ANDROID_BOOTIMG_SECOND_RAM_BASE = "0x00f00000"
 ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x00000100"
 
+# Android 11's bootloader will not take the v0 header abootimg produces. Stock
+# and TWRP both ship header version 2 with 4096 byte pages and the device tree
+# in its own section; a v0 image is refused with "Error boot prepare" before
+# the kernel is ever reached. Addresses below are stock's.
+ANDROID_BOOTIMG_HEADER_VERSION = "2"
+ANDROID_BOOTIMG_PAGESIZE = "4096"
+ANDROID_BOOTIMG_DTB_RAM_BASE = "0x01f00000"
+
 inherit kernel_android pkgconfig
 
 # kernel.bbclass sets S = "${STAGING_KERNEL_DIR}", and do_symlink_kernsrc only
 # moves the unpacked tree there when the recipe points S somewhere else.
 S = "${UNPACKDIR}/${BP}"
 
-SRC_URI = "git://github.com/shr-distribution/linux.git;branch=sargo/${LINUX_VERSION}/lune;protocol=https"
+SRC_URI = "git://github.com/shr-distribution/linux.git;branch=sargo/${LINUX_VERSION}/lune;protocol=https \
+           file://0001-arm64-dts-sdm670-label-the-pshold-restart-node-msm_p.patch \
+"
+
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 SRCREV = "0102a71cd2fd99360db60b8ae70c5e3c758b1008"
 
 LINUX_VERSION = "4.9.124"
