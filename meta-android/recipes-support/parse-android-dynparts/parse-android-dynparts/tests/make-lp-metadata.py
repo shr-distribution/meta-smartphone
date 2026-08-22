@@ -91,10 +91,23 @@ if __name__ == "__main__":
                       ("system_a", 0, 1, [(1024 * 1024, 0, 2048)]),
                       ("vendor_a", 0, 1, [(512 * 1024, 1, 2048)]),
                   ])
+    elif which == "retrofit-small":
+        # Same shape as "retrofit", scaled down so the backing devices can be
+        # sparse files on a loop device. Sizes match loopback-retrofit-test.sh:
+        # 256MiB system holding a 64MiB system_a, 128MiB vendor holding a 32MiB
+        # vendor_a, both starting one mebibyte in so the metadata fits ahead of
+        # them.
+        n = build(out,
+                  block_devices=[("system", 256 * MB, 2048),
+                                 ("vendor", 128 * MB, 2048)],
+                  partitions=[
+                      ("system_a", 0, 1, [(131072, 0, 2048)]),
+                      ("vendor_a", 0, 1, [(65536, 1, 2048)]),
+                  ])
     elif which == "badtype":
         n = build(out,
                   block_devices=[("super", 4 * 1024 * MB, 2048)],
                   partitions=[("system_a", 0, 1, [(1024 * 1024, 0, 2048, 99)])])
     else:
-        sys.exit("usage: mklp.py normal|retrofit|badtype OUT")
+        sys.exit("usage: mklp.py normal|retrofit|retrofit-small|badtype OUT")
     print(f"wrote {out} ({n} bytes)")
