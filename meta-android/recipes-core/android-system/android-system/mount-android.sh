@@ -134,12 +134,21 @@ else
 fi
 
 # --- vendor -----------------------------------------------------------------
+# Order matters: whenever a logical vendor has been mapped, it is the right one.
+#
+# On a retrofit device the physical vendor partition still mounts, because a
+# filesystem superblock survives at offset zero from before the conversion. On
+# sargo that mount is empty, so the build.prop check below would reject it and
+# fall through to the mapper node anyway - but only by luck. A device where
+# more of the old filesystem survived would pass the check and silently run the
+# previous Android release's vendor against a newer GSI. Ask for the mapper
+# node first rather than depend on the validation catching it.
 try_mount_validated "$ANDROID_ROOT/vendor" "/build.prop" \
     "/userdata/vendor.img" \
     "/var/lib/lxc/android/vendor.img" \
-    "$(find_partition_path vendor)" \
     "/dev/mapper/dynpart-vendor$ab_slot_suffix" \
     "/dev/mapper/dynpart-vendor" \
+    "$(find_partition_path vendor)" \
     || log "no vendor partition found yet"
 
 # Some devices describe vendor only in the devicetree fstab.

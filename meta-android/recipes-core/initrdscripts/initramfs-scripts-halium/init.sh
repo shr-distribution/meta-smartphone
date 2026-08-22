@@ -269,6 +269,35 @@ mount_device_vendor() {
 
     tell_kmsg "mounting device vendor $vpart at /android/vendor"
     if mount -o ro "$vpart" ${rootmnt}/android/vendor; then
+        # Check that what mounted really is a vendor, and get out of the way if
+        # it is not.
+        #
+        # On a device with retrofit dynamic partitions the logical vendor is not
+        # this partition: it is spread across the physical system and vendor
+        # partitions and has to be assembled with dm-linear first. Mounting the
+        # physical partition raw still succeeds, because a filesystem superblock
+        # survives at offset zero from before the conversion - on a Pixel 3a
+        # upgraded from Android 9 to 11 it mounts as ext4 and is empty.
+        #
+        # An empty mount would be merely useless; the real damage is that it
+        # holds the partition open, so mount-android.sh cannot claim it for
+        # dm-linear later. dmsetup then fails the whole table with EBUSY:
+        #
+        #   device-mapper: table: 253:1: linear: Device lookup failed
+        #   reload ioctl on dynpart-vendor_a failed: Device or resource busy
+        #
+        # and the device ends up with no vendor at all.
+        #
+        # The initramfs cannot do the mapping itself - no udev, no dmsetup, no
+        # parse-android-dynparts - so it should recognise the situation and
+        # leave the partition alone for mount-android.sh to deal with.
+        if [ ! -e ${rootmnt}/android/vendor/build.prop ] && \
+           [ ! -d ${rootmnt}/android/vendor/etc ]; then
+            tell_kmsg "$vpart holds no vendor filesystem (no build.prop, no etc);"
+            tell_kmsg "unmounting it so the logical vendor can be mapped later"
+            umount ${rootmnt}/android/vendor
+            return 1
+        fi
         # The real vendor carries its own fstab (firmware, persist, dsp ...);
         # mountroot already ran this against an empty directory, so run it again
         # now that there is something to read.
