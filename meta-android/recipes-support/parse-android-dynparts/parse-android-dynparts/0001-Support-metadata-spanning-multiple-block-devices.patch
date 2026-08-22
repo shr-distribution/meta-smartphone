@@ -1,6 +1,7 @@
+From c87ad54b20ebe8b5f7bc520fbd39f0b9113c4d90 Mon Sep 17 00:00:00 2001
 From: LuneOS <webos-ports@googlegroups.com>
-Date: Thu, 20 Aug 2026 00:00:00 +0000
-Subject: [PATCH] Support metadata spanning multiple block devices
+Date: Sat, 22 Aug 2026 19:40:10 +0200
+Subject: Support metadata spanning multiple block devices
 
 Devices that launched before Android 10 and were later upgraded use *retrofit*
 dynamic partitions: rather than one dedicated "super", the logical partitions
@@ -27,11 +28,18 @@ Resolve each extent's target_source through metadata->block_devices instead.
 Index 0 keeps using the path the metadata was read from, so the common
 single-super case is byte-for-byte unchanged. Other indices are looked up by
 their metadata name beside that path, inheriting its A/B slot suffix
-(/dev/disk/by-partlabel/system_a therefore finds .../vendor_a), and an optional
-name=path argument overrides that for porting and testing.
+(/dev/disk/by-partlabel/system_a therefore finds .../vendor_a) - but only when
+the recorded name does not already carry that suffix, which on a real device it
+does. An optional name=path argument overrides the lookup entirely, for porting
+and testing.
 
 Upstream-Status: Pending
 ---
+ main.cpp | 83 ++++++++++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 78 insertions(+), 5 deletions(-)
+
+diff --git a/main.cpp b/main.cpp
+index 6129e48..d90db52 100644
 --- a/main.cpp
 +++ b/main.cpp
 @@ -1,8 +1,11 @@
@@ -46,7 +54,7 @@ Upstream-Status: Pending
  
  using namespace android::fs_mgr;
  
-@@ -12,19 +15,78 @@
+@@ -12,19 +15,87 @@ using std::endl;
  
  constexpr std::string_view kDmPrefix = "dynpart-";
  
@@ -121,13 +129,22 @@ Upstream-Status: Pending
 +        GetBlockDevicePartitionName(metadata->block_devices[source]);
 +    const auto it = overrides.find(name);
 +    if (it != overrides.end()) return it->second;
++    // Measured on a Pixel 3a running stock Android 11: the metadata names its
++    // block devices "system_a"/"vendor_a", i.e. the slot suffix is already
++    // part of the recorded name. Appending it unconditionally produced
++    // /dev/disk/by-partlabel/vendor_a_a and dmsetup failed the whole table
++    // with ENXIO. Only append what is not already there.
++    if (!slot_suffix.empty() && name.size() > slot_suffix.size() &&
++        name.compare(name.size() - slot_suffix.size(),
++                     slot_suffix.size(), slot_suffix) == 0)
++      return device_dir + "/" + name;
 +    return device_dir + "/" + name + slot_suffix;
 +  };
 +
    std::string table;
  
    // Code structure taken from Android's system/core/fs_mgr/fs_mgr_dm_linear.cpp
-@@ -53,14 +115,16 @@
+@@ -53,14 +124,16 @@ int main(int argc, char* argv[]) {
            line << "," << sector << " " << extent.num_sectors << " zero";
            break;
          case LP_TARGET_TYPE_LINEAR: {
