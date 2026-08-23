@@ -31,7 +31,7 @@ After=local-fs.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/qbootctl -m
+ExecStart=/usr/libexec/mark-boot-successful.sh
 RemainAfterExit=yes
 # A device that is not A/B, or a slot already marked, is not a failure.
 SuccessExitStatus=0 1
