@@ -16,7 +16,12 @@ Type=simple
 # vendor, vendor_dlkm, odm, and whatever the vendor's fstab asks for) before the
 # container's init can look for them.
 ExecStartPre=/usr/bin/mount-android.sh
-ExecStart=/usr/bin/lxc-start -n android -l DEBUG -- /init
+# -o, so LXC's own diagnostics land in a file instead of being lost. Without it
+# the only sign of a container that will not start is the service timing out in
+# start-post: a broken config, a failed mount or an init that dies on exec are
+# all invisible. A stale @LXC_ARCH@ in the config produced nothing but a
+# timeout until this log was read by hand.
+ExecStart=/usr/bin/lxc-start -n android -l DEBUG -o /var/log/lxc-android.log -- /init
 ExecStartPost=/usr/bin/start-android-hals.sh
 ExecStartPost=/usr/bin/wait-for-android.sh
 ExecStop=/usr/bin/lxc-stop -n android -t 5
