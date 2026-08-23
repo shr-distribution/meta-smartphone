@@ -1,0 +1,40 @@
+[Unit]
+Description=Mark the current A/B slot as successfully booted
+Documentation=https://github.com/linux-msm/qbootctl
+
+# Only on an A/B device. The bootloader puts the slot suffix on the kernel
+# command line, so this is also the cheapest way to tell.
+ConditionKernelCommandLine=androidboot.slot_suffix
+
+# The bootloader decrements the slot's retry counter on every attempt and only
+# resets it when the OS says the boot worked. Android does that with
+# "bootctl mark-boot-successful"; without an equivalent the counter walks down
+# to zero over a handful of boots and the bootloader then refuses the slot:
+#
+#     slot-unbootable:a: yes
+#     slot-retry-count:a: 0
+#
+# after which the device drops to fastboot and needs "fastboot --set-active=a"
+# by hand. That is not a fault - it is A/B doing its job in the absence of
+# anything confirming the boot.
+#
+# local-fs.target is the signal: the rootfs mounted and systemd got far enough
+# to bring the filesystems up, which is what the retry counter is guarding
+# against.
+#
+# Explicitly NOT multi-user.target, which is the obvious choice and is wrong
+# here. On LuneOS it waits on surface-manager, sam, ofono and sensorfwd, all of
+# which wait on the Android container; while that container is broken
+# multi-user is never reached, so the unit would never run - precisely when the
+# slot is being burned by repeated failed boots and the marking matters most.
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/qbootctl -m
+RemainAfterExit=yes
+# A device that is not A/B, or a slot already marked, is not a failure.
+SuccessExitStatus=0 1
+
+[Install]
+WantedBy=basic.target
