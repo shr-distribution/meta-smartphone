@@ -6,7 +6,7 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 DEPENDS = "android-tools-native e2fsprogs-native"
 
-INC_PR = "r6"
+INC_PR = "r7"
 
 ANDROID_SYSTEM_IMAGE_DESTNAME ?= "system.img"
 
@@ -37,6 +37,23 @@ do_install() {
         install -m 0644 ${UNPACKDIR}/vendor.img ${D}${localstatedir}/lib/lxc/android/vendor.img
     fi
 
+    # The vndbinder context manager, when the Android build shipped one.
+    #
+    # A stock Android 11 vendor's own /vendor/bin/vndservicemanager is AOSP's,
+    # and its Access constructor does CHECK(selinux_status_open(true) >= 0),
+    # which cannot succeed in a container that has no selinuxfs. It aborts,
+    # init restarts it forever, and nothing becomes the context manager for
+    # /dev/vndbinder - which strands every vendor HAL that opens it, the
+    # display composer included. mount-android.sh binds this over the vendor
+    # one; see the long comment there.
+    #
+    # It has to come from the same build as system.img: it links the VNDK
+    # libbinder, whose Parcel wire format has to match the rest of the
+    # userspace it talks to.
+    if [ -e ${UNPACKDIR}/vndservicemanager ]; then
+        install -m 0755 ${UNPACKDIR}/vndservicemanager ${D}${localstatedir}/lib/lxc/android/vndservicemanager
+    fi
+
     # also install ramdisk image if any
     if [ -e ${UNPACKDIR}/ramdisk.img ]; then
         install -m 0644 ${UNPACKDIR}/ramdisk.img ${D}${localstatedir}/lib/lxc/android/android-ramdisk.img
@@ -64,3 +81,8 @@ FILES:${PN} = "${localstatedir}/lib/lxc/android \
                ${sysconfdir} \
                /android /cache /data /factory /firmware /persist /system /vendor /userdata \
 "
+
+# vndservicemanager comes out of the Android build already stripped, and it is
+# a bionic binary that never runs against anything this recipe's toolchain
+# produced, so the usual ELF checks have nothing useful to say about it.
+INSANE_SKIP:${PN} += "already-stripped ldflags"
