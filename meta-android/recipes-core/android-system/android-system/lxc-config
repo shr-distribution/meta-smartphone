@@ -40,3 +40,8 @@ lxc.mount.entry = /mnt mnt bind rbind 0 0
 # under /android does not survive, because /android is the rootfs LXC sets up
 # and it drops anything already mounted there.
 lxc.mount.entry = /apex apex bind rbind,optional 0 0
+# Same story as /apex: mounted on the host and bound in, because anything put
+# under /android is inside the rootfs LXC re-establishes. optional, since only
+# Android 10/11+ devices have them.
+lxc.mount.entry = /odm odm bind bind,optional 0 0
+lxc.mount.entry = /vendor_dlkm vendor_dlkm bind bind,optional 0 0

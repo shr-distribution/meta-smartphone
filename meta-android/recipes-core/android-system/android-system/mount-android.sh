@@ -138,17 +138,21 @@ if [ -e "$sys_vendor" ] && ! mountpoint -q "$ANDROID_ROOT/vendor" 2>/dev/null \
     fi
 fi
 
-# --- vendor_dlkm (Android 11+: vendor kernel modules) -----------------------
-try_mount_validated "$ANDROID_ROOT/vendor_dlkm" "/etc/build.prop" \
+# --- vendor_dlkm and odm (Android 10/11+, usually logical) ------------------
+# On the host, not under $ANDROID_ROOT, for the same reason as the APEXes:
+# $ANDROID_ROOT is the container's rootfs and LXC drops anything mounted there
+# before starting. Droidian binds both in from the host with optional entries
+# and so do we now. Neither exists on an Android 9 device, and neither exists on
+# sargo, so the entries stay optional and this is a no-op where they are absent.
+try_mount_validated /vendor_dlkm "/etc/build.prop" \
     "/dev/mapper/dynpart-vendor_dlkm$ab_slot_suffix" \
     "/dev/mapper/dynpart-vendor_dlkm" \
     >/dev/null 2>&1
 
-# --- odm / product (Android 10+, often logical) -----------------------------
-try_mount_validated "$ANDROID_ROOT/odm" "/etc" \
-    "$(find_partition_path odm)" \
+try_mount_validated /odm "/etc" \
     "/dev/mapper/dynpart-odm$ab_slot_suffix" \
     "/dev/mapper/dynpart-odm" \
+    "$(find_partition_path odm)" \
     >/dev/null 2>&1
 
 # --- persist ----------------------------------------------------------------

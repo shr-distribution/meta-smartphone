@@ -12,6 +12,15 @@ if [ -e /android/init ]; then
 
 	rm -rf /dev/__properties__
 	mkdir -p /dev/__properties__
+
+	# The container config binds /dev/socket in from the host, so the host
+	# directory has to exist before LXC sets the mounts up - otherwise the
+	# container's init has nowhere to put property_service and the other
+	# sockets, and nothing on the host can reach them. Droidian does the same
+	# in its Halium 9+ branch; ours only did it on the legacy path, so on a
+	# system-as-root image it was never created and we relied on a vendor HAL
+	# happening to make it first.
+	mkdir -p /dev/socket
 	if [ -e /dev/disk/by-partlabel/persist ]; then
 		mkdir -p /mnt/vendor/persist && mount /dev/disk/by-partlabel/persist /mnt/vendor/persist
 	fi
