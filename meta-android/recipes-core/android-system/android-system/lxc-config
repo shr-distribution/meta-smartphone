@@ -32,3 +32,11 @@ lxc.mount.entry = sysfs sys sysfs nodev,noexec,nosuid 0 0
 #lxc.mount.entry = tmpfs tmp tmpfs nodev,noexec,nosuid 0 0
 lxc.mount.entry = /android/data data bind bind 0 0
 lxc.mount.entry = /mnt mnt bind rbind 0 0
+# rbind, so the individual APEX mounts inside /apex come along - a plain bind
+# would give the container an empty tmpfs. optional, because Android 9 images
+# have no APEX at all and there is nothing to bind.
+#
+# This has to be a bind from outside the rootfs: mounting the APEXes directly
+# under /android does not survive, because /android is the rootfs LXC sets up
+# and it drops anything already mounted there.
+lxc.mount.entry = /apex apex bind rbind,optional 0 0

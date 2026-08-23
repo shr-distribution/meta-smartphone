@@ -21,7 +21,19 @@ import sys
 import zipfile
 import json
 
-APEX_ROOT = "/android/apex"
+# The host's own /apex, not /android/apex.
+#
+# /android is the container's rootfs, and LXC re-establishes that when it
+# starts: anything mounted underneath it beforehand is torn out again about a
+# second and a half later, which left the APEXes as empty directories. Droidian
+# puts them on a top-level /apex and binds that into the container instead
+# (lxc.mount.entry = /apex apex bind rbind,optional), so the mounts live
+# outside the rootfs LXC manages.
+#
+# It is also where the host needs them. libhybris's Android 10+ linker looks
+# for bionic at a literal /apex/com.android.runtime/lib64, so with this layout
+# host and container are served by the same mounts and no symlink is involved.
+APEX_ROOT = "/apex"
 APEX_PREINSTALLED_DIRS = [
     "/android/system/apex",
     "/android/system_ext/apex",
@@ -155,9 +167,10 @@ def main() -> int:
     args = parse_arguments()
     apex_globs: list = args.apex_globs
 
-    if not os.path.ismount("/android/apex"):
+    os.makedirs(APEX_ROOT, exist_ok=True)
+    if not os.path.ismount(APEX_ROOT):
         subprocess.run(
-            ["mount", "-t", "tmpfs", "android_apex", "/android/apex"], check=True
+            ["mount", "-t", "tmpfs", "android_apex", APEX_ROOT], check=True
         )
 
     for dir in APEX_PREINSTALLED_DIRS:

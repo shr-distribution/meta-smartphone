@@ -226,9 +226,13 @@ done
 # VNDK. Mounting everything is unnecessary and pulls in modules that expect a
 # running apexd.
 #
-# Android 9 has no APEX at all, so on those images /android/apex does not exist
-# and this is skipped entirely.
-if [ -d "$ANDROID_ROOT/apex" ] && command -v mount-apexes.py >/dev/null 2>&1; then
+# They go on the host's own /apex, which the container config binds back in
+# with rbind. Mounting them under $ANDROID_ROOT instead does not survive: that
+# is the rootfs LXC sets up, and it drops them again a second later.
+#
+# Android 9 has no APEX at all, so key off the image actually carrying them
+# rather than off a directory that now always exists on the host.
+if [ -d "$ANDROID_ROOT/system/apex" ] && command -v mount-apexes.py >/dev/null 2>&1; then
     log "mounting APEX modules"
     mount-apexes.py "com.android.runtime" "com.android.art" "com.android.i18n" "com.android.vndk.*" \
         || log "WARNING: APEX mounting reported errors"
