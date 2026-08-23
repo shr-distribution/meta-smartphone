@@ -226,8 +226,18 @@ done
 # Taken from the rc files rather than hardcoded, so a device with a different
 # set of DSPs gets its own. Guarded on the subsystem not already being ONLINE,
 # because writing the node asks the subsystem framework for another load.
+#
+# The node is not always called "boot": qcacld built into the kernel rather
+# than as a module registers /sys/kernel/boot_wlan/boot_wlan and loads the
+# driver only when that is written, and UBports' sargo board rc drives it with
+#
+#     write /sys/kernel/boot_wlan/boot_wlan 1
+#
+# so match any file under a /sys/kernel/boot_* directory. Subsystems without an
+# msm_subsys entry, which boot_wlan is one of, simply never look ONLINE and are
+# written every time; the writes are one-shot loaders and idempotent.
 dsp=0
-for n in $(all_rc_files | xargs -r awk '$1 == "write" && $2 ~ /^\/sys\/kernel\/boot_[a-z0-9]+\/boot$/ { print $2 }' 2>/dev/null | sort -u); do
+for n in $(all_rc_files | xargs -r awk '$1 == "write" && $2 ~ /^\/sys\/kernel\/boot_[a-z0-9_]+\/[a-z0-9_]+$/ { print $2 }' 2>/dev/null | sort -u); do
     [ -e "$n" ] || continue
     name=${n#/sys/kernel/boot_}
     name=${name%/boot}
