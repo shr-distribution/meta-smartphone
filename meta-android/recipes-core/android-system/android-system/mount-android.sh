@@ -155,6 +155,26 @@ try_mount_validated /odm "/etc" \
     "$(find_partition_path odm)" \
     >/dev/null 2>&1
 
+# --- firmware loader timeout -------------------------------------------------
+# The kernel cannot find vendor firmware on its own: it lives in the container's
+# /vendor/firmware, which is not on any path the direct loader searches, so
+# every request falls through to the ueventd user helper. That works - ueventd
+# answers the real ones in 1-4 ms - but a request the vendor genuinely has no
+# file for blocks for the full firmware_class timeout, which defaults to 60
+# seconds. The modem asks for exactly one of those:
+#
+#   [23.260] ueventd: firmware: loading 'msadp' ...
+#   [83.261] pil-q6v5-mss: Debug policy not present - msadp. Continue.
+#
+# msadp is an optional debug-policy blob and the kernel says so itself, but the
+# modem still takes 60 s longer to boot than it needs to, and everything that
+# waits on the modem - the WLAN firmware among them - waits with it.
+#
+# Ten seconds is still three orders of magnitude more than a real load needs.
+if [ -w /sys/class/firmware/timeout ]; then
+    echo 10 > /sys/class/firmware/timeout
+fi
+
 # --- vndbinder context manager ----------------------------------------------
 # A stock Android 11 vendor ships AOSP's vndservicemanager, whose Access
 # constructor does CHECK(selinux_status_open(true) >= 0). Halium's init never

@@ -29,7 +29,22 @@
 # things like bootanimation, which never exits without SurfaceFlinger to tell it
 # to and then contends with the real compositor for the display.
 ANDROID_INIT_DIRS="/android/vendor/etc/init /android/odm/etc/init"
-CLASSES="hal core main"
+# late_start is in here because init only reaches it on "on
+# property:sys.boot_completed=1", which nothing sets on Halium - the framework
+# that would set it never runs. On sargo that class holds ten vendor daemons,
+# and one of them is the reason wifi did not work at all:
+#
+#   cnss-daemon    connects to the WLFW QMI service and votes for the modem
+#       through per_mgr. Until it does, the WLAN firmware never finishes
+#       booting: icnss completes ind_register, msa_info, msa_ready and cap and
+#       then sits at FW_READY 0 forever, so the qcacld driver is never probed
+#       and there is no wlan0. Starting it takes icnss straight to
+#       0xd8f (... | FW READY | DRIVER PROBED) and wlan0/wlan1/p2p0 appear.
+#   loc_launcher   GPS
+#   vendor.fps_hal fingerprint
+#
+# The rest are diag and data-migration helpers that do nothing here.
+CLASSES="hal core main late_start"
 
 # Belt and braces for the above, in case a vendor rc declares one of these.
 SKIP_SERVICES="bootanim bootanimation"
