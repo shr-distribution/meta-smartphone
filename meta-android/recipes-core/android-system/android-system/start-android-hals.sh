@@ -193,6 +193,43 @@ done | wc -l | while read -r fixed; do
     echo "applied init permissions to $fixed node(s) init skipped"
 done
 
+# Boot the DSP subsystems "on early-boot" would have.
+#
+# The blanket "write" exclusion above still stands, but the QDSP6 boot nodes are
+# the one case that cannot be skipped. /sys/kernel/boot_adsp/boot is what loads
+# the audio DSP, and until something writes it the ASoC machine driver never
+# registers a card at all: /proc/asound/cards stays empty, the vendor audio HAL
+# fails every mixer open --
+#
+#     E audio_hw_utils: audio_extn_utils_get_snd_card_num:
+#         Unable to open the mixer card: 0 ... 7
+#
+# -- module-droid-card fails to load, and pulseaudio aborts on startup. The
+# sensors on this SoC also live on the ADSP, so nothing in the SSC stack
+# enumerates either.
+#
+# Taken from the rc files rather than hardcoded, so a device with a different
+# set of DSPs gets its own. Guarded on the subsystem not already being ONLINE,
+# because writing the node asks the subsystem framework for another load.
+dsp=0
+for n in $(all_rc_files | xargs -r awk '$1 == "write" && $2 ~ /^\/sys\/kernel\/boot_[a-z0-9]+\/boot$/ { print $2 }' 2>/dev/null | sort -u); do
+    [ -e "$n" ] || continue
+    name=${n#/sys/kernel/boot_}
+    name=${name%/boot}
+    online=0
+    for d in /sys/bus/msm_subsys/devices/*; do
+        [ "$(cat "$d/name" 2>/dev/null)" = "$name" ] || continue
+        [ "$(cat "$d/state" 2>/dev/null)" = "ONLINE" ] && online=1
+    done
+    [ "$online" = 1 ] && continue
+    if echo 1 > "$n" 2>/dev/null; then
+        dsp=$((dsp + 1))
+    else
+        echo "WARNING: could not boot the $name DSP via $n"
+    fi
+done
+echo "booted $dsp DSP subsystem(s) init skipped"
+
 # Do not return until the composer HAL is actually registered on hwbinder.
 #
 # Ordering surface-manager after this unit is necessary but not sufficient:
