@@ -41,9 +41,13 @@ SARGO_ANDROID_VENDOR ?= "device"
 # simg2img conversion - and vendor.img passes a full e2fsck.
 PV = "20240301-3"
 
-# Device-agnostic halium_arm64 build. It ships system.img only: a GSI has no
-# business carrying a vendor. The release tag and the asset name are the same
-# string on webOS-ports/halium-images, hence the doubled component in the URL.
+# Device-agnostic halium_arm64 build.
+#
+# The 9.0 and 10.0 releases were tagged with the asset's own filename, so the
+# tag and the asset were the same string and the URL just repeated it. The 11.0
+# release is tagged by date instead and can hold more than one revision of the
+# tarball, so the two are named separately now. SARGO_GSI_RELEASE defaults to
+# the tarball name to keep the older pins resolving unchanged.
 #
 # Which GSI generation to use is selectable, because moving sargo onto a modern
 # Android base is the whole point of the GSI work (plan doc Phase 2). The
@@ -62,10 +66,11 @@ PV = "20240301-3"
 # partition support in mount-android.sh, which is why these two land together.
 SARGO_GSI_TARBALL ?= "halium-luneos-9.0-20240228-1-halium_arm64.tar.bz2"
 SARGO_GSI_SHA256 ?= "7469662bb4d8440359dacee9edcae7d8ee7e9536ac8899a37c49c0f5ca1500c4"
+SARGO_GSI_RELEASE ?= "${SARGO_GSI_TARBALL}"
 
 SRC_URI = "\
     https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-9.0-${PV}-${MACHINE}.tar.bz2/halium-luneos-9.0-${PV}-${MACHINE}.tar.bz2;name=device;subdir=device \
-    https://github.com/webOS-ports/halium-images/releases/download/${SARGO_GSI_TARBALL}/${SARGO_GSI_TARBALL};name=gsi;subdir=gsi \
+    https://github.com/webOS-ports/halium-images/releases/download/${SARGO_GSI_RELEASE}/${SARGO_GSI_TARBALL};name=gsi;subdir=gsi \
 "
 # Checksum of the repacked device tarball, which is not byte-identical to
 # whatever was originally intended for this version - the images inside are the
