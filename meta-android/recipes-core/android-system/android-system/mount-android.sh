@@ -155,6 +155,47 @@ try_mount_validated /odm "/etc" \
     "$(find_partition_path odm)" \
     >/dev/null 2>&1
 
+# --- vndbinder context manager ----------------------------------------------
+# A stock Android 11 vendor ships AOSP's vndservicemanager, whose Access
+# constructor does CHECK(selinux_status_open(true) >= 0). Halium's init never
+# mounts selinuxfs inside the container, so that CHECK fails, the process
+# aborts on SIGABRT, and init restarts it forever. Nothing ever becomes the
+# context manager for /dev/vndbinder, so every vendor HAL that opens it blocks
+# in ProcessState waiting for a context object that never arrives:
+#
+#     W ProcessState: Not able to get context object on /dev/vndbinder.
+#     E ServiceManager: Waiting 1s on context object on /dev/vndbinder.
+#
+# The display composer is one of those. It never gets far enough to register
+# android.hardware.graphics.composer@2.x::IComposer, so the compositor's
+# getService() call spins forever, surface-manager times out, and the device
+# has no UI at all. This is the whole reason a GSI on a stock Android 11 vendor
+# comes up headless.
+#
+# Halium patches the SELinux checks out of Access.cpp, which vndservicemanager
+# is built from, and lists it in PRODUCT_PACKAGES - but the module is
+# vendor:true and a system-only GSI build has no vendor image, so the patched
+# binary is built and then dropped. android-system-image ships it next to the
+# rootfs image and we bind it over the vendor one here.
+#
+# It has to be exec'd from a /vendor/bin path. libbinder stamps a different
+# Parcel header for the vendor and system copies of itself ("VNDR" against
+# "SYST"), and which one a process gets is decided by the linker namespace,
+# which the linker picks from the executable's path. Pointing the system
+# servicemanager at /dev/vndbinder does make it the context manager, but every
+# vendor client's ping is then rejected:
+#
+#     E Parcel: Expecting header 0x53595354 but found 0x564e4452.
+#               Mixing copies of libbinder?
+#
+# so the bind mount, rather than a service override, is the point.
+halium_vndservicemanager=/var/lib/lxc/android/vndservicemanager
+vendor_vndservicemanager=$ANDROID_ROOT/vendor/bin/vndservicemanager
+if [ -x "$halium_vndservicemanager" ] && [ -e "$vendor_vndservicemanager" ]; then
+    log "using the Halium vndservicemanager instead of the vendor's"
+    mount --bind "$halium_vndservicemanager" "$vendor_vndservicemanager"
+fi
+
 # --- persist ----------------------------------------------------------------
 # NB: /mnt is rbind-mounted into the container straight from the host
 # (lxc.mount.entry = /mnt mnt bind rbind), so persist goes to the host path, not
