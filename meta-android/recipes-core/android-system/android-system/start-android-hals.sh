@@ -56,10 +56,27 @@ DISPLAY_CONFLICT_MATCH="bootanimation surfaceflinger"
 
 command -v setprop >/dev/null 2>&1 || { echo "setprop not available, skipping"; exit 0; }
 
+# Includes the hw/ subdirectory. init.<board>.rc lives there and declares the
+# services the SoC's own subsystems depend on - on a Pixel 3a that is 28 of the
+# 29 services in these classes, and the ones that matter most:
+#
+#   pd_mapper, vendor.per_mgr, vendor.per_proxy   protection-domain and
+#       peripheral managers. The SSC sensors run in a protection domain on the
+#       ADSP, and without these the sensor daemon discovers nothing at all.
+#   vendor.rmt_storage                            serves the modem its EFS out
+#       of /mnt/vendor/persist. Boot the modem without it and it crashes, and
+#       since its restart_level is SYSTEM that reboots the phone.
+#   adsprpcd, adsprpcd_sensorspd, cdsprpcd        DSP RPC daemons.
+#
+# The scan used to stop at the top level to avoid pulling in framework
+# services, but that concern is about /android/system/etc/init, which is still
+# excluded here - vendor and odm rc files declare vendor services wherever they
+# sit. The display-conflict scan below already reads hw/, so surfaceflinger and
+# bootanim are still filtered out.
 svcs=$(
     for d in $ANDROID_INIT_DIRS; do
         [ -d "$d" ] || continue
-        for f in "$d"/*.rc; do
+        for f in "$d"/*.rc "$d"/hw/*.rc; do
             [ -f "$f" ] || continue
             awk -v classes="$CLASSES" '
                 /^service /            { svc = $2; next }
@@ -76,11 +93,9 @@ svcs=$(
 
 [ -n "$svcs" ] || { echo "no vendor services found to start"; exit 0; }
 
-# All rc files, including the hw/ subdirectory. The board rc (init.<board>.rc)
-# lives there and is where both the display-conflict services and the bulk of
-# the permission setup are declared, so the service-start scan above - which
-# deliberately stays non-recursive so we do not change what gets started -
-# cannot see it.
+# All rc files, including the hw/ subdirectory, same as the start scan above.
+# The board rc (init.<board>.rc) lives there and is where both the
+# display-conflict services and the bulk of the permission setup are declared.
 # The conflict/permission scan looks wider than the start scan: it also takes in
 # the GSI's own /system/etc/init. bootanimation is declared only there, while
 # being *started* from the board rc under vendor - so a vendor-only scan sees the
