@@ -21,12 +21,22 @@ lxc.apparmor.profile = unconfined
 lxc.autodev = 0
 
 lxc.mount.entry = tmpfs dev tmpfs nosuid 0 0
+# LXC mounts an empty tmpfs over the container's /dev and, with autodev off,
+# puts nothing in it. It then wants /dev/null itself to set up the container's
+# stdio ("Can't open /dev/null", "Failed to ajust stdio permissions"), and
+# Android's init wants it too - SetStdioToDevNull() runs before init mounts its
+# own /dev. Bind the host's in so both are satisfied.
+lxc.mount.entry = /dev/null dev/null none bind,create=file 0 0
 lxc.mount.entry = /dev/__properties__ dev/__properties__ bind bind,create=dir 0 0
 # binderfs replaces the static /dev/binder* nodes from Android 11 / kernel 5.x.
 # Marked optional so this config stays valid on older kernels without
 # CONFIG_ANDROID_BINDERFS, where mount-android.sh will not have created it.
 lxc.mount.entry = /dev/binderfs dev/binderfs bind bind,create=dir,optional 0 0
 lxc.mount.entry = /dev/socket dev/socket bind bind,create=dir 0 0
+# Halium's init expects these from the container, not from itself: its
+# first-stage-mounts patch comments the mounts out with "Disabled for Halium,
+# mounted by LXC config". Removing them here worked around a GSI whose init was
+# missing that patch, at the cost of diverging from Halium and Droidian.
 lxc.mount.entry = proc proc proc nodev,noexec,nosuid 0 0
 lxc.mount.entry = sysfs sys sysfs nodev,noexec,nosuid 0 0
 #lxc.mount.entry = tmpfs tmp tmpfs nodev,noexec,nosuid 0 0
