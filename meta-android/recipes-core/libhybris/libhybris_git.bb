@@ -5,11 +5,12 @@ LIC_FILES_CHKSUM = "file://../LICENSE.Apache2;md5=3b83ef96387f14655fc854ddc3c6bd
 
 SRCREV = "7079712a42ea2754adf747e70c6cc75764c8596e"
 PV = "0.1.0+git"
-PR = "r1"
+PR = "r2"
 PE = "1"
 
 SRC_URI = "git://github.com/libhybris/libhybris;branch=master;protocol=https \
     file://0001-tests-build-test_audio-as-gnu99-for-strdup.patch \
+    file://0002-linker-search-the-VNDK-APEX-when-there-is-no-ld.config.patch \
 "
 
 S = "${UNPACKDIR}/${BB_GIT_DEFAULT_DESTSUFFIX}/hybris"

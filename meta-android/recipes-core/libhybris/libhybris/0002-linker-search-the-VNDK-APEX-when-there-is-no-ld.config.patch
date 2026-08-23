@@ -1,0 +1,85 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Herman van Hazendonk <github.com@herrie.org>
+Date: Sun, 23 Aug 2026 00:00:00 +0000
+Subject: [PATCH] linker: search the VNDK APEX when there is no ld.config.txt
+
+A Halium GSI ships no /system/etc/ld.config.txt, so every process falls back
+to init_default_namespace_no_config() and gets kDefaultLdPaths: /system/lib64,
+/odm/lib64 and /vendor/lib64. That covered everything until Android 11 moved
+the VNDK into an APEX.
+
+A stock Android 11 vendor expects the VNDK to be reachable. On a Pixel 3a the
+audio HAL links android.hardware.power-V1-ndk_platform.so, which is shipped
+nowhere but /apex/com.android.vndk.v30/lib64, so loading it fails with
+
+    library "android.hardware.power-V1-ndk_platform.so" not found
+    E droid-util.c: Failed to load audio hw module audio.primary : Invalid argument (22)
+
+and pulseaudio dies on module-droid-card. Stock Android reaches that directory
+through the "vndk" namespace ld.config.txt declares and links the vendor
+namespace to; with no config file there is no such namespace and no link.
+
+Scan /apex instead of hardcoding a level - the directory is named for the
+vendor's VNDK version, which differs per device and per Android release - and
+append the result after the built-in paths so /system, /odm and /vendor still
+take precedence.
+
+Upstream-Status: Pending
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+---
+--- a/common/q/linker.cpp
++++ b/common/q/linker.cpp
+@@ -27,6 +27,7 @@
+  */
+ 
+ #include <android/api-level.h>
++#include <dirent.h>
+ #include <errno.h>
+ #include <fcntl.h>
+ #include <inttypes.h>
+@@ -4154,6 +4155,45 @@
+     }
+   }
+ 
++  // Add whatever VNDK APEX is mounted.
++  //
++  // A Halium GSI ships no /system/etc/ld.config.txt, so this function -- not
++  // the configured path below -- is what every process ends up with, and
++  // kDefaultLdPaths only knows /system, /odm and /vendor. That was enough
++  // until Android 11 moved the VNDK into an APEX. A stock Android 11 vendor's
++  // libraries expect to find it there: the Pixel 3a's audio HAL links
++  // android.hardware.power-V1-ndk_platform.so, which exists nowhere but
++  // /apex/com.android.vndk.v30/lib64, so it fails to load with
++  //
++  //     library "android.hardware.power-V1-ndk_platform.so" not found
++  //
++  // and every consumer of that HAL dies with it. Stock Android reaches the
++  // same directory through the "vndk" namespace that ld.config.txt sets up;
++  // with no config there is no such namespace and no link to it.
++  //
++  // Scan /apex rather than hardcoding a level: the directory is named for the
++  // vendor's VNDK version, which differs per device and per Android release.
++  // Appended after the built-in paths, so /system, /odm and /vendor still win.
++  DIR* apex_dir = opendir("/apex");
++  if (apex_dir != nullptr) {
++    static const char kVndkPrefix[] = "com.android.vndk.v";
++    for (dirent* entry = readdir(apex_dir); entry != nullptr; entry = readdir(apex_dir)) {
++      if (strncmp(entry->d_name, kVndkPrefix, sizeof(kVndkPrefix) - 1) != 0) {
++        continue;
++      }
++      std::string vndk_lib_dir = std::string("/apex/") + entry->d_name +
++#if defined(__LP64__)
++                                 "/lib64";
++#else
++                                 "/lib";
++#endif
++      if (realpath(vndk_lib_dir.c_str(), real_path) != nullptr) {
++        ld_default_paths.push_back(real_path);
++      }
++    }
++    closedir(apex_dir);
++  }
++
+   g_default_namespace->set_default_library_paths(std::move(ld_default_paths));
+ 
+   std::vector<android_namespace_t*> namespaces;
