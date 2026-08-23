@@ -14,6 +14,7 @@ COMPATIBLE_MACHINE = "^halium$"
 
 SRC_URI = "git://github.com/linux-msm/qbootctl.git;branch=main;protocol=https \
            file://mark-boot-successful.service \
+           file://mark-boot-successful.sh \
 "
 # Tag 0.2.2. Note this is the commit the annotated tag points at - "git
 # rev-parse 0.2.2" returns the tag object, which bitbake cannot fetch.
@@ -26,4 +27,9 @@ SYSTEMD_SERVICE:${PN} = "mark-boot-successful.service"
 do_install:append() {
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${UNPACKDIR}/mark-boot-successful.service ${D}${systemd_system_unitdir}
+
+    install -d ${D}${libexecdir}
+    install -m 0755 ${UNPACKDIR}/mark-boot-successful.sh ${D}${libexecdir}
 }
+
+FILES:${PN} += "${libexecdir}/mark-boot-successful.sh"
