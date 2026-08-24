@@ -1,0 +1,70 @@
+#!/bin/sh
+# nyx's device paths.
+#
+# nyx used to take these as compile-time -D defines from a per-machine cmake
+# include, which is why nyx-modules is PACKAGE_ARCH = MACHINE_ARCH and why
+# there are 57 machine cmake files. It now reads them from /etc/nyx.conf, and
+# this generator writes that file.
+#
+# One generator owns the whole file rather than one per value: they all write
+# the same target, and the last one to run would otherwise clobber the rest.
+#
+# A value we do not have is left exactly as shipped, which for everything but
+# the key list means empty - and empty tells nyx to fall through to its own
+# detection. Guessing would be worse than that fallback.
+
+SRC=/etc/nyx.conf
+[ -f "$SRC" ] || SRC=/etc/nyx/nyx.conf
+[ -f "$SRC" ] || exit 0
+
+target=${SRC#/}
+out=$GEN/files/$target
+mkdir -p "$(dirname "$out")"
+cp "$SRC" "$out" || exit 0
+
+changed=0
+
+# set_value <group> <key> <value>
+#
+# Rewrites key= inside [group] only, so the same key name can appear under more
+# than one module. Does nothing when the value is empty, or when the key is not
+# already present: the shipped file declares every key this generator knows
+# about, so a missing one means the config and this script have drifted, and
+# inventing the line would hide that.
+set_value() {
+    _group=$1 _key=$2 _val=$3
+    [ -n "$_val" ] || return 0
+
+    if ! awk -v g="[$_group]" -v k="$_key" '
+            /^\[/ { ing = ($0 == g); next }
+            ing && index($0, k "=") == 1 { found = 1 }
+            END { exit !found }' "$out"; then
+        echo "luneos-device-config: WARNING: no $_key= under [$_group] in $SRC"
+        return 0
+    fi
+
+    awk -v g="[$_group]" -v k="$_key" -v v="$_val" '
+        /^\[/ { ing = ($0 == g); print; next }
+        ing && index($0, k "=") == 1 { print k "=" v; next }
+        { print }' "$out" > "$out.new" && mv "$out.new" "$out"
+
+    echo "luneos-device-config: nyx [$_group] $_key -> $_val"
+    changed=1
+}
+
+# Derived by the caller.
+set_value module.keys       paths      "${keydevs:-}"
+set_value module.touchpanel path       "${touchscreen:-}"
+
+# Tier 1 only. nyx's own power_supply walk is right wherever we have looked;
+# these exist for boards exposing more than one supply of a type, where the
+# walk picks whichever the filesystem happens to return first.
+set_value module.battery sysfs_path     "${deviceinfo_battery_sysfs_path:-}"
+set_value module.charger usb_sysfs_path "${deviceinfo_charger_usb_sysfs_path:-}"
+set_value module.charger ac_sysfs_path  "${deviceinfo_charger_ac_sysfs_path:-}"
+
+# Nothing to say: drop the file so the caller does not bind a copy of the
+# original over the original.
+if [ "$changed" = 0 ] || cmp -s "$SRC" "$out"; then
+    rm -f "$out"
+fi

@@ -14,9 +14,16 @@ RDEPENDS:${PN} = "udev"
 
 inherit systemd
 
+# The generators and adaptations live in the ${BPN} files directory and are
+# listed here rather than copied out of ${THISDIR} at do_install time. A file
+# bitbake does not know about does not contribute to the task signature, so
+# editing a generator produced no rebuild at all and the previous one stayed in
+# the image - silently, because nothing failed.
 SRC_URI = " \
     file://luneos-device-config \
     file://luneos-device-config.service \
+    file://generators \
+    file://adaptations \
 "
 
 do_install() {
@@ -27,10 +34,10 @@ do_install() {
     install -m 0644 ${UNPACKDIR}/luneos-device-config.service ${D}${systemd_unitdir}/system
 
     install -d ${D}${datadir}/luneos/adaptations
-    cp -r ${THISDIR}/adaptations/* ${D}${datadir}/luneos/adaptations/
+    cp -r ${UNPACKDIR}/adaptations/* ${D}${datadir}/luneos/adaptations/
 
     install -d ${D}${libdir}/luneos-device-config/generators
-    install -m 0755 ${THISDIR}/generators/* ${D}${libdir}/luneos-device-config/generators/
+    install -m 0755 ${UNPACKDIR}/generators/* ${D}${libdir}/luneos-device-config/generators/
 
     # Ship the configd override layer directory empty. /etc/configd/layers.json
     # already declares it at priority 900; shipping the mount point means the
