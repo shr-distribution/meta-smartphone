@@ -5,16 +5,22 @@
 # density and the touchscreen node all derive correctly on this device.
 #
 # Key devices are the exception. Derivation narrows them to everything claiming
-# KEY_POWER or a volume key that is not the touchscreen, which on sargo is
-# event0 (qpnp_pon, power), event2 (gpio-keys, volume), event3 (uinput-fpc, the
-# fingerprint sensor) and event5 (the headset button jack). The obvious
-# discriminators do not separate them: qpnp_pon and uinput-fpc are both virtual
-# devices, and both advertise power/volume in their capability bits. Pin the two
-# the device shipped with rather than guess.
+# KEY_POWER or a volume key that is not the touchscreen, which on sargo catches
+# the power key and the volume rocker but also the fingerprint sensor
+# (uinput-fpc) and the headset button jack. The obvious discriminators do not
+# separate them: qpnp_pon and uinput-fpc are both virtual devices and both
+# advertise power/volume in their capability bits. So pin the two the device
+# shipped with.
+#
+# Pinned by name, never by node number. Numbering is not stable here: uinput-fpc
+# only exists on boots where the fingerprint HAL registers it, and everything
+# enumerated after it shifts - the headset jack has been observed at event5 and
+# at event3 on this same phone. A node pin that loses that race does not fail,
+# it quietly selects a different device.
 #
 # The headset jack's volume keys may well be worth having; that is a behaviour
 # change to test deliberately, not to acquire by accident.
-deviceinfo_key_devices="/dev/input/event0;/dev/input/event2;"
+deviceinfo_key_devices_by_name="qpnp_pon;gpio-keys"
 
 # Tuned by eye, not derived. webOS apps are fixed-layout Enyo pages, so the
 # ratio decides how many CSS pixels they get: 1080/2.4 = 450, which is what
