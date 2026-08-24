@@ -7,7 +7,16 @@ After=android-system.service
 Requires=android-system.service
 # Before configd, so the generated layer is in place and the stale cache is
 # gone before it builds its merged view.
+#
+# nyx.target is the ordering point for everything that reads /etc/nyx.conf,
+# which this service generates. Naming the target rather than its consumers
+# matters: luna-sysmgr is After=nyx.target and was not in the list below, so it
+# opened nyx before the generated config was bound and got the shipped
+# placeholder - no key devices and no touchpanel, which is a phone whose power
+# button does not wake the screen. Anything that reads nyx.conf in future is
+# covered by the target without having to be added here.
 Before=surface-manager-daemon.service sensorfwd.service ofono.service configd.service
+Before=nyx.target
 
 [Service]
 Type=oneshot
