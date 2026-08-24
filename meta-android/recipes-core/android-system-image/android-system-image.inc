@@ -66,20 +66,18 @@ do_install() {
     # add a link for firmware, hardcoded in bluez5's hciattach for bcm43xx
     ln -sf /system/vendor/firmware ${D}${sysconfdir}/firmware
 
-    for i in cache data factory firmware persist system; do
-       ln -sf /android/$i ${D}/$i
-    done
-
-    if [ -e ${UNPACKDIR}/vendor.img ]; then
-        ln -sf /android/vendor ${D}/vendor
-    else
-        ln -sf /system/vendor ${D}/vendor
-    fi
+    # The /system, /vendor, ... compatibility symlinks used to be created here.
+    # They moved to android-system, because they are a property of the container
+    # layout rather than of any particular system image: a machine that installs
+    # no android-system-image - the GSI arriving as a separate artifact - still
+    # needs them, and without /system the GSI's own absolute
+    # /android/system_ext -> /system/system_ext dangles, so mount-apexes.py finds
+    # no VNDK APEX and every vendor library fails to load.
 }
 
 FILES:${PN} = "${localstatedir}/lib/lxc/android \
                ${sysconfdir} \
-               /android /cache /data /factory /firmware /persist /system /vendor /userdata \
+               /android /userdata \
 "
 
 # vndservicemanager comes out of the Android build already stripped, and it is

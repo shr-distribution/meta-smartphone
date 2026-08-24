@@ -194,10 +194,28 @@ do_install() {
 
     install -d ${D}${localstatedir}/lib/lxc/android/rootfs
 
+    # Compatibility symlinks for the Android filesystem layout.
+    #
+    # These live here rather than in android-system-image because they describe
+    # where the container mounts things, not what is mounted. A machine whose GSI
+    # is a separate artifact installs no android-system-image at all, and without
+    # /system the GSI's own /android/system_ext -> /system/system_ext (an absolute
+    # symlink, resolved in the host's namespace) points nowhere. mount-apexes.py
+    # then finds no VNDK APEX, and every vendor library fails with
+    # 'library "libcutils.so" not found'.
+    #
+    # /vendor is always /android/vendor: whether it came from a vendor.img or from
+    # the device's own partition, mount-android.sh puts it there.
+    for i in cache data factory firmware persist system vendor; do
+        ln -sf /android/$i ${D}/$i
+    done
+
     # Somehow during post installation the link for android-system.service isn't created
     install -d ${D}${sysconfdir}/systemd/system/basic.target.requires
     ln -sf ${systemd_unitdir}/system/android-system.service \
         ${D}${sysconfdir}/systemd/system/basic.target.requires/android-system.service
 }
+
+FILES:${PN} += "/cache /data /factory /firmware /persist /system /vendor"
 
 SYSTEMD_SERVICE:${PN} = "android-system.service"
