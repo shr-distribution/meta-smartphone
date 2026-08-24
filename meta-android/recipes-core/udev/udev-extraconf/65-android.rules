@@ -24,7 +24,24 @@ ACTION=="add", KERNEL=="log_radio", SYMLINK+="alog/radio"
 ACTION=="add", KERNEL=="log_events", SYMLINK+="alog/events"
 
 # system devices
+#
+# All three binder domains, not just /dev/binder. hwbinder is how a process
+# reaches the HIDL HALs, and a non-root one that cannot open it dies the moment
+# it needs graphics: android::GraphicBufferMapper's constructor cannot get the
+# gralloc mapper and calls LOG_ALWAYS_FATAL, so WebAppMgr - which runs as "wam" -
+# aborted on every app launch:
+#
+#     #4 __android_log_assert (liblog.so)
+#     #5 android::GraphicBufferMapper::GraphicBufferMapper() (libui.so)
+#     #6 graphic_buffer_mapper_import_buffer_no_size (libui_compat_layer.so)
+#     WebAppMgr dumped core, signal 6/ABRT
+#
+# vndbinder is the vendor domain and belongs with them. The per-device rule
+# files all granted all three; only /dev/binder had made it into this generic
+# file, which is why no device without one of those files could run a web app.
 ACTION=="add", KERNEL=="binder", MODE="0666"
+ACTION=="add", KERNEL=="hwbinder", MODE="0666"
+ACTION=="add", KERNEL=="vndbinder", MODE="0666"
 
 # graphics devices
 SUBSYSTEM=="graphics", KERNEL=="*", SYMLINK+="graphics/%k"
