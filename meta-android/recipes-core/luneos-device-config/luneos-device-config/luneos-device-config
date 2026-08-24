@@ -188,6 +188,23 @@ log "codename=$codename api=$api_level density=$density panel=${panel_w}x${panel
 GEN=$RUN/gen
 GENERATORS=/usr/lib/luneos-device-config/generators
 
+# Release anything a previous run bound before wiping the tree it points into.
+#
+# Every bind here has its source under $GEN, which the next line deletes. The
+# mount survives the deletion - /proc/self/mountinfo marks it "deleted" - and
+# keeps serving the old content, while the "already mounted" checks further down
+# see a live mountpoint and skip rebinding. So on restart the service silently
+# keeps whatever the first boot produced, which is how a corrected configd layer
+# appeared to have no effect at all. Harmless on a fresh boot: nothing matches.
+# Match the mount root (field 4), not the whole line: the root is relative to
+# the filesystem it came from, so a bind out of $RUN under the /run tmpfs reads
+# as "/luneos-device/gen/..." with no /run prefix, and a deleted one carries a
+# "//deleted" suffix. Field 5 is the mount point to release.
+awk '$4 ~ "luneos-device/gen" { print $5 }' /proc/self/mountinfo 2>/dev/null |
+    sort -r | while read -r stale; do
+        umount -l "$stale" 2>/dev/null && log "released stale mount $stale"
+    done
+
 rm -rf "$GEN"; mkdir -p "$GEN/files" "$GEN/configd"
 
 export GEN ADAPT_ROOT RUN

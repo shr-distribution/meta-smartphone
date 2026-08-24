@@ -30,5 +30,28 @@ if [ -z "$dpr" ]; then
     echo "luneos-device-config: no declared devicePixelRatio, derived $dpr for a ${TARGET_CSS_WIDTH}px viewport"
 fi
 
-printf '{\n    "devicePixelRatio": "%s"\n}\n' "$dpr" > "$GEN/configd/com.webos.surfacemanager.json"
-echo "luneos-device-config: devicePixelRatio=$dpr"
+# Compositor geometry.
+#
+# surface-manager.sh asks configd for com.webos.surfacemanager.compositorGeometry
+# and falls back to a hardcoded 1920x1080+0+0r0s1 - a webOS TV default - when the
+# key is absent. On a phone that is both landscape and the wrong size, and it is
+# what you get on any device whose configd has not accumulated the key from some
+# earlier boot. Deriving it removes that dependency on stored state entirely.
+#
+# r0s1 is rotation 0, scale 1. A panel whose native scanout is not the way the
+# device is held declares deviceinfo_compositor_geometry instead; nothing we
+# have needs that yet, and guessing a rotation from the panel aspect would be
+# wrong for tablets.
+geometry=${deviceinfo_compositor_geometry:-}
+if [ -z "$geometry" ] && [ -n "${panel_w:-}" ] && [ -n "${panel_h:-}" ]; then
+    geometry="${panel_w}x${panel_h}+0+0r0s1"
+fi
+
+if [ -n "$geometry" ]; then
+    printf '{\n    "devicePixelRatio": "%s",\n    "compositorGeometry": "%s"\n}\n' \
+        "$dpr" "$geometry" > "$GEN/configd/com.webos.surfacemanager.json"
+    echo "luneos-device-config: devicePixelRatio=$dpr compositorGeometry=$geometry"
+else
+    printf '{\n    "devicePixelRatio": "%s"\n}\n' "$dpr" > "$GEN/configd/com.webos.surfacemanager.json"
+    echo "luneos-device-config: devicePixelRatio=$dpr (no panel size, geometry left to surface-manager)"
+fi
