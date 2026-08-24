@@ -4,25 +4,29 @@ Date: Sun, 23 Aug 2026 00:00:00 +0000
 Subject: [PATCH] linker: search the VNDK APEX when there is no ld.config.txt
 
 A Halium GSI ships no /system/etc/ld.config.txt, so every process falls back
-to init_default_namespace_no_config() and gets kDefaultLdPaths: /system/lib64,
-/odm/lib64 and /vendor/lib64. That covered everything until Android 11 moved
-the VNDK into an APEX.
+to init_default_namespace_no_config() and gets kDefaultLdPaths. That already
+names two APEXes - 996d3ef added com.android.runtime for bionic, d792760 added
+com.android.i18n - but both are single fixed directories, and the VNDK is a
+third one that neither covers.
 
-A stock Android 11 vendor expects the VNDK to be reachable. On a Pixel 3a the
+It cannot be added the same way, because the directory carries the vendor's
+VNDK version: com.android.vndk.v30 against an Android 11 vendor,
+com.android.vndk.v33 against a 13 one. So scan /apex rather than naming it.
+
+Without this a stock Android 11 vendor's libraries do not load. The Pixel 3a's
 audio HAL links android.hardware.power-V1-ndk_platform.so, which is shipped
-nowhere but /apex/com.android.vndk.v30/lib64, so loading it fails with
+nowhere but /apex/com.android.vndk.v30/lib64:
 
     library "android.hardware.power-V1-ndk_platform.so" not found
-    E droid-util.c: Failed to load audio hw module audio.primary : Invalid argument (22)
+    E droid-util.c: Failed to load audio hw module audio.primary :
+        Invalid argument (22)
 
 and pulseaudio dies on module-droid-card. Stock Android reaches that directory
 through the "vndk" namespace ld.config.txt declares and links the vendor
 namespace to; with no config file there is no such namespace and no link.
 
-Scan /apex instead of hardcoding a level - the directory is named for the
-vendor's VNDK version, which differs per device and per Android release - and
-append the result after the built-in paths so /system, /odm and /vendor still
-take precedence.
+The result is appended after the built-in paths, so /system, /odm and /vendor
+keep precedence.
 
 Upstream-Status: Pending
 Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
@@ -37,19 +41,23 @@ Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
  #include <errno.h>
  #include <fcntl.h>
  #include <inttypes.h>
-@@ -4154,6 +4155,45 @@
+@@ -4154,6 +4155,47 @@
      }
    }
  
 +  // Add whatever VNDK APEX is mounted.
 +  //
 +  // A Halium GSI ships no /system/etc/ld.config.txt, so this function -- not
-+  // the configured path below -- is what every process ends up with, and
-+  // kDefaultLdPaths only knows /system, /odm and /vendor. That was enough
-+  // until Android 11 moved the VNDK into an APEX. A stock Android 11 vendor's
-+  // libraries expect to find it there: the Pixel 3a's audio HAL links
-+  // android.hardware.power-V1-ndk_platform.so, which exists nowhere but
-+  // /apex/com.android.vndk.v30/lib64, so it fails to load with
++  // the configured path below -- is what every process ends up with.
++  // kDefaultLdPaths already names two APEXes, com.android.runtime for bionic
++  // and com.android.i18n, but both are fixed directories. The VNDK APEX is
++  // named for the vendor's VNDK version -- com.android.vndk.v30 against an
++  // Android 11 vendor, v33 against a 13 one -- so it cannot be a constant and
++  // has to be looked up.
++  //
++  // Without it a stock Android 11 vendor's libraries do not load: the Pixel
++  // 3a's audio HAL links android.hardware.power-V1-ndk_platform.so, which
++  // exists nowhere but /apex/com.android.vndk.v30/lib64, so it fails with
 +  //
 +  //     library "android.hardware.power-V1-ndk_platform.so" not found
 +  //
@@ -57,8 +65,6 @@ Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
 +  // same directory through the "vndk" namespace that ld.config.txt sets up;
 +  // with no config there is no such namespace and no link to it.
 +  //
-+  // Scan /apex rather than hardcoding a level: the directory is named for the
-+  // vendor's VNDK version, which differs per device and per Android release.
 +  // Appended after the built-in paths, so /system, /odm and /vendor still win.
 +  DIR* apex_dir = opendir("/apex");
 +  if (apex_dir != nullptr) {
