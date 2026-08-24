@@ -39,5 +39,34 @@ ACTION=="add", KERNEL=="uhid", OWNER="system", GROUP="system", MODE="0660"
 # memory
 ACTION=="add", KERNEL=="ashmem", OWNER="system", GROUP="system", MODE="0666"
 
+# GPU and graphics buffer allocators.
+#
+# These were only ever set by the per-device rule files each vendor layer ships
+# (70-sargo.rules and friends), so a machine without one - such as the generic
+# halium-arm64 - left them root:root 0660 and nothing running as a non-root user
+# could reach the GPU. WebAppMgr runs as "wam", so every app launch crashed in
+# Android's libEGL:
+#
+#     #1 __GI_strstr (libc.so.6)
+#     #2 android::egl_display_t::initialize() (/android/system/lib64/libEGL.so)
+#     #3 eglInitialize (libEGL.so.1)
+#     WebAppMgr dumped core, signal 11/SEGV
+#
+# - the driver failed to come up and returned a NULL extension string. 634
+# crashes in one boot, each one an app relaunch, each relaunch replaying the UI
+# sound. Ownership matters as much as the mode: granting 0666 while leaving the
+# nodes root-owned did not help.
+#
+# The values match what AOSP's ueventd grants, which is what the per-device
+# files were transcribing. A rule for a node the device does not have simply
+# never matches, so this is safe on any Halium target.
+ACTION=="add", KERNEL=="kgsl", OWNER="system", GROUP="system", MODE="0666"
+ACTION=="add", KERNEL=="kgsl-3d0", OWNER="system", GROUP="system", MODE="0666"
+ACTION=="add", KERNEL=="ion", OWNER="system", GROUP="system", MODE="0664"
+ACTION=="add", SUBSYSTEM=="dma_heap", OWNER="system", GROUP="system", MODE="0664"
+ACTION=="add", KERNEL=="dri/*", OWNER="root", GROUP="graphics", MODE="0666"
+ACTION=="add", KERNEL=="graphics/*", OWNER="root", GROUP="graphics", MODE="0660"
+ACTION=="add", KERNEL=="adsprpc-smd", OWNER="system", GROUP="system", MODE="0664"
+
 # rfkill
 ACTION=="add", KERNEL=="rfkill", GROUP="input", MODE="0660"
