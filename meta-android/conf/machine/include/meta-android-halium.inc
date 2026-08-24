@@ -18,6 +18,15 @@ VIRTUAL-RUNTIME_ofono-tests = "ofono-halium-tests"
 
 PREFERRED_PROVIDER_virtual/android-headers = "android-headers-halium"
 
+# The droid PulseAudio modules come from two upstream trees, split because
+# the audio HAL and its XML configuration diverged too far to keep in one:
+# the jb2q modules cover Android 4.1 to 10, the "modern" ones 11 and newer.
+# Default to jb2q, since most halium machines here are Android 9 or older,
+# and let an Android 11+ machine ask for the other one. This has to be
+# explicit: the modern recipe carries the higher PV and would otherwise win
+# everywhere.
+PREFERRED_VERSION_pulseaudio-modules-droid ?= "17.0.88%"
+
 MACHINEOVERRIDES =. "halium:"
 
 SKIP_RECIPE[cogl-1.0] ?= "Depends on libgles2 which isn't provided by libhybris"
