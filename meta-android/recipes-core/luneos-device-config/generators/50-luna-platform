@@ -27,10 +27,28 @@ GRID_UNIT_MM=${deviceinfo_grid_unit_mm:-1.44}
 # is 441 PPI) - close, but writing it would make the value slightly less
 # accurate than what is shipped. So prefer the file's own DPI, fall back to the
 # density bucket only when the file has nothing, and let deviceinfo override.
+# DPI, in order of trust.
+#
+# Never read back out of $SRC. That file is a placeholder, and treating its
+# contents as a fallback is what turned an invented mid-range constant into the
+# effective DPI of every device without an adaptation.
+#
+#   1. deviceinfo - the panel's true physical PPI. Not derivable: an internal
+#      DSI panel does not report physical dimensions.
+#   2. ro.sf.lcd_density - Android's density bucket. Close but not the same
+#      thing, and it is what the vendor believes, so it beats a constant.
+#   3. a last resort in code, so that an unknown device still boots to a usable
+#      UI rather than a zero-sized one. Deliberately here and not in the config
+#      file: a fallback belongs where it can be seen to be a fallback.
+LAST_RESORT_DPI=320
+
 dpi=${deviceinfo_display_dpi:-}
-[ -n "$dpi" ] || dpi=$(sed -n 's/^DPI=\([0-9][0-9]*\).*/\1/p' "$SRC" | head -n1)
 [ -n "$dpi" ] || dpi=$density
-[ -n "$dpi" ] || exit 0
+if [ -z "$dpi" ]; then
+    dpi=$LAST_RESORT_DPI
+    echo "luneos-device-config: WARNING: no DPI from deviceinfo or the vendor;" \
+         "falling back to $dpi"
+fi
 
 grid=${deviceinfo_grid_unit:-}
 if [ -z "$grid" ]; then

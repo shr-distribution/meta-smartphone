@@ -21,6 +21,8 @@ fi
 grep -q "evdevtouch:$touchscreen\b" "$SRC" && exit 0   # already correct, nothing to shadow
 
 mkdir -p "$GEN/files/etc/surface-manager.d"
-sed "s|evdevtouch:/dev/input/event[0-9]*|evdevtouch:$touchscreen|" "$SRC" \
+# [^ "]* rather than event[0-9]*: the shipped value is a placeholder, not a
+# node number, so the anchor must not assume the shape of what it replaces.
+sed "s|evdevtouch:[^ \"]*|evdevtouch:$touchscreen|" "$SRC" \
     > "$GEN/files/etc/surface-manager.d/surface-manager.env"
 echo "luneos-device-config: compositor touchscreen -> $touchscreen"
