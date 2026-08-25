@@ -87,6 +87,13 @@ ANDROID_SYSTEM_IMAGE_DESTNAME = "android-rootfs.img"
 # do_install idempotent.
 do_install:prepend() {
     cp ${UNPACKDIR}/${SARGO_ANDROID_SYSTEM}/system.img ${UNPACKDIR}/system.img
+    # Same idea for the vndservicemanager the GSI tarball carries alongside
+    # system.img. Only the GSI has one; the device build predates the problem
+    # because Android 9's vndservicemanager tolerates a missing selinuxfs.
+    rm -f ${UNPACKDIR}/vndservicemanager
+    if [ -e ${UNPACKDIR}/${SARGO_ANDROID_SYSTEM}/vndservicemanager ]; then
+        cp ${UNPACKDIR}/${SARGO_ANDROID_SYSTEM}/vndservicemanager ${UNPACKDIR}/vndservicemanager
+    fi
     # Remove first so a re-run cannot leave a stale vendor.img behind when
     # switching to SARGO_ANDROID_VENDOR = "none".
     rm -f ${UNPACKDIR}/vendor.img
