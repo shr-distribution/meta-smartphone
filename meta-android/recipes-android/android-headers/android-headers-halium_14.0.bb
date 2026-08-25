@@ -16,7 +16,9 @@ ANDROID_HEADERS_BRANCH = "herrie/halium-14.0"
 
 require recipes-android/android-headers/android-headers.inc
 
-SRCREV = "dbe52156af1206a353f76148c4fbec8bc5e65415"
+# The audio_effects fix (89db8ba) is now on Halium/android-headers, so this
+# uses the github SRC_URI from android-headers.inc.
+SRCREV = "89db8ba815097af8a9c7650d2d5eefb378248839"
 
 # Android 14 is API level 34. Only names the include/android-${ANDROID_API}
 # symlink.

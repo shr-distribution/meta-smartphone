@@ -3,12 +3,20 @@ bionic-based HW adaptations in glibc systems"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://../LICENSE.Apache2;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
-SRCREV = "7079712a42ea2754adf747e70c6cc75764c8596e"
+# TheKit's Android 16 adaptation, cherry-picked onto libhybris master (all six
+# applied cleanly). Needed because Android 16 blobs use ELF TLS relocations the
+# q linker did not implement, and because hybris never calls
+# linker_finalize_static_tls() - it enters through __loader_dlopen, not
+# linker_main() - so every Android library with a TLS segment lands in static
+# TLS. glibc's exit handlers then dlclose those libraries and the linker's
+# CHECK(mod.static_offset == SIZE_MAX) aborts, which on a 16 GSI killed every
+# getprop/setprop and with them start-android-hals.sh.
+SRCREV = "032a289a5a55744b53caa008d4e4d84fdcc975d1"
 PV = "0.1.0+git"
-PR = "r2"
+PR = "r3"
 PE = "1"
 
-SRC_URI = "git://github.com/libhybris/libhybris;branch=master;protocol=https \
+SRC_URI = "git://github.com/Herrie82/libhybris;branch=herrie/android16-tls;protocol=https \
     file://0001-tests-build-test_audio-as-gnu99-for-strdup.patch \
     file://0002-linker-search-the-VNDK-APEX-when-there-is-no-ld.config.patch \
 "
@@ -61,4 +69,31 @@ inherit autotools-brokensep pkgconfig
 do_install:append() {
     sed -i -e 's|${STAGING_INCDIR}/android|${includedir}/android|g' \
         ${D}${libdir}/pkgconfig/*.pc
+
+    # Enlarge glibc's static TLS surplus for every service on the system.
+    #
+    # The q linker keeps the bionic DTV pointer in an initial-exec __thread
+    # slot - it has to be initial-exec, because the TLSDESC resolvers cannot
+    # do a C-level TLS access to find it. An initial-exec variable in a library
+    # that arrives through dlopen can only be satisfied out of glibc's static
+    # TLS surplus, and the default is small enough that anything reaching
+    # libhybris behind a few other dlopens runs out:
+    #
+    #   Failed to open module module-droid-card.so:
+    #   libhybris-common.so.1: cannot allocate memory in static TLS block
+    #
+    # This is not specific to one consumer. PulseAudio dies outright (no droid
+    # card, so no master sink for module-remap-sink, and module-droid-hidl then
+    # aborts the daemon from its own pa__done), while nyx-cmd merely reports
+    # "module does not exist" for a module that is plainly installed - it uses
+    # one error for both a missing file and a failed dlopen. Both are cured by
+    # the same tunable, so set it once here, where the requirement originates,
+    # rather than per unit.
+    install -d ${D}${sysconfdir}/systemd/system.conf.d
+    cat > ${D}${sysconfdir}/systemd/system.conf.d/10-hybris-static-tls.conf <<EOF
+[Manager]
+DefaultEnvironment=GLIBC_TUNABLES=glibc.rtld.optional_static_tls=8192
+EOF
 }
+
+FILES:${PN} += "${sysconfdir}/systemd/system.conf.d/10-hybris-static-tls.conf"

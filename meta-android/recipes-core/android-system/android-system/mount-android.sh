@@ -98,6 +98,35 @@ else
     log "no binderfs support in this kernel, using static binder nodes"
 fi
 
+# --- boot_id-suffixed ashmem node -------------------------------------------
+# Android 12 onwards, libcutils does not open /dev/ashmem. It reads
+# /proc/sys/kernel/random/boot_id and opens /dev/ashmem<boot_id>, a node the
+# container's own init creates inside the container's /dev. Hybris processes
+# run on the host, where only the plain /dev/ashmem from our udev rules exists,
+# so every ashmem_create_region() there fails:
+#
+#   E ashmem : Unable to stat ashmem device: No such file or directory
+#   E FMQ    : mmap failed: 9
+#
+# libfmq allocates its ring buffer that way, so the HIDL composer's command
+# queue is never created and the compositor sends no display commands at all -
+# it starts, composes, reports surfaces and renders nothing, leaving the boot
+# splash on screen while the rest of the system runs normally.
+#
+# A symlink is enough: the check stats the path and compares st_rdev, which
+# resolves to the same device. /dev is devtmpfs, so this does not survive a
+# reboot and cannot go stale against a new boot_id.
+ashmem_boot_id=$(cat /proc/sys/kernel/random/boot_id 2>/dev/null)
+if [ -n "$ashmem_boot_id" ] && [ -e /dev/ashmem ]; then
+    if ln -sfn /dev/ashmem "/dev/ashmem$ashmem_boot_id" 2>/dev/null; then
+        log "created /dev/ashmem$ashmem_boot_id for host-side libcutils"
+    else
+        log "WARNING: could not create /dev/ashmem$ashmem_boot_id; hybris FMQ will fail"
+    fi
+else
+    log "WARNING: no boot_id or no /dev/ashmem; hybris FMQ will fail"
+fi
+
 # --- dynamic partitions -----------------------------------------------------
 # From Android 10, system/vendor/product are logical partitions inside 'super',
 # described by a custom header rather than LVM. Map them to /dev/mapper/dynpart-*.
