@@ -1,0 +1,4 @@
+#!/system/bin/sh
+# Bind-mounted over an Android service binary by pre-start.d/50-stub-services.
+# Stays alive doing nothing so init does not restart-loop the service.
+while :; do /system/bin/sleep 2147483647; done

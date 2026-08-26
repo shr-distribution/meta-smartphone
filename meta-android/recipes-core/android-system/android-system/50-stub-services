@@ -1,0 +1,34 @@
+#!/bin/sh
+
+# Some Android services are useless under Halium (no Android frameworks) and
+# only fill the journal: they poll for framework services that never exist
+# here, or crash-loop outright. The machine layer lists them in
+# /var/lib/lxc/android/stubbed-services, one container-relative binary path
+# per line, optionally followed by "exit" to make the stub exit 0 (for
+# helpers init runs with exec_start and waits on) instead of sleeping
+# forever. A stub is bind-mounted over each binary, so the service still
+# "runs" as far as init is concerned but does no work. Bind mounts also work
+# on a read-only image, unlike the init.rc patching hooks.
+
+LIST=/var/lib/lxc/android/stubbed-services
+[ -r "$LIST" ] || exit 0
+
+while read -r path mode; do
+    case "$path" in
+        ''|\#*) continue ;;
+    esac
+    target="$LXC_ROOTFS_PATH/$path"
+    if [ ! -e "$target" ]; then
+        echo "$(basename "$0"): $path not present, skipping"
+        continue
+    fi
+    case "$mode" in
+        exit) stub=/var/lib/lxc/android/stubs/stub-exit ;;
+        *)    stub=/var/lib/lxc/android/stubs/stub-sleep ;;
+    esac
+    if mount --bind "$stub" "$target"; then
+        echo "$(basename "$0"): stubbed $path"
+    else
+        echo "$(basename "$0"): failed to stub $path"
+    fi
+done < "$LIST"
