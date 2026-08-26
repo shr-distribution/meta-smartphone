@@ -286,7 +286,18 @@ done
 if [ -n "$LSHAL" ]; then
     i=0
     while [ $i -lt 60 ]; do
-        if $LSHAL 2>/dev/null | grep -q "android.hardware.graphics.composer@.*::IComposer/default"; then
+        # Capture separately so a crashing lshal (seen to SIGSEGV/coredump on
+        # some bases) is detected by exit status instead of just missing the
+        # grep. Retrying a crashing binary 60 times produced 60 coredumps, and
+        # the coredump processing dragged the whole start-post past its timeout
+        # and failed the unit. One crash means lshal is unusable here, so stop.
+        out=$($LSHAL 2>/dev/null)
+        rc=$?
+        if [ $rc -ge 128 ]; then
+            echo "WARNING: lshal crashed (signal $((rc - 128))); skipping composer HAL wait"
+            break
+        fi
+        if echo "$out" | grep -q "android.hardware.graphics.composer@.*::IComposer/default"; then
             echo "composer HAL registered on hwbinder after ${i}00ms"
             break
         fi
