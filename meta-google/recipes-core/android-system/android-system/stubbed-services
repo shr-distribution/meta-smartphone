@@ -1,0 +1,14 @@
+# Android services stubbed out on sargo because they only spam the journal
+# under LuneOS/Halium (see meta-android's pre-start.d/50-stub-services).
+#
+# Pixel telemetry reporter; polls the never-present IStats framework service
+# about once a second.
+vendor/bin/pixelstats-vendor
+# Waits for the Titan M strongbox keymaster, polling keymaster@3.0 hwservices
+# that never register. init exec_starts it and waits, so the stub must exit.
+vendor/bin/hw/wait_for_strongbox exit
+# Titan M reboot-escrow HAL; polls the same keymaster services.
+vendor/bin/hw/android.hardware.rebootescrow-service.citadel
+# Display post-processing daemon; needs the framework sensorservice for the
+# ambient light sensor and crash-loops without it.
+vendor/bin/mm-pp-dpps
