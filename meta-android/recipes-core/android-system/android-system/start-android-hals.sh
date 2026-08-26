@@ -275,38 +275,48 @@ echo "booted $dsp DSP subsystem(s) init skipped"
 # Ordering surface-manager after this unit is necessary but not sufficient:
 # ctl.start above only asks init to fork the service, it does not wait for it to
 # publish its HIDL interface. If we return too early the compositor still races
-# it and still takes the in-process fallback described in android-system.service.
-# lshal is not on the default PATH the way getprop is, so resolve it explicitly
-# rather than letting "command -v lshal" fail and silently skip the wait.
-LSHAL=
-for c in lshal /android/system/bin/lshal /system/bin/lshal; do
-    command -v "$c" >/dev/null 2>&1 && { LSHAL=$c; break; }
-done
+# Probe with binder-ping (libgbinder-tools), NOT lshal. lshal is a heavy
+# Android/bionic binary run through the container's linker namespace; run this
+# early - before /linkerconfig/ld.config.txt and hwservicemanager are ready -
+# it SIGSEGVs instead of failing cleanly, and retrying it dumped core dozens of
+# times and dragged start-post past its timeout. binder-ping talks straight to
+# /dev/hwbinder via libgbinder, returns a clean exit code (0 = registered and
+# answered), and never crashes in the not-ready state.
+#
+# The composer registers under its highest implemented version and hwbinder
+# lookups are exact, so try each known version rather than a wildcard.
+COMPOSER_VERSIONS="2.4 2.3 2.2 2.1"
 
-if [ -n "$LSHAL" ]; then
+if command -v binder-ping >/dev/null 2>&1; then
+    i=0
+    registered=
+    while [ $i -lt 100 ]; do
+        for v in $COMPOSER_VERSIONS; do
+            if binder-ping -q "android.hardware.graphics.composer@${v}::IComposer/default" 2>/dev/null; then
+                echo "composer HAL @${v} registered on hwbinder after ${i}00ms"
+                registered=1
+                break
+            fi
+        done
+        [ -n "$registered" ] && break
+        i=$((i + 1))
+        sleep 0.3
+    done
+    [ -n "$registered" ] || echo "WARNING: composer HAL never registered; compositor may take the in-process fallback"
+else
+    # Fallback if libgbinder-tools is missing: a bounded getprop poll. Weaker
+    # (a running service has not necessarily finished registerAsService) but it
+    # never crashes or hangs.
+    echo "WARNING: binder-ping not found; falling back to getprop composer check"
     i=0
     while [ $i -lt 60 ]; do
-        # Capture separately so a crashing lshal (seen to SIGSEGV/coredump on
-        # some bases) is detected by exit status instead of just missing the
-        # grep. Retrying a crashing binary 60 times produced 60 coredumps, and
-        # the coredump processing dragged the whole start-post past its timeout
-        # and failed the unit. One crash means lshal is unusable here, so stop.
-        out=$($LSHAL 2>/dev/null)
-        rc=$?
-        if [ $rc -ge 128 ]; then
-            echo "WARNING: lshal crashed (signal $((rc - 128))); skipping composer HAL wait"
-            break
-        fi
-        if echo "$out" | grep -q "android.hardware.graphics.composer@.*::IComposer/default"; then
-            echo "composer HAL registered on hwbinder after ${i}00ms"
+        if getprop | grep -E '^\[init\.svc\.(vendor\.)?hwcomposer' | grep -q '\[running\]'; then
+            echo "composer HAL service running (getprop)"
             break
         fi
         i=$((i + 1))
         sleep 0.5
     done
-    [ $i -lt 60 ] || echo "WARNING: composer HAL never registered; compositor may take the in-process fallback"
-else
-    echo "WARNING: lshal not found; cannot confirm composer HAL registration"
 fi
 
 exit 0
