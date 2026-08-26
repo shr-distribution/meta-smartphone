@@ -1,14 +1,10 @@
 [Unit]
 Description=Android System Container
 Before=network.target ofono.service pulseaudio.service sensorfwd.service
-# The compositor must not start until the Android side is up. libhybris prefers
-# the HIDL composer HAL over hwbinder, but silently falls back to dlopen'ing the
-# hwcomposer module in-process if that service is not registered yet - and the
-# fallback opens /dev/dri/card0 directly, creating a second HWCSession that
-# fights the composer service for DRM master. The compositor's render thread
-# then waits forever on fences delivered to the other process: input keeps
-# arriving, no frames are produced, and the UI is unusable at 0% CPU.
-Before=surface-manager-daemon.service
+# The units above are general Halium-ecosystem daemons, so naming them here is
+# fine. A distro's own compositor is not: LuneOS's surface-manager-daemon lives
+# in meta-luneos and orders itself with After=android-system.service from there,
+# rather than being named from this layer.
 
 [Service]
 Type=simple
