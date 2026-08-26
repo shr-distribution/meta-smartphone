@@ -18,10 +18,24 @@ ExecStartPre=/usr/bin/mount-android.sh
 # all invisible. A stale @LXC_ARCH@ in the config produced nothing but a
 # timeout until this log was read by hand.
 ExecStart=/usr/bin/lxc-start -n android -l DEBUG -o /var/log/lxc-android.log -- /init
-ExecStartPost=/usr/bin/start-android-hals.sh
-ExecStartPost=/usr/bin/wait-for-android.sh
+# The post steps are best-effort readiness probes, not part of bringing the
+# container up (that is ExecStart, above). They must never be able to fail the
+# unit: start-android-hals waits on the composer HAL via lshal, which has been
+# seen to crash (coredump) on some bases, and wait-for-android polls getprop.
+# A "-" prefix keeps a non-zero exit or a crash from marking android-system
+# failed - which used to cascade into luneos-device-config being skipped and the
+# device coming up on the placeholder input config (no touch, no power key).
+ExecStartPost=-/usr/bin/start-android-hals.sh
+ExecStartPost=-/usr/bin/wait-for-android.sh
 ExecStop=/usr/bin/lxc-stop -n android -t 5
 RemainAfterExit=yes
+# Both post scripts are internally bounded (the graphics-HAL wait ~30s, the
+# getprop wait 120s), so give the whole start comfortably more than their sum.
+# The default 90s is shorter than the getprop wait alone, so a slow container
+# was killed mid-probe and reported as a start-post timeout - a hard failure the
+# "-" prefixes above cannot suppress. A generous finite ceiling still catches a
+# genuinely wedged lxc-start.
+TimeoutStartSec=300
 # Never kill the android system when we're on low memory
 OOMScoreAdjust=-1000
 
