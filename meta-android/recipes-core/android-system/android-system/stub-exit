@@ -1,0 +1,4 @@
+#!/system/bin/sh
+# Bind-mounted over an Android helper that init runs with exec_start and
+# blocks on; exit immediately so boot continues.
+exit 0
