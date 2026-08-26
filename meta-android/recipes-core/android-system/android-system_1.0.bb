@@ -12,6 +12,8 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 # python3-core/-misc: mount-apexes.py. Only reached on Android 10+ images,
 # but the interpreter has to be present for it to run at all.
 RDEPENDS:${PN} = "sed parse-android-dynparts libdevmapper python3-core python3-misc"
+# binder-ping (start-android-hals.sh composer readiness probe, replacing lshal)
+RDEPENDS:${PN} += "libgbinder-tools"
 
 # For running the container we're using lxc (>= 1.0 required)
 # we use this with lxc from meta-luneos:
