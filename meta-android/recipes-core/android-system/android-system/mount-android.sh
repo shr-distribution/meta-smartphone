@@ -94,6 +94,14 @@ if grep -qw binder /proc/filesystems 2>/dev/null; then
             log "WARNING: binder filesystem available but mounting /dev/binderfs failed"
         fi
     fi
+    # The container's init symlinks its /dev/binder* into the shared binderfs
+    # instance, but host-side hybris (composer, servicemanager clients) opens
+    # the plain /dev/hwbinder path. Give the host the same symlinks - without
+    # them every hybris HIDL call fails with "failed to get hwcomposer service"
+    # while the vendor service is running fine inside the container.
+    for n in binder hwbinder vndbinder; do
+        [ -e /dev/$n ] || ln -sf /dev/binderfs/$n /dev/$n
+    done
 else
     log "no binderfs support in this kernel, using static binder nodes"
 fi
@@ -154,6 +162,12 @@ else
         table=$(parse-android-dynparts "$metadev" 2>/dev/null) || continue
         [ -n "$table" ] || continue
         if dmsetup create --concise "$table"; then
+            # The /dev/mapper/dynpart-* nodes are created asynchronously by
+            # udev; on mindphone the vendor mount below raced ahead of them
+            # and the container failed its first start every boot. mknodes
+            # creates them synchronously, settle covers the by-label links.
+            dmsetup mknodes
+            udevadm settle --timeout=10 2>/dev/null
             log "mapped dynamic partitions from $metadev"
         else
             log "WARNING: found LP metadata on $metadev but dmsetup failed"
@@ -293,12 +307,23 @@ fi
 # --- everything else the vendor's own fstab asks for ------------------------
 # The vendor is the source of truth for firmware_mnt, dsp, metadata and friends;
 # this is the whole reason a device-agnostic GSI can work at all.
-set -- "$ANDROID_ROOT"/vendor/etc/fstab*
-if [ ! -e "$1" ]; then
+# Prefer the SoC's real fstab (fstab.<ro.hardware>) over decorative ones like
+# fstab.enableswap that sort earlier under a plain glob. Getting this wrong on
+# mt6739 skipped the modem's nvcfg/protect1/protect2 mounts, and the modem came
+# up "exception" with no RIL.
+fstab=
+hw=$(getprop ro.hardware 2>/dev/null)
+[ -n "$hw" ] && [ -e "$ANDROID_ROOT/vendor/etc/fstab.$hw" ] && fstab="$ANDROID_ROOT/vendor/etc/fstab.$hw"
+if [ -z "$fstab" ]; then
+    for f in "$ANDROID_ROOT"/vendor/etc/fstab*; do
+        case "$f" in *.enableswap) continue ;; esac
+        [ -e "$f" ] && { fstab="$f"; break; }
+    done
+fi
+if [ -z "$fstab" ]; then
     log "no vendor fstab found, skipping extra mounts"
     exit 0
 fi
-fstab=$1
 log "reading $fstab for additional mount points"
 
 # shellcheck disable=SC2002

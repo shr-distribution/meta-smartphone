@@ -1,0 +1,39 @@
+From: LuneOS port <webos-ports@webos-ports.org>
+Subject: [PATCH] q linker: restore legacy StaticTlsLayout::finish_layout()
+
+The android16-tls rework split StaticTlsLayout into an
+ANDROID_VERSION_MAJOR >= 16 variant and a legacy one, but only the new
+variant kept a finish_layout() definition. The legacy class still
+declares it and linker_tls.cpp still calls it, so every headers < 16
+build produces a q.so with an undefined
+_ZN15StaticTlsLayout13finish_layoutEv and hybris dies on the first
+property_get:
+
+  ERROR: Failed to load hybris linker for Android SDK version 30:
+  /usr/lib/libhybris/linker/q.so: undefined symbol:
+  _ZN15StaticTlsLayout13finish_layoutEv
+
+Nothing caught it at build time because a shared object may carry
+undefined symbols until dlopen. Restore the upstream bionic Q
+implementation on the legacy field names.
+
+Upstream-Status: Pending [belongs on Herrie82/libhybris herrie/android16-tls]
+---
+--- a/common/q/bionic/libc/bionic/bionic_elf_tls.cpp
++++ b/common/q/bionic/libc/bionic/bionic_elf_tls.cpp
+@@ -157,6 +157,15 @@
+   if (value < old_value) overflowed_ = true;
+   return value;
+ }
++
++void StaticTlsLayout::finish_layout() {
++  // Round the offset up to the alignment.
++  offset_ = round_up_with_overflow_check(offset_, alignment_);
++  if (overflowed_ || offset_ > MAX_SIZE) {
++    async_safe_fatal("error: TLS segments in static TLS overflowed (size %zu, max %zu)",
++                     offset_, MAX_SIZE);
++  }
++}
+ #endif
+ 
+ // Copy each TLS module's initialization image into a newly-allocated block of

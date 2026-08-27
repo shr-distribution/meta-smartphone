@@ -19,6 +19,8 @@ PE = "1"
 SRC_URI = "git://github.com/Herrie82/libhybris;branch=herrie/android16-tls;protocol=https \
     file://0001-tests-build-test_audio-as-gnu99-for-strdup.patch \
     file://0002-linker-search-the-VNDK-APEX-when-there-is-no-ld.config.patch \
+    file://0003-q-linker-restore-legacy-StaticTlsLayout-finish_layout.patch \
+    file://0004-hooks-functional-system-property-find-wait-read_callback.patch \
 "
 
 S = "${UNPACKDIR}/${BB_GIT_DEFAULT_DESTSUFFIX}/hybris"

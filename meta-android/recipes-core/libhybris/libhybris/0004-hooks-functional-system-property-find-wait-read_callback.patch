@@ -1,0 +1,148 @@
+From: LuneOS port <webos-ports@webos-ports.org>
+Subject: [PATCH] hooks: functional __system_property_find/wait/read_callback
+
+The property hooks stubbed __system_property_find to NULL and wait to
+false. Android 11 libhidl polls hwservicemanager.ready through
+libbase's WaitForProperty, which needs find to return a handle,
+read_callback (previously unhooked, resolving to real bionic code fed
+with our fake handle) to report the value, and the post-O 4-argument
+wait to return true. With the stubs, every host-side HIDL getService
+spun forever: the compositor hung after loading the hwcomposer module
+and the boot splash never left the screen.
+
+Represent the prop_info handle as the strdup-ed property name, answer
+reads through the property socket (dropping the runtime cache entry
+first, since it never invalidates on external changes), and pace the
+wait functions at 100ms.
+
+Upstream-Status: Pending [belongs on Herrie82/libhybris herrie/android16-tls]
+---
+diff --git a/common/hooks.c b/common/hooks.c
+index 63b3577..c170f44 100644
+--- a/common/hooks.c
++++ b/common/hooks.c
+@@ -72,6 +72,7 @@
+ #include <mntent.h>
+ 
+ #include <hybris/properties/properties.h>
++#include "legacy_properties/properties_p.h"
+ 
+ // using private implementations
+ extern int my_property_set(const char *key, const char *value);
+@@ -2229,7 +2230,11 @@ static int _hybris_hook___system_property_read(const void *pi, char *name, char
+ {
+     TRACE_HOOK("pi %p name '%s' value '%s'", pi, name, value);
+ 
+-    return my_property_get(name, value, NULL);
++    if (!pi)
++        return 0;
++    if (name)
++        strcpy(name, (const char *) pi);
++    return my_property_get((const char *) pi, value, NULL);
+ }
+ 
+ static int _hybris_hook___system_property_foreach(void (*propfn)(const void *pi, void *cookie), void *cookie)
+@@ -2239,25 +2244,44 @@ static int _hybris_hook___system_property_foreach(void (*propfn)(const void *pi,
+     return 0;
+ }
+ 
++/* Android O+ callers treat prop_info handles as opaque tokens: bionic never
++ * dereferences them, it only passes them back into the property functions.
++ * Hand out the property name itself so the read hooks can answer through the
++ * property socket. Returning NULL here (the old stub) made libbase's
++ * WaitForProperty - and with it every HIDL getService on Android 11+, which
++ * polls hwservicemanager.ready - spin forever on the host. */
+ static const void *_hybris_hook___system_property_find(const char *name)
+ {
+     TRACE_HOOK("name '%s'", name);
+ 
+-    return NULL;
++    return strdup(name);
+ }
+ 
++static unsigned int hybris_property_serial = 0;
++
+ static unsigned int _hybris_hook___system_property_serial(const void *pi)
+ {
+     TRACE_HOOK("pi %p", pi);
+ 
+-    return 0;
++    return __sync_add_and_fetch(&hybris_property_serial, 1);
+ }
+ 
+-static int _hybris_hook___system_property_wait(const void *pi)
++/* bool (*)(const prop_info*, uint32_t, uint32_t*, const struct timespec*)
++ * since Android O. libbase's WaitForProperty gives up permanently when this
++ * returns false, so pace the caller and hand back a fresh serial to force a
++ * re-read; the extra arguments are simply ignored by the old ABI. */
++static int _hybris_hook___system_property_wait(const void *pi, unsigned int old_serial,
++                                               unsigned int *new_serial_ptr, const void *timeout)
+ {
+-    TRACE_HOOK("pi %p", pi);
++    struct timespec ts = { 0, 100 * 1000 * 1000 };
+ 
+-    return 0;
++    TRACE_HOOK("pi %p old_serial %u", pi, old_serial);
++
++    nanosleep(&ts, NULL);
++    if (new_serial_ptr)
++        *new_serial_ptr = __sync_add_and_fetch(&hybris_property_serial, 1);
++
++    return 1;
+ }
+ 
+ static int _hybris_hook___system_property_update(void *pi, const char *value, unsigned int len)
+@@ -2276,9 +2300,12 @@ static int _hybris_hook___system_property_add(const char *name, unsigned int nam
+ 
+ static unsigned int _hybris_hook___system_property_wait_any(unsigned int serial)
+ {
++    struct timespec ts = { 0, 100 * 1000 * 1000 };
++
+     TRACE_HOOK("serial %u", serial);
+ 
+-    return 0;
++    nanosleep(&ts, NULL);
++    return serial + 1;
+ }
+ 
+ static const void *_hybris_hook___system_property_find_nth(unsigned n)
+@@ -2288,6 +2315,31 @@ static const void *_hybris_hook___system_property_find_nth(unsigned n)
+     return NULL;
+ }
+ 
++/* Android O+: how libbase reads a property's value and serial. The runtime
++ * cache in my_property_get never invalidates on external changes, so drop
++ * the entry first - WaitForProperty polls this to see init flip
++ * hwservicemanager.ready to true. */
++static void _hybris_hook___system_property_read_callback(const void *pi,
++        void (*callback)(void *cookie, const char *name, const char *value, unsigned int serial),
++        void *cookie)
++{
++    char value[PROP_VALUE_MAX];
++
++    TRACE_HOOK("pi %p callback %p cookie %p", pi, callback, cookie);
++
++    if (!pi || !callback)
++        return;
++
++    runtime_cache_lock();
++    runtime_cache_remove((const char *) pi);
++    runtime_cache_unlock();
++
++    value[0] = '\0';
++    my_property_get((const char *) pi, value, NULL);
++    callback(cookie, (const char *) pi, value,
++             __sync_add_and_fetch(&hybris_property_serial, 1));
++}
++
+ /**
+  * NOTE: Normally we don't have to wrap __system_property_get (libc.so) as it is only used
+  * through the property_get (libcutils.so) function. However when property_get is used
+@@ -2976,6 +3028,7 @@ static struct _hook hooks_properties[] = {
+     HOOK_INDIRECT(property_list),
+     HOOK_INDIRECT(__system_property_get),
+     HOOK_INDIRECT(__system_property_read),
++    HOOK_INDIRECT(__system_property_read_callback),
+     HOOK_TO(__system_property_set, _hybris_hook_property_set),
+     HOOK_INDIRECT(__system_property_foreach),
+     HOOK_INDIRECT(__system_property_find),
