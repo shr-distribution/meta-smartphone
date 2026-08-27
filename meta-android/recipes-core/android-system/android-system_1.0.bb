@@ -14,6 +14,9 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 RDEPENDS:${PN} = "sed parse-android-dynparts libdevmapper python3-core python3-misc"
 # binder-ping (start-android-hals.sh composer readiness probe, replacing lshal)
 RDEPENDS:${PN} += "libgbinder-tools"
+# MediaTek combo connectivity bring-up. Ships on every halium rootfs; its units
+# self-gate on the vendor combo driver, so it is inert on non-MediaTek devices.
+RDEPENDS:${PN} += "mtk-connectivity"
 
 # MediaTek combo-chip connectivity (WLAN/BT/GPS) bring-up. The recipe is generic
 # and self-gating: its systemd units only start when the MTK connectivity kernel
