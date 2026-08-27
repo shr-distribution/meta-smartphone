@@ -144,7 +144,12 @@ all_rc_files() {
 # Rather than hardcode one vendor's property name, take every gate the rc files
 # declare, give whatever legitimately sets them a grace period, and only then
 # force the stragglers. On sargo four of the five gates satisfy themselves.
-gates=$(all_rc_files | xargs -r awk '$1 == "wait_for_prop" { print $2 "=" $3 }' 2>/dev/null | sort -u)
+# init's own parser strips double quotes around rc arguments; awk does not.
+# mt6739 writes wait_for_prop hwservicemanager.ready "true", and keeping the
+# quotes both made the gate look eternally unsatisfied and, worse, "forced"
+# the literal value \"true\" over the correct one hwservicemanager had set,
+# wedging every libhidl WaitForProperty on the device.
+gates=$(all_rc_files | xargs -r awk '$1 == "wait_for_prop" { gsub(/^"|"$/, "", $3); print $2 "=" $3 }' 2>/dev/null | sort -u)
 pending=
 if [ -n "$gates" ]; then
     i=0
