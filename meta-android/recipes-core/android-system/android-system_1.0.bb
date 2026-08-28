@@ -15,6 +15,12 @@ RDEPENDS:${PN} = "sed parse-android-dynparts libdevmapper python3-core python3-m
 # binder-ping (start-android-hals.sh composer readiness probe, replacing lshal)
 RDEPENDS:${PN} += "libgbinder-tools"
 
+# MediaTek combo-chip connectivity (WLAN/BT/GPS) bring-up. The recipe is generic
+# and self-gating: its systemd units only start when the MTK connectivity kernel
+# modules are actually present (ConditionPathExists), so pulling it in on every
+# halium device is a no-op on non-MTK hardware.
+RDEPENDS:${PN} += "mtk-connectivity"
+
 # For running the container we're using lxc (>= 1.0 required)
 # we use this with lxc from meta-luneos:
 # https://github.com/webOS-ports/meta-webos-ports/tree/master/meta-luneos/recipes-containers/lxc

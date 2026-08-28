@@ -1,0 +1,17 @@
+[Unit]
+Description=Power on MediaTek combo Wi-Fi
+After=mtk-connectivity-modules.service
+Requires=mtk-connectivity-modules.service
+Conflicts=shutdown.target actdead.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# The write only takes once the container's wmt/connac daemons have patched the
+# CONSYS firmware, so retry until wlan0 appears. /dev/wmtWifi is the WMT-era
+# power switch; on connac the module bring-up already yields wlan0, in which
+# case the first loop iteration exits immediately.
+ExecStart=/bin/sh -c 'i=0; while [ $i -lt 90 ]; do ip link show wlan0 >/dev/null 2>&1 && exit 0; [ -e /dev/wmtWifi ] && echo 1 > /dev/wmtWifi 2>/dev/null; sleep 2; i=$((i+1)); done; exit 1'
+
+[Install]
+WantedBy=multi-user.target

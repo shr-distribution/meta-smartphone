@@ -1,0 +1,21 @@
+[Unit]
+Description=MediaTek Bluetooth bring-up (nvram MAC + container HAL owner)
+After=android-system.service mtk-connectivity-modules.service
+Requires=android-system.service
+Conflicts=shutdown.target actdead.target
+ConditionPathExists=|/android/vendor/lib/modules/bt_drv.ko
+ConditionPathExists=|/android/vendor/lib/modules/conninfra.ko
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# Seed BlueZ's address from MTK nvram (bluebinder_post.sh cannot read it).
+ExecStartPre=/usr/bin/mtk-bt-address.sh
+# The container ueventd creates /dev/stpbt system:system, but the MTK BT HAL
+# (user bluetooth) needs bluetooth:bluetooth per the vendor ueventd.rc, and
+# exits at boot without it. Fix the owner and (re)start the HAL; bluebinder
+# then proceeds on its own.
+ExecStart=/bin/sh -c 'i=0; while [ $i -lt 45 ]; do lxc-attach -n android -- sh -c "chown bluetooth:bluetooth /dev/stpbt 2>/dev/null && start bluetooth-1-0" && exit 0; sleep 2; i=$((i+1)); done; exit 1'
+
+[Install]
+WantedBy=multi-user.target

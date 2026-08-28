@@ -1,0 +1,19 @@
+[Unit]
+Description=Load MediaTek combo connectivity modules
+# After android-system so /android/vendor (modules + firmware) is mounted and
+# the container's wmt/connac loader is already polling for the /dev nodes.
+After=android-system.service
+Requires=android-system.service
+Conflicts=shutdown.target actdead.target
+# Inert on non-MediaTek devices: only run where the vendor ships the combo
+# driver. Covers both the WMT era (wmt_drv) and the connac era (conninfra).
+ConditionPathExists=|/android/vendor/lib/modules/wmt_drv.ko
+ConditionPathExists=|/android/vendor/lib/modules/conninfra.ko
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/mtk-load-modules.sh
+
+[Install]
+WantedBy=multi-user.target
