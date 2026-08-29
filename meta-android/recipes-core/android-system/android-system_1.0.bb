@@ -71,6 +71,7 @@ SRC_URI = " \
     file://55-vintf-no-software-keymaster \
     file://60-camerahalserver-eager \
     file://70-fpdata-dirs \
+    file://mem-sleep.conf \
 "
 
 # Create additional android users we need (need to have same UIDs as in android)
@@ -224,6 +225,10 @@ do_install() {
 
     install -d ${D}${localstatedir}/lib/lxc/android/rootfs
 
+    # Deep suspend rather than s2idle; see the fragment for why.
+    install -d ${D}${nonarch_libdir}/tmpfiles.d
+    install -m 0644 ${UNPACKDIR}/mem-sleep.conf ${D}${nonarch_libdir}/tmpfiles.d/mem-sleep.conf
+
     # Compatibility symlinks for the Android filesystem layout.
     #
     # These live here rather than in android-system-image because they describe
@@ -246,7 +251,7 @@ do_install() {
         ${D}${sysconfdir}/systemd/system/basic.target.requires/android-system.service
 }
 
-FILES:${PN} += "/cache /data /factory /firmware /persist /system /vendor"
+FILES:${PN} += "/cache /data /factory /firmware /persist /system /vendor ${nonarch_libdir}/tmpfiles.d"
 
 # The stubs are shebanged "#!/system/bin/sh": they are bind-mounted over Android
 # service binaries and only ever run inside the container's mount namespace,
