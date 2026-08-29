@@ -1,0 +1,29 @@
+# Tier 1 adaptation for the GreenTouch MindPhone (mindset, MT6739).
+#
+# Only what cannot be derived belongs here. Codename, API level, panel size
+# (fbdev fallback) and the input nodes all derive correctly at runtime.
+
+# GridUnit is derived from this DPI (grid = round(dpi * 1.44 / 25.4)). We do
+# NOT use the panel's true physical PPI here: this is a 480x800 panel, and at
+# its real hdpi (~233, Android bucket 240) the formula gives GridUnit 13-14,
+# which makes the fixed-size shell chrome - the system menu is Units.gu(40) -
+# wider than the 480px screen and it overflows both edges.
+#
+# Instead pick the DPI that makes the shell the same number of grid units wide
+# as a known-good device, so the layout is proportioned rather than merely
+# fitted: sargo is 1080px at GridUnit 25 = ~43 gu wide; 480 / 43 = ~11, and
+# GridUnit 11 comes from ~190 DPI. gu(40) is then 440px and fits with margin.
+deviceinfo_display_dpi="190"
+
+# webOS apps are fixed-layout Enyo pages; the device pixel ratio decides how
+# many CSS pixels they are handed. 480 / 1.0 = 480, matching the ~450 CSS-px
+# canvas sargo targets (1080/2.4). A higher ratio would shrink the canvas and
+# the pages would inflate and clip.
+deviceinfo_device_pixel_ratio="1.0"
+
+# The cameras are wired up and the HAL enumerates them, but they are not
+# usable (the front sensor's kernel driver reads 0xffffffff and the rear
+# pipeline has never delivered frames on this port), so a derived
+# camera-count gate would wrongly offer video calling. Close it off until
+# the sensors actually work.
+deviceinfo_video_call="false"
