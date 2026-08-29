@@ -16,7 +16,14 @@ COMPATIBLE_MACHINE = "^sargo$"
 DESCRIPTION = "Linux kernel for Google Pixel 3a device based on the \
 sources from Droidian and LineageOS"
 
-ANDROID_BOOTIMG_CMDLINE = "console=ttyMSM0,115200n8 androidboot.console=ttyMSM0 printk.devkmsg=on msm_rtb.filter=0x237 ehci-hcd.park=3 service_locator.enable=1 firmware_class.path=/vendor/firmware datapart=/dev/mmcblk0p72 cgroup.memory=nokmem lpm_levels.sleep_disabled=1"
+# lpm_levels.sleep_disabled=1 (a bring-up leftover) is deliberately absent: it
+# turns off every SoC low-power mode, so all idle time was spent in shallow WFI
+# - cpuidle C1-C3 usage was exactly 0 after hours of uptime. With LPM enabled
+# the deep C-states engage within seconds and the device is stable.
+# qpnp_smb2.debug_mask=0 silences the charger driver's PR_* debug logging,
+# which the driver ships enabled (mask 31) and which printed POWER_PATH_STATUS
+# to the journal about 20 times a second.
+ANDROID_BOOTIMG_CMDLINE = "console=ttyMSM0,115200n8 androidboot.console=ttyMSM0 printk.devkmsg=on msm_rtb.filter=0x237 ehci-hcd.park=3 service_locator.enable=1 firmware_class.path=/vendor/firmware datapart=/dev/mmcblk0p72 cgroup.memory=nokmem qpnp_smb2.debug_mask=0"
 ANDROID_BOOTIMG_KERNEL_RAM_BASE = "0x00008000"
 ANDROID_BOOTIMG_RAMDISK_RAM_BASE = "0x01000000"
 ANDROID_BOOTIMG_SECOND_RAM_BASE = "0x00f00000"
