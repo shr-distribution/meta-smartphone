@@ -10,12 +10,17 @@
 # directory arguments with a plain cp, so system/audio_effects is skipped and
 # has to be added afterwards; the audio_effect.h beside it includes from there.
 #
-# Nothing selects this, and sargo deliberately does not: android-headers
-# describes the *vendor* HAL interface rather than the system image, and sargo's
-# vendor is Android 11, so it stays on 11.0 whichever GSI it runs. Droidian does
-# the same. This is here for a tree whose vendor is Android 16 - and note that
-# the legacy HAL 1.0 headers AOSP 14 retired are still gone here, so anything
-# built against a legacy HAL cannot compile against this set.
+# sargo.conf and halium-arm64.conf both select this, and not by the usual rule
+# that android-headers describes the *vendor* HAL interface - that would say
+# 12.0 for sargo's Android 12L vendor, which is the line Droidian takes.
+# libhybris gates its Android 16 linker support on ANDROID_VERSION_MAJOR from
+# this package: against older headers the A16 half of bionic_elf_tls.cpp
+# compiles out while linker_finalize_static_tls() still calls into it, so q.so
+# links with StaticTlsLayout::finish_layout() undefined and every hybris
+# consumer dies at dlopen. The headers therefore have to track the GSI.
+#
+# Note the legacy HAL 1.0 headers AOSP 14 retired are still gone here, so
+# anything built against a legacy HAL cannot compile against this set.
 ANDROID_HEADERS_BRANCH = "herrie/halium-16.0"
 
 require recipes-android/android-headers/android-headers.inc

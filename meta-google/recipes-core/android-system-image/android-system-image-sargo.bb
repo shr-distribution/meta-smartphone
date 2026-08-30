@@ -11,7 +11,7 @@ SARGO_ANDROID_SYSTEM ?= "gsi"
 # Which vendor to use. "device" ships the sargo-specific vendor.img built
 # alongside the old system image; "none" ships no vendor at all, so the phone's
 # own /vendor partition is mounted instead. "none" is the Treble arrangement and
-# the one that boots: generic Android 16 userspace over sargo's stock Android 11
+# the one that boots: generic Android 16 userspace over sargo's stock Android 12L
 # vendor. mount_device_vendor() in initramfs-scripts-halium does the mounting;
 # Halium's own mountroot cannot, because it only ever mounts a vendor from a
 # shipped vendor.img and otherwise reads an fstab out of the Android image,
@@ -78,7 +78,7 @@ PV = "20260826-1"
 #           sha256 8bcbb68b0bab9870d19560931a29c36e484873c797a32302048900e16cc147f3
 #
 # NB: the GSI's VNDK level has to match the vendor it runs against, and the
-# default here now assumes the Treble arrangement - stock Android 11 flashed on
+# default here now assumes the Treble arrangement - stock Android 12L flashed on
 # the phone, its own /vendor mounted by mount_device_vendor(), and dynamic
 # partition support in mount-android.sh. A 16.0 GSI on an Android 9 vendor will
 # not boot. Whatever generation is pinned here, sargo.conf's

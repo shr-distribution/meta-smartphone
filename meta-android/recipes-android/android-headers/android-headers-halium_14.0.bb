@@ -8,10 +8,13 @@
 #
 # AOSP 14 retired the legacy HAL 1.0 headers - hardware/lights.h, thermal.h,
 # radio.h, consumerir.h and friends are simply gone, replaced by AIDL. Anything
-# still built against a legacy HAL cannot compile with this set, which is a
-# concrete reason to select the header version by *vendor* rather than by GSI.
-# sargo's vendor is Android 11, so sargo.conf keeps 11.0 whichever GSI it runs;
-# Droidian likewise still build-depends on android-headers-30 for Halium 12-14.
+# still built against a legacy HAL cannot compile with this set, which is the
+# concrete argument for selecting the header version by *vendor* rather than by
+# GSI - and it is why Droidian still build-depends on android-headers-30 for
+# Halium 12-14. This layer goes the other way: libhybris reads
+# ANDROID_VERSION_MAJOR from this package to pick a linker generation, so
+# headers older than the GSI fail dlopen for every hybris consumer, and
+# sargo.conf tracks its GSI instead. The retired-HAL fallout is the price.
 ANDROID_HEADERS_BRANCH = "herrie/halium-14.0"
 
 require recipes-android/android-headers/android-headers.inc
