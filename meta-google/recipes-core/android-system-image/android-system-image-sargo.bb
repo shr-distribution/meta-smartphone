@@ -53,12 +53,29 @@ PV = "20240301-3"
 # Android base is the whole point of the GSI work (plan doc Phase 2). The
 # published halium_arm64 builds are:
 #
+# Tagged with the asset's own filename, so SARGO_GSI_RELEASE can stay at its
+# default:
+#
 #   9.0   halium-luneos-9.0-20240228-1-halium_arm64.tar.bz2
 #           sha256 7469662bb4d8440359dacee9edcae7d8ee7e9536ac8899a37c49c0f5ca1500c4
 #   10.0  halium-luneos-10.0-20230130-1-halium_arm64.tar.bz2
 #           sha256 not published as an asset; compute before first use
 #   11.0  halium-luneos-11.0-20240219-1-halium_arm64.tar.bz2
 #           sha256 355805c5bca803a386065c30408cfffb6024c7dfc34768a0ba61039747fe3976
+#
+# In the date-tagged halium-luneos-20260826 release, which carries every
+# generation at once - set SARGO_GSI_RELEASE to that tag as well as the tarball:
+#
+#   9.0   halium-luneos-9.0-20260826-1-halium_arm64.tar.bz2
+#           sha256 e61057c46694813707e6465b745f58afa3fb8a7a5b5e276316daef3ab335eadc
+#   11.0  halium-luneos-11.0-20260826-1-halium_arm64.tar.bz2
+#           sha256 fd6be3ca58b395e5214a517d1915d3e65a5aa755256cd19603019649c4e6eb71
+#   13.0  halium-luneos-13.0-20260826-1-halium_arm64.tar.bz2
+#           sha256 098f277ad55d41e84f05aeff95e5ea1131bc0516cb243611afa86e0611216c7b
+#   14.0  halium-luneos-14.0-20260826-1-halium_arm64.tar.bz2
+#           sha256 e31446a27296ebb81314834affd03671a1388fa1fdc837f737bd9304a18176b0
+#   16.0  halium-luneos-16.0-20260826-1-halium_arm64.tar.bz2
+#           sha256 8bcbb68b0bab9870d19560931a29c36e484873c797a32302048900e16cc147f3
 #
 # NB: the GSI's VNDK level has to match the vendor it runs against. Pointing
 # this at the 11.0 GSI while the phone still carries an Android 9 vendor will
