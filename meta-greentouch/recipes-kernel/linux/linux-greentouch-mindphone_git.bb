@@ -60,3 +60,19 @@ do_install:append() {
     # "contains reference to TMPDIR [buildpaths]".
     find ${D}${exec_prefix}/src -name '..install.cmd' -delete 2>/dev/null || true
 }
+
+do_compile:append() {
+    # arch/arm/tools/gen-mach-types stamps awk's FILENAME - the path kbuild
+    # handed it - into the banner of the header it generates, and with an
+    # out-of-tree build that is an absolute path under TMPDIR. linux.inc ships
+    # the build tree as -src, so the header goes out with it and wrynose
+    # rejects the package: "contains reference to TMPDIR [buildpaths]".
+    #
+    # Rewrite the banner to name the file the way an in-tree build would.
+    # It is a comment; the machine number defines below it are what anything
+    # actually reads, and they do not change.
+    if [ -f ${B}/arch/arm/include/generated/asm/mach-types.h ]; then
+        sed -i 's|generated from .*/arch/arm/tools/mach-types!|generated from arch/arm/tools/mach-types!|' \
+            ${B}/arch/arm/include/generated/asm/mach-types.h
+    fi
+}
