@@ -23,6 +23,25 @@ log() { echo "mount-android: $*"; }
 
 [ -d "$ANDROID_ROOT" ] || { log "$ANDROID_ROOT missing, nothing to do"; exit 0; }
 
+# --- room in /dev for the container's property area --------------------------
+# The container's init builds one 128K prop_area per SELinux property context
+# under /dev/__properties__, which the LXC config bind-mounts from the host, so
+# the files land on the host's /dev. systemd caps that at 4M (TMPFS_LIMITS_DEV)
+# and an Android 16 GSI has ~557 contexts: the tmpfs runs out of pages part-way
+# through PropertyInit and the mmap write takes SIGBUS. init is built with
+# REBOOT_BOOTLOADER_ON_PANIC, so its handler turns that into reboot(), which the
+# pid namespace delivers as SIGHUP - LXC reports only "ended on signal
+# Hangup(1)" and nothing is logged, because this happens before the container
+# ever gets a working /dev/kmsg. Android 11 fitted in 4M; 16 does not.
+dev_kb=$(df -k /dev 2>/dev/null | awk 'NR==2 {print $2}')
+if [ -n "$dev_kb" ] && [ "$dev_kb" -lt 131072 ]; then
+    if mount -o remount,size=128m /dev 2>/dev/null; then
+        log "grew /dev from ${dev_kb}K to 128M for the container property area"
+    else
+        log "WARNING: could not grow /dev (${dev_kb}K); container init may take SIGBUS in PropertyInit"
+    fi
+fi
+
 # A/B slot. Android 12 moved androidboot.* from the kernel cmdline to bootconfig,
 # so check both.
 ab_slot_suffix=""
