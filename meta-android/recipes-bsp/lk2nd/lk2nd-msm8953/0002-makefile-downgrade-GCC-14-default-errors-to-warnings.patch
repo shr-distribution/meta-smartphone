@@ -1,0 +1,27 @@
+From: Herrie <claude.ai@herrie.org>
+Subject: [PATCH] makefile: downgrade GCC 14 default errors to warnings
+
+GCC 14 promotes several long-standing C warnings to errors by default
+(-Werror=implicit-function-declaration, int-conversion,
+incompatible-pointer-types, ...). This legacy LK codebase predates
+those defaults and trips them in multiple files (e.g. arch/arm/mmu.c
+calling arch_clean_cache_range() without including arch/ops.h).
+Downgrade them back to warnings, matching the existing -fcommon
+accommodation for GCC 10.
+
+Upstream-Status: Pending
+---
+ makefile | 2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/makefile
++++ b/makefile
+@@ -55,6 +55,8 @@
+ CFLAGS := -O2 -g -fno-builtin -finline -Wno-multichar -Wno-unused-parameter -Wno-unused-function $(LKLE_CFLAGS) -include $(CONFIGHEADER)
+ # -fcommon is needed to build this using GCC 10
+ CFLAGS += -fcommon
++# GCC 14 turns these into errors by default; this codebase predates that
++CFLAGS += -Wno-error=implicit-function-declaration -Wno-error=implicit-int -Wno-error=int-conversion -Wno-error=incompatible-pointer-types -Wno-error=return-mismatch
+ #CFLAGS += -Werror
+ ifeq ($(EMMC_BOOT),1)
+   CFLAGS += -D_EMMC_BOOT=1
