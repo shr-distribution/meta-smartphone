@@ -1,5 +1,11 @@
 TUNE_PKGARCH:append = "-halium"
 PACKAGE_EXTRA_ARCHS:append = " ${TUNE_PKGARCH}"
+# A recipe that forces ARM_INSTRUCTION_SET = "arm" (chromium/webruntime) gets
+# a TUNE_PKGARCH without the thumb suffix, so it and its default-tune
+# dependents publish/search sstate manifests under different -halium arches.
+# Register the *other* instruction-set variant too (32-bit arm only) so
+# manifests resolve in both directions.
+PACKAGE_EXTRA_ARCHS:append:arm = " ${@' '.join(a for a in [d.expand('${ARMPKGARCH}${ARMPKGSFX_DSP}${ARMPKGSFX_EABI}${ARMPKGSFX_ENDIAN}${ARMPKGSFX_FPU}-halium'), d.expand('${ARMPKGARCH}${ARM_THUMB_SUFFIX}${ARMPKGSFX_DSP}${ARMPKGSFX_EABI}${ARMPKGSFX_ENDIAN}${ARMPKGSFX_FPU}-halium')] if a != d.getVar('TUNE_PKGARCH'))}"
 
 PREFERRED_PROVIDER_virtual/libgl ?= "mesa-gl"
 PREFERRED_PROVIDER_virtual/libgbm ?= "mesa-gl"
