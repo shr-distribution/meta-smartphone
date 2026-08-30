@@ -1,0 +1,212 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Herman van Hazendonk <github.com@herrie.org>
+Date: Sat, 30 Aug 2026 20:00:00 +0200
+Subject: [PATCH] linker: let a process ask for the vendor's VNDK libraries
+
+A vendor built against an older platform needs that platform's copies of
+the VNDK libraries, and a GSI's /system has moved on. On an Android 16
+GSI over an Android 11 MediaTek vendor the audio HAL could not load at
+all: /system/lib/libmedia_helper.so no longer carries
+TypeConverter<audio_format_t>::mTable, so module-droid-card failed and
+the device had no audio. Behind it were the same break in libbase
+(android::base::Basename, needed by libnvram.so) and in libcutils
+(thread_store_get, needed by the vendor's libhidlbase) - the whole
+vendor half of the image looking at the wrong copies.
+
+Stock Android resolves this with namespaces: /vendor gets its own, whose
+link into the system image is the vndk namespace holding exactly the
+libraries built for the vendor's API level. That needs an ld.config.txt,
+and a Halium GSI ships none - there is not even a linkerconfig binary to
+generate one, so hybris' existing HYBRIS_USE_VENDOR_NAMESPACE has
+nothing to work with.
+
+With a single namespace the two views cannot both be served: the first
+copy of a soname wins the process. Scoping the preference to libraries
+loaded on behalf of a /vendor caller is not enough either, because
+libhardware - which hybris loads first to reach any HAL - pulls in
+/system's libcutils before the vendor HAL is ever opened.
+
+So make it the process's choice. HYBRIS_PREFER_VNDK asks for the
+vendor's view, and a unit that talks to a vendor HAL sets it;
+without it nothing changes. Getting this wrong either way is fatal, and
+both failures are real: the compositor dies on
+
+  cannot locate symbol "...GraphicBuffer12getDataspace..." referenced by
+  "/android/system/lib/libnativewindow.so"
+
+if it is given the APEX copies, and pulseaudio dies without them.
+
+bionic and the LLNDK are excluded: they are the stable ABI the two
+halves share, and the APEX either does not ship them or ships a copy the
+/system libraries cannot use - /system/lib/liblog.so wants a
+__libcpp_verbose_abort that the APEX's libc++ does not export.
+
+The APEX is picked by the vendor's platform version, read from
+/vendor/etc/selinux/plat_sepolicy_vers.txt rather than from
+ro.vndk.version: an image can carry v30, v32 and v34 at once, and the
+property files that name the version are 0600 root, so a service that
+has dropped privileges - pulseaudio runs as "pulse" - cannot read them.
+
+Upstream-Status: Pending
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+---
+--- a/common/q/linker.cpp
++++ b/common/q/linker.cpp
+@@ -1155,6 +1155,83 @@
+   return -1;
+ }
+ 
++// The vendor -> VNDK link that ld.config.txt would have set up.
++//
++// Stock Android puts /vendor and /odm in a namespace whose only way into the
++// system image is the "vndk" namespace, so a vendor library asking for
++// libbase.so gets /apex/com.android.vndk.v<vendor>/lib/libbase.so - built for
++// the API level the vendor was built against - and never the /system copy.
++// Halium ships no ld.config.txt and hybris has a single namespace, so vendor
++// libraries were resolving against the GSI's own /system libraries instead.
++//
++// Against a recent GSI that is not a subtle difference. The MediaTek audio HAL
++// asked for libmedia_helper.so, got the /system one, which no longer carries
++// TypeConverter<audio_format_t>::mTable, and module-droid-card failed to load,
++// leaving the device with no audio; the next vendor library along, libnvram.so,
++// wanted android::base::Basename, which /system/lib's libbase.so no longer
++// exports either. That is not fixable one library at a time - it is the whole
++// vendor half of the image looking at the wrong copies.
++//
++// So when the library is needed by something under /vendor or /odm, look in
++// the matching VNDK APEX first. Everything else keeps the old order, which
++// leaves system-origin loads exactly as they were - and that matters: the APEX
++// shadows some 150 /system libraries, and preferring it wholesale breaks them
++// (/system/lib/liblog.so needs a __libcpp_verbose_abort that the APEX's libc++
++// does not export).
++static const std::string& vndk_apex_lib_dir() {
++  static std::string dir = []() -> std::string {
++    // The vendor's own VNDK version, not the newest APEX present: an image can
++    // carry v30, v32 and v34 at once and only the vendor's own one matches.
++    //
++    // Read it from the vendor's SELinux version rather than from
++    // ro.vndk.version. The property files that carry that property are 0600
++    // root, so a service which has dropped privileges cannot read them -
++    // pulseaudio runs as "pulse" - and the lookup would silently fail for
++    // exactly the process that needs it. plat_sepolicy_vers.txt is world
++    // readable, holds "<ver>.0", and states the same platform version the
++    // vendor was built against.
++    static const char* const kVersionFiles[] = {
++      "/vendor/etc/selinux/plat_sepolicy_vers.txt",
++      "/odm/etc/selinux/plat_sepolicy_vers.txt",
++    };
++
++    std::string version;
++    for (const char* version_file : kVersionFiles) {
++      FILE* f = fopen(version_file, "re");
++      if (f == nullptr) {
++        continue;
++      }
++      char line[64];
++      if (fgets(line, sizeof(line), f) != nullptr) {
++        for (const char* c = line; *c >= '0' && *c <= '9'; ++c) {
++          version.push_back(*c);
++        }
++      }
++      fclose(f);
++      if (!version.empty()) {
++        break;
++      }
++    }
++    if (version.empty()) {
++      return std::string();
++    }
++
++    std::string candidate = std::string("/apex/com.android.vndk.v") + version +
++#if defined(__LP64__)
++                            "/lib64";
++#else
++                            "/lib";
++#endif
++    char real_path[PATH_MAX];
++    if (realpath(candidate.c_str(), real_path) == nullptr) {
++      return std::string();
++    }
++    return std::string(real_path);
++  }();
++
++  return dir;
++}
++
+ static int open_library(android_namespace_t* ns,
+                         ZipArchiveCache* zip_archive_cache,
+                         const char* name, soinfo *needed_by,
+@@ -1186,6 +1263,69 @@
+     return fd;
+   }
+ 
++  // Everything except bionic and the LLNDK comes from the VNDK APEX - for the
++  // processes that ask for it with HYBRIS_PREFER_VNDK.
++  //
++  // It has to be opt-in per process. A process that talks to a vendor HAL wants
++  // the vendor's own copies of these libraries; a process that uses the GSI's
++  // own /system libraries wants those. With a single linker namespace the two
++  // cannot be served at once, and choosing wrongly is fatal either way: the
++  // compositor dies on
++  //
++  //   cannot locate symbol "...GraphicBuffer12getDataspace..." referenced by
++  //   "/android/system/lib/libnativewindow.so"
++  //
++  // if it gets the APEX copies, and pulseaudio dies on the missing
++  // TypeConverter<audio_format_t>::mTable if it does not. Stock Android has no
++  // such dilemma because vendor libraries live in their own namespace linked to
++  // vndk, which needs an ld.config.txt - a Halium GSI ships none, and no
++  // linkerconfig to generate one. Until hybris can build those namespaces
++  // itself, the unit that needs the vendor's view says so.
++  static const bool prefer_vndk = getenv("HYBRIS_PREFER_VNDK") != nullptr;
++
++  //
++  // These are the libraries stock Android resolves through the vndk namespace,
++  // and they have to match the vendor, not the GSI. The two halves have drifted
++  // far apart: /system/lib/libcutils.so no longer exports thread_store_get,
++  // which the vendor's libhidlbase calls; libmedia_helper.so has lost
++  // TypeConverter<audio_format_t>::mTable, which the MediaTek audio HAL needs;
++  // libbase.so has lost android::base::Basename, which libnvram.so needs. Each
++  // one killed module-droid-card, and the device had no audio at all.
++  //
++  // The exceptions are the libraries the vndk namespace does not own. bionic
++  // and the LLNDK are a stable ABI that vendor and system share, and the APEX
++  // either does not carry them or carries a copy that the /system libraries
++  // cannot use: /system/lib/liblog.so needs a __libcpp_verbose_abort that the
++  // APEX's libc++ does not export, so preferring the APEX for libc++ takes
++  // liblog down with it and nothing loads at all.
++  //
++  // Scoping this to libraries loaded on behalf of a /vendor caller instead
++  // sounds tidier and does not work: libhardware, which hybris loads first to
++  // reach any HAL, pulls in /system's libcutils before the vendor HAL is ever
++  // opened, and with one linker namespace the first copy of a soname wins.
++  // Stock Android escapes that by giving vendor its own namespace, which needs
++  // an ld.config.txt - a Halium GSI has none, and no linkerconfig to make one.
++  static const char* const kNeverVndk[] = {
++    "libc.so", "libm.so", "libdl.so", "liblog.so", "libc++.so", "libdl_android.so",
++    "libnativewindow.so", "libsync.so", "libvndksupport.so", "libEGL.so",
++    "libGLESv1_CM.so", "libGLESv2.so", "libGLESv3.so", "libandroid_net.so",
++  };
++  bool never_vndk = false;
++  for (const char* never : kNeverVndk) {
++    if (strcmp(name, never) == 0) {
++      never_vndk = true;
++      break;
++    }
++  }
++  if (prefer_vndk && !never_vndk && !vndk_apex_lib_dir().empty()) {
++    const std::vector<std::string> vndk_paths = { vndk_apex_lib_dir() };
++    int vndk_fd = open_library_on_paths(zip_archive_cache, name, file_offset, vndk_paths, realpath);
++    if (vndk_fd != -1) {
++      TRACE("[ opened %s from the VNDK APEX ]", name);
++      return vndk_fd;
++    }
++  }
++
+   // Otherwise we try LD_LIBRARY_PATH first, and fall back to the default library path
+   TRACE("[ opening %s from namespace %s from %s]", name, ns->get_name(),ns->get_ld_library_paths());
+   int fd = open_library_on_paths(zip_archive_cache, name, file_offset, ns->get_ld_library_paths(), realpath);
+-- 
+2.43.0
+
