@@ -79,6 +79,16 @@ ACTION=="add", KERNEL=="ashmem", OWNER="system", GROUP="system", MODE="0666"
 # never matches, so this is safe on any Halium target.
 ACTION=="add", KERNEL=="kgsl", OWNER="system", GROUP="system", MODE="0666"
 ACTION=="add", KERNEL=="kgsl-3d0", OWNER="system", GROUP="system", MODE="0666"
+# PowerVR's equivalent of kgsl, on MediaTek among others. Without it the node
+# stays root:root 0660 and only root can get a GL context: the compositor runs
+# as root and renders, while chromium's sandboxed GPU process cannot, so
+# webruntime fails with "eglCreateContext ES 3.0 failed with error
+# EGL_BAD_ALLOC" and treats it as fatal - no GPU process, no app rendering.
+# That reads like a missing ES3 capability and is not: with this node readable
+# an unprivileged process gets a full ES 3.2 context (libhybris' test_glesv3
+# renders fine as nobody). The render node is enough on top of this one; the
+# KMS card node can stay 0660.
+ACTION=="add", KERNEL=="pvr_sync", OWNER="system", GROUP="system", MODE="0666"
 ACTION=="add", KERNEL=="ion", OWNER="system", GROUP="system", MODE="0664"
 ACTION=="add", SUBSYSTEM=="dma_heap", OWNER="system", GROUP="system", MODE="0664"
 ACTION=="add", KERNEL=="dri/*", OWNER="root", GROUP="graphics", MODE="0666"
