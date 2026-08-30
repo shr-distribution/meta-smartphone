@@ -21,6 +21,7 @@ SRC_URI = "git://github.com/Herrie82/libhybris;branch=herrie/android16-tls;proto
     file://0002-linker-search-the-VNDK-APEX-when-there-is-no-ld.config.patch \
     file://0003-q-linker-restore-legacy-StaticTlsLayout-finish_layout.patch \
     file://0004-hooks-functional-system-property-find-wait-read_callback.patch \
+    file://0005-hooks-route-__tls_get_addr-to-the-q-linker.patch \
 "
 
 S = "${UNPACKDIR}/${BB_GIT_DEFAULT_DESTSUFFIX}/hybris"
