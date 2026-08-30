@@ -12,6 +12,8 @@ PV = "0.3.8+git"
 BRANCH = "main"
 SRCREV ?= "9100613e03a4f609915e54ad4a957bed3555795a"
 SRC_URI = "git://github.com/msm8953-mainline/lk2nd.git;protocol=https;branch=${BRANCH} \
+           file://0001-platform-msm8953-include-arch-defines.h-for-dmb.patch \
+           file://0002-makefile-downgrade-GCC-14-default-errors-to-warnings.patch \
 "
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"

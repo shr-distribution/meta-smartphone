@@ -1,0 +1,26 @@
+From: Herrie <claude.ai@herrie.org>
+Subject: [PATCH] platform: msm8953: include arch/defines.h for dmb()
+
+dmb() is a macro from arch/defines.h which platform.c only picked up
+implicitly with older toolchains. GCC 14 promotes
+-Wimplicit-function-declaration to an error, breaking the build:
+
+  platform/msm8953/platform.c:101:9: error: implicit declaration of
+  function 'dmb' [-Wimplicit-function-declaration]
+
+Include the header explicitly.
+
+Upstream-Status: Pending
+---
+ platform/msm8953/platform.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/platform/msm8953/platform.c
++++ b/platform/msm8953/platform.c
+@@ -29,5 +29,6 @@
+ #include <debug.h>
+ #include <reg.h>
++#include <arch/defines.h>
+ #include <platform/iomap.h>
+ #include <platform/irqs.h>
+ #include <platform/clock.h>
