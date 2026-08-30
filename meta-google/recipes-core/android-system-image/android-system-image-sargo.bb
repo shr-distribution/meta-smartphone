@@ -3,26 +3,24 @@ require recipes-core/android-system-image/android-system-image.inc
 COMPATIBLE_MACHINE = "sargo"
 
 # Which system.img to put at /android: "device" is the sargo-specific Halium
-# build, "gsi" is the device-agnostic halium_arm64 one. Both tarballs are
-# always fetched so switching is a rebuild of this recipe, nothing more.
-#
-# This is Test A of the GSI migration: generic Android userspace on top of
-# sargo's own vendor.img, so that a failure points at the system side rather
-# than at vendor mounting. Test B drops vendor.img entirely and uses the
-# device's stock /vendor - that is the actual Treble goal, and it also makes
-# the recovered-tarball problem described below go away.
+# build, "gsi" is the device-agnostic halium_arm64 one. The device tarball is
+# only fetched when one of these two knobs still asks for it, so the default
+# configuration does not depend on it at all.
 SARGO_ANDROID_SYSTEM ?= "gsi"
 
 # Which vendor to use. "device" ships the sargo-specific vendor.img built
 # alongside the old system image; "none" ships no vendor at all, so the phone's
-# own /vendor partition is mounted instead - which is the actual Treble goal and
-# what Test B checks. mount_device_vendor() in initramfs-scripts-halium does the
-# mounting; Halium's own mountroot cannot, because it only ever mounts a vendor
-# from a shipped vendor.img and otherwise reads an fstab out of the Android
-# image, which a device-agnostic GSI does not carry.
-SARGO_ANDROID_VENDOR ?= "device"
+# own /vendor partition is mounted instead. "none" is the Treble arrangement and
+# the one that boots: generic Android 16 userspace over sargo's stock Android 11
+# vendor. mount_device_vendor() in initramfs-scripts-halium does the mounting;
+# Halium's own mountroot cannot, because it only ever mounts a vendor from a
+# shipped vendor.img and otherwise reads an fstab out of the Android image,
+# which a device-agnostic GSI does not carry.
+SARGO_ANDROID_VENDOR ?= "none"
 
-# Device-specific build.
+# Device-specific build. Only reachable by setting SARGO_ANDROID_SYSTEM or
+# SARGO_ANDROID_VENDOR back to "device"; nothing fetches it otherwise, which is
+# just as well, because:
 #
 # This version was never published to webOS-ports/halium-images - neither the
 # release tag nor the asset exists there, so do_fetch could only ever 404. The
@@ -39,22 +37,24 @@ SARGO_ANDROID_VENDOR ?= "device"
 # version. They are taken from /var/lib/lxc/android in its rootfs, so they are
 # already raw ext4 rather than sparse - do_install detects that and skips the
 # simg2img conversion - and vendor.img passes a full e2fsck.
-PV = "20240301-3"
+SARGO_DEVICE_PV = "20240301-3"
+
+# PV tracks what this recipe actually ships, which is the GSI.
+PV = "20260826-1"
 
 # Device-agnostic halium_arm64 build.
 #
 # The 9.0 and 10.0 releases were tagged with the asset's own filename, so the
-# tag and the asset were the same string and the URL just repeated it. The 11.0
-# release is tagged by date instead and can hold more than one revision of the
-# tarball, so the two are named separately now. SARGO_GSI_RELEASE defaults to
-# the tarball name to keep the older pins resolving unchanged.
+# tag and the asset were the same string and the URL just repeated it. Later
+# releases are tagged by date and hold every generation at once, so the two are
+# named separately - which is why SARGO_GSI_RELEASE exists.
 #
 # Which GSI generation to use is selectable, because moving sargo onto a modern
 # Android base is the whole point of the GSI work (plan doc Phase 2). The
 # published halium_arm64 builds are:
 #
-# Tagged with the asset's own filename, so SARGO_GSI_RELEASE can stay at its
-# default:
+# Tagged with the asset's own filename - set SARGO_GSI_RELEASE to the tarball
+# name to use one of these:
 #
 #   9.0   halium-luneos-9.0-20240228-1-halium_arm64.tar.bz2
 #           sha256 7469662bb4d8440359dacee9edcae7d8ee7e9536ac8899a37c49c0f5ca1500c4
@@ -77,22 +77,32 @@ PV = "20240301-3"
 #   16.0  halium-luneos-16.0-20260826-1-halium_arm64.tar.bz2
 #           sha256 8bcbb68b0bab9870d19560931a29c36e484873c797a32302048900e16cc147f3
 #
-# NB: the GSI's VNDK level has to match the vendor it runs against. Pointing
-# this at the 11.0 GSI while the phone still carries an Android 9 vendor will
-# not boot - it needs stock Android 11 or 12 flashed first, and dynamic
-# partition support in mount-android.sh, which is why these two land together.
-SARGO_GSI_TARBALL ?= "halium-luneos-9.0-20240228-1-halium_arm64.tar.bz2"
-SARGO_GSI_SHA256 ?= "7469662bb4d8440359dacee9edcae7d8ee7e9536ac8899a37c49c0f5ca1500c4"
-SARGO_GSI_RELEASE ?= "${SARGO_GSI_TARBALL}"
+# NB: the GSI's VNDK level has to match the vendor it runs against, and the
+# default here now assumes the Treble arrangement - stock Android 11 flashed on
+# the phone, its own /vendor mounted by mount_device_vendor(), and dynamic
+# partition support in mount-android.sh. A 16.0 GSI on an Android 9 vendor will
+# not boot. Whatever generation is pinned here, sargo.conf's
+# PREFERRED_VERSION_android-headers-halium has to track it, not the vendor:
+# libhybris gates its per-generation support on ANDROID_VERSION_MAJOR from
+# those headers.
+SARGO_GSI_RELEASE ?= "halium-luneos-20260826"
+SARGO_GSI_TARBALL ?= "halium-luneos-16.0-20260826-1-halium_arm64.tar.bz2"
+SARGO_GSI_SHA256 ?= "8bcbb68b0bab9870d19560931a29c36e484873c797a32302048900e16cc147f3"
 
-SRC_URI = "\
-    https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-9.0-${PV}-${MACHINE}.tar.bz2/halium-luneos-9.0-${PV}-${MACHINE}.tar.bz2;name=device;subdir=device \
-    https://github.com/webOS-ports/halium-images/releases/download/${SARGO_GSI_RELEASE}/${SARGO_GSI_TARBALL};name=gsi;subdir=gsi \
-"
+SARGO_DEVICE_TARBALL = "halium-luneos-9.0-${SARGO_DEVICE_PV}-${MACHINE}.tar.bz2"
+SARGO_DEVICE_URI = "https://github.com/webOS-ports/halium-images/releases/download/${SARGO_DEVICE_TARBALL}/${SARGO_DEVICE_TARBALL};name=device;subdir=device"
+
+SRC_URI = "https://github.com/webOS-ports/halium-images/releases/download/${SARGO_GSI_RELEASE}/${SARGO_GSI_TARBALL};name=gsi;subdir=gsi"
+
+# Fetch the device tarball only when something still consumes it. It is an
+# unpublished asset (see above), so an unconditional entry made do_fetch fail
+# for everyone without it already in DL_DIR - even though the default
+# configuration never opens it.
+SRC_URI += "${@d.getVar('SARGO_DEVICE_URI') if 'device' in (d.getVar('SARGO_ANDROID_SYSTEM'), d.getVar('SARGO_ANDROID_VENDOR')) else ''}"
+
 # Checksum of the repacked device tarball, which is not byte-identical to
 # whatever was originally intended for this version - the images inside are the
-# shipped ones, but the bzip2 stream around them is new. It only resolves on a
-# machine that already has it in DL_DIR until that asset is published.
+# shipped ones, but the bzip2 stream around them is new.
 SRC_URI[device.sha256sum] = "c96011207034cab2f0a44b61a009b1c6d64a32c93beb6a9b87291d664bdd22de"
 SRC_URI[gsi.sha256sum] = "${SARGO_GSI_SHA256}"
 
