@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# MediaTek ships camerahalserver as a lazy HAL ("oneshot disabled");
+# hwservicemanager then starts and stops it on client demand. Under Halium
+# that cycle is fragile: droidmedia's camera_service has been seen wedged in
+# "stopping" when the provider registered into it late. Start the provider
+# eagerly with the other "class hal" services instead - droidmedia and any
+# glibc-side client then always find it already registered.
+#
+# Bind-mounts rather than sed: works on a read-only vendor partition too.
+
+RC="$LXC_ROOTFS_PATH/vendor/etc/init/camerahalserverLazy.rc"
+
+[ -f "$RC" ] || exit 0
+grep -Eq '^[[:space:]]*(oneshot|disabled)[[:space:]]*$' "$RC" || exit 0
+
+mkdir -p /run/lxc-android
+sed -E '/^[[:space:]]*(oneshot|disabled)[[:space:]]*$/d' "$RC" \
+    > /run/lxc-android/camerahalserverLazy.rc
+
+mount --bind /run/lxc-android/camerahalserverLazy.rc "$RC"

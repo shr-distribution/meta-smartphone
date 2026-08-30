@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# The Halium GSI's framework manifest declares keymaster@3.0/softwareonly, but
+# the service that would provide it (android.hardware.keymaster@3.0-service)
+# is built proprietary, i.e. into the *vendor* image. A device that keeps its
+# stock vendor partition never gets that binary, so the declaration dangles:
+# keystore enumerates it, hwservicemanager tries to lazy-start it, and init
+# rejects every ctl.interface_start with 0x20 because no service declares the
+# interface. The resulting 1 Hz retry loop floods logd for the life of the
+# container and keystore never finishes initialising. Strip the dangling entry
+# so keystore settles on the vendor keymaster instead.
+#
+# Bind-mounts rather than sed: works on a read-only GSI too.
+
+MANIFEST="$LXC_ROOTFS_PATH/system/etc/vintf/manifest.xml"
+
+[ -f "$MANIFEST" ] || exit 0
+grep -q softwareonly "$MANIFEST" || exit 0
+
+# A vendor image that really ships the 3.0 service can honour the declaration;
+# leave those devices alone.
+for f in "$LXC_ROOTFS_PATH"/vendor/bin/hw/android.hardware.keymaster@3.0-service*; do
+    [ -e "$f" ] && exit 0
+done
+
+mkdir -p /run/lxc-android
+awk '
+    /<hal[ >]/ { inhal = 1; buf = ""; drop = 0 }
+    inhal {
+        buf = buf $0 ORS
+        if (/softwareonly/) drop = 1
+        if (/<\/hal>/) { inhal = 0; if (!drop) printf "%s", buf }
+        next
+    }
+    { print }
+' "$MANIFEST" > /run/lxc-android/manifest.xml
+
+mount --bind /run/lxc-android/manifest.xml "$MANIFEST"
