@@ -1,0 +1,116 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Herman van Hazendonk <github.com@herrie.org>
+Date: Sat, 30 Aug 2026 21:30:00 +0200
+Subject: [PATCH] halium: find the Android image instead of assuming where it is
+
+identify_android_image() only recorded which *kind* of image it saw, and
+the mount that followed then rebuilt the path from $file_layout: for the
+halium layout, always /tmpmnt/$ANDROID_IMAGE. But that layout is chosen
+by the presence of rootfs.img alone, while the Android image may equally
+be the copy the rootfs itself carries under /var/lib/lxc/android, put
+there by the android-system-image package.
+
+So a userdata image built with only rootfs.img in it does not boot. The
+mount fails without stopping the script, /android stays empty, and the
+container start dies with
+
+    mkdir: can't create directory '/android/vendor': No such file or directory
+    android-system.service: Main process exited, code=exited, status=1
+
+leaving the device with no UI and nothing obvious to point at. On a
+device with no custom recovery the whole install is a fastboot-flashed
+userdata image, so getting that image wrong is easy to do.
+
+Search the candidate paths and remember the image that was actually
+found, then mount that one, warning if there is none. Taken from the
+FuriLabs fork, which had already fixed this the same way; the rest of
+that tree has grown FuriOS-specific recovery handling, so only this part
+is carried over.
+
+Upstream-Status: Backport [FuriLabs/initramfs-tools-halium]
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+---
+--- a/scripts/halium
++++ b/scripts/halium
+@@ -69,11 +69,34 @@
+ 	#   * "system" if the image should be mounted at '/android/system/'
+ 	#   * "unknown" if neither is found
+ 
+-	[ -f /tmpmnt/system.img ] && ANDROID_IMAGE_MODE="system"
+-	[ -f /tmpmnt/android-rootfs.img ] && ANDROID_IMAGE_MODE="rootfs"
+-	[ -f /halium-system/var/lib/lxc/android/system.img ] && ANDROID_IMAGE_MODE="system"
+-	[ -f /halium-system/var/lib/lxc/android/android-rootfs.img ] && ANDROID_IMAGE_MODE="rootfs"
+-	[ -z $ANDROID_IMAGE_MODE ] && ANDROID_IMAGE_MODE="unknown"
++	# Search each location in turn and remember which image was found, rather
++	# than only which kind: the halium layout keeps the image next to
++	# rootfs.img on userdata, but the rootfs carries its own copy under
++	# /var/lib/lxc/android as well, and either may be the one that exists.
++	# Taken from the FuriLabs fork, which fixed this upstream.
++	SYSTEM_SEARCH_PATHS="/halium-system/var/lib/lxc/android/system.img"
++	[ "${file_layout}" = "halium" ] && SYSTEM_SEARCH_PATHS="/tmpmnt/system.img ${SYSTEM_SEARCH_PATHS}"
++
++	ROOTFS_SEARCH_PATHS="/halium-system/var/lib/lxc/android/android-rootfs.img"
++	[ "${file_layout}" = "halium" ] && ROOTFS_SEARCH_PATHS="/tmpmnt/android-rootfs.img ${ROOTFS_SEARCH_PATHS}"
++
++	for image in ${SYSTEM_SEARCH_PATHS}; do
++		if [ -f "${image}" ]; then
++			ANDROID_IMAGE_MODE="system"
++			ANDROID_IMAGE="${image}"
++			return
++		fi
++	done
++
++	for image in ${ROOTFS_SEARCH_PATHS}; do
++		if [ -f "${image}" ]; then
++			ANDROID_IMAGE_MODE="rootfs"
++			ANDROID_IMAGE="${image}"
++			return
++		fi
++	done
++
++	ANDROID_IMAGE_MODE="unknown"
+ }
+ 
+ set_halium_version_properties() {
+@@ -532,26 +555,20 @@
+ 	# Mount the android system partition to a temporary location
+ 	MOUNT="ro"
+ 	MOUNT_LOCATION="/android-$ANDROID_IMAGE_MODE"
+-	[ $ANDROID_IMAGE_MODE = "system" ] && ANDROID_IMAGE="system.img" || ANDROID_IMAGE="android-rootfs.img"
+ 	[ -e /tmpmnt/.writable_device_image -o -e /halium-system/.writable_device_image ] && MOUNT="rw"
+-	tell_kmsg "mounting android system image (/tmpmnt/$ANDROID_IMAGE) $MOUNT, in $MOUNT_LOCATION ($ANDROID_IMAGE_MODE mode)"
+-	if [ $file_layout = "halium" ]; then
+-		# rootfs.img and Android system.img are separate
+-		tell_kmsg "mounting android system image from userdata partition"
+-		mount -o loop,$MOUNT "/tmpmnt/$ANDROID_IMAGE" $MOUNT_LOCATION
++	tell_kmsg "mounting android system image ($ANDROID_IMAGE) $MOUNT, in $MOUNT_LOCATION ($ANDROID_IMAGE_MODE mode)"
++	if [ -n "${ANDROID_IMAGE}" ]; then
++		mount -o loop,$MOUNT "$ANDROID_IMAGE" $MOUNT_LOCATION \
++			|| tell_kmsg "WARNING: Failed to mount Android system image."
+ 	else
+-		# Android system.img is inside rootfs
+-		tell_kmsg "mounting android system image from system rootfs"
+-		mount -o loop,$MOUNT "/halium-system/var/lib/lxc/android/$ANDROID_IMAGE" $MOUNT_LOCATION
+-
+-		if [ -e "/halium-system/var/lib/lxc/android/vendor.img" ]; then
+-			tell_kmsg "mounting android vendor image from system rootfs"
+-			mkdir -p /android-vendor
+-			mount -o loop,$MOUNT "/halium-system/var/lib/lxc/android/vendor.img" /android-vendor
+-		fi
+-   	fi
++		tell_kmsg "WARNING: Unable to mount Android system image as it hasn't been found."
++	fi
+ 
+-	[ $? -eq 0 ] || tell_kmsg "WARNING: Failed to mount Android system.img."
++	if [ -e "/halium-system/var/lib/lxc/android/vendor.img" ]; then
++		tell_kmsg "mounting android vendor image from system rootfs"
++		mkdir -p /android-vendor
++		mount -o loop,$MOUNT "/halium-system/var/lib/lxc/android/vendor.img" /android-vendor
++	fi
+ 
+ 	[ $ANDROID_IMAGE_MODE = "rootfs" ] && mount -o bind $MOUNT_LOCATION/system /android-system
+ 	[ $ANDROID_IMAGE_MODE = "system" ] && extract_android_ramdisk
+-- 
+2.43.0
+
