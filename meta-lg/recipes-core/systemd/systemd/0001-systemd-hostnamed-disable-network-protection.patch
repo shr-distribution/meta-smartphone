@@ -5,24 +5,27 @@ Subject: [PATCH] systemd-hostnamed: disable network protection
 
 Upstream-Status: Inappropriate [kernel version not supported anymore by systemd]
 
+Context refreshed for systemd 257.8: upstream replaced PrivateDevices=yes with
+DeviceAllow=/dev/vsock r in this block, so hunk 1 no longer applied. The change
+itself is unchanged - comment out PrivateNetwork and RestrictNamespaces.
+
 ---
  units/systemd-hostnamed.service.in | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/units/systemd-hostnamed.service.in b/units/systemd-hostnamed.service.in
-index 222700564e..8687d4b0ad 100644
 --- a/units/systemd-hostnamed.service.in
 +++ b/units/systemd-hostnamed.service.in
-@@ -23,7 +23,7 @@ LockPersonality=yes
+@@ -24,7 +24,7 @@ LockPersonality=yes
  MemoryDenyWriteExecute=yes
  NoNewPrivileges=yes
- PrivateDevices=yes
+ DeviceAllow=/dev/vsock r
 -PrivateNetwork=yes
 +#PrivateNetwork=yes
  PrivateTmp=yes
  ProtectProc=invisible
  ProtectControlGroups=yes
-@@ -34,7 +34,7 @@ ProtectKernelTunables=yes
+@@ -35,7 +35,7 @@ ProtectKernelTunables=yes
  ProtectSystem=strict
  ReadWritePaths=/etc /run/systemd
  RestrictAddressFamilies=AF_UNIX
