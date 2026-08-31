@@ -7,6 +7,10 @@ PACKAGES = "${PN}"
 
 RDEPENDS:${PN} = " iproute2 busybox-mdev "
 
+# Nothing but local files, so nothing ever lands in the default
+# S = "${UNPACKDIR}/${BP}" and do_unpack warns about it.
+S = "${UNPACKDIR}"
+
 SRC_URI = " \
   file://init.sh \
   file://init_functions.sh \
