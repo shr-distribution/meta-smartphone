@@ -12,6 +12,10 @@ COMPATIBLE_MACHINE = "^halium$"
 
 PV = "1.0"
 
+# Nothing but local files, so nothing ever lands in the default
+# S = "${UNPACKDIR}/${BP}" and do_unpack warns about it.
+S = "${UNPACKDIR}"
+
 SRC_URI = " \
     file://mtk-load-modules.sh \
     file://mtk-bt-address.sh \

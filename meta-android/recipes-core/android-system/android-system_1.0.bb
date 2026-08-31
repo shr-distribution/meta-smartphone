@@ -52,6 +52,10 @@ def lxc_arch(d):
 
 LXC_ARCH = "${@lxc_arch(d)}"
 
+# Nothing but local files, so nothing ever lands in the default
+# S = "${UNPACKDIR}/${BP}" and do_unpack warns about it.
+S = "${UNPACKDIR}"
+
 SRC_URI = " \
     file://android-system.service \
     file://wait-for-android.sh \
