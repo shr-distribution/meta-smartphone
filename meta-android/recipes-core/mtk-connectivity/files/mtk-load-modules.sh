@@ -19,6 +19,23 @@ KREL=$(uname -r)
 
 [ -f "$VMOD/modules.load" ] || exit 0
 
+# wmt_drv has one nvram path baked into it, /data/nvram/APCFG/APRDEB/WIFI, and
+# it opens it from kernel space - so it resolves against the host rootfs, not
+# the container's. Android has /data/nvram symlinked to the nvdata partition; on
+# LuneOS /data is the container's userdata and that link does not exist, so the
+# open cannot succeed. Give the driver the path it asks for, before it powers
+# the chip on, which is why this runs here.
+#
+# Note this was tried as a fix for BT scanning finding nothing and did not fix
+# it - Wi-Fi RX works, and BT still returns no advertising reports with the link
+# in place - so it is correctness rather than a known-necessary fix.
+if [ -d /mnt/vendor/nvdata ] && [ ! -L /data/nvram ]; then
+    # The container's init may have left an empty /data/nvram directory behind,
+    # which is not the real thing - rmdir declines if anything is in it.
+    rmdir /data/nvram 2>/dev/null
+    [ -e /data/nvram ] || ln -sfn /mnt/vendor/nvdata /data/nvram 2>/dev/null || true
+fi
+
 # Firmware lives on the vendor partition; point the kernel loader at it.
 if [ -d "$VMOD/../firmware" ]; then
     echo "$VMOD/../firmware" > /sys/module/firmware_class/parameters/path 2>/dev/null || true
