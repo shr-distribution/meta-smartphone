@@ -1,0 +1,44 @@
+#!/bin/sh
+
+# Android 9+ keeps the fingerprint template store in
+# /data/vendor_de/<user>/fpdata. init.rc creates /data/vendor_de itself
+# (0771 root root), but the per-user directory below it is made by vold and
+# installd when the framework prepares user 0 - which never happens under
+# Halium. So the vendor fingerprint HAL has nowhere to write its templates.
+#
+# The failure looks nothing like a missing directory. The FPC HAL accepts every
+# enrolment sample, reports progress to 100%, and only then fails:
+#
+#     fpc_tee_store_template_db / db path: /data/vendor_de/0/fpdata/user.db
+#     do_enroll failed FPC_ERROR_IO
+#     onError(1)
+#
+# which droidian-fpd surfaces as ERROR_HW_UNAVAILABLE - a hardware error for
+# what is really a mkdir that never happened. Enrolment can therefore never
+# persist a finger, on any Halium device with a fingerprint sensor.
+#
+# Done on the host path rather than under $LXC_ROOTFS_PATH: LXC binds
+# /android/data onto the container's /data from lxc-config, and that happens
+# after the pre-start hooks have run, so the container's /data is still empty
+# at this point.
+
+DATA=/android/data
+
+# Only act once the real userdata is mounted, otherwise this would create the
+# directories inside the container rootfs image instead, where they do no good
+# and are shadowed the moment the bind mount lands.
+if ! grep -q " ${DATA} " /proc/self/mounts; then
+    echo "$(basename "$0"): ${DATA} not mounted, skipping"
+    exit 0
+fi
+
+mkdir -p "${DATA}/vendor_de/0/fpdata" || exit 0
+
+# 0771 root:root for the per-user directory, the mode init.rc gives
+# /data/vendor_de itself. The store below it belongs to the HAL, which runs as
+# "system"; numeric ids, because these are Android's uids and the names only
+# resolve on the host because android-system happens to create them too.
+chown 0:0       "${DATA}/vendor_de/0"       && chmod 0771 "${DATA}/vendor_de/0"
+chown 1000:1000 "${DATA}/vendor_de/0/fpdata" && chmod 0770 "${DATA}/vendor_de/0/fpdata"
+
+exit 0
