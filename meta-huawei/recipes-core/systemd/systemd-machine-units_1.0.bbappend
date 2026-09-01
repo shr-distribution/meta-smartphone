@@ -1,5 +1,12 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
+# The machine append below adds nothing but local files, so nothing lands in
+# the default S = "${UNPACKDIR}/${BP}" and do_qa_unpack warns about it.
+# Scoped per machine rather than set outright: this bbappend is parsed for
+# every build, and a bare S here would also apply to MACHINEs that get no
+# SRC_URI from this layer at all.
+S:angler = "${UNPACKDIR}"
+
 SRC_URI:append:angler = " \
     file://wifi-macaddr-persister.service \
     file://wifi-module-load.service \
