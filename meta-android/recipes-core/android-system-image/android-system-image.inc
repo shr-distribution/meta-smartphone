@@ -10,6 +10,11 @@ INC_PR = "r7"
 
 ANDROID_SYSTEM_IMAGE_DESTNAME ?= "system.img"
 
+# The machine recipes fetch bare .img files (or archives that unpack straight
+# into ${UNPACKDIR}), which is also where do_install looks for them, so the
+# default S = "${UNPACKDIR}/${BP}" never comes into existence.
+S = "${UNPACKDIR}"
+
 do_install() {
     install -d ${D}/android
     install -d ${D}/userdata

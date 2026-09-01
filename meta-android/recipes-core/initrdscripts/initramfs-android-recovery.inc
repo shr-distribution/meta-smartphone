@@ -12,6 +12,10 @@ PACKAGES = "${PN}"
 FILES:${PN} = "/recovery"
 RECOVERY_IMG ?= "recovery.img"
 
+# recovery.img is fetched as a bare file into ${UNPACKDIR}, which is where
+# do_install unpacks it, so the default S = "${UNPACKDIR}/${BP}" never exists.
+S = "${UNPACKDIR}"
+
 do_install() {
     cd ${UNPACKDIR}
     abootimg -x ${RECOVERY_IMG}

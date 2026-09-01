@@ -1,5 +1,13 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
+# The machine appends below add nothing but local files, so nothing lands in
+# the default S = "${UNPACKDIR}/${BP}" and do_qa_unpack warns about it.
+# Scoped per machine rather than set outright: this bbappend is parsed for
+# every build, and a bare S here would also apply to MACHINEs that get no
+# SRC_URI from this layer at all.
+S:tenderloin = "${UNPACKDIR}"
+S:tenderloin-halium = "${UNPACKDIR}"
+
 SRC_URI:append:tenderloin = " \
     file://tenderloin-ath6kl-module.service \
     file://tenderloin-swap.service \
