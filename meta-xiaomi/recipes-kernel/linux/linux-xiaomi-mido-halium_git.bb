@@ -1,4 +1,7 @@
 require recipes-kernel/linux/linux.inc
+# Binder nodes, veth, overlayfs and the rest of what Waydroid needs from a
+# kernel this old. See the include for why each one is there.
+require recipes-kernel/linux/waydroid-kernel.inc
 
 SECTION = "kernel"
 
