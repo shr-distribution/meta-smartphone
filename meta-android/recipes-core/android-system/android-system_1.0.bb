@@ -2,7 +2,7 @@ DESCRIPTION = "System configuration and startup scripts for the Android compatib
 LICENSE = "GPL-3.0-only"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/GPL-3.0-only;md5=c79ff39f19dfec6d293b95dea7b07891"
 
-PR = "r5"
+PR = "r6"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
@@ -14,9 +14,6 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 RDEPENDS:${PN} = "sed parse-android-dynparts libdevmapper python3-core python3-misc"
 # binder-ping (start-android-hals.sh composer readiness probe, replacing lshal)
 RDEPENDS:${PN} += "libgbinder-tools"
-# MediaTek combo connectivity bring-up. Ships on every halium rootfs; its units
-# self-gate on the vendor combo driver, so it is inert on non-MediaTek devices.
-RDEPENDS:${PN} += "mtk-connectivity"
 
 # MediaTek combo-chip connectivity (WLAN/BT/GPS) bring-up. The recipe is generic
 # and self-gating: its systemd units only start when the MTK connectivity kernel
@@ -244,5 +241,15 @@ do_install() {
 }
 
 FILES:${PN} += "/cache /data /factory /firmware /persist /system /vendor"
+
+# The stubs are shebanged "#!/system/bin/sh": they are bind-mounted over Android
+# service binaries and only ever run inside the container's mount namespace,
+# where that is Android's mksh. Nothing on the host rootfs provides it, so the
+# file-rdeps scanner flags them. Split them into their own package so the check
+# stays on for the rest of the recipe, which does depend on host interpreters.
+PACKAGE_BEFORE_PN = "${PN}-stubs"
+FILES:${PN}-stubs = "${localstatedir}/lib/lxc/android/stubs"
+INSANE_SKIP:${PN}-stubs += "file-rdeps"
+RDEPENDS:${PN} += "${PN}-stubs"
 
 SYSTEMD_SERVICE:${PN} = "android-system.service"
