@@ -2,7 +2,7 @@ DESCRIPTION = "System configuration and startup scripts for the Android compatib
 LICENSE = "GPL-3.0-only"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/GPL-3.0-only;md5=c79ff39f19dfec6d293b95dea7b07891"
 
-PR = "r6"
+PR = "r7"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
@@ -70,6 +70,7 @@ SRC_URI = " \
     file://stub-sleep \
     file://55-vintf-no-software-keymaster \
     file://60-camerahalserver-eager \
+    file://70-fpdata-dirs \
 "
 
 # Create additional android users we need (need to have same UIDs as in android)
@@ -215,6 +216,7 @@ do_install() {
     install -m 0755 ${UNPACKDIR}/stub-sleep ${D}${localstatedir}/lib/lxc/android/stubs/
     install -m 0755 ${UNPACKDIR}/55-vintf-no-software-keymaster ${D}${localstatedir}/lib/lxc/android/pre-start.d/
     install -m 0755 ${UNPACKDIR}/60-camerahalserver-eager ${D}${localstatedir}/lib/lxc/android/pre-start.d/
+    install -m 0755 ${UNPACKDIR}/70-fpdata-dirs ${D}${localstatedir}/lib/lxc/android/pre-start.d/
 
     install -d ${D}${localstatedir}/lib/lxc/android/rootfs
 
