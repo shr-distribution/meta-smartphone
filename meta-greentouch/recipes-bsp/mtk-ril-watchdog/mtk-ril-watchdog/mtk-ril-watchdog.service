@@ -1,0 +1,11 @@
+[Unit]
+Description=Restart MediaTek's RIL if it has died
+# The RIL lives in the Android container, so there is nothing to check before it
+# is up. ConditionPathExists keeps the unit quiet rather than failing on a
+# machine or a boot where the container never started.
+After=android-system.service
+ConditionPathExists=/android/system/bin/setprop
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/mtk-ril-watchdog

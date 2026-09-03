@@ -1,0 +1,101 @@
+#!/bin/sh
+# Bring MediaTek's RIL back when it dies.
+#
+# mtkfusionrild crashes intermittently on the MT6739 - a use-after-free inside
+# MediaTek's own closed libmtk-ril.so/libmtkutils.so, seen as
+#
+#   F libc: Fatal signal 7 (SIGBUS), BUS_ADRALN, fault addr 0x3, tid RfxSender_3
+#           #00 RefBase::decStrong   libmtkutils.so
+#           #04 RfxSender::threadLoop  libmtk-ril.so
+#
+# preceded by "RIL_onRequestComplete: invalid RIL_Token". That is not ours to
+# fix, and nobody else has: UBports and Jolla both ship the same daemon
+# misbehaving on their own MTK hardware, and the signature appears nowhere
+# public.
+#
+# What is fixable is that it never comes back. /vendor/etc/init/mtkrild.rc says
+#
+#   service vendor.ril-daemon-mtk /vendor/bin/hw/mtkfusionrild -l libmtk-ril.so
+#       class main
+#       ...
+#       oneshot
+#       disabled
+#
+# so init deliberately does not respawn it and telephony is gone for the rest of
+# the boot. The rc cannot be corrected: /android/vendor is dynpart-vendor_a,
+# mounted read-only, and is the vendor's partition rather than anything we
+# build. But "oneshot" only suppresses the *automatic* restart - an explicit
+# start still works, which is what ctl.start asks init for.
+#
+# ofono needs nothing from us. ofono-binder-plugin keeps its servicemanager
+# registration watch across the death - binder_plugin_slot_shutdown() does not
+# remove radio_watch_id, only binder_plugin_slot_free() does - so it re-attaches
+# by itself when the radio service registers again. Verified on device: killing
+# the RIL left 0 radio HALs and it stayed dead, and a single ctl.start brought
+# the service and both modems back with ofono untouched.
+
+SETPROP=/android/system/bin/setprop
+SERVICE=vendor.ril-daemon-mtk
+SEEN=/run/mtk-ril-watchdog.seen
+COUNT=/run/mtk-ril-watchdog.count
+LAST=/run/mtk-ril-watchdog.last
+
+# How many restarts to attempt before giving up for this boot. A RIL that dies
+# again immediately is a different fault from one that died once, and hammering
+# it every interval until the battery runs down helps nobody - so stop, and say
+# so, rather than looping in silence.
+LIMIT=${MTK_RIL_RESTART_LIMIT:-10}
+
+[ -x "$SETPROP" ] || exit 0
+
+if pidof mtkfusionrild >/dev/null 2>&1; then
+    # Alive. Record that, so that a later absence is a death and not the boot
+    # not having got there yet - restarting a service init is still bringing up
+    # on its own would race the property trigger in mtkrild.rc.
+    [ -e "$SEEN" ] || : > "$SEEN"
+    rm -f "$COUNT" "$LAST"
+    exit 0
+fi
+
+# Never seen running this boot: the container is still coming up. Leave it be.
+[ -e "$SEEN" ] || exit 0
+
+# Give a previous attempt time to land before making another. Measured on
+# device, this RIL takes 30-60s between ctl.start and a running process, so a
+# 20s timer fires two or three more times before the first has landed, and
+# without this each would spend another restart from the budget below.
+#
+# init.svc.<name> looks like the signal to use here and is not: it still reads
+# "stopped" 25 seconds after ctl.start on this device, so all three of those
+# firings see "stopped" and all ask again - tried, and it does not work. Time
+# since the last attempt is the honest measure.
+COOLDOWN=${MTK_RIL_RESTART_COOLDOWN:-90}
+now=$(date +%s 2>/dev/null)
+case "$now" in ''|*[!0-9]*) now=0 ;; esac
+
+if [ -r "$LAST" ] && [ "$now" -gt 0 ]; then
+    last=$(cat "$LAST" 2>/dev/null)
+    case "$last" in ''|*[!0-9]*) last=0 ;; esac
+    [ $((now - last)) -lt "$COOLDOWN" ] && exit 0
+fi
+
+n=0
+[ -r "$COUNT" ] && n=$(cat "$COUNT" 2>/dev/null)
+case "$n" in ''|*[!0-9]*) n=0 ;; esac
+
+if [ "$n" -ge "$LIMIT" ]; then
+    exit 0
+fi
+
+n=$((n + 1))
+printf '%s\n' "$n" > "$COUNT"
+printf '%s\n' "$now" > "$LAST"
+
+echo "mtk-ril-watchdog: $SERVICE is not running; requesting a restart ($n/$LIMIT)"
+"$SETPROP" ctl.start "$SERVICE" 2>/dev/null
+
+if [ "$n" -eq "$LIMIT" ]; then
+    echo "mtk-ril-watchdog: $LIMIT restarts this boot; not trying again." \
+         "The RIL is failing repeatedly, which is a different fault from a" \
+         "single crash - collect logcat -b radio,crash before rebooting."
+fi
