@@ -1,2 +1,0 @@
-SYMLINK=="modem", SUBSYSTEM=="smdpkt",   ENV{OFONO_DRIVER}="gobi"
-SYMLINK=="modem", SUBSYSTEM=="rpmsg",    ENV{OFONO_DRIVER}="gobi"

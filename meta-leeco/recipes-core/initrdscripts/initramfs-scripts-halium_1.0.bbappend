@@ -1,4 +1,0 @@
-FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
-
-COMPATIBLE_MACHINE:s2 = "^s2"
-
