@@ -1,0 +1,15 @@
+[Unit]
+Description=Check periodically that MediaTek's RIL is alive
+
+[Timer]
+# Start well after the container: the RIL comes up around 130s on this device,
+# and the script will not act before it has seen the daemon alive once, so this
+# is belt and braces rather than the thing that prevents a boot-time race.
+OnBootSec=180s
+# The crash is rare; the cost of the check is one pidof. Twenty seconds bounds
+# how long telephony stays down without being anywhere near a busy loop.
+OnUnitActiveSec=20s
+AccuracySec=5s
+
+[Install]
+WantedBy=timers.target
