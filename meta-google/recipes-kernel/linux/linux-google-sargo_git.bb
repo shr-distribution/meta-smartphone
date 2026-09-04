@@ -1,6 +1,12 @@
 require recipes-kernel/linux/linux.inc
 # Options every Halium target needs; see the file for what and why.
 require recipes-kernel/linux/halium-kernel.inc
+# Binder nodes, veth, overlayfs and the rest of what Waydroid needs. Already
+# correct on sargo's stock defconfig, but the options here are forced rather
+# than appended, so requiring it too is a harmless no-op that keeps every
+# waydroid-capable device consistent instead of relying on each one's
+# defconfig happening to already agree.
+require recipes-kernel/linux/waydroid-kernel.inc
 
 SECTION = "kernel"
 
