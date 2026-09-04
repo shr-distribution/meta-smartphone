@@ -184,6 +184,123 @@ process_bind_mounts() {
     done
 }
 
+load_kernel_modules() {
+    # GKI devices ship the early kernel modules at /lib/modules in a vendor
+    # ramdisk the bootloader merges before this one (a vendor_boot "dlkm"
+    # fragment on A12-launch devices, the separate vendor_kernel_boot
+    # partition on A13-launch ones). The stock first-stage init we replaced
+    # normally insmods them; without this, storage (UFS on Tensor) never
+    # appears and mountroot panics.
+    [ -f /lib/modules/modules.load ] || return 0
+    tell_kmsg "initrd: loading $(wc -l < /lib/modules/modules.load) vendor kernel modules"
+    # The kernel does NOT apply "module.param=" cmdline options to loadable
+    # modules - modprobe does, by parsing /proc/cmdline and passing them to
+    # the load call ('-' and '_' are equivalent in the module name). Stock
+    # libmodprobe does the same. Without this, ufs_pixel_fips140.fips_*_lba
+    # arrive as 0 (FMP self-test panic) and exynos_drm.panel_name is lost.
+    read -r CMDLINE < /proc/cmdline
+    module_cmdline_args() {
+        n="${1%.ko}"
+        n2=$(echo "$n" | tr '_-' '-_')
+        args=""
+        for tok in $CMDLINE; do
+            case "$tok" in
+                "$n".*=*|"$n2".*=*) args="$args ${tok#*.}";;
+            esac
+        done
+        echo "$args"
+    }
+    # modules.load is a LIST, not an order: stock init hands it to libmodprobe,
+    # which resolves /lib/modules/modules.dep (and modules.softdep) for every
+    # entry. Taking it as an order is wrong on every Tensor device measured --
+    # bluejay 335 and panther 332 hard-dependency pairs are listed backwards
+    # (clk_exynos_gs 29 lines before the cmupmucal that exports cal_clk_*) --
+    # plus ~15 softdep "pre" edges that no symbol dependency implies, which a
+    # retry loop can never fix because insmod succeeds anyway (exynos-drm
+    # before phy-exynos-mipi). So resolve the order first, the way modprobe
+    # does. Each modules.dep line carries the module's full dependency closure,
+    # nearest first and deepest last, and is itself correctly ordered (checked
+    # per build by tools/module-order.py), so emitting a line reversed, then
+    # the module's softdep "pre" entries, then the module, is a valid order.
+    if [ -f /lib/modules/modules.dep ]; then
+        awk -v S=/lib/modules/modules.softdep '
+        BEGIN {
+            if (S != "") {
+                while ((getline l < S) > 0) {
+                    n = split(l, f, /[ \t]+/)
+                    if (n < 3 || f[1] != "softdep") continue
+                    k = f[2]; gsub(/-/, "_", k); which = ""
+                    for (i = 3; i <= n; i++) {
+                        if (f[i] == "pre:") { which = "pre"; continue }
+                        if (f[i] == "post:") { which = "post"; continue }
+                        x = f[i]; gsub(/-/, "_", x)
+                        if (which == "pre") pre[k] = pre[k] x " "
+                        else if (which == "post") post[k] = post[k] x " "
+                    }
+                }
+                close(S)
+            }
+        }
+        FNR == NR {
+            key = $1; sub(/:$/, "", key); sub(/.*\//, "", key)
+            nd[key] = NF - 1
+            for (i = 2; i <= NF; i++) { d = $i; sub(/.*\//, "", d); dep[key, i - 1] = d }
+            nk = key; gsub(/-/, "_", nk); sub(/\.ko$/, "", nk); byname[nk] = key
+            next
+        }
+        { emit($1) }
+        function emit(m,   i, d, k, n, a) {
+            if (m == "" || (m in seen)) return
+            seen[m] = 1
+            for (i = nd[m]; i >= 1; i--) { d = dep[m, i]; if (!(d in done)) emit(d) }
+            k = m; gsub(/-/, "_", k); sub(/\.ko$/, "", k)
+            if (k in pre) { n = split(pre[k], a, " ")
+                for (i = 1; i <= n; i++)
+                    if (a[i] != "" && (a[i] in byname) && !(byname[a[i]] in done)) emit(byname[a[i]]) }
+            if (!(m in done)) { done[m] = 1; print m }
+            if (k in post) { n = split(post[k], a, " ")
+                for (i = 1; i <= n; i++)
+                    if (a[i] != "" && (a[i] in byname) && !(byname[a[i]] in done)) emit(byname[a[i]]) }
+        }' /lib/modules/modules.dep /lib/modules/modules.load > /mods.todo
+        tell_kmsg "initrd: resolved dependency order for $(wc -l < /mods.todo) modules"
+    fi
+    if [ ! -s /mods.todo ]; then
+        tell_kmsg "initrd: WARNING: no usable modules.dep, using modules.load order"
+        cp /lib/modules/modules.load /mods.todo
+    fi
+    # One pass should now be enough; the retry loop stays as a safety net for
+    # anything whose dependency ships elsewhere (vendor_dlkm, loaded later).
+    pass=0
+    while [ -s /mods.todo ]; do
+        pass=$((pass+1))
+        : > /mods.next
+        while read -r m; do
+            insmod "/lib/modules/$m" $(module_cmdline_args "$m") 2>/dev/null || echo "$m" >> /mods.next
+        done < /mods.todo
+        left=$(wc -l < /mods.next)
+        todo=$(wc -l < /mods.todo)
+        tell_kmsg "initrd: module pass $pass: loaded $((todo-left)) of $todo"
+        [ "$left" -eq "$todo" ] && break
+        mv /mods.next /mods.todo
+    done
+    [ -s /mods.todo ] && tell_kmsg "initrd: WARNING: modules not loaded: $(tr '\n' ' ' < /mods.todo)"
+    rm -f /mods.todo /mods.next
+    # storage probes asynchronously; wait up to 10s for a userdata partition
+    i=0
+    while [ $i -lt 50 ]; do
+        for blk in /sys/class/block/*; do
+            pn=$(sed -n 's/^PARTNAME=//p' "$blk/uevent" 2>/dev/null)
+            case "$pn" in userdata*)
+                tell_kmsg "userdata partition appeared: $(basename $blk)"
+                return 0;;
+            esac
+        done
+        i=$((i+1))
+        usleep 200000
+    done
+    tell_kmsg "WARNING: no userdata partition appeared after module load"
+}
+
 quiet="n"
 
 mkdir -m 0755 /rfs
@@ -215,6 +332,9 @@ cat /proc/cmdline | grep enable_adb
 if [ $? -ne 1 ] ; then
     panic "Initramfs Debug Mode"
 fi
+
+echo "Loading kernel modules" > /dev/kmsg
+load_kernel_modules
 
 echo "Starting mdev" > /dev/kmsg
 start_mdev
