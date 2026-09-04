@@ -19,6 +19,11 @@ ANDROID_BOOTIMG_EXTRA_ABOOTIMG_ARGS ?= ""
 # device tree in its own section rather than concatenated onto the kernel. A
 # Pixel 3a flashed with stock Android 11 refuses a v0 image outright. Devices
 # that need it set ANDROID_BOOTIMG_HEADER_VERSION = "2"; the rest are untouched.
+#
+# 3 and 4 are the GKI-era formats: page size fixed at 4096, no second/dtb
+# section at all (the device tree lives in vendor_boot or dtbo), and on a
+# device with an init_boot partition the ramdisk is not in this image either.
+# They are written by lib/halium/bootimg.py rather than here.
 ANDROID_BOOTIMG_HEADER_VERSION ?= "0"
 ANDROID_BOOTIMG_PAGESIZE ?= "2048"
 ANDROID_BOOTIMG_DTB_RAM_BASE ?= "0x00000000"
@@ -38,8 +43,8 @@ def android_bootimg_v2(d, kernel, ramdisk, dtb, out):
 
     abootimg cannot do this and meta-oe's mkbootimg is the pre-header-version
     AOSP one, so neither tool in the tree can produce it. The format is small
-    and stable enough to write directly; switching to AOSP's mkbootimg.py would
-    be the tidier answer if this ever needs v3/v4 as well.
+    and stable enough to write directly. v3/v4 are written the same way, by
+    lib/halium/bootimg.py, which is shared with gki_bootimg.bbclass.
     """
     import struct, hashlib
 
@@ -117,7 +122,8 @@ python android_bootimg_deploy() {
     # concatenates the device tree onto the compressed image. That is the v0
     # arrangement. A v2 header wants the tree in its own section instead, so
     # split it back off rather than making every such machine restate its dts.
-    if d.getVar("ANDROID_BOOTIMG_HEADER_VERSION") != "0" and not dtb:
+    hv = int(d.getVar("ANDROID_BOOTIMG_HEADER_VERSION"))
+    if hv in (1, 2) and not dtb:
         with open(kernel, "rb") as f:
             blob = f.read()
         fdt = blob.find(b"\xd0\x0d\xfe\xed")
@@ -135,7 +141,7 @@ python android_bootimg_deploy() {
         bb.note("Split the appended device tree off the kernel: %d byte kernel, "
                 "%d byte dtb" % (fdt, len(blob) - fdt))
 
-    if d.getVar("ANDROID_BOOTIMG_HEADER_VERSION") == "0":
+    if hv == 0:
         # v0 has nowhere to put a device tree, so it is concatenated onto the
         # kernel and the bootloader is expected to find it there.
         kernel_with_dtb = kernel
@@ -156,6 +162,14 @@ python android_bootimg_deploy() {
             cmd += ["-c", "%s=%s" % (key, d.getVar(var))]
         cmd += (d.getVar("ANDROID_BOOTIMG_EXTRA_ABOOTIMG_ARGS") or "").split()
         bb.process.run(cmd)
+    elif hv >= 3:
+        from halium.bootimg import write_bootimg_v3
+        bb.note("Assembling a header version %d boot image (fixed 4096 byte "
+                "pages, no dtb section)" % hv)
+        write_bootimg_v3(bootimg, kernel=kernel, ramdisk=initramfs,
+                         header_version=hv,
+                         cmdline=d.getVar("ANDROID_BOOTIMG_CMDLINE") or "",
+                         os_version=int(d.getVar("ANDROID_BOOTIMG_OS_VERSION"), 0))
     else:
         bb.note("Assembling a header version %s boot image, page size %s" %
                 (d.getVar("ANDROID_BOOTIMG_HEADER_VERSION"),
