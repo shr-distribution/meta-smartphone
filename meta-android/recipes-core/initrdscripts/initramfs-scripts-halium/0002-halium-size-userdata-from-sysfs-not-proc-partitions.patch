@@ -1,0 +1,76 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Herman van Hazendonk <github.com@herrie.org>
+Date: Fri, 4 Sep 2026 14:40:00 +0200
+Subject: [PATCH] halium: size userdata from sysfs, not /proc/partitions
+
+resize_userdata_if_needed() read the partition size out of
+/proc/partitions under
+
+    case $path in
+    /dev/mmcblk*) ... ;;
+    /dev/disk*)   ... ;;
+    esac
+
+but mountroot sets path=$(readlink -f $part), which on a UFS device
+resolves to /dev/sd* - every recent Pixel, bluejay and panther included.
+Neither case matches, pblocks stays empty, the "is the partition much
+bigger than the filesystem" test is never true, and the filesystem is
+left at whatever size it was flashed with. Silently: there is not even a
+message.
+
+That was invisible as long as installing meant "fastboot format:ext4
+userdata" and pushing files onto it, because the format sizes the
+filesystem to the partition. It is fatal to a flashed userdata image,
+where a deliberately small ext4 (3.4 GB) is supposed to grow to the real
+partition (~100 GB) on first boot - which is how the athena, bluejay and
+panther kits install.
+
+sysfs knows the size of every block device, partitions included, in
+512-byte sectors and under whatever name it has, so ask it first and keep
+the old greps as a fallback. Warn if neither yields a size rather than
+carrying on with an empty number.
+
+Upstream-Status: Pending
+---
+--- a/scripts/halium
++++ b/scripts/halium
+@@ -242,15 +242,29 @@
+ 
+ 	path=$1
+ 
+-	# Partition size in 1k blocks
+-	case $path in
+-	/dev/mmcblk*)
+-		pblocks=$(grep ${path#/dev/*} /proc/partitions | awk {'print $3'})
+-		;;
+-	/dev/disk*)
+-		pblocks=$(grep $(basename $(readlink $path)) /proc/partitions | awk {'print $3'})
+-		;;
+-	esac
++	# Partition size in 1k blocks.
++	# sysfs knows the size of every block device in 512-byte sectors, whatever
++	# it is called. The old /proc/partitions greps only matched /dev/mmcblk*
++	# and /dev/disk*, so on a UFS device (Pixel: userdata resolves to /dev/sd*)
++	# pblocks stayed empty and the filesystem was silently never grown - which
++	# matters now that we ship a small userdata image and rely on this.
++	pblocks=$(cat "/sys/class/block/$(basename $path)/size" 2>/dev/null)
++	if [ -n "$pblocks" ]; then
++		pblocks=$((pblocks / 2))
++	else
++		case $path in
++		/dev/mmcblk*)
++			pblocks=$(grep ${path#/dev/*} /proc/partitions | awk {'print $3'})
++			;;
++		/dev/disk*)
++			pblocks=$(grep $(basename $(readlink $path)) /proc/partitions | awk {'print $3'})
++			;;
++		esac
++	fi
++	if [ -z "$pblocks" ]; then
++		tell_kmsg "WARNING: cannot determine the size of $path, not resizing"
++		return 0
++	fi
+ 	# Filesystem size in 4k blocks
+ 	fsblocks=$(dumpe2fs -h $path | grep "Block count" | awk {'print $3'})
+ 	# Difference between the reported sizes in 1k blocks
+-- 
