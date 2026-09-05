@@ -1,6 +1,6 @@
 SUMMARY = "lk2nd Android bootloader"
 DESCRIPTION = "Android bootloader for Qualcomm MSM devices."
-LICENSE = "GPL-2.0-only & MIT"
+LICENSE = "GPL-2.0-only AND MIT"
 LIC_FILES_CHKSUM = 'file://LICENSE;md5=2724240b5837035c1d1ea21590998de5'
 
 inherit deploy

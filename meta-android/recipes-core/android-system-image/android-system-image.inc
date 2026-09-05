@@ -1,5 +1,5 @@
 DESCRIPTION = "Tiny Android system to leverage android hardware drivers through libhybris"
-LICENSE = "Apache-2.0 & Proprietary"
+LICENSE = "Apache-2.0 AND LicenseRef-Proprietary"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
