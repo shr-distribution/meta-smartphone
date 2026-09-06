@@ -137,3 +137,8 @@ do_install:append() {
         ln -sf /android/vendor ${D}/vendor
     fi
 }
+
+# The .inc's FILES only ships /android and /userdata; the /vendor symlink
+# above lives at the top level, so it has to be listed here or do_package
+# fails installed-vs-shipped.
+FILES:${PN} += "/vendor"
