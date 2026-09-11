@@ -1,0 +1,37 @@
+[Unit]
+# tissot fingerprint bring-up under the Halium 16 GSI. Two faults, because the
+# device vendor ships the GOODIX fingerprint stack while most Mi A1 units carry
+# an FPC1020 sensor:
+#
+#   1. The prebuilt android.hardware.biometrics.fingerprint@2.1-service is
+#      hardwired to hw_get_module("gf_fingerprint") -> gf_fingerprint.default.so,
+#      and never falls back to the plain "fingerprint" module. On an FPC unit
+#      that is the wrong HAL (and it also can't dlopen without libbacktrace.so).
+#      openHal() then leaves the device pointer NULL and the service SIGSEGVs in
+#      preEnroll()/setActiveGroup(); biomd logs "Failed to get pre-enroll
+#      challenge". The real FPC module /vendor/lib64/hw/fingerprint.default.so is
+#      present with all its deps, so on FPC units we bind it over the gf_ path
+#      (hw_get_module does not verify the module id) and the FPC HAL runs.
+#
+#   2. The HAL runs in the Android container as user "system" and opens
+#      /dev/uinput to create its input device. The GSI's ueventd creates the
+#      CONTAINER's /dev/uinput as uhid:uhid, so the open returns EACCES
+#      ("create_input_device ... code: 13"). We restore the A9 ownership
+#      (system:bluetooth) on the container node. NOTE this supersedes the old
+#      fpc-uinput-fixup.service, which chowned the HOST /dev/uinput - a separate
+#      node that the container HAL never sees.
+#
+# Runtime (not a vendor.img patch) because the sensor type is only known at boot
+# and the container /dev/uinput node is created by the container's ueventd.
+Description=tissot fingerprint HAL fixup (FPC module select + container uinput perms)
+After=android-system.service
+Requires=android-system.service
+ConditionPathExists=/android/vendor/lib64/hw/gf_fingerprint.default.so
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/fingerprint-hal-fixup.sh
+
+[Install]
+WantedBy=multi-user.target

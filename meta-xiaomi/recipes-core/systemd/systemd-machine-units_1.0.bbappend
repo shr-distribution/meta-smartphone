@@ -38,6 +38,9 @@ SRC_URI:append:tissot-halium = " \
     file://wifi-macaddr-persister.service \
     file://wifi-module-load.service \
     file://persist-wifi-mac-addr.sh \
+    file://50-hybris-prefer-vndk.conf \
+    file://fingerprint-hal-fixup.service \
+    file://fingerprint-hal-fixup.sh \
 "
 
 do_install:append:mido-halium() {
@@ -78,8 +81,15 @@ do_install:append:tissot-halium() {
     install -m 0644 ${UNPACKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
     install -m 0644 ${UNPACKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
 
+    install -m 0644 ${UNPACKDIR}/fingerprint-hal-fixup.service ${D}${systemd_unitdir}/system
+
+    install -d ${D}${systemd_unitdir}/system/pulseaudio.service.d
+    install -m 0644 ${UNPACKDIR}/50-hybris-prefer-vndk.conf \
+        ${D}${systemd_unitdir}/system/pulseaudio.service.d/
+
     install -d ${D}${bindir}
     install -m 0755 ${UNPACKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/fingerprint-hal-fixup.sh ${D}${bindir}
 }
 
 SYSTEMD_SERVICE:${PN}:mido-halium = " \
@@ -103,4 +113,10 @@ SYSTEMD_SERVICE:${PN}:sagit = " \
 SYSTEMD_SERVICE:${PN}:tissot-halium = " \
     wifi-macaddr-persister.service \
     wifi-module-load.service \
+    fingerprint-hal-fixup.service \
 "
+
+# The base recipe's FILES only covers unit files directly under
+# ${systemd_unitdir}/system, so the drop-in directory would be installed but
+# unpackaged, which is a fatal QA error.
+FILES:${PN}:append:tissot-halium = " ${systemd_unitdir}/system/pulseaudio.service.d"
