@@ -10,10 +10,21 @@
 . /functions
 . /halium-boot.sh
 
-# This sets up the USB with whatever USB_FUNCTIONS are set to via configfs
-USB_FUNCTIONS=adb
+# This sets up the USB with whatever USB_FUNCTIONS are set to via configfs.
+# "rndis" and "ecm" are both attempted and either may be absent from the
+# kernel: stock GKI (bluejay/panther) ships CONFIG_USB_CONFIGFS_ECM=y but no
+# RNDIS, MTK vendor kernels (mindphone) the reverse. Whichever function the
+# kernel supports is the one the debug network comes up on.
+USB_FUNCTIONS="adb rndis ecm acm"
 ANDROID_USB=/sys/class/android_usb/android0
 GADGET_DIR=/config/usb_gadget
+DEBUG_IP=192.168.2.15
+# Fixed gadget MACs (first byte must be even) - without these some kernels
+# present 00:00:00:00:00:00 and the host refuses the interface; a stable MAC
+# also lets the host remember the connection. Same trick as the tenderloin
+# mainline initramfs.
+DEBUG_MAC_HOST="FA:75:7F:BB:F4:E6"
+DEBUG_MAC_DEV="FA:75:7F:BB:F4:E7"
 
 write() {
 	echo -n "$2" >"$1"
@@ -31,10 +42,24 @@ usb_setup_configfs() {
     write $GADGET_DIR/g1/strings/0x409/manufacturer "Halium initrd"
     write $GADGET_DIR/g1/strings/0x409/product      "Failed to boot"
 
+    # Network functions: mkdir fails when the kernel lacks the function driver
+    # (RNDIS missing from stock GKI, rndis_bam is Qualcomm-only, ECM missing
+    # from some vendor kernels) - tolerate it and link only what exists.
     if echo $USB_FUNCTIONS | grep -q "rndis"; then
-        mkdir $GADGET_DIR/g1/functions/rndis.usb0
-        mkdir $GADGET_DIR/g1/functions/rndis_bam.rndis
+        mkdir $GADGET_DIR/g1/functions/rndis.usb0 2>/dev/null
+        mkdir $GADGET_DIR/g1/functions/rndis_bam.rndis 2>/dev/null
     fi
+    echo $USB_FUNCTIONS | grep -q "ecm" && mkdir $GADGET_DIR/g1/functions/ecm.usb0 2>/dev/null
+    # acm gives a USB serial console on the host (/dev/ttyACM0) with no
+    # networking at all; present in stock GKI and the MTK 4.14 kernel
+    echo $USB_FUNCTIONS | grep -q "acm" && mkdir $GADGET_DIR/g1/functions/acm.usb0 2>/dev/null
+    # fixed MACs for the network functions (see DEBUG_MAC_* above)
+    for f in rndis.usb0 ecm.usb0; do
+        if [ -d $GADGET_DIR/g1/functions/$f ]; then
+            write $GADGET_DIR/g1/functions/$f/host_addr "$DEBUG_MAC_HOST" 2>/dev/null
+            write $GADGET_DIR/g1/functions/$f/dev_addr  "$DEBUG_MAC_DEV"  2>/dev/null
+        fi
+    done
     echo $USB_FUNCTIONS | grep -q "mass_storage" && mkdir $GADGET_DIR/g1/functions/storage.0
     echo $USB_FUNCTIONS | grep -q "adb" && mkdir $GADGET_DIR/g1/functions/ffs.adb
 
@@ -42,12 +67,95 @@ usb_setup_configfs() {
     mkdir $GADGET_DIR/g1/configs/c.1/strings/0x409
     write $GADGET_DIR/g1/configs/c.1/strings/0x409/configuration "$USB_FUNCTIONS"
 
-    if echo $USB_FUNCTIONS | grep -q "rndis"; then
-        ln -s $GADGET_DIR/g1/functions/rndis.usb0 $GADGET_DIR/g1/configs/c.1
-        ln -s $GADGET_DIR/g1/functions/rndis_bam.rndis $GADGET_DIR/g1/configs/c.1
-    fi
+    [ -d $GADGET_DIR/g1/functions/rndis.usb0 ] && ln -s $GADGET_DIR/g1/functions/rndis.usb0 $GADGET_DIR/g1/configs/c.1
+    [ -d $GADGET_DIR/g1/functions/rndis_bam.rndis ] && ln -s $GADGET_DIR/g1/functions/rndis_bam.rndis $GADGET_DIR/g1/configs/c.1
+    [ -d $GADGET_DIR/g1/functions/ecm.usb0 ] && ln -s $GADGET_DIR/g1/functions/ecm.usb0 $GADGET_DIR/g1/configs/c.1
+    [ -d $GADGET_DIR/g1/functions/acm.usb0 ] && ln -s $GADGET_DIR/g1/functions/acm.usb0 $GADGET_DIR/g1/configs/c.1
     echo $USB_FUNCTIONS | grep -q "mass_storage" && ln -s $GADGET_DIR/g1/functions/storage.0 $GADGET_DIR/g1/configs/c.1
     echo $USB_FUNCTIONS | grep -q "adb" && ln -s $GADGET_DIR/g1/functions/ffs.adb $GADGET_DIR/g1/configs/c.1
+}
+
+# Bring up telnet on the USB gadget network so the debug shell is reachable
+# without adb (UBports/Mer convention: device 192.168.2.15, telnet port 23).
+# The interface name is read back from the configfs function that actually
+# bound; the sysfs scan covers the legacy android_usb path. All tools used
+# here (telnetd, udhcpd, ip) are busybox applets already in the initramfs.
+start_debug_network() {
+    ifname=""
+    for f in $GADGET_DIR/g1/functions/rndis.usb0 $GADGET_DIR/g1/functions/ecm.usb0; do
+        [ -f "$f/ifname" ] && ifname=$(cat "$f/ifname") && [ -n "$ifname" ] && break
+        ifname=""
+    done
+    if [ -z "$ifname" ]; then
+        for i in usb0 rndis0; do
+            [ -d /sys/class/net/$i ] && ifname=$i && break
+        done
+    fi
+    if [ -z "$ifname" ]; then
+        tell_kmsg "debug: no usb network interface found, telnet unavailable (adb only)"
+        return 1
+    fi
+
+    ip link set "$ifname" up
+    ip addr add $DEBUG_IP/24 dev "$ifname" 2>/dev/null
+
+    # DHCP so the host side needs zero configuration (UBports lease range)
+    mkdir -p /var/lib/misc
+    touch /var/lib/misc/udhcpd.leases
+    cat > /etc/udhcpd.conf <<EOF
+start 192.168.2.20
+end 192.168.2.90
+interface $ifname
+option subnet 255.255.255.0
+EOF
+    udhcpd /etc/udhcpd.conf 2>/dev/null
+
+    # busybox telnetd needs devpts (mounted by setup_devtmpfs, guard anyway)
+    mkdir -p /dev/pts
+    mountpoint -q /dev/pts || mount -t devpts devpts /dev/pts
+    telnetd -b $DEBUG_IP:23 -l /bin/sh
+    tell_kmsg "debug: telnet ready on $ifname, $DEBUG_IP port 23"
+
+    # netconsole (Tier B kernels with CONFIG_NETCONSOLE_DYNAMIC only - it is
+    # KMI-poison on Tier A GKI, NETPOLL changes struct net_device): stream
+    # kmsg to the host over UDP, surviving switch_root. Broadcast target so
+    # the host address does not matter; listen with  nc -ul 6666
+    # (same receiver as the tenderloin mainline netconsole, which uses the
+    # kernel cmdline instead because its gadget is kernel-owned from boot).
+    modprobe netconsole 2>/dev/null
+    if [ -d /sys/kernel/config ]; then
+        mountpoint -q /sys/kernel/config || mount -t configfs none /sys/kernel/config 2>/dev/null
+    fi
+    NCDIR=/sys/kernel/config/netconsole
+    if [ -d "$NCDIR" ] && mkdir "$NCDIR/target1" 2>/dev/null; then
+        write "$NCDIR/target1/dev_name"    "$ifname"
+        write "$NCDIR/target1/local_ip"    "$DEBUG_IP"
+        write "$NCDIR/target1/remote_ip"   "192.168.2.255"
+        write "$NCDIR/target1/remote_mac"  "ff:ff:ff:ff:ff:ff"
+        write "$NCDIR/target1/remote_port" "6666"
+        if write "$NCDIR/target1/enabled" "1" 2>/dev/null; then
+            tell_kmsg "debug: netconsole streaming kmsg to udp broadcast port 6666"
+            # Boot-param netconsole targets replay the early printk buffer
+            # (CON_PRINTBUFFER); dynamic targets do not. Re-inject the buffer
+            # so the host sees history from power-on too. One write per line
+            # (a bulk redirect would chunk arbitrarily into kmsg records);
+            # needs printk.devkmsg=on on the cmdline or the writes ratelimit.
+            dmesg 2>/dev/null | while read -r l; do
+                echo "replay: $l" > /dev/kmsg
+            done
+        else
+            rmdir "$NCDIR/target1" 2>/dev/null
+        fi
+    fi
+
+    # ACM serial console on the host's /dev/ttyACM0 (no networking needed);
+    # the gadget tty appears as /dev/ttyGS0 shortly after UDC bind
+    i=0
+    while [ $i -lt 10 ] && [ ! -c /dev/ttyGS0 ]; do i=$((i+1)); usleep 200000; done
+    if [ -c /dev/ttyGS0 ]; then
+        (while :; do getty -n -l /bin/sh 115200 ttyGS0 2>/dev/null || sleep 2; done) &
+        tell_kmsg "debug: serial console on gadget acm (host: screen /dev/ttyACM0 115200)"
+    fi
 }
 
 # This sets up the USB with whatever USB_FUNCTIONS are set to via android_usb
@@ -88,24 +196,29 @@ panic() {
     #sleep 15s
     #reboot
 
+    # The iSerial string doubles as a host-visible stage marker: watch it with
+    #   while :; do lsusb -v 2>/dev/null | grep 'iSerial'; done | uniq
     if [ -d $ANDROID_USB ]; then
-        usb_setup_android_usb "Halium/LuneOS-initrd-functionfs"
+        usb_setup_android_usb "LuneOS initrd telnet $DEBUG_IP: $1"
     else
-        usb_setup_configfs "Halium/LuneOS-initrd-configfs"
+        usb_setup_configfs "LuneOS initrd telnet $DEBUG_IP: $1"
     fi
-    
+
     mkdir -p /dev/usb-ffs/adb
     mount -o uid=2000,gid=2000 -t functionfs adb /dev/usb-ffs/adb
-    
+
     usleep 500000
-    
+
     # adbd has to be started before gadget is configured
     /usr/bin/adbd &
-    
+
     usleep 500000
-    
+
     [ -e $GADGET_DIR/g1/UDC ] && write $GADGET_DIR/g1/UDC "$(ls /sys/class/udc)"
-    
+
+    # gadget is live - the network interface exists only from this point on
+    start_debug_network
+
     /bin/sh
 }
 

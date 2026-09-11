@@ -128,17 +128,3 @@ do_install:prepend() {
         cp ${UNPACKDIR}/device/vendor.img ${UNPACKDIR}/vendor.img
     fi
 }
-
-# Without a vendor.img the .inc points /vendor at /system/vendor, which is empty
-# in a GSI. The device vendor gets mounted at /android/vendor, so point there -
-# the same place the vendor.img case uses.
-do_install:append() {
-    if [ "${SARGO_ANDROID_VENDOR}" != "device" ]; then
-        ln -sf /android/vendor ${D}/vendor
-    fi
-}
-
-# The .inc's FILES only ships /android and /userdata; the /vendor symlink
-# above lives at the top level, so it has to be listed here or do_package
-# fails installed-vs-shipped.
-FILES:${PN} += "/vendor"
