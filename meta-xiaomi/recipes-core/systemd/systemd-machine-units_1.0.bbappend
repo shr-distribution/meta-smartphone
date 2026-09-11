@@ -16,6 +16,9 @@ SRC_URI:append:mido-halium = " \
     file://persist-wifi-mac-addr.sh \
     file://hciattach.service \
     file://hciattach.sh \
+    file://50-hybris-prefer-vndk.conf \
+    file://fingerprint-hal-fixup.service \
+    file://fingerprint-hal-fixup.sh \
 "
 
 SRC_URI:append:oxygen = " \
@@ -49,9 +52,16 @@ do_install:append:mido-halium() {
     install -m 0644 ${UNPACKDIR}/hciattach.service ${D}${systemd_unitdir}/system
     install -m 0644 ${UNPACKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
 
+    install -m 0644 ${UNPACKDIR}/fingerprint-hal-fixup.service ${D}${systemd_unitdir}/system
+
+    install -d ${D}${systemd_unitdir}/system/pulseaudio.service.d
+    install -m 0644 ${UNPACKDIR}/50-hybris-prefer-vndk.conf \
+        ${D}${systemd_unitdir}/system/pulseaudio.service.d/
+
     install -d ${D}${bindir}
     install -m 0755 ${UNPACKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
     install -m 0755 ${UNPACKDIR}/hciattach.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/fingerprint-hal-fixup.sh ${D}${bindir}
 }
 
 do_install:append:oxygen() {
@@ -96,6 +106,7 @@ SYSTEMD_SERVICE:${PN}:mido-halium = " \
     wifi-macaddr-persister.service \
     wifi-module-load.service \
     hciattach.service \
+    fingerprint-hal-fixup.service \
 "
 
 SYSTEMD_SERVICE:${PN}:oxygen = " \
@@ -119,4 +130,5 @@ SYSTEMD_SERVICE:${PN}:tissot-halium = " \
 # The base recipe's FILES only covers unit files directly under
 # ${systemd_unitdir}/system, so the drop-in directory would be installed but
 # unpackaged, which is a fatal QA error.
+FILES:${PN}:append:mido-halium = " ${systemd_unitdir}/system/pulseaudio.service.d"
 FILES:${PN}:append:tissot-halium = " ${systemd_unitdir}/system/pulseaudio.service.d"

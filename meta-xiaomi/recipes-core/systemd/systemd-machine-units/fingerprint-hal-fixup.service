@@ -1,7 +1,8 @@
 [Unit]
-# tissot fingerprint bring-up under the Halium 16 GSI. Two faults, because the
-# device vendor ships the GOODIX fingerprint stack while most Mi A1 units carry
-# an FPC1020 sensor:
+# Fingerprint bring-up under the Halium 16 GSI on the msm8953 Xiaomis.
+#
+# tissot - two faults, because the device vendor ships the GOODIX fingerprint
+# stack while most Mi A1 units carry an FPC1020 sensor:
 #
 #   1. The prebuilt android.hardware.biometrics.fingerprint@2.1-service is
 #      hardwired to hw_get_module("gf_fingerprint") -> gf_fingerprint.default.so,
@@ -21,12 +22,21 @@
 #      fpc-uinput-fixup.service, which chowned the HOST /dev/uinput - a separate
 #      node that the container HAL never sees.
 #
+# mido - fault 2 only. Its vendor ships the device-specific
+# @2.1-service.xiaomi_mido, which selects between fingerprint.goodix.so and
+# fingerprint.searchf.so off ro.hardware.fingerprint (set by the vendor's own
+# init triggers from vendor.gx_fpd), so there is nothing to re-point. But
+# /vendor/lib64/hw/fingerprint.searchf.so - the path used on the FPC/searchf
+# units - opens /dev/uinput exactly as tissot's FPC module does, and hits the
+# same container-ownership EACCES. The script skips the module-selection half
+# by testing for the Goodix module, which mido does not ship.
+#
 # Runtime (not a vendor.img patch) because the sensor type is only known at boot
 # and the container /dev/uinput node is created by the container's ueventd.
-Description=tissot fingerprint HAL fixup (FPC module select + container uinput perms)
+Description=Xiaomi msm8953 fingerprint HAL fixup (module select + container uinput perms)
 After=android-system.service
 Requires=android-system.service
-ConditionPathExists=/android/vendor/lib64/hw/gf_fingerprint.default.so
+ConditionPathExists=/android/vendor/lib64/hw
 
 [Service]
 Type=oneshot
