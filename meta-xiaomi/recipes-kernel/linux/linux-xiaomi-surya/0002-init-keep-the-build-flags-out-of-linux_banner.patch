@@ -1,0 +1,38 @@
+From 38264d6e16f861a78b04f86922edde532ba81d58 Mon Sep 17 00:00:00 2001
+From: LuneOS <claude.ai@herrie.org>
+Date: Wed, 9 Sep 2026 01:07:42 +0200
+Subject: [PATCH 2/2] init: keep the build flags out of linux_banner
+
+This tree passes "$(CONFIG_CC_VERSION_TEXT) $(KBUILD_CFLAGS)" to
+mkcompile_h as the compiler version, so the whole command line ends up in
+LINUX_COMPILER and therefore in linux_banner. CONFIG_CC_VERSION_TEXT does
+not exist on 4.14 (it arrived in 5.x), so in practice the banner's
+"compiler" field is nothing but the flags.
+
+Under OpenEmbedded that is not merely ugly: the flags include
+-fmacro-prefix-map=<TMPDIR>/work-shared/<machine>/kernel-source/=, so the
+builder's absolute paths are compiled into vmlinux, printed by uname -v and
+at the top of every dmesg, and do_package_qa fails the build with
+
+  File /boot/vmlinux-4.14.356-openela-rc1 in package kernel-vmlinux
+  contains reference to TMPDIR [buildpaths]
+
+Pass the compiler's own version line instead, which is what upstream 4.14
+records (upstream runs $CC -v inside mkcompile_h; this tree takes the
+string as an argument, so it is produced here).
+
+Upstream-Status: Inappropriate [vendor tree modification, not upstream code]
+---
+ init/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/init/Makefile b/init/Makefile
+index 95b0a40fc..35633821f 100644
+--- a/init/Makefile
++++ b/init/Makefile
+@@ -35,4 +35,4 @@ include/generated/compile.h: FORCE
+ 	@$($(quiet)chk_compile.h)
+ 	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/mkcompile_h $@	\
+ 	"$(UTS_MACHINE)" "$(CONFIG_SMP)" "$(CONFIG_PREEMPT)"	\
+-	"$(CONFIG_CC_VERSION_TEXT) $(KBUILD_CFLAGS)" "$(LD)"
++	"$(shell $(CC) --version | head -n 1)" "$(LD)"
