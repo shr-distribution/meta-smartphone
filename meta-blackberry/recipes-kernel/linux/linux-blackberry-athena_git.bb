@@ -23,7 +23,7 @@ tim-ecoder's 4.19 port of the BlackBerry/CAF sources used by LineageOS 23.2"
 # regulator_ignore_unused and lacks swiotlb=1 / androidboot.serialconsole=0);
 # the shipping image wins because it is what this bootloader has actually
 # booted.
-ANDROID_BOOTIMG_CMDLINE = "androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 sched_enable_hmp=1 sched_enable_power_aware=1 service_locator.enable=1 swiotlb=1 androidboot.configfs=true androidboot.usbcontroller=a800000.dwc3 coherent_pool=1280K androidboot.serialconsole=0 androidboot.selinux=permissive"
+ANDROID_BOOTIMG_CMDLINE = "androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 sched_enable_hmp=1 sched_enable_power_aware=1 service_locator.enable=1 swiotlb=1 androidboot.configfs=true androidboot.usbcontroller=a800000.dwc3 coherent_pool=1280K androidboot.serialconsole=0 androidboot.selinux=permissive printk.devkmsg=on"
 ANDROID_BOOTIMG_HEADER_VERSION = "0"
 ANDROID_BOOTIMG_PAGESIZE = "4096"
 # ANDROID_BOOTIMG_PAGESIZE above is only read by android_bootimg_v2() in
@@ -38,7 +38,13 @@ ANDROID_BOOTIMG_PAGESIZE = "4096"
 # with page_size=4096 and the offsets below intact.
 ANDROID_BOOTIMG_EXTRA_ABOOTIMG_ARGS = "-c pagesize=4096"
 ANDROID_BOOTIMG_KERNEL_RAM_BASE = "0x00008000"
-ANDROID_BOOTIMG_RAMDISK_RAM_BASE = "0x01000000"
+# Stock is 0x01000000, which leaves the kernel only 16.8 MB before the ramdisk
+# lands on top of it. The stock 4.4 kernel is 14.8 MB and just fits; our 4.19
+# one does not, even with the device trees trimmed to athena only (~17.2 MB).
+# Moved up to 32 MB, which is still far below the first reserved-memory region
+# in the athena dtb (wlan_msa_guard at 0x85600000, i.e. base+86 MB), so kernel
+# and ramdisk both sit in free DRAM with room to grow.
+ANDROID_BOOTIMG_RAMDISK_RAM_BASE = "0x02000000"
 ANDROID_BOOTIMG_SECOND_RAM_BASE = "0x00000000"
 ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x00000100"
 
@@ -60,8 +66,8 @@ SRC_URI = "git://github.com/shr-distribution/linux.git;branch=key2/${LINUX_VERSI
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 # shr-distribution/linux key2/4.19:
-# "kbuild: demote two more GCC 15 warning classes for the qcacld module build"
-SRCREV = "e215d6f6ff3dfacdb1ddcc502c9f4d27ae110923"
+# "arm64: boot: append only the device trees the config asks for"
+SRCREV = "0108791143600fccdb44b88aa2f8a05cfeae3764"
 
 LINUX_VERSION = "4.19"
 KV = "4.19.325"
