@@ -3,7 +3,19 @@ bionic-based HW adaptations in glibc systems"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://../LICENSE.Apache2;md5=3b83ef96387f14655fc854ddc3c6bd57"
 
-SRCREV = "936279916605003fba95a0f3629a6bc5e6caa343"
+# 2026-09-04: bumped from 9362799 (PR #566) to the current upstream tip -
+# 73 commits behind included several directly relevant to this device
+# (Android 16, first Tensor/Mali-G78 Halium port): "compat: hwc2: Add
+# Android 15 and 16 support", "compat: hwc2: import HWC2 changes from
+# Android 13/14 to support AIDL HAL", "hwcomposer: Fix the usage of
+# present fences in HWC2", "egl: Do not leak wrapped native window on
+# eglCreateWindowSurface() failure", "wayland: Properly handle
+# eglSwapBuffers commit semantics" - a libhybris HWC2 compat layer that
+# predates Android 15/16 support entirely is a strong, precise
+# explanation for a compositor that reports ready but never presents a
+# real frame, on the one Android version this whole investigation has
+# been running against.
+SRCREV = "7079712a42ea2754adf747e70c6cc75764c8596e"
 PV = "0.1.0+git"
 PR = "r1"
 PE = "1"
