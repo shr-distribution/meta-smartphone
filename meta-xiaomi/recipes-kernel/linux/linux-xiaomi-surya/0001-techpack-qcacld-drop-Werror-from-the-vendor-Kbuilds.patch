@@ -1,0 +1,401 @@
+From af43072bc95ba6a5fde0f624ecd50abbb57d57f9 Mon Sep 17 00:00:00 2001
+From: LuneOS <claude.ai@herrie.org>
+Date: Tue, 8 Sep 2026 21:28:35 +0200
+Subject: [PATCH] techpack, qcacld: drop -Werror from the vendor Kbuilds
+
+These trees are built by LineageOS with the Android prebuilt clang, which
+does not diagnose what GCC 15 does. Building them with OpenEmbedded's
+aarch64 cross toolchain turns a large number of pre-existing warnings -
+almost all of them -Wpointer-sign in the QTI audio techpack - into hard
+errors, and the build stops in techpack/audio before it reaches vmlinux.
+
+Only vendor code is touched (techpack/, drivers/staging/qcacld-3.0,
+qca-wifi-host-cmn, fw-api): -Werror is removed where it is set
+unconditionally, and -Werror=<specific> forms are left alone. The warnings
+themselves are unchanged and still printed.
+
+Same treatment as the MT6739 (mindphone) port, which needed -Werror dropped
+from 30 MediaTek vendor Makefiles for the same reason.
+
+Upstream-Status: Inappropriate [vendor tree is built with Android's clang]
+---
+ drivers/staging/qcacld-3.0/Kbuild               | 2 +-
+ techpack/audio/4.0/asoc/Kbuild                  | 2 +-
+ techpack/audio/4.0/asoc/codecs/Kbuild           | 2 +-
+ techpack/audio/4.0/asoc/codecs/bolero/Kbuild    | 2 +-
+ techpack/audio/4.0/asoc/codecs/wcd937x/Kbuild   | 2 +-
+ techpack/audio/4.0/asoc/codecs/wcd938x/Kbuild   | 2 +-
+ techpack/audio/4.0/dsp/Kbuild                   | 2 +-
+ techpack/audio/4.0/dsp/codecs/Kbuild            | 2 +-
+ techpack/audio/4.0/ipc/Kbuild                   | 2 +-
+ techpack/audio/4.0/soc/Kbuild                   | 2 +-
+ techpack/audio/asoc/Kbuild                      | 2 +-
+ techpack/audio/asoc/codecs/Kbuild               | 2 +-
+ techpack/audio/asoc/codecs/aqt1000/Kbuild       | 2 +-
+ techpack/audio/asoc/codecs/bolero/Kbuild        | 2 +-
+ techpack/audio/asoc/codecs/csra66x0/Kbuild      | 2 +-
+ techpack/audio/asoc/codecs/ep92/Kbuild          | 2 +-
+ techpack/audio/asoc/codecs/msm_sdw/Kbuild       | 2 +-
+ techpack/audio/asoc/codecs/sdm660_cdc/Kbuild    | 2 +-
+ techpack/audio/asoc/codecs/tas256x/Kbuild       | 2 +-
+ techpack/audio/asoc/codecs/wcd934x/Kbuild       | 2 +-
+ techpack/audio/asoc/codecs/wcd9360/Kbuild       | 2 +-
+ techpack/audio/asoc/codecs/wcd937x/Kbuild       | 2 +-
+ techpack/audio/dsp/Kbuild                       | 2 +-
+ techpack/audio/dsp/codecs/Kbuild                | 2 +-
+ techpack/audio/ipc/Kbuild                       | 2 +-
+ techpack/audio/soc/Kbuild                       | 2 +-
+ techpack/data/drivers/emac-dwc-eqos/Makefile.am | 2 +-
+ 27 files changed, 27 insertions(+), 27 deletions(-)
+
+diff --git a/drivers/staging/qcacld-3.0/Kbuild b/drivers/staging/qcacld-3.0/Kbuild
+index 4f4522264..060519eb5 100644
+--- a/drivers/staging/qcacld-3.0/Kbuild
++++ b/drivers/staging/qcacld-3.0/Kbuild
+@@ -2300,7 +2300,7 @@ ccflags-y += $(INCS)
+ 
+ cppflags-y +=	-DANI_OS_TYPE_ANDROID=6 \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ cppflags-$(CONFIG_PTT_SOCK_SVC_ENABLE) += -DPTT_SOCK_SVC_ENABLE
+diff --git a/techpack/audio/4.0/asoc/Kbuild b/techpack/audio/4.0/asoc/Kbuild
+index 5157bd893..7ebd68bb0 100644
+--- a/techpack/audio/4.0/asoc/Kbuild
++++ b/techpack/audio/4.0/asoc/Kbuild
+@@ -184,7 +184,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/4.0/asoc/codecs/Kbuild b/techpack/audio/4.0/asoc/codecs/Kbuild
+index d589ac99e..fd79a51bf 100644
+--- a/techpack/audio/4.0/asoc/codecs/Kbuild
++++ b/techpack/audio/4.0/asoc/codecs/Kbuild
+@@ -185,7 +185,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/4.0/asoc/codecs/bolero/Kbuild b/techpack/audio/4.0/asoc/codecs/bolero/Kbuild
+index ef3e4669c..1f5e56b8d 100644
+--- a/techpack/audio/4.0/asoc/codecs/bolero/Kbuild
++++ b/techpack/audio/4.0/asoc/codecs/bolero/Kbuild
+@@ -115,7 +115,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/4.0/asoc/codecs/wcd937x/Kbuild b/techpack/audio/4.0/asoc/codecs/wcd937x/Kbuild
+index 0890bdb3c..3c0729813 100644
+--- a/techpack/audio/4.0/asoc/codecs/wcd937x/Kbuild
++++ b/techpack/audio/4.0/asoc/codecs/wcd937x/Kbuild
+@@ -88,7 +88,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/4.0/asoc/codecs/wcd938x/Kbuild b/techpack/audio/4.0/asoc/codecs/wcd938x/Kbuild
+index 94265496b..5dccad4ff 100644
+--- a/techpack/audio/4.0/asoc/codecs/wcd938x/Kbuild
++++ b/techpack/audio/4.0/asoc/codecs/wcd938x/Kbuild
+@@ -91,7 +91,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/4.0/dsp/Kbuild b/techpack/audio/4.0/dsp/Kbuild
+index ad4c1c79b..67e6d82cd 100644
+--- a/techpack/audio/4.0/dsp/Kbuild
++++ b/techpack/audio/4.0/dsp/Kbuild
+@@ -193,7 +193,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/4.0/dsp/codecs/Kbuild b/techpack/audio/4.0/dsp/codecs/Kbuild
+index 29152ac0a..95c2777e8 100644
+--- a/techpack/audio/4.0/dsp/codecs/Kbuild
++++ b/techpack/audio/4.0/dsp/codecs/Kbuild
+@@ -132,7 +132,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/4.0/ipc/Kbuild b/techpack/audio/4.0/ipc/Kbuild
+index 19991ca5b..889ef63f8 100644
+--- a/techpack/audio/4.0/ipc/Kbuild
++++ b/techpack/audio/4.0/ipc/Kbuild
+@@ -131,7 +131,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/4.0/soc/Kbuild b/techpack/audio/4.0/soc/Kbuild
+index ab46dd71c..7b22bc6a7 100644
+--- a/techpack/audio/4.0/soc/Kbuild
++++ b/techpack/audio/4.0/soc/Kbuild
+@@ -132,7 +132,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/asoc/Kbuild b/techpack/audio/asoc/Kbuild
+index 82cad0214..fb20e6f18 100644
+--- a/techpack/audio/asoc/Kbuild
++++ b/techpack/audio/asoc/Kbuild
+@@ -183,7 +183,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/asoc/codecs/Kbuild b/techpack/audio/asoc/codecs/Kbuild
+index 69ed256b4..9a0832d43 100644
+--- a/techpack/audio/asoc/codecs/Kbuild
++++ b/techpack/audio/asoc/codecs/Kbuild
+@@ -179,7 +179,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/asoc/codecs/aqt1000/Kbuild b/techpack/audio/asoc/codecs/aqt1000/Kbuild
+index 518c90278..5354f3d93 100644
+--- a/techpack/audio/asoc/codecs/aqt1000/Kbuild
++++ b/techpack/audio/asoc/codecs/aqt1000/Kbuild
+@@ -85,7 +85,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/asoc/codecs/bolero/Kbuild b/techpack/audio/asoc/codecs/bolero/Kbuild
+index 59b844b61..0f4d186e7 100644
+--- a/techpack/audio/asoc/codecs/bolero/Kbuild
++++ b/techpack/audio/asoc/codecs/bolero/Kbuild
+@@ -98,7 +98,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/asoc/codecs/csra66x0/Kbuild b/techpack/audio/asoc/codecs/csra66x0/Kbuild
+index 0627fc739..799371b04 100644
+--- a/techpack/audio/asoc/codecs/csra66x0/Kbuild
++++ b/techpack/audio/asoc/codecs/csra66x0/Kbuild
+@@ -69,7 +69,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/asoc/codecs/ep92/Kbuild b/techpack/audio/asoc/codecs/ep92/Kbuild
+index d06b45bd0..a3ff29a99 100644
+--- a/techpack/audio/asoc/codecs/ep92/Kbuild
++++ b/techpack/audio/asoc/codecs/ep92/Kbuild
+@@ -70,7 +70,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/asoc/codecs/msm_sdw/Kbuild b/techpack/audio/asoc/codecs/msm_sdw/Kbuild
+index a81a62663..831ac0200 100644
+--- a/techpack/audio/asoc/codecs/msm_sdw/Kbuild
++++ b/techpack/audio/asoc/codecs/msm_sdw/Kbuild
+@@ -86,7 +86,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/asoc/codecs/sdm660_cdc/Kbuild b/techpack/audio/asoc/codecs/sdm660_cdc/Kbuild
+index 3df929590..0bb58fed7 100644
+--- a/techpack/audio/asoc/codecs/sdm660_cdc/Kbuild
++++ b/techpack/audio/asoc/codecs/sdm660_cdc/Kbuild
+@@ -88,7 +88,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/asoc/codecs/tas256x/Kbuild b/techpack/audio/asoc/codecs/tas256x/Kbuild
+index 506009c8a..df04d3c6e 100644
+--- a/techpack/audio/asoc/codecs/tas256x/Kbuild
++++ b/techpack/audio/asoc/codecs/tas256x/Kbuild
+@@ -85,7 +85,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/asoc/codecs/wcd934x/Kbuild b/techpack/audio/asoc/codecs/wcd934x/Kbuild
+index 0d2f1f616..ab0db985f 100644
+--- a/techpack/audio/asoc/codecs/wcd934x/Kbuild
++++ b/techpack/audio/asoc/codecs/wcd934x/Kbuild
+@@ -107,7 +107,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/asoc/codecs/wcd9360/Kbuild b/techpack/audio/asoc/codecs/wcd9360/Kbuild
+index e85cb9527..12dfe9752 100644
+--- a/techpack/audio/asoc/codecs/wcd9360/Kbuild
++++ b/techpack/audio/asoc/codecs/wcd9360/Kbuild
+@@ -76,7 +76,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/asoc/codecs/wcd937x/Kbuild b/techpack/audio/asoc/codecs/wcd937x/Kbuild
+index debddcea7..ffc9ea6ef 100644
+--- a/techpack/audio/asoc/codecs/wcd937x/Kbuild
++++ b/techpack/audio/asoc/codecs/wcd937x/Kbuild
+@@ -81,7 +81,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/dsp/Kbuild b/techpack/audio/dsp/Kbuild
+index 7620628cb..eb1d21573 100644
+--- a/techpack/audio/dsp/Kbuild
++++ b/techpack/audio/dsp/Kbuild
+@@ -160,7 +160,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/dsp/codecs/Kbuild b/techpack/audio/dsp/codecs/Kbuild
+index af5657044..a89944e95 100644
+--- a/techpack/audio/dsp/codecs/Kbuild
++++ b/techpack/audio/dsp/codecs/Kbuild
+@@ -132,7 +132,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/ipc/Kbuild b/techpack/audio/ipc/Kbuild
+index ccc313cf8..9ee4e32fc 100644
+--- a/techpack/audio/ipc/Kbuild
++++ b/techpack/audio/ipc/Kbuild
+@@ -119,7 +119,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/audio/soc/Kbuild b/techpack/audio/soc/Kbuild
+index d821a4425..85e538466 100644
+--- a/techpack/audio/soc/Kbuild
++++ b/techpack/audio/soc/Kbuild
+@@ -131,7 +131,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
+ 		-DANI_OS_TYPE_ANDROID=6 \
+ 		-DPTT_SOCK_SVC_ENABLE \
+ 		-Wall\
+-		-Werror\
++		\
+ 		-D__linux__
+ 
+ KBUILD_CPPFLAGS += $(CDEFINES)
+diff --git a/techpack/data/drivers/emac-dwc-eqos/Makefile.am b/techpack/data/drivers/emac-dwc-eqos/Makefile.am
+index fa1c90989..77f751a17 100644
+--- a/techpack/data/drivers/emac-dwc-eqos/Makefile.am
++++ b/techpack/data/drivers/emac-dwc-eqos/Makefile.am
+@@ -23,7 +23,7 @@ CONFIG_PTPSUPPORT_OBJ=y
+ endif
+ 
+ emacdir			= $(prefix)/emac
+-emac_CFLAGS	= -Werror
++emac_CFLAGS	= 
+ 
+ 
+ KERNEL_FLAGS ?= ARCH=arm
