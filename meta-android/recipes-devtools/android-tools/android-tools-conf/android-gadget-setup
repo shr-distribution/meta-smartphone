@@ -6,11 +6,49 @@
 # This sets up the USB with whatever USB_FUNCTIONS are set to via configfs
 USB_FUNCTIONS=$1
 
-manufacturer="$(cat /system/build.prop | grep -o 'ro.product.manufacturer=.*' | cut -d'=' -f 2)"
-model="$(cat /system/build.prop | grep -o 'ro.product.model=.*' | cut -d'=' -f 2)"
+# Prefer the Android properties when running on top of an Android/Halium base
+if [ -f /system/build.prop ]; then
+    manufacturer="$(grep -o '^ro\.product\.manufacturer=.*' /system/build.prop | head -n 1 | cut -d'=' -f 2)"
+    model="$(grep -o '^ro\.product\.model=.*' /system/build.prop | head -n 1 | cut -d'=' -f 2)"
+fi
+
+# Fall back to the LuneOS device properties, otherwise mainline devices end up
+# with empty string descriptors and hosts show the usb.ids name for the product
+# id instead
+[ -z "$manufacturer" ] && manufacturer="LuneOS"
+if [ -z "$model" ]; then
+    model="$(cat /etc/prefs/properties/deviceName 2>/dev/null)"
+    machine="$(cat /etc/prefs/properties/machineName 2>/dev/null)"
+    case "$model" in
+        ""|"LuneOS Device") [ -n "$machine" ] && model="LuneOS $machine" ;;
+    esac
+    [ -z "$model" ] && model="LuneOS Device"
+fi
+
 # get the device serial number from /proc/cmdline directly(since we have no getprop on
-# GNU/Linux)
-serial="$(cat /proc/cmdline | sed 's/.*androidboot.serialno=//' | sed 's/ .*//')"
+# GNU/Linux); fall back to the machine id on devices without androidboot.serialno
+case "$(cat /proc/cmdline)" in
+    *androidboot.serialno=*)
+        serial="$(cat /proc/cmdline | sed 's/.*androidboot.serialno=//' | sed 's/ .*//')"
+        ;;
+    *)
+        serial="$(cut -c 1-16 /etc/machine-id 2>/dev/null)"
+        ;;
+esac
+[ -z "$serial" ] && serial="0123456789ABCDEF"
+
+# Google's generic Nexus/Pixel product ids for the exposed function set, so
+# hosts that only look at usb.ids no longer show "Nexus 4 (fastboot)" (d001)
+idVendor="0x18D1"
+if echo $USB_FUNCTIONS | grep -q "rndis"; then
+    if echo $USB_FUNCTIONS | grep -q "adb"; then
+        idProduct="0x4EE4" # tether + debug
+    else
+        idProduct="0x4EE3" # tether
+    fi
+else
+    idProduct="0x4EE7" # charging + debug
+fi
 
 write() {
     echo " === Writing $2 into $1"
@@ -31,8 +69,8 @@ usb_setup_configfs() {
     mount -t configfs none $GADGET_ROOT || true
 
     mkdir $GADGET_DIR/g1
-    write $GADGET_DIR/g1/idVendor                   "0x18D1"
-    write $GADGET_DIR/g1/idProduct                  "0xD001"
+    write $GADGET_DIR/g1/idVendor                   "$idVendor"
+    write $GADGET_DIR/g1/idProduct                  "$idProduct"
     mkdir $GADGET_DIR/g1/strings/0x409
     write $GADGET_DIR/g1/strings/0x409/serialnumber "$serial"
     write $GADGET_DIR/g1/strings/0x409/manufacturer "$manufacturer"
@@ -79,8 +117,8 @@ usb_setup_android_usb() {
     write $ANDROID_USB/enable          1
     usleep 500000 # 0.5 delay to attempt to remove rndis function
     write $ANDROID_USB/enable          0
-    write $ANDROID_USB/idVendor        18D1
-    write $ANDROID_USB/idProduct       D001
+    write $ANDROID_USB/idVendor        "${idVendor#0x}"
+    write $ANDROID_USB/idProduct       "${idProduct#0x}"
     write $ANDROID_USB/iManufacturer   "$manufacturer"
     write $ANDROID_USB/iProduct        "$model"
     write $ANDROID_USB/iSerial         "$serial"

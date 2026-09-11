@@ -211,6 +211,10 @@ do_install() {
     install -m 0755 ${UNPACKDIR}/40-rootfs-rw ${D}${localstatedir}/lib/lxc/android/pre-start.d/
     install -m 0755 ${UNPACKDIR}/50-stub-services ${D}${localstatedir}/lib/lxc/android/pre-start.d/
 
+    # Per-codename stub lists. 50-stub-services picks the one matching the
+    # phone, so a device with no rootfs of its own can still have a list.
+    install -d ${D}${localstatedir}/lib/lxc/android/stubbed-services.d
+
     install -d ${D}${localstatedir}/lib/lxc/android/stubs
     install -m 0755 ${UNPACKDIR}/stub-exit ${D}${localstatedir}/lib/lxc/android/stubs/
     install -m 0755 ${UNPACKDIR}/stub-sleep ${D}${localstatedir}/lib/lxc/android/stubs/

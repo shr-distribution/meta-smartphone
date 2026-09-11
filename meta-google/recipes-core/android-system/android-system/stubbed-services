@@ -12,3 +12,13 @@ vendor/bin/hw/android.hardware.rebootescrow-service.citadel
 # Display post-processing daemon; needs the framework sensorservice for the
 # ambient light sensor and crash-loops without it.
 vendor/bin/mm-pp-dpps
+# SurfaceFlinger configstore HAL. Dies with SIGSYS - a seccomp kill - inside
+# ISurfaceFlingerConfigs::registerAsService(), on a thread bionic spawns whose
+# stack randomisation calls arc4random -> getentropy -> getrandom. It therefore
+# never finishes registering, so nothing can ever reach it and stubbing it
+# removes no capability: there is no surfaceflinger under Halium either, and the
+# libgui/libui clients that would query it fall back to their compiled-in
+# defaults. init restarts it every 5 seconds regardless, which on sargo produced
+# 235 coredumps and 30 MB in the first 8 minutes of uptime - about 5.5 GB a day
+# onto userdata. Measured, not estimated.
+vendor/bin/hw/android.hardware.configstore@1.1-service
