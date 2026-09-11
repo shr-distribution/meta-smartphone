@@ -32,6 +32,27 @@ ANDROID_BOOTIMG_DTB_RAM_BASE = "0x01f00000"
 
 inherit kernel_android pkgconfig
 
+# Optional initramfs debug shell, off by default.
+#
+# The usual way in - an "enable_adb" boot image, as athena and surya ship - does
+# not work on this device. A Pixel bootloader passes on only the command line
+# arguments it already recognises and silently drops the rest, so nothing added
+# to ANDROID_BOOTIMG_CMDLINE reaches /proc/cmdline; see the note in
+# halium-kernel.inc, which was measured here with a "zz.marker=1" canary. init.sh
+# greps /proc/cmdline for enable_adb, so the flag has to be built into the kernel.
+#
+# Build a debug image with:
+#   MACHINE=sargo LUNEOS_ENABLE_ADB=1 bitbake linux-google-sargo
+# after adding LUNEOS_ENABLE_ADB to BB_ENV_PASSTHROUGH_ADDITIONS, or set it in
+# local.conf. sargo-staging/make-debug-boot.sh does both for you.
+LUNEOS_ENABLE_ADB ??= "0"
+
+do_configure:append() {
+    if [ "${LUNEOS_ENABLE_ADB}" = "1" ]; then
+        halium_kernel_add_cmdline "enable_adb"
+    fi
+}
+
 # kernel.bbclass sets S = "${STAGING_KERNEL_DIR}", and do_symlink_kernsrc only
 # moves the unpacked tree there when the recipe points S somewhere else.
 S = "${UNPACKDIR}/${BP}"
