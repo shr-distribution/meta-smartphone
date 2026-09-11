@@ -7,7 +7,14 @@ DEPENDS = "util-linux"
 
 PV = "0.6+git"
 
-SRC_URI = "git://gitorious.org/ac100/abootimg.git;protocol=git;branch=master"
+# gitorious.org shut down entirely in 2015 - there is no live host to fall back
+# to (this isn't a rewritten-history/orphaned-commit case like googleapis or
+# alsa-ucm-conf; the whole service is gone). Swapped to the original author's
+# (Gilles Grandou) GitHub repo, which carries the exact same pinned SRCREV,
+# reachable from master. Verified LIC_FILES_CHKSUM and the expected do_install
+# sources (abootimg.c, Makefile, abootimg-{pack,unpack}-initrd) are unchanged
+# at this commit.
+SRC_URI = "git://github.com/ggrandou/abootimg.git;protocol=https;branch=master"
 SRCREV = "7e127fee6a3981f6b0a50ce9910267cd501e09d4"
 S = "${WORKDIR}/git"
 
