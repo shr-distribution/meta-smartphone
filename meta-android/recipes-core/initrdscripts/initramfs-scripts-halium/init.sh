@@ -446,8 +446,25 @@ if [ $? -ne 1 ] ; then
     panic "Initramfs Debug Mode"
 fi
 
+mirror_trusty_log() {
+    # Trusty is a separate secure OS on Pixels (and other TEE-using devices).
+    # When its own apps assert, it takes the kernel down with it, and its
+    # explanation lives only in /dev/trusty-log0 - which nothing reads once
+    # Android's init has been replaced by this one. Mirroring it into kmsg puts
+    # it in pstore, so it survives the reboot and can be read back from
+    # /sys/fs/pstore/console-ramoops-0 - the only way to see a Trusty panic
+    # reason on a device with no serial console.
+    #
+    # Guarded on the node, so it is a no-op everywhere else. Costs one
+    # background reader that exits when the initramfs does.
+    [ -c /dev/trusty-log0 ] || return 0
+    tell_kmsg "initrd: mirroring /dev/trusty-log0 to kmsg"
+    (while read -r l; do echo "trusty: $l" > /dev/kmsg; done < /dev/trusty-log0) &
+}
+
 echo "Loading kernel modules" > /dev/kmsg
 load_kernel_modules
+mirror_trusty_log
 
 echo "Starting mdev" > /dev/kmsg
 start_mdev
