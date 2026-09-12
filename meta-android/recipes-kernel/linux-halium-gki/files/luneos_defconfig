@@ -1,0 +1,103 @@
+# LuneOS/Halium defconfig fragment for GKI android14-6.1 (bluejay)
+# Derived from mer-kernel-check (mer_verify_kernel_config) run against the
+# stock bluejay bp4a 6.1.145 IKCONFIG. Everything added is built-in (=y):
+# Kleaf's module packaging list is curated, new =m modules fail the build.
+#
+# 6.1 renames vs the mer list: NF_LOG_IPV4/6 -> NF_LOG_SYSLOG (5.13+),
+# AUTOFS4_FS -> AUTOFS_FS.
+# Deliberately skipped: BT_BNEP* (tristate under BT=m, packaging; BT tethering
+# only), NFS/UDF/BTRFS (optional fs warnings), USER_NS (not needed for the
+# privileged Android container).
+
+# systemd / udev hard requirements
+CONFIG_DEVTMPFS=y
+CONFIG_DEVTMPFS_MOUNT=y
+CONFIG_FHANDLE=y
+CONFIG_TMPFS_XATTR=y
+CONFIG_TMPFS_POSIX_ACL=y
+CONFIG_AUTOFS_FS=y
+
+# Namespaces for the LXC android container. PID_NS verified KMI-clean.
+#
+# KMI-POISON LIST — verified 26 Aug 2026 against the bp4a factory modules:
+# enabling any of these changes genksyms CRCs of thousands of exported
+# symbols, and every stock vendor module then refuses to load (MODVERSIONS):
+#   CONFIG_SYSVIPC   (adds sysvsem/sysvshm to task_struct; IPC_NS goes with it)
+#   CONFIG_FANOTIFY  (fsnotify structs in the inode closure)
+#   CONFIG_NET_L3_MASTER_DEV (l3mdev_ops member in net_device)
+# They stay OFF for the Tier A (stock vendor modules) kernel. Userland impact:
+# no SysV IPC (watch Qt QSharedMemory/QSystemSemaphore), no fanotify, no VRF.
+# If something hard-requires them: rebuild all google-modules (option B).
+CONFIG_PID_NS=y
+CONFIG_CHECKPOINT_RESTORE=y
+
+# usermode helper must work for request_module() autoloading
+# (stock sets STATIC_USERMODEHELPER=y with empty path = UMH disabled)
+# CONFIG_STATIC_USERMODEHELPER is not set
+
+# virtual terminal (mer requirement; debugging aid)
+CONFIG_VT=y
+
+# quota over netlink (quotad/systemd)
+CONFIG_QUOTA_NETLINK_INTERFACE=y
+
+# connman / ofono / IPSec / tethering networking bits
+CONFIG_INET_AH=y
+CONFIG_INET_IPCOMP=y
+CONFIG_INET6_AH=y
+CONFIG_INET6_IPCOMP=y
+CONFIG_NF_LOG_SYSLOG=y
+CONFIG_IP_NF_MATCH_AH=y
+CONFIG_IP_NF_MATCH_RPFILTER=y
+CONFIG_IP6_NF_MATCH_RPFILTER=y
+CONFIG_NETFILTER_XT_MATCH_RECENT=y
+CONFIG_NETFILTER_XT_MATCH_SCTP=y
+CONFIG_NETFILTER_NETLINK_ACCT=y
+CONFIG_NETFILTER_XT_MATCH_NFACCT=y
+
+# PPP stack (ofono dialup / DUN)
+CONFIG_PPP=y
+CONFIG_PPP_ASYNC=y
+CONFIG_PPP_SYNC_TTY=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_DEFLATE=y
+CONFIG_PPP_BSDCOMP=y
+CONFIG_PPPOE=y
+
+# L2TP (VPN)
+CONFIG_L2TP=y
+CONFIG_L2TP_V3=y
+CONFIG_L2TP_IP=y
+
+# hotplug events -> mdev in the initramfs (mer: path must default empty)
+CONFIG_UEVENT_HELPER=y
+CONFIG_UEVENT_HELPER_PATH=""
+
+# GKI protected symbols: OFF.
+#
+# A GKI kernel signs its own modules (MODULE_SIG_ALL) and then refuses, with
+# -EACCES, to let any module it did NOT sign resolve a "protected" symbol or
+# export one the signed GKI modules already export. We rebuild GKI from ACK, so
+# our signing key is not Google's: the phone's own stock vendor modules arrive
+# unsigned as far as this kernel is concerned (mod->sig_ok == 0) and Wi-Fi and
+# Bluetooth fail to load, with no CRC mismatch to explain it -- kmi-crc-check.py
+# cannot see this gate, it only models MODVERSIONS CRCs.
+#
+# Turning the option off is exactly equivalent to bypassing both checks in
+# kernel/module/main.c by hand: with this option unset,
+# kernel/module/internal.h compiles gki_is_module_unprotected_symbol() to
+# "return true" and gki_is_module_protected_export() to "return false", so
+# neither -EACCES branch can be reached. A config line survives an ACK bump;
+# a source patch has to be rebased.
+# CONFIG_MODULE_SIG_PROTECT is not set
+
+# Virtual HCI, for the bluebinder route to Bluetooth.
+# The BT chip's UART is owned by Android's HAL; taking it away to hand it to
+# BlueZ also stops the LPM/BT_WAKE handshake, so the chip sleeps mid firmware
+# download. bluebinder instead keeps Android's HAL and pumps HCI over /dev/vhci.
+# Must be =m, not =y: CONFIG_BT is itself =m, so this tristate cannot be built
+# in. That makes it the one exception to the "everything =y" rule above, and it
+# therefore also has to be ADDED to Kleaf's curated GKI module list --
+# build-bootimg.sh does that in its modules.bzl section.
+CONFIG_BT_HCIVHCI=m
