@@ -27,13 +27,21 @@
 
 inherit deploy
 
-# Where the prebuilt kernel comes from. There is deliberately no default: it is
-# built outside this tree by luneos-bootimg-<device>'s build-bootimg.sh (ACK at
-# the pinned tag + luneos_defconfig, via Kleaf), so pointing at it is a local
-# decision. Put it in local.conf, e.g.
+# Where the kernel comes from.
 #
-#   GKI_KERNEL_IMAGE = "/media/herrie/LuneOS/bluejay-kernel/out-luneos-tierA/Image.lz4"
+# By default it is built in this tree by linux-halium-gki, which builds the
+# Android Common Kernel with the Clang the KMI was frozen with - verified to
+# produce a kernel the device's own stock vendor modules still load against.
+# Nothing needs setting for that; MACHINE=<dev> bitbake luneos-bootimg-gki
+# builds kernel and boot image together.
+#
+# Setting GKI_KERNEL_IMAGE overrides that with a prebuilt Image from anywhere -
+# e.g. one built out of tree by luneos-bootimg-<device>'s build-bootimg.sh:
+#
+#   GKI_KERNEL_IMAGE = "/path/to/luneos-bootimg-bluejay/work/Image.lz4"
 GKI_KERNEL_IMAGE ?= ""
+GKI_KERNEL_PROVIDER ?= "linux-halium-gki"
+GKI_KERNEL_DEPLOYED = "${DEPLOY_DIR_IMAGE}/Image.lz4"
 
 ANDROID_BOOTIMG_CMDLINE ?= ""
 ANDROID_BOOTIMG_HEADER_VERSION ?= "4"
@@ -48,19 +56,19 @@ INITRAMFS_NAME ?= "initramfs-android-image-${MACHINE}.cpio.gz"
 # images instead of returning a stale sstate result.
 do_deploy[file-checksums] += "${GKI_KERNEL_IMAGE}:True"
 do_deploy[depends] += "initramfs-android-image:do_image_complete"
+# Only depend on the in-tree kernel when no prebuilt was pointed at, so an
+# override does not drag a 2.3 GB toolchain fetch in behind it.
+do_deploy[depends] += "${@'' if d.getVar('GKI_KERNEL_IMAGE') else '${GKI_KERNEL_PROVIDER}:do_deploy'}"
 
 python do_deploy() {
     import os
     from halium.bootimg import write_bootimg_v3
 
-    kernel = d.getVar("GKI_KERNEL_IMAGE")
-    if not kernel:
-        bb.fatal("GKI_KERNEL_IMAGE is not set. This machine's kernel is the "
-                 "Android Common Kernel and is built outside this tree - see "
-                 "the luneos-bootimg-<device> repository - so point this at the "
-                 "Image it produced, in local.conf.")
+    kernel = d.getVar("GKI_KERNEL_IMAGE") or d.getVar("GKI_KERNEL_DEPLOYED")
     if not os.path.exists(kernel):
-        bb.fatal("GKI_KERNEL_IMAGE %s does not exist" % kernel)
+        bb.fatal("Kernel image %s does not exist. It is normally built here by "
+                 "%s; set GKI_KERNEL_IMAGE to use a prebuilt one instead."
+                 % (kernel, d.getVar("GKI_KERNEL_PROVIDER")))
 
     initramfs = os.path.join(d.getVar("DEPLOY_DIR_IMAGE"), d.getVar("INITRAMFS_NAME"))
     if not os.path.exists(initramfs):
