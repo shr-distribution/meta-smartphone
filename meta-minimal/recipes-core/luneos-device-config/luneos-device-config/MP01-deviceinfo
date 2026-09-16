@@ -1,0 +1,93 @@
+# Tier 1 adaptation for the Minimal Phone MP01 (MT6789 / Helio G99,
+# 4.3" 600x800 E Ink).
+#
+# Only what cannot be derived belongs here. Vendor API level and the
+# touchscreen node derive correctly on a Treble device; what follows is the
+# key devices, which derivation cannot separate on this hardware, and the
+# display numbers, which are a layout judgement rather than a measurement.
+
+# The power key and the volume rocker, pinned by name.
+#
+# Derivation takes everything claiming KEY_POWER or a volume key that is not
+# the touchscreen, and on the MP01 that over-collects for the same reason it
+# does on the Q25: the physical keyboard is one input device and it carries a
+# volume key. The AW9523B keypad driver's own key table, read out of the stock
+# aw9523b.ko, is
+#
+#   Backspace COPY Down ENTER FIND FRONT Left LEFTSHIFT OPEN PASTE PROPS
+#   Right RIGHTSHIFT Space UNDO Volup
+#
+# - so "Volup" is on the keyboard node, and without pinning, the QWERTY would
+# be treated as a key device.
+#
+# mtk-pmic-keys.ko and mtk-kpd.ko are both in this device's stock module set,
+# exactly as on the Q25, so the same two names apply: the PMIC power key and
+# the matrix keypad the volume rocker hangs off.
+#
+# UNVERIFIED: these are the module names, and the input device names are
+# assumed to match the Q25's. If the journal logs that either did not resolve,
+# get the right strings from
+#   grep -h '^N: Name' /proc/bus/input/devices
+# and correct them here. The keyboard's own node is expected to be
+# "aw9523b-key" (the string the driver carries).
+deviceinfo_key_devices_by_name="mtk-pmic-keys;mtk-kpd"
+
+# 4.3" diagonal, 600x800: sqrt(600^2 + 800^2) / 4.3 = 233 ppi.
+#
+# GridUnit = round(dpi * 1.44 / 25.4) = 13, which is 1.42 mm of glass per grid
+# unit against sargo's 1.44 mm - i.e. the shell chrome comes out very nearly
+# the same physical size as on a device where it is known to fit. In grid units
+# the screen is 600/13 = 46 wide against sargo's 43, so the fixed-size system
+# menu (Units.gu(40) = 520 px) fits the 600 px width with margin.
+#
+# UNVERIFIED ON HARDWARE, and on this device that warning carries more weight
+# than usual. sargo needed a device pixel ratio well away from its natural one,
+# and E Ink adds a constraint no LCD port has had: thin strokes and low-contrast
+# hairlines that are merely crisp on an LCD can vanish entirely here. Expect the
+# legible value to be larger than the arithmetic one.
+deviceinfo_display_dpi="233"
+
+# webOS apps are fixed-layout Enyo pages, so the ratio decides how many CSS
+# pixels they are handed. 600 / 1.333 = 450, exactly the canvas width sargo
+# targets (1080 / 2.4) and what the pages are built for; 800 / 1.333 = 600 of
+# height, which is short of a normal portrait phone's ~1000 but far better
+# than the Q25's square 450.
+#
+# UNVERIFIED. If text proves too fine to read on the panel, 1.2 (= 500x667 CSS)
+# trades canvas for stroke weight, and that trade is the right way round on
+# E Ink.
+deviceinfo_device_pixel_ratio="1.333"
+
+# Deliberately absent:
+#
+#   deviceinfo_touchscreen_by_name
+#       focaltech_touch.ko is the only touch device on the bus, so derivation
+#       cannot pick the wrong one.
+#
+#   deviceinfo_video_call
+#       Leave derivation to decide once the cameras have been shown to deliver
+#       frames.
+#
+# Nothing here addresses E Ink refresh behaviour, because deviceinfo has no
+# vocabulary for it. Waveform and full-vs-partial refresh are driven through
+# the sysfs attr group that panel-z10-eink-i2c.ko registers as
+# "eink_cpld_registers"; wiring that into LuneOS is real work and has not been
+# started.
+
+# The panel is mounted rotated a quarter turn: DSI1 scans out 800x600 while the
+# device is held portrait, so without this the whole UI lands 90 degrees
+# counter-clockwise. 270 is not a guess - the stock firmware says the same thing
+# in its own vocabulary:
+#
+#   ro.surface_flinger.primary_display_orientation = ORIENTATION_270
+#
+# On Android SurfaceFlinger applies that; LuneOS has no SurfaceFlinger, so the
+# compositor has to. 10-configd-surfacemanager prefers this declared value over
+# the derived "${panel_w}x${panel_h}+0+0r0s1", and surface-manager reads it back
+# from configd as com.webos.surfacemanager.compositorGeometry.
+#
+# Nothing in the device tree carries this - there is no "rotation" property on
+# the panel node - and WEBOS_COMPOSITOR_DISPLAY_CONFIG's own "r" field is not
+# enough on its own: it is applied and then overridden by the configd value, so
+# the two must agree and this is the one that wins.
+deviceinfo_compositor_geometry="800x600+0+0r270s1"
