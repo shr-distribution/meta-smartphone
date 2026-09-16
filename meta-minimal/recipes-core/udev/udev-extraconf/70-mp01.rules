@@ -1,0 +1,72 @@
+# Minimal Phone MP01 device-node permissions and input tagging that are not in
+# 65-android.rules.
+#
+# Shipped by the *generic* rootfs, not by an mp01 rootfs: mp01 builds only a
+# boot image (see mp01.conf), so there is no per-machine image to carry this.
+# udev rules have to exist before the coldplug, which rules out the runtime
+# Tier 2 adaptation path in luneos-device-config - that service is ordered
+# after systemd-udev-trigger. Every rule keys on a node or device name, so on
+# any other device running this rootfs none of them match.
+#
+# The names below are read out of the MP01's own stock vendor modules
+# (Z10_20251226_user_smr6.zip), not guessed - but reading a name out of a
+# stripped .ko is weaker evidence than reading it out of source, which is what
+# was available for the Q25. Confirm every ATTRS{name} here with
+#   grep -h '^N: Name' /proc/bus/input/devices
+# on first boot before trusting any of it.
+
+# --- physical keyboard -----------------------------------------------------
+# The QWERTY hangs off an AW9523B I2C GPIO/keypad expander (aw9523b.ko,
+# CONFIG_KEYBOARD_AW9523B=m). The driver carries the string "aw9523b-key",
+# which is its platform/input name.
+#
+# Unlike the Q25's single bbqX0kbd node, this is a keyboard only - the MP01 has
+# no trackpad, it has a FocalTech touchscreen - so there is no keyboard/mouse
+# ambiguity to resolve here. The tag is still explicit because the key table
+# includes Volup, and a stack that decides this node is "the volume rocker"
+# rather than "the keyboard" would put an on-screen keyboard over a physical
+# QWERTY.
+ACTION=="add|change", SUBSYSTEM=="input", ATTRS{name}=="aw9523b-key", \
+    ENV{ID_INPUT}="1", ENV{ID_INPUT_KEYBOARD}="1"
+
+# --- E Ink panel control ---------------------------------------------------
+# panel-z10-eink-i2c.ko drives the Pango FPGA that sits between the SoC's DSI
+# output and the electrophoretic panel, and registers a sysfs attribute group
+# it calls "eink_cpld_registers" (the driver's own strings: eink_cpld_show_
+# registers / eink_cpld_store_registers, plus "eink_cpld attr group create
+# success!").
+#
+# That group is where refresh mode and waveform selection live - on stock
+# Android, Minimal's own system service drives it. Nothing in LuneOS drives it
+# yet, so this rule only makes it *reachable* by a non-root process, which is
+# the prerequisite for anything that eventually does.
+#
+# UNVERIFIED: the sysfs path is not known offline. Find it on hardware with
+#   find /sys -name 'eink_cpld*' 2>/dev/null
+# and correct the match below.
+ACTION=="add|change", SUBSYSTEM=="i2c", DRIVERS=="eink_cpld", \
+    RUN+="/bin/sh -c 'chgrp -R system /sys%p/eink_cpld_registers 2>/dev/null; chmod -R g+rw /sys%p/eink_cpld_registers 2>/dev/null'"
+
+# --- MediaTek connectivity -------------------------------------------------
+# Identical to the Q25's, and not by assumption: this device's own vendor
+# build.prop gives ro.vendor.wlan.gen=gen4m_6789, ro.vendor.bt.platform=
+# connac1x, ro.vendor.gps.chrdev=gps_drv_stp, ro.vendor.fm.platform=
+# mt6631_6635 - the same connac1x family, so the same nodes.
+#
+# /dev/wmtWifi is the combo chip's power/mode switch and /dev/stpbt is the BT
+# HCI transport. mtk-connectivity's units in meta-android drive both, but they
+# run after the coldplug and the container's own HAL opens them too, so give
+# them the AOSP ownership up front.
+ACTION=="add", KERNEL=="wmtWifi", OWNER="system", GROUP="wifi", MODE="0660"
+ACTION=="add", KERNEL=="stpbt", OWNER="bluetooth", GROUP="net_bt_stack", MODE="0660"
+ACTION=="add", KERNEL=="stpgps", OWNER="gps", GROUP="gps", MODE="0660"
+ACTION=="add", KERNEL=="conninfra_dev", OWNER="system", GROUP="system", MODE="0660"
+
+# --- audio jack ------------------------------------------------------------
+# mt6358-accdet.ko is in the vendor module set here too.
+ACTION=="add", KERNEL=="accdet", OWNER="system", GROUP="audio", MODE="0660"
+
+# Note: /dev/mali0 is not here. It needs the same treatment as kgsl and
+# pvr_sync, which makes it a device-class rule rather than an mp01 one - it
+# lives in 65-android.rules, added there for the Q25 and already correct for
+# this device (same Mali, same ro.hardware.egl=meow).
