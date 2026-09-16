@@ -1,0 +1,22 @@
+meta-minimal
+============
+
+LuneOS support for The Minimal Company's phones.
+
+Currently one machine: mp01 (the Minimal Phone, vendor codename Z10) -
+MediaTek Helio G99 (MT6789), 4.3" 800x600 E Ink, physical QWERTY.
+
+This is the same SoC and the same MediaTek "mgk" android12-5.10 kernel as the
+Zinwa Q25 in meta-zinwa; the two stock kernel configs differ by 85 options out
+of 2,665. meta-zinwa is the layer to read first, and its machine conf carries
+the reasoning that applies to both.
+
+Like q25 and the Tensor machines, mp01 builds a *boot image* only. The rootfs
+comes from halium-arm64 and the GSI is chosen at install time.
+
+  MACHINE=mp01 bitbake linux-minimal-mp01
+  MACHINE=mp01 bitbake initramfs-android-image
+  MACHINE=mp01 bitbake luneos-bootimg-gki
+
+Port notes, stock firmware and the KMI gate live outside the build tree, in
+/home/herrie/webos/LuneOS/MP01.

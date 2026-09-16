@@ -1,0 +1,82 @@
+From: Herman van Hazendonk <github.com@herrie.org>
+Subject: [PATCH] drm/mediatek: create the standard alpha and blend plane properties
+
+MediaTek's v2 display driver attaches its own PLANE_PROP_PLANE_ALPHA and
+PLANE_PROP_ALPHA_CON and blends from those, and never calls
+drm_plane_create_alpha_property() or drm_plane_create_blend_mode_property().
+The vendor hwcomposer, however, looks the two *standard* properties up by
+string while probing DRM, and on not finding them gives up on DRM entirely:
+
+  D hwcomposer: getHWCMediator default use full-hwc
+  W hwcomposer: [DRMDEV] 0xeeeeeeee[34] property[alpha] does not do initialize
+  W hwcomposer: [DRMDEV] 0xeeeeeeee[34] property[pixel blend mode] does not do initialize
+  E hwcomposer: [DRMDEV] failed to check plane[34] property: error=-22
+  W hwcomposer: [DRMDEV] failed to initialize plane[0]: 34
+  ... once per plane ...
+  W hwcomposer: [DRMDEV] failed to initialize all plane: -19
+  E hwcomposer: [DRMDEV] failed to initialize drm resource
+
+Having abandoned DRM it falls back to asking hwservicemanager for
+android.hardware.graphics.composer@2.1::IComposer, which libhidl retries once a
+second forever. Inside SurfaceFlinger that fallback resolves to the composer
+service; inside a Linux compositor that loads the HAL in-process through
+libhybris there is nothing to resolve it to, so the process never finishes
+starting. On the Minimal Phone MP01 that is the whole reason surface-manager
+never reaches its hwcomposer banner within its 90 s start timeout.
+
+Creating the properties is sufficient and does not change what reaches the
+panel: alpha and pixel_blend_mode are plain fields of drm_plane_state, set and
+read generically by drm_atomic_uapi.c, and this driver's atomic_check and
+atomic_update continue to blend from the vendor properties as before. Confirmed
+on an MP01 (MT6789, E Ink): 16 planes, which previously advertised only
+PLANE_PROP_PLANE_ALPHA and PLANE_PROP_ALPHA_CON to an atomic client, now also
+carry "alpha" and "pixel blend mode".
+
+Note when checking this by hand that both the vendor properties and the standard
+ones are DRM_MODE_PROP_ATOMIC, so they are invisible unless the client sets
+DRM_CLIENT_CAP_ATOMIC - use "modetest -M mediatek -a -p", not "modetest -p".
+
+Upstream-Status: Inappropriate [vendor tree; MediaTek v2 display driver is not upstream]
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+---
+--- a/drivers/gpu/drm/mediatek/mediatek_v2/mtk_drm_plane.c
++++ b/drivers/gpu/drm/mediatek/mediatek_v2/mtk_drm_plane.c
+@@ -6,6 +6,7 @@
+ #include <drm/drm_atomic.h>
+ #include <drm/drm_atomic_helper.h>
+ #include <drm/drm_plane_helper.h>
++#include <drm/drm_blend.h>
+ #include <drm/drm_fourcc.h>
+ #include <linux/mailbox_controller.h>
+ 
+@@ -603,5 +604,29 @@ int mtk_plane_init(struct drm_device *dev, struct mtk_drm_plane *plane,
+ 
+ 	mtk_plane_attach_property(plane);
+ 
++	/*
++	 * Also expose the two standard plane properties. This driver carries its
++	 * own PLANE_PROP_PLANE_ALPHA and PLANE_PROP_ALPHA_CON and blends from
++	 * those, so nothing here changes what reaches the panel - but the vendor
++	 * hwcomposer looks the standard names up by string during its DRM probe:
++	 *
++	 *   [DRMDEV] property[alpha] does not do initialize
++	 *   [DRMDEV] property[pixel blend mode] does not do initialize
++	 *   [DRMDEV] failed to check plane[34] property: error=-22
++	 *   [DRMDEV] failed to initialize all plane: -19
++	 *   [DRMDEV] failed to initialize drm resource
++	 *
++	 * and on not finding them abandons DRM entirely and falls back to asking
++	 * hwservicemanager for composer@2.1::IComposer, which libhidl then retries
++	 * forever. Creating the properties is enough to get past that: alpha and
++	 * pixel_blend_mode are plain fields of drm_plane_state, handled generically
++	 * by drm_atomic_uapi.c, so no atomic_check or commit change is needed.
++	 */
++	drm_plane_create_alpha_property(&plane->base);
++	drm_plane_create_blend_mode_property(&plane->base,
++					     BIT(DRM_MODE_BLEND_PREMULTI) |
++					     BIT(DRM_MODE_BLEND_COVERAGE) |
++					     BIT(DRM_MODE_BLEND_PIXEL_NONE));
++
+ 	return 0;
+ }
