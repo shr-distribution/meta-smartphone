@@ -69,7 +69,7 @@ DEPENDS = "elfutils-native openssl-native bc-native bison-native flex-native lz4
 
 inherit deploy
 
-COMPATIBLE_MACHINE = "^(bluejay|panther)$"
+COMPATIBLE_MACHINE = "^(bluejay|panther|tangorpro)$"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 # Nothing is packaged: the boot image consumes the deployed Image directly.
 INHIBIT_DEFAULT_DEPS = "1"
