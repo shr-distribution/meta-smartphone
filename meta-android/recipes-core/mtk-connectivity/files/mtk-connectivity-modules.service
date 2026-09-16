@@ -7,8 +7,9 @@ Requires=android-system.service
 Conflicts=shutdown.target actdead.target
 # Inert on non-MediaTek devices: only run where the vendor ships the combo
 # driver. Covers both the WMT era (wmt_drv) and the connac era (conninfra).
-ConditionPathExists=|/android/vendor/lib/modules/wmt_drv.ko
-ConditionPathExists=|/android/vendor/lib/modules/conninfra.ko
+ConditionPathExistsGlob=|/android/vendor/lib/modules/wmt_drv*.ko
+ConditionPathExistsGlob=|/android/vendor/lib/modules/conninfra*.ko
+ConditionPathExistsGlob=|/android/vendor/lib/modules/connadp*.ko
 
 [Service]
 Type=oneshot

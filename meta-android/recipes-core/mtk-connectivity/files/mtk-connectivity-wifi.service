@@ -4,6 +4,20 @@ After=mtk-connectivity-modules.service
 Requires=mtk-connectivity-modules.service
 Conflicts=shutdown.target actdead.target
 
+# Same hardware test mtk-connectivity-modules.service uses, because Requires=
+# on a unit that condition-skipped does not hold this one back: a failed
+# condition is "skip", not "fail", so the dependency is satisfied and this ran
+# anyway on every Halium machine. COMPATIBLE_MACHINE is ^halium$, so that is
+# every port, MediaTek or not.
+#
+# On a Qualcomm device none of the markers below exist and there is nothing to
+# power on - wlan0 comes from the Qualcomm driver - so the ExecStart loop just
+# polls until wlan0 appears and exits. Measured: 37ms on sargo, where wlan0 was
+# already up, and 10.1s on tissot, where it was not.
+ConditionPathExists=|/android/vendor/lib/modules/wmt_drv.ko
+ConditionPathExists=|/android/vendor/lib/modules/conninfra.ko
+ConditionPathExists=|/dev/wmtWifi
+
 [Service]
 Type=oneshot
 RemainAfterExit=yes
