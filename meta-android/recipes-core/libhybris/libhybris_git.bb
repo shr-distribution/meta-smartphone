@@ -23,6 +23,8 @@ SRC_URI = "git://github.com/Herrie82/libhybris;branch=herrie/android16-tls;proto
     file://0004-hooks-functional-system-property-find-wait-read_callback.patch \
     file://0005-hooks-route-__tls_get_addr-to-the-q-linker.patch \
     file://0006-linker-let-a-process-ask-for-the-vendor-s-VNDK-libra.patch \
+    file://0007-hooks-hook-MEOW_get_tls_meow_offset-for-Mali-blobs.patch \
+    file://0008-hooks-provide-SetTaskProfiles-for-A12-vendor-blobs.patch \
 "
 
 S = "${UNPACKDIR}/${BB_GIT_DEFAULT_DESTSUFFIX}/hybris"
@@ -50,7 +52,24 @@ EXCLUDE_FROM_WORLD = "1"
 # android-system-image is MACHINE_ARCH
 # RDEPENDS:${PN} += "${VIRTUAL-RUNTIME_android-system-image}"
 
-EXTRA_OECONF = "--with-android-headers=${STAGING_INCDIR}/android"
+# --enable-mali-quirks gates two #ifdef MALI_QUIRKS blocks that are otherwise
+# compiled out entirely:
+#
+#   - MEOW_get_tls_meow_offset (patch 0007). Mali's libGLES_meow.so hunts for
+#     its pthread TLS slot by scanning from the thread pointer. That works on
+#     bionic and cannot work on glibc, so it falls back to TLS_SLOT_OPENGL,
+#     which it also uses for something else, and clobbers it. On MT6789 this is
+#     a hard segfault in egl_display_t::initialize() on every compositor start.
+#   - the mali-hist-dump thread workaround.
+#
+# Enabled for every halium machine rather than per device: the hooks only fire
+# when a Mali blob actually asks for them, so they are inert elsewhere, and this
+# is what Ubuntu Touch, Sailfish, Droidian and FuriLabs all ship.
+#
+# One documented cost, accepted by all of the above: the hook needs a static TLS
+# slot (tls_model "initial-exec"), so dlopen'ing libhybris-common can fail if
+# the process has exhausted its static TLS. glibc reserves slots for this.
+EXTRA_OECONF = "--with-android-headers=${STAGING_INCDIR}/android --enable-mali-quirks"
 
 # If you want to enable debugging/tracing functionality add the following to a bbappend
 # EXTRA_OECONF += "--enable-debug --enable-trace"

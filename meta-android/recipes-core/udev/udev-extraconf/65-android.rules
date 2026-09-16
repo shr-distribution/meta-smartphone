@@ -92,6 +92,11 @@ ACTION=="add", KERNEL=="kgsl-3d0", OWNER="system", GROUP="system", MODE="0666"
 # renders fine as nobody). The render node is enough on top of this one; the
 # KMS card node can stay 0660.
 ACTION=="add", KERNEL=="pvr_sync", OWNER="system", GROUP="system", MODE="0666"
+# Arm Mali's equivalent of the two above, on MediaTek and Tensor. Same failure
+# mode as pvr_sync: left at the kernel default only root opens it, so the
+# compositor renders and every sandboxed GPU process does not. AOSP's ueventd
+# grants 0666 system:graphics for this node on the MediaTek boards.
+ACTION=="add", KERNEL=="mali0", OWNER="system", GROUP="graphics", MODE="0666"
 ACTION=="add", KERNEL=="ion", OWNER="system", GROUP="system", MODE="0664"
 ACTION=="add", SUBSYSTEM=="dma_heap", OWNER="system", GROUP="system", MODE="0664"
 ACTION=="add", KERNEL=="dri/*", OWNER="root", GROUP="graphics", MODE="0666"
