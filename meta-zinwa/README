@@ -1,0 +1,15 @@
+meta-zinwa
+==========
+
+Machines for Zinwa's BlackBerry restomod handsets.
+
+  q25   Zinwa Q25 / Q25 Pro - BlackBerry Classic (Q20) chassis, MediaTek
+        Helio G99 (MT6789), 3.5" 720x720 1:1 panel, physical keyboard with
+        trackpad, 12 GB RAM, 256 GB UFS.
+
+Like meta-google's bluejay and panther, this layer builds only a *boot image*.
+The rootfs is the generic halium-arm64 one and the GSI is chosen at install
+time, so there is no q25 image recipe and no q25 package feed - anything that
+would need one is a porting bug. See conf/machine/q25.conf.
+
+Layer dependencies: core, openembedded-layer, android-layer (meta-android).
