@@ -1,0 +1,60 @@
+# Zinwa Q25 device-node permissions and input tagging that are not in
+# 65-android.rules.
+#
+# Shipped by the *generic* rootfs, not by a q25 rootfs: q25 builds only a boot
+# image (see q25.conf), so there is no per-machine image to carry this. udev
+# rules have to exist before the coldplug, which rules out the runtime Tier 2
+# adaptation path in luneos-device-config - that service is ordered after
+# systemd-udev-trigger. Every rule keys on a node or device name, so on any
+# other device running this rootfs none of them match.
+#
+# The names below are read out of the device's own GPL kernel sources
+# (LineageOS/android_kernel_xelex_mt6789, lineage-23.2) and its LineageOS
+# device tree, not guessed. What has NOT been done is running this against a
+# real Q25 - confirm with `udevadm info -a /dev/input/eventN` on first boot.
+
+# --- physical keyboard and trackpad ----------------------------------------
+# One input device carries both: drivers/input/keyboard/bbqX0kbd sets
+# input->name = "Q25_keyboard" (DEVICE_NAME in bbqX0kbd_main.h, and the name
+# the stock .kl/.kcm/.idc files are keyed on) and registers EV_KEY plus
+# EV_REL/REL_X/REL_Y and BTN_LEFT/BTN_RIGHT on that one node.
+#
+# udev's input_id builtin should tag a device with both capability sets as
+# keyboard *and* mouse on its own. The explicit tag is here because a single
+# node that is both is exactly the case where a stack decides it is only one of
+# them and puts the on-screen keyboard up over a physical QWERTY. Remove it if
+# `udevadm test` shows input_id already got it right.
+ACTION=="add|change", SUBSYSTEM=="input", ATTRS{name}=="Q25_keyboard", \
+    ENV{ID_INPUT}="1", ENV{ID_INPUT_KEYBOARD}="1", ENV{ID_INPUT_MOUSE}="1"
+
+# The trackpad has two modes, switched at runtime through
+# /proc/q20_switch_key_mouse (bbqX0kbd_main.c):
+#   0 (driver default) - REL_X/REL_Y, i.e. a pointer
+#   1                  - KEY_UP/DOWN/LEFT/RIGHT once the accumulated offset
+#                        passes BBQ20KBD_TRACKPAD_KEYS_OFFSET, i.e. a d-pad
+# LuneOS wants the pointer, which is the default, so nothing sets it here.
+# /proc/q20_spec_power_flag (0/1) is the separate "wake on Call end" toggle.
+
+# --- MediaTek connectivity -------------------------------------------------
+# /dev/wmtWifi is the combo chip's power/mode switch - the LineageOS
+# BoardConfig names it as both WIFI_DRIVER_FW_PATH_PARAM and
+# WIFI_DRIVER_STATE_CTRL_PARAM - and /dev/stpbt is the BT HCI transport.
+# mtk-connectivity's units in meta-android drive both, but they run after the
+# coldplug and the container's own HAL opens them too, so give them the AOSP
+# ownership up front. connac1x generation, wlan driver gen4m_6789.
+ACTION=="add", KERNEL=="wmtWifi", OWNER="system", GROUP="wifi", MODE="0660"
+ACTION=="add", KERNEL=="stpbt", OWNER="bluetooth", GROUP="net_bt_stack", MODE="0660"
+ACTION=="add", KERNEL=="stpgps", OWNER="gps", GROUP="gps", MODE="0660"
+ACTION=="add", KERNEL=="conninfra_dev", OWNER="system", GROUP="system", MODE="0660"
+
+# --- audio jack ------------------------------------------------------------
+# mt6358-accdet.ko is in the vendor module set. The Droidian port records two
+# headset quirks (3.5 mm needs replugging if present at boot; the mic is always
+# routed from the jack) - re-check both on LuneOS rather than assuming they
+# carry over, since the kernel fork's snd_soc_jack_report quirk is what drives
+# this node.
+ACTION=="add", KERNEL=="accdet", OWNER="system", GROUP="audio", MODE="0660"
+
+# Note: /dev/mali0 is not here. The Q25's GPU node needs the same treatment as
+# kgsl and pvr_sync, which makes it a device-class rule rather than a q25 one -
+# it lives in 65-android.rules.
