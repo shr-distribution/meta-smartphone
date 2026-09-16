@@ -55,3 +55,30 @@ lxc.mount.entry = /apex apex bind rbind,optional 0 0
 # Android 10/11+ devices have them.
 lxc.mount.entry = /odm odm bind bind,optional 0 0
 lxc.mount.entry = /vendor_dlkm vendor_dlkm bind bind,optional 0 0
+
+# Do not unshare the IPC or USER namespaces.
+#
+# LXC clones a fresh IPC namespace by default. On a kernel built without
+# CONFIG_SYSVIPC/CONFIG_IPC_NS and CONFIG_USER_NS, clone(CLONE_NEWIPC) returns
+# EINVAL and the container dies before it ever execs /init:
+#
+#   ERROR start - start.c:lxc_spawn:1743 - Invalid argument -
+#                 Failed to clone a new set of namespaces
+#   ERROR start - start.c:__lxc_start:2083 - Failed to spawn container "android"
+#
+# Those options are not optional to drop: on MediaTek's mgk android12-5.10
+# (MT6789 - q25, mp01) enabling SYSVIPC or USER_NS moves module_layout and every
+# one of the ~345 stock vendor modules then refuses to load, which is measurably
+# fatal - see check-kmi.sh and the KMI-poison list in each device's luneos.cfg.
+# So the kernel cannot provide these namespaces and the container must not ask
+# for them.
+#
+# Verified on the MP01: with this line the container reaches
+#   NOTICE start - start.c:start:2170 - Exec'ing "/init"
+# and Android's init goes on to populate /data.
+#
+# Harmless on kernels that do have the namespaces - it only means the container
+# shares the host's, which for a single-container Halium system is what happens
+# in practice anyway (the net namespace is already shared, just above, so the
+# RIL can see the interfaces).
+lxc.namespace.keep = ipc user

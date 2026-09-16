@@ -503,13 +503,6 @@ load_vendor_dlkm_modules() {
 #                         (mcupm, gpueb, tinysys_ipi, rpmsg_mbox, mbox, ssc), so
 #                         naming fhctl here is enough - the resolver below pulls
 #                         the rest.
-#   connfem / wmt_drv /  Wi-Fi, Bluetooth and GPS all sit behind MediaTek's
-#   wmt_chrdev_wifi /    connsys stack, and none of them exist until it is
-#   wlan_drv_gen4m_6789  loaded: no /dev/wmtdetect, no /dev/stpbt, and
-#   bt_drv_connac1x /    vendor.connsys.driver.ready stays "no" forever. The BT
-#   gps_drv_stp          HAL's "init_uart: Can't open /dev/stpbt" and wmt_loader
-#                        spinning on /dev/wmtdetect are both just this. wlan0
-#                        appears once something writes 1 to /dev/wmtWifi.
 #   scp / sensorhub /    the sensors. MediaTek runs them on the SCP, so the
 #   hf_manager           co-processor has to come up before the hub does.
 #   snd-soc-* / audio_ipi / the audio card. mt6789-mt6366 is the machine driver
@@ -518,45 +511,39 @@ load_vendor_dlkm_modules() {
 #   mtk-scp-audio /      speaker-amp detail, because mt6789-mt6366 imports
 #   mt6789-mt6366        mtk_spk_get_type and friends from it and will not load
 #                        without it.
-# NOT here, deliberately: ccci_md_all (the modem interface). It loads and
-# creates the ccci character devices and the ccmni interfaces, but on the MP01 a
-# boot with it in this list wedges PID 1 - systemd sits in uninterruptible sleep
-# (state D), the journal stops around 81s while the device stays up, and the bus
-# goes away ("Failed to retrieve unit state: Transport endpoint is not
-# connected"). The last thing logged before the stall is ccci closing ttyC2 on a
-# POSIX timer. Cellular needs the modem started properly rather than the module
+#
+# NOT here at all, deliberately: connfem, wmt_drv, wmt_chrdev_wifi,
+# wlan_drv_gen4m_6789, bt_drv_connac1x, gps_drv_stp - the whole MediaTek connsys
+# family (Wi-Fi/Bluetooth/GPS). They were here for one day (16 Sep 2026) and came
+# back out once the reason they seemed necessary turned out to be something else
+# entirely - see mp01-notes.md. In short: loading wlan_drv_gen4m_6789 and
+# bt_drv_connac1x together, in whatever order this function's own dependency
+# resolution happens to produce, corrupts the DMASHDL hardware queues the two
+# share and crash-loops the whole combo chip ("RST_FW_DL_FAIL" every ~6s,
+# forever) - which is also why /dev/stpbt kept returning I/O errors: the chip
+# never stayed up long enough for BT to attach. The vendor's own init.*.rc files
+# load these in a specific two-stage order (wmt_drv + connfem on boot, then
+# wlan/bt/gps together once vendor.connsys.driver.ready=yes) precisely to avoid
+# this, and mount-android.sh's dependency-closure loader has no way to know
+# that ordering matters here - it is a hazard specific to this one module family,
+# not a property of module loading in general.
+#
+# mtk-connectivity (a sibling recipe, RDEPENDS'd by this package) owns them
+# instead: it derives the same rc order the vendor uses straight out of the
+# vendor's own init.*.rc files, which sidesteps the DMASHDL conflict, and it
+# also seeds Bluetooth's board address from the MediaTek nvram blob
+# (bluebinder cannot read the property paths MTK ships instead) - see that
+# recipe for both.
+#
+# Also NOT here: ccci_md_all (the modem interface). It loads and creates the
+# ccci character devices and the ccmni interfaces, but on the MP01 a boot with
+# it in this list wedges PID 1 - systemd sits in uninterruptible sleep (state
+# D), the journal stops around 81s while the device stays up, and the bus goes
+# away ("Failed to retrieve unit state: Transport endpoint is not connected").
+# The last thing logged before the stall is ccci closing ttyC2 on a POSIX
+# timer. Cellular needs the modem started properly rather than the module
 # merely inserted, so it wants its own investigation, not a line here.
-#
-# All of the above were loaded by hand on a running MP01 first, in dependency
-# order, and none failed to insert. That turned out NOT to be sufficient, and
-# they are deliberately not in the list below - see the next paragraph.
-#
-# MEASURED, 16 Sep 2026: adding them breaks the boot, and not because any of them
-# misbehaves. They are simply slow. The Wi-Fi set alone took about 90 seconds to
-# insert with its dependency closure, and that time lands squarely on the
-# critical path, because this function runs before the compositor:
-#
-#   narrow list                     surface-manager active at  ~70s   boots
-#   + connsys (6 named, 26 total)   started 109s, still starting 177s  device
-#                                                                      power-cycles
-#   + sensors + audio               never starts                       PID 1 wedged
-#
-# RETRACTED the same day, and the retraction is the useful part: they do not
-# break the boot. They are slow, and that delay was fatal only because sleepd was
-# running "shutdown -h now" at ~198s on any boot that had not finished (see
-# mp01-notes.md). With sleepd stopped the full list boots cleanly - surface
-# manager active at 69s with zero restarts, /dev/wmtWifi and /dev/stpbt present
-# by 29s, hci0 up, /dev/hf_manager present - so they are in the list now.
-#
-# They do still sit on the critical path, and forty seconds of boot spent
-# inserting modules the UI does not need would be better in a unit ordered after
-# the compositor. That is a refinement, not a correctness problem.
-#
-# Still NOT here: ccci_md_all (the modem). That one is a real casualty rather
-# than a timing artefact - a boot with it wedges PID 1 in uninterruptible sleep,
-# the journal stops around 81s and the bus goes away. Cellular needs the modem
-# brought up properly, not the module merely inserted.
-VENDOR_DLKM_MODULES="${VENDOR_DLKM_MODULES:-nvmem-mt635x-efuse.ko gt9886.ko gt9896s.ko focaltech_touch.ko mtk_gpufreq_mt6789.ko mali_mgm_mt6789.ko mali_prot_alloc_mt6789.ko fhctl.ko mali_kbase_mt6789.ko connfem.ko wmt_drv.ko wmt_chrdev_wifi.ko wlan_drv_gen4m_6789.ko bt_drv_connac1x.ko gps_drv_stp.ko scp.ko sensorhub.ko hf_manager.ko audio_ipi.ko snd-soc-mtk-common.ko snd-soc-mt6366.ko snd-soc-mt6789-afe.ko mtk-sp-spk-amp.ko mt6358-accdet.ko snd-soc-audiodsp-common.ko mtk-scp-audio.ko snd-soc-mtk-scp-ultra.ko mtk-scp-ultra.ko mt6789-mt6366.ko}"
+VENDOR_DLKM_MODULES="${VENDOR_DLKM_MODULES:-nvmem-mt635x-efuse.ko gt9886.ko gt9896s.ko focaltech_touch.ko mtk_gpufreq_mt6789.ko mali_mgm_mt6789.ko mali_prot_alloc_mt6789.ko fhctl.ko mali_kbase_mt6789.ko scp.ko sensorhub.ko hf_manager.ko audio_ipi.ko snd-soc-mtk-common.ko snd-soc-mt6366.ko snd-soc-mt6789-afe.ko mtk-sp-spk-amp.ko mt6358-accdet.ko snd-soc-audiodsp-common.ko mtk-scp-audio.ko snd-soc-mtk-scp-ultra.ko mtk-scp-ultra.ko mt6789-mt6366.ko}"
 
     if [ "$VENDOR_DLKM_MODULES" = "all" ]; then
         _todo=$(sed 's/#.*//; s/[[:space:]]//g; /^$/d' "$_d/modules.load")

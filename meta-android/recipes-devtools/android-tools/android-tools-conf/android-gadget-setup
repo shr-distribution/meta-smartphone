@@ -93,7 +93,7 @@ usb_setup_configfs() {
     echo $USB_FUNCTIONS | grep -q "adb" && ln -s $GADGET_DIR/g1/functions/ffs.adb $GADGET_DIR/g1/configs/c.1
 
     if echo $USB_FUNCTIONS | grep -q "rndis"; then
-        write $GADGET_DIR/g1/UDC "$(ls /sys/class/udc)"
+        write $GADGET_DIR/g1/UDC "$(first_real_udc)"
         
         # Setup usb IP address
         IP=172.16.42.2/16
@@ -105,8 +105,44 @@ usb_setup_configfs() {
             break
         done
     elif echo $USB_FUNCTIONS | grep -q "adb"; then
-       (usleep 1000000 ; write $GADGET_DIR/g1/UDC "$(ls /sys/class/udc)")&
+       (usleep 1000000 ; write $GADGET_DIR/g1/UDC "$(first_real_udc)")&
     fi
+}
+
+# Pick a UDC the gadget can actually bind to.
+#
+# "$(ls /sys/class/udc)" assumes exactly one controller. The MP01 has two:
+#
+#   $ ls /sys/class/udc
+#   dummy_udc.0  musb-hdrc
+#
+# so the write became the two names with whitespace between them, the kernel
+# rejected it, the gadget never bound, and there was no adb at all - with the
+# only trace being this in the journal:
+#
+#   android-gadget-setup: === Writing dummy_udc.0
+#   musb-hdrc into /sys/kernel/config/usb_gadget/g1/UDC
+#
+# dummy_udc.0 is no use even when it parses: it accepts the bind and does
+# nothing. Skip it and take the first real controller. Iterate the directory
+# rather than parsing ls - busybox ls column-formats even into a pipe, which is
+# the same trap one layer down.
+first_real_udc() {
+    for _u in /sys/class/udc/*; do
+        [ -e "$_u" ] || continue
+        _n=${_u##*/}
+        case "$_n" in *dummy*) continue ;; esac
+        echo "$_n"
+        return 0
+    done
+    # Nothing but dummy: fall back to it rather than writing an empty string,
+    # so the failure shows up as a dead gadget and not a confusing write error.
+    for _u in /sys/class/udc/*; do
+        [ -e "$_u" ] || continue
+        echo "${_u##*/}"
+        return 0
+    done
+    return 1
 }
 
 # This sets up the USB with whatever USB_FUNCTIONS are set to via android_usb

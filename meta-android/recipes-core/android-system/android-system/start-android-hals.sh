@@ -67,7 +67,25 @@ SKIP_SERVICES="bootanim bootanimation"
 # input threads, so the UI never comes up at all. The service is required; the
 # problem is purely that it opens /dev/dri/card0 first. See the ordering note in
 # android-system.service for how that race is actually addressed.
-DISPLAY_CONFLICT_MATCH="bootanimation surfaceflinger"
+#   - /system/bin/charger is Halium's own charging UI, from init.halium.rc:
+#
+#         on charger
+#             start charger
+#         service charger /system/bin/charger
+#             class charger
+#
+#     It opens /dev/dri/card0 and takes DRM master to draw the battery
+#     animation, and never gives it back - so the compositor can never become
+#     master and sits in a retry loop forever: one thread in nanosleep, with
+#     "Failed to become drm master" flooding logcat. It also respawns, so
+#     killing it by hand is useless.
+#
+#     Most devices never hit this because they only enter charger mode when
+#     genuinely powered off, and then the distro is not running anyway
+#     (Droidian boots Android outright for bootreason charger|usb). The MP01
+#     never truly powers off - holding power reboots it - so *every* boot with
+#     a cable attached is a charger-mode boot and this fires every time.
+DISPLAY_CONFLICT_MATCH="bootanimation surfaceflinger /system/bin/charger"
 
 command -v setprop >/dev/null 2>&1 || { echo "setprop not available, skipping"; exit 0; }
 
