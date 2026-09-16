@@ -55,26 +55,6 @@ ANDROID_BOOTIMG_DEBUG_CMDLINE ?= "enable_adb"
 
 INITRAMFS_NAME ?= "initramfs-android-image-${MACHINE}.cpio.gz"
 
-# How the ramdisk is compressed inside the boot image.
-#
-# "gzip" keeps initramfs-android-image's own cpio.gz, which is what bluejay and
-# panther have always shipped. "lz4-legacy" decompresses it and repacks it as
-# LZ4 *legacy* format.
-#
-# Why that is a real option and not a preference: the bootloader hands the
-# kernel the vendor_boot ramdisk and this one concatenated, and the kernel's
-# unpacker re-detects the compressor for each segment - so a gzip generic
-# ramdisk behind an lz4 vendor ramdisk is supposed to work. AOSP nonetheless
-# requires them to match ("a device that is GKI-compliant must use an
-# lz4-compressed vendor ramdisk", since the generic ramdisk is lz4), and on a
-# device where the whole stock chain is lz4 it is one fewer thing to be wrong.
-#
-# It must be LEGACY lz4 (magic 02 21 4c 18), not the modern frame format
-# (04 22 4d 18): lib/decompress_unlz4.c only knows the legacy magic. `lz4 -l`
-# is what produces it; plain `lz4 -9` does not.
-GKI_RAMDISK_COMPRESSION ?= "gzip"
-DEPENDS += "${@'lz4-native' if d.getVar('GKI_RAMDISK_COMPRESSION') == 'lz4-legacy' else ''}"
-
 # The kernel lives outside the build directory, so bitbake cannot see it change
 # on its own. Hashing the file itself is what makes a new kernel rebuild the
 # images instead of returning a stale sstate result.
@@ -102,26 +82,6 @@ python do_deploy() {
     initramfs = os.path.join(d.getVar("DEPLOY_DIR_IMAGE"), d.getVar("INITRAMFS_NAME"))
     if not os.path.exists(initramfs):
         bb.fatal("Required initramfs image %s is not available!" % initramfs)
-
-    # Repack the ramdisk if this machine's stock chain is lz4. See
-    # GKI_RAMDISK_COMPRESSION above for why legacy format specifically.
-    if (d.getVar("GKI_RAMDISK_COMPRESSION") or "gzip") == "lz4-legacy":
-        import gzip
-        import shutil
-        import subprocess
-        raw = os.path.join(d.getVar("WORKDIR"), "ramdisk.cpio")
-        with gzip.open(initramfs, "rb") as fi, open(raw, "wb") as fo:
-            shutil.copyfileobj(fi, fo)
-        packed = os.path.join(d.getVar("WORKDIR"), "ramdisk.cpio.lz4")
-        subprocess.run(["lz4", "-q", "-f", "-l", "-12", raw, packed], check=True)
-        os.unlink(raw)
-        with open(packed, "rb") as f:
-            if f.read(4) != b"\x02\x21\x4c\x18":
-                bb.fatal("%s is not LZ4 legacy format - the kernel will not "
-                         "unpack it. Check that this lz4 supports -l." % packed)
-        bb.note("repacked ramdisk as LZ4 legacy (%d -> %d bytes)"
-                % (os.path.getsize(initramfs), os.path.getsize(packed)))
-        initramfs = packed
 
     hv = int(d.getVar("ANDROID_BOOTIMG_HEADER_VERSION"))
     osver = int(d.getVar("ANDROID_BOOTIMG_OS_VERSION"), 0)
