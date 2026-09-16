@@ -203,7 +203,35 @@ do_compile() {
         Image.gz modules
 }
 
-do_install[noexec] = "1"
+# Ship the patched display driver in the initramfs, where it REPLACES the
+# vendor's copy.
+#
+# The bootloader concatenates the vendor_boot ramdisk and ours and later archives
+# win, so a file at lib/modules/mediatek-drm.ko in this image substitutes for the
+# vendor's, and init.sh's load_kernel_modules() then inserts ours in the correct
+# dependency order. /override/modules cannot be used for this: it runs *before*
+# the vendor set, and mediatek-drm imports 487 symbols from vendor modules that
+# do not exist yet, so insmod fails and the vendor copy loads regardless.
+#
+# mp01.conf adds this package to ANDROID_EXTRA_INITRAMFS_IMAGE_INSTALL.
+do_install() {
+    install -d ${D}${nonarch_base_libdir}/modules
+    install -m 0644 ${B}/drivers/gpu/drm/mediatek/mediatek_v2/mediatek-drm.ko \
+        ${D}${nonarch_base_libdir}/modules/mediatek-drm.ko
+    # 37MB unstripped against the vendor's 5.8MB, and an unstripped .ko also
+    # trips the debug-files QA check.
+    ${@gki_clang_bin(d).split(':')[0]}/llvm-strip --strip-debug \
+        ${D}${nonarch_base_libdir}/modules/mediatek-drm.ko
+}
+
+FILES:${PN} = "${nonarch_base_libdir}/modules/mediatek-drm.ko"
+
+# We strip it ourselves with the toolchain that built it; OE's own strip and
+# debug-split do not understand a module built outside its cross environment.
+INHIBIT_PACKAGE_STRIP = "1"
+INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
+# A kernel module legitimately records the build path it was compiled in.
+INSANE_SKIP:${PN} += "buildpaths"
 
 do_deploy() {
     install -d ${DEPLOYDIR}
@@ -233,12 +261,9 @@ do_deploy() {
     # Strip it: the unstripped module is 37MB against the vendor's 5.8MB, and an
     # unstripped .ko also trips the buildpaths and debug-files QA checks.
     #
-    # TODO: nothing consumes this yet. gki_bootimg.bbclass takes the initramfs
-    # whole from initramfs-android-image, so getting this file into that cpio
-    # still needs doing - until then the working boot image is hand-repacked (see
-    # mp01-notes.md for the two traps: the ramdisk is LZ4 *legacy*, and repacking
-    # it as a normal user drops the device nodes, so append a second cpio archive
-    # rather than rebuilding the first).
+    # Also deployed loose, for check-kmi.sh and for hand-repacking a ramdisk when
+    # bisecting. The copy that actually reaches the device comes from do_install
+    # via the initramfs - see above.
     install -d ${DEPLOYDIR}/modules
     install -m 0644 ${B}/drivers/gpu/drm/mediatek/mediatek_v2/mediatek-drm.ko \
         ${DEPLOYDIR}/modules/mediatek-drm.ko

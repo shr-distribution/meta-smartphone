@@ -3,8 +3,12 @@ Description=MediaTek Bluetooth bring-up (nvram MAC + container HAL owner)
 After=android-system.service mtk-connectivity-modules.service
 Requires=android-system.service
 Conflicts=shutdown.target actdead.target
-ConditionPathExists=|/android/vendor/lib/modules/bt_drv.ko
-ConditionPathExists=|/android/vendor/lib/modules/conninfra.ko
+# Globs, not exact names. The WMT era ships bt_drv.ko; the connac era ships
+# bt_drv_<platform>.ko (bt_drv_connac1x.ko on mt6789) and no conninfra.ko at
+# all, so the exact-name conditions matched nothing there and this unit was
+# silently skipped.
+ConditionPathExistsGlob=|/android/vendor/lib/modules/bt_drv*.ko
+ConditionPathExistsGlob=|/android/vendor/lib/modules/conninfra*.ko
 
 [Service]
 Type=oneshot

@@ -91,3 +91,10 @@ deviceinfo_device_pixel_ratio="1.333"
 # enough on its own: it is applied and then overridden by the configd value, so
 # the two must agree and this is the one that wins.
 deviceinfo_compositor_geometry="800x600+0+0r270s1"
+
+# Do not let the compositor open the hwcomposer HAL a second time; the Android
+# composer service already has it, and on MediaTek the second HWCMediator fights
+# it for DRM master forever. 20-surface-manager-env turns this into
+# QT_QPA_FORCE_HWC2=1. The touch rotation is derived from
+# deviceinfo_compositor_geometry above and needs no separate key.
+deviceinfo_force_hwc2="1"
