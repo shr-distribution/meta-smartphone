@@ -541,14 +541,22 @@ load_vendor_dlkm_modules() {
 #                                                                      power-cycles
 #   + sensors + audio               never starts                       PID 1 wedged
 #
-# The MP01 has an unidentified power-off that fires around 190s into a boot that
-# has not completed (systemd-logind receives PowerOffWithFlags from a short-lived
-# client - see mp01-notes.md), so anything that delays the UI past that point
-# turns into a reboot loop rather than a slow boot. Loading these modules is the
-# right thing to do, but it has to happen off the critical path - after the
-# compositor is up, the way camera-droid-heal was moved - and that wants its own
-# unit rather than a longer list here.
-VENDOR_DLKM_MODULES="${VENDOR_DLKM_MODULES:-nvmem-mt635x-efuse.ko gt9886.ko gt9896s.ko focaltech_touch.ko mtk_gpufreq_mt6789.ko mali_mgm_mt6789.ko mali_prot_alloc_mt6789.ko fhctl.ko mali_kbase_mt6789.ko}"
+# RETRACTED the same day, and the retraction is the useful part: they do not
+# break the boot. They are slow, and that delay was fatal only because sleepd was
+# running "shutdown -h now" at ~198s on any boot that had not finished (see
+# mp01-notes.md). With sleepd stopped the full list boots cleanly - surface
+# manager active at 69s with zero restarts, /dev/wmtWifi and /dev/stpbt present
+# by 29s, hci0 up, /dev/hf_manager present - so they are in the list now.
+#
+# They do still sit on the critical path, and forty seconds of boot spent
+# inserting modules the UI does not need would be better in a unit ordered after
+# the compositor. That is a refinement, not a correctness problem.
+#
+# Still NOT here: ccci_md_all (the modem). That one is a real casualty rather
+# than a timing artefact - a boot with it wedges PID 1 in uninterruptible sleep,
+# the journal stops around 81s and the bus goes away. Cellular needs the modem
+# brought up properly, not the module merely inserted.
+VENDOR_DLKM_MODULES="${VENDOR_DLKM_MODULES:-nvmem-mt635x-efuse.ko gt9886.ko gt9896s.ko focaltech_touch.ko mtk_gpufreq_mt6789.ko mali_mgm_mt6789.ko mali_prot_alloc_mt6789.ko fhctl.ko mali_kbase_mt6789.ko connfem.ko wmt_drv.ko wmt_chrdev_wifi.ko wlan_drv_gen4m_6789.ko bt_drv_connac1x.ko gps_drv_stp.ko scp.ko sensorhub.ko hf_manager.ko audio_ipi.ko snd-soc-mtk-common.ko snd-soc-mt6366.ko snd-soc-mt6789-afe.ko mtk-sp-spk-amp.ko mt6358-accdet.ko snd-soc-audiodsp-common.ko mtk-scp-audio.ko snd-soc-mtk-scp-ultra.ko mtk-scp-ultra.ko mt6789-mt6366.ko}"
 
     if [ "$VENDOR_DLKM_MODULES" = "all" ]; then
         _todo=$(sed 's/#.*//; s/[[:space:]]//g; /^$/d' "$_d/modules.load")
