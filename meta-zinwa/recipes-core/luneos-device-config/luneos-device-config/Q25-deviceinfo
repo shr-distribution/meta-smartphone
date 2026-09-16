@@ -1,0 +1,68 @@
+# Tier 1 adaptation for the Zinwa Q25 (MT6789 / Helio G99, 3.5" 720x720).
+#
+# Only what cannot be derived belongs here. Vendor API level, panel geometry
+# and the touchscreen node all derive correctly on a Treble device; what
+# follows is the square panel - whose usable numbers are a layout judgement,
+# not a measurement - and the key devices, which derivation cannot separate on
+# this hardware.
+
+# The power key and the volume rocker, pinned by name.
+#
+# Derivation takes everything claiming KEY_POWER or a volume key that is not
+# the touchscreen, and on the Q25 that over-collects badly: the keyboard is one
+# input device carrying the whole QWERTY *and* the toolbelt keys *and* the
+# trackpad (drivers/input/keyboard/bbqX0kbd registers EV_KEY, EV_REL and
+# BTN_LEFT/RIGHT on the single "Q25_keyboard" node), so it claims volume keys
+# on its Sym layer and would be treated as a key device.
+#
+# These two are the real ones, read from the device's own kernel sources:
+# drivers/input/keyboard/mtk-pmic-keys.c sets input_dev->name =
+# "mtk-pmic-keys" (the PMIC power key) and mtk-kpd.c registers the matrix
+# keypad the volume rocker hangs off. Pinned by name, never by node number -
+# numbering here depends on probe order across ~160 vendor modules.
+#
+# UNVERIFIED: mtk-kpd.c takes its name from KPD_NAME, which is defined in a
+# header this port has not read. If the journal logs that "mtk-kpd" did not
+# resolve, get the right string from
+#   grep -h '^N: Name' /proc/bus/input/devices
+# and correct it here.
+deviceinfo_key_devices_by_name="mtk-pmic-keys;mtk-kpd"
+
+# 3.5" diagonal, 720x720: sqrt(720^2 + 720^2) / 3.5 = 291 ppi.
+#
+# GridUnit = round(dpi * 1.44 / 25.4) = 16, which is 1.40 mm of glass per grid
+# unit against sargo's 1.44 mm - i.e. the shell chrome comes out the same
+# physical size as on a device where it is known to fit. In grid units the
+# screen is 720/16 = 45 wide against sargo's 43, so the fixed-size system menu
+# (Units.gu(40) = 640 px) fits the 720 px width with margin.
+#
+# For contrast, LineageOS ships TARGET_SCREEN_DENSITY := 193 on this device,
+# which would give GridUnit 11 - a third smaller than sargo in physical terms.
+# That is a reasonable choice for Android's scrolling lists and a poor one for
+# webOS's fixed chrome, so it is recorded here rather than copied.
+#
+# UNVERIFIED ON HARDWARE. sargo needed a device pixel ratio well away from its
+# natural one; expect to re-tune both of these.
+deviceinfo_display_dpi="291"
+
+# webOS apps are fixed-layout Enyo pages, so the ratio decides how many CSS
+# pixels they are handed. 720 / 1.6 = 450, exactly the canvas width sargo
+# targets (1080 / 2.4) and what the pages are built for.
+#
+# The height is the part with no good answer: 450 CSS px tall as well, against
+# the ~1000 a portrait phone gives. Pages that scroll are fine; pages with a
+# fixed footer will be tight. If that proves worse than small text, 1.875
+# (= 384 CSS px square) trades width for headroom.
+deviceinfo_device_pixel_ratio="1.6"
+
+# Deliberately absent:
+#
+#   deviceinfo_video_call
+#       The 8 MP front camera is real and the MediaTek camera HAL enumerates
+#       it; leave derivation to decide once it has been shown to deliver
+#       frames. mindphone is the precedent for closing this off when the
+#       cameras enumerate but do not work.
+#
+#   deviceinfo_touchscreen_by_name
+#       mtk_touchscreen_hodafonehw.ko is the only touch device on the bus, so
+#       derivation cannot pick the wrong one.
