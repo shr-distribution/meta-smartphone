@@ -403,4 +403,273 @@ if [ -d "$ANDROID_ROOT/system/apex" ] && command -v mount-apexes.py >/dev/null 2
         || log "WARNING: APEX mounting reported errors"
 fi
 
+# --- vendor_dlkm kernel modules ---------------------------------------------
+# A vendor ships its kernel modules in two sets, and only one of them is the
+# initramfs's job:
+#
+#   vendor_boot ramdisk   loaded by the initramfs, early, to reach storage
+#   vendor_dlkm           loaded by Android's init, later, from this partition
+#
+# Halium curtails the container's init long before it reaches the second, so on
+# a stock Halium boot the vendor_dlkm set is simply never loaded. On the MP01
+# that is 164 modules - more than the 159 the initramfs loads - and the
+# consequences do not look like "missing modules" at all:
+#
+#   - nvmem-mt635x-efuse.ko is here, and mt635x-auxadc (which IS in the early
+#     set) needs it. Without it the auxadc probe returns -517 forever, the fuel
+#     gauge never comes up, and healthd reports "battery l=-1". lk then paints a
+#     battery with a question mark, decides the device is in charger mode, and
+#     reboots in a loop. Days can be lost reading that as a flat battery.
+#   - the touchscreen drivers (gt9886, gt9896s, focaltech_touch) are here too,
+#     so the panel has no touch at all and luneos-device-config leaves
+#     evdevtouch pointed at its PLACEHOLDER.
+#
+# So load them here, once vendor_dlkm is mounted and before the container's init
+# starts. modules.load is a LIST, not a dependency order - the same trap as in
+# the initramfs - so make repeated passes and let each one resolve what the
+# previous pass made loadable, rather than trusting the file's order.
+load_vendor_dlkm_modules() {
+    # The partition turns up under more than one root depending on which of the
+    # mounts above claimed it first - try_mount_validated puts it at
+    # /vendor_dlkm, while the devicetree-fstab path mounts it under
+    # $ANDROID_ROOT. Guarding on one of them silently skips the whole function,
+    # which is exactly what happened the first time this was written.
+    _d=""
+    for _cand in /vendor_dlkm/lib/modules \
+                 "$ANDROID_ROOT"/vendor_dlkm/lib/modules \
+                 /android/vendor_dlkm/lib/modules; do
+        if [ -f "$_cand/modules.load" ]; then _d="$_cand"; break; fi
+    done
+    [ -n "$_d" ] || { log "vendor_dlkm: no modules.load found, skipping"; return 0; }
+    log "vendor_dlkm: loading modules from $_d"
+
+    # Which of them to load.
+    #
+    # Loading the whole set is what Android does, but Android also has its full
+    # init, ueventd and HALs around them. Here it means pulling in camera
+    # actuators, flashlight drivers and GPIO expanders that nothing on a LuneOS
+    # boot will ever use, on a device that is already fragile - and a single bad
+    # probe costs a whole debug cycle to identify. So default to the modules
+    # that are actually load-bearing and let the rest stay unloaded:
+    #
+    #   nvmem-mt635x-efuse   the fuel gauge's efuse provider. Without it
+    #                        mt635x-auxadc returns -517 forever and healthd
+    #                        reports "battery l=-1", which makes lk paint a
+    #                        battery with a question mark and reboot in a loop.
+    #   gt9886 / gt9896s /   the touchscreen. Which one probes depends on the
+    #   focaltech_touch      panel; loading all three is harmless, the wrong
+    #                        ones simply do not match.
+    #
+    # Default is the narrow list, and that is a measured decision, not caution.
+    #
+    # Loading the whole set is what Android does, but Android has its full init,
+    # ueventd and HAL set around these drivers. Loading all 164 on a LuneOS boot
+    # was tried on the MP01 (15 Sep 2026) and turned a device that reset every
+    # ~104s into a hard bootloop: pairs of 2-3 second boots about 25s apart,
+    # with the journal ending mid-load every time. The set includes camera
+    # actuators, flashlight and GPIO-expander drivers that nothing here will
+    # ever open, and one bad probe is enough.
+    #
+    # So load what is actually load-bearing:
+    #
+    #   nvmem-mt635x-efuse   the fuel gauge's efuse provider. Without it
+    #                        mt635x-auxadc returns -517 forever and healthd
+    #                        reports "battery l=-1", which makes lk paint a
+    #                        battery with a question mark, boot into charger
+    #                        mode, and reset in a loop. Confirmed to probe
+    #                        cleanly ("mt635x_efuse_probe done") once loaded.
+    #   gt9886 / gt9896s /   the touchscreen. Which one probes depends on the
+    #   focaltech_touch      panel; loading all three is harmless, the wrong
+    #                        ones simply do not match.
+    #
+    # VENDOR_DLKM_MODULES=all restores the full set - worth trying when a new
+    # subsystem turns out to be missing, but expect to bisect it.
+    #   mali_kbase_mt6789    the GPU. Without it the Mali userspace fails with
+    #                        "Failed creating base context during opening of
+    #                        kernel driver / Kernel module may not have been
+    #                        loaded", and the compositor segfaults on every
+    #                        start. It pulls in 14 dependencies (ged, gpueb,
+    #                        gpufreq, qos, mbox...), which is why the dependency
+    #                        resolution below exists rather than a hand list.
+    #   fhctl + mcupm         gpufreq's DT node lists "fhctl-supply", and
+#                         MediaTek uses supply phandles as probe-ordering
+#                         dependencies, not just power. Without fhctl the
+#                         gpufreq device never binds, so ged and mali defer
+#                         behind it and there is no /dev/mali0 at all. fhctl in
+#                         turn needs get_mcupm_ipidev from mcupm. Neither is
+#                         pulled in by mali_kbase's own modules.dep entry, which
+#                         is why the GPU stayed dead with every Mali module
+#                         loaded. modules.dep does list fhctl's own deps
+#                         (mcupm, gpueb, tinysys_ipi, rpmsg_mbox, mbox, ssc), so
+#                         naming fhctl here is enough - the resolver below pulls
+#                         the rest.
+#   connfem / wmt_drv /  Wi-Fi, Bluetooth and GPS all sit behind MediaTek's
+#   wmt_chrdev_wifi /    connsys stack, and none of them exist until it is
+#   wlan_drv_gen4m_6789  loaded: no /dev/wmtdetect, no /dev/stpbt, and
+#   bt_drv_connac1x /    vendor.connsys.driver.ready stays "no" forever. The BT
+#   gps_drv_stp          HAL's "init_uart: Can't open /dev/stpbt" and wmt_loader
+#                        spinning on /dev/wmtdetect are both just this. wlan0
+#                        appears once something writes 1 to /dev/wmtWifi.
+#   scp / sensorhub /    the sensors. MediaTek runs them on the SCP, so the
+#   hf_manager           co-processor has to come up before the hub does.
+#   snd-soc-* / audio_ipi / the audio card. mt6789-mt6366 is the machine driver
+#   mtk-sp-spk-amp /     and the one that finally registers the card;
+#   mt6358-accdet /      mtk-sp-spk-amp is not optional despite sounding like a
+#   mtk-scp-audio /      speaker-amp detail, because mt6789-mt6366 imports
+#   mt6789-mt6366        mtk_spk_get_type and friends from it and will not load
+#                        without it.
+# NOT here, deliberately: ccci_md_all (the modem interface). It loads and
+# creates the ccci character devices and the ccmni interfaces, but on the MP01 a
+# boot with it in this list wedges PID 1 - systemd sits in uninterruptible sleep
+# (state D), the journal stops around 81s while the device stays up, and the bus
+# goes away ("Failed to retrieve unit state: Transport endpoint is not
+# connected"). The last thing logged before the stall is ccci closing ttyC2 on a
+# POSIX timer. Cellular needs the modem started properly rather than the module
+# merely inserted, so it wants its own investigation, not a line here.
+#
+# All of the above were loaded by hand on a running MP01 first, in dependency
+# order, and none failed to insert. That turned out NOT to be sufficient, and
+# they are deliberately not in the list below - see the next paragraph.
+#
+# MEASURED, 16 Sep 2026: adding them breaks the boot, and not because any of them
+# misbehaves. They are simply slow. The Wi-Fi set alone took about 90 seconds to
+# insert with its dependency closure, and that time lands squarely on the
+# critical path, because this function runs before the compositor:
+#
+#   narrow list                     surface-manager active at  ~70s   boots
+#   + connsys (6 named, 26 total)   started 109s, still starting 177s  device
+#                                                                      power-cycles
+#   + sensors + audio               never starts                       PID 1 wedged
+#
+# The MP01 has an unidentified power-off that fires around 190s into a boot that
+# has not completed (systemd-logind receives PowerOffWithFlags from a short-lived
+# client - see mp01-notes.md), so anything that delays the UI past that point
+# turns into a reboot loop rather than a slow boot. Loading these modules is the
+# right thing to do, but it has to happen off the critical path - after the
+# compositor is up, the way camera-droid-heal was moved - and that wants its own
+# unit rather than a longer list here.
+VENDOR_DLKM_MODULES="${VENDOR_DLKM_MODULES:-nvmem-mt635x-efuse.ko gt9886.ko gt9896s.ko focaltech_touch.ko mtk_gpufreq_mt6789.ko mali_mgm_mt6789.ko mali_prot_alloc_mt6789.ko fhctl.ko mali_kbase_mt6789.ko}"
+
+    if [ "$VENDOR_DLKM_MODULES" = "all" ]; then
+        _todo=$(sed 's/#.*//; s/[[:space:]]//g; /^$/d' "$_d/modules.load")
+    else
+        # Expand each requested module to itself plus everything modules.dep
+        # says it needs, transitively. insmod - unlike modprobe - will not do
+        # this for us, and modprobe cannot be used here: it wants the modules
+        # under <dir>/lib/modules/$(uname -r)/, which would mean creating a
+        # symlink inside a read-only mount.
+        _todo=""
+        _pending="$VENDOR_DLKM_MODULES"
+        while [ -n "$_pending" ]; do
+            _cur=$(echo "$_pending" | awk '{print $1}')
+            _pending=$(echo "$_pending" | cut -s -d' ' -f2-)
+            case " $_todo " in *" $_cur "*) continue ;; esac
+            _todo="$_todo $_cur"
+            for _dep in $(sed -n "s|^[^ ]*/$_cur: *||p" "$_d/modules.dep" 2>/dev/null |
+                          head -n 1 | tr ' ' '\n' | sed 's|.*/||; /^$/d'); do
+                case " $_todo $_pending " in
+                    *" $_dep "*) ;;
+                    *) _pending="$_pending $_dep" ;;
+                esac
+            done
+        done
+        log "vendor_dlkm: $(echo $VENDOR_DLKM_MODULES | wc -w) requested, $(echo $_todo | wc -w) with dependencies"
+    fi
+    _pass=0
+    # The bound is just a backstop: the loop already stops the moment a pass
+    # loads nothing new, so it costs nothing to make it generous. It was 6, and
+    # that was too few - loading the Mali stack was still resolving two modules
+    # per pass when it ran out ("pass 6 loaded 2, 1 left"), leaving mali_kbase
+    # unloaded and the GPU dead for want of one more iteration.
+    while [ -n "$_todo" ] && [ "$_pass" -lt 24 ]; do
+        _failed=""
+        _loaded=0
+        for _m in $_todo; do
+            [ -f "$_d/$_m" ] || continue
+            if insmod "$_d/$_m" 2>/dev/null; then
+                _loaded=$((_loaded + 1))
+            else
+                # Already loaded counts as success; anything else waits for a
+                # later pass, when its dependency may have appeared.
+                if grep -q "^${_m%.ko}[[:space:]]" /proc/modules 2>/dev/null ||
+                   grep -q "^$(echo "${_m%.ko}" | tr '-' '_')[[:space:]]" /proc/modules 2>/dev/null; then
+                    _loaded=$((_loaded + 1))
+                else
+                    _failed="$_failed $_m"
+                fi
+            fi
+        done
+        _pass=$((_pass + 1))
+        log "vendor_dlkm: pass $_pass loaded $_loaded, $(echo $_failed | wc -w) left"
+        # No progress means the rest cannot load however many passes we make.
+        [ "$_loaded" -eq 0 ] && break
+        _todo="$_failed"
+    done
+    [ -n "$_todo" ] && log "vendor_dlkm: not loaded:$_todo"
+
+    # Give the modules we actually asked for a second probe.
+    #
+    # A module can load fine and still not bind to its device. On the MP01,
+    # mali_kbase loads on the last pass - by definition after everything it
+    # depends on - and its probe returns -517 (EPROBE_DEFER) because the
+    # dependency was not there yet when the device was first matched:
+    #
+    #   probe of 13000000.mali returned -517 after 3 usecs
+    #
+    # The kernel retries deferred probes whenever a new driver registers, but
+    # this was the last insmod, so nothing ever triggered the retry. The driver
+    # is resident, the dependencies are resident, and /dev/mali0 still never
+    # appears - which the compositor reports as "Failed creating base context
+    # during opening of kernel driver".
+    #
+    # Re-inserting the requested modules once, now that the whole set is up,
+    # gives each a clean match. Only the explicitly requested ones: the
+    # dependency closure is what they need in place, not what needs re-probing.
+    # No re-probe pass here, deliberately.
+    #
+    # An earlier version re-inserted each requested module once the whole set
+    # was resident, to shake loose a mali probe that had deferred. That deferral
+    # turned out to be caused by fhctl/mcupm missing, and once those load the
+    # mali device binds on its first try. Re-inserting it after that is actively
+    # harmful: the rmmod tears down a working mali0 and the fresh insmod comes
+    # back as "Probed as mali1" with no device node at all.
+    #
+    # If something here ever defers again, find what it is waiting for
+    # (/sys/kernel/debug/devices_deferred) rather than re-probing blindly.
+    return 0
+}
+
+load_vendor_dlkm_modules
+
+# Point libprocessgroup at the container's cgroup descriptions.
+#
+# Every Android library we load through libhybris pulls in libprocessgroup, and
+# it reads its two descriptions from /etc on the *host* side - where nothing
+# ships them. The result is a wall of noise in logcat from every hybris client,
+# surface-manager included:
+#
+#   E /usr/bin/surface-manager: Failed to read task profiles from /etc/cgroups.json
+#   E libprocessgroup: CgroupMap::LoadDescriptors called for [N] failed
+#   E libprocessgroup: CgroupMap::FindController called for [N] failed, cgroups
+#                      were not initialized properly
+#   W libprocessgroup: JoinCgroup: controller blkio is not found
+#
+# repeated for every controller and every profile lookup. The container ships
+# both files, and they describe the same cgroup layout the host mounted, so
+# symlinking is enough - with them in place the same process logs none of it.
+#
+# Not fatal either way: the profile calls fail closed and nothing depends on
+# them (see the SetTaskProfiles hook in libhybris). This is about being able to
+# read logcat.
+link_cgroup_descriptions() {
+    for _f in cgroups.json task_profiles.json; do
+        [ -e "$ANDROID_ROOT/system/etc/$_f" ] || continue
+        [ -e "/etc/$_f" ] && continue
+        ln -sf "$ANDROID_ROOT/system/etc/$_f" "/etc/$_f" 2>/dev/null &&
+            log "linked /etc/$_f -> $ANDROID_ROOT/system/etc/$_f"
+    done
+}
+
+link_cgroup_descriptions
+
 exit 0
