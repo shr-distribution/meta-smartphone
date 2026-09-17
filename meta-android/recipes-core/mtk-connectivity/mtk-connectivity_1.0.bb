@@ -19,6 +19,7 @@ S = "${UNPACKDIR}"
 SRC_URI = " \
     file://mtk-load-modules.sh \
     file://mtk-bt-address.sh \
+    file://mtk-bt-bringup.sh \
     file://mtk-connectivity-modules.service \
     file://mtk-connectivity-wifi.service \
     file://mtk-connectivity-bt.service \
@@ -30,6 +31,7 @@ do_install() {
     install -d ${D}${sbindir} ${D}${bindir}
     install -m 0755 ${UNPACKDIR}/mtk-load-modules.sh ${D}${sbindir}/mtk-load-modules.sh
     install -m 0755 ${UNPACKDIR}/mtk-bt-address.sh   ${D}${bindir}/mtk-bt-address.sh
+    install -m 0755 ${UNPACKDIR}/mtk-bt-bringup.sh   ${D}${bindir}/mtk-bt-bringup.sh
 
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${UNPACKDIR}/mtk-connectivity-modules.service ${D}${systemd_system_unitdir}
@@ -48,4 +50,4 @@ SYSTEMD_SERVICE:${PN} = " \
 RDEPENDS:${PN} = "kmod util-linux-hexdump lxc"
 RRECOMMENDS:${PN} = "rfkill"
 
-FILES:${PN} = "${sbindir}/mtk-load-modules.sh ${bindir}/mtk-bt-address.sh"
+FILES:${PN} = "${sbindir}/mtk-load-modules.sh ${bindir}/mtk-bt-address.sh ${bindir}/mtk-bt-bringup.sh"
