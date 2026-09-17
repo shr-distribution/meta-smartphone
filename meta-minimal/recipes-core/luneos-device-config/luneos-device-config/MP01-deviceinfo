@@ -124,3 +124,10 @@ deviceinfo_audio_sample_rate="48000"
 # bit in bluebinder. Verified on hardware: hci0 UP RUNNING, scans find
 # classic and LE devices.
 deviceinfo_bluebinder_ext_features_page_2_mask="0x0400000000000000"
+
+# The E Ink panel is reflective: daylight makes it easier to read, not harder,
+# so the frontlight should drop outdoors rather than go up. The generic 250%
+# took the default 40% setting to full brightness the moment the light sensor
+# reported "Bright". 25% of the setting leaves a faint wash for shade and
+# otherwise gets out of the way.
+deviceinfo_backlight_outdoor_scale="25"
