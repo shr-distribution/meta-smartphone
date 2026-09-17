@@ -1012,8 +1012,32 @@ replace_vendor_modules
 echo "Loading override modules" > /dev/kmsg
 load_override_modules
 
+# Take the backlight/frontlight down to a sane level as soon as its driver is
+# there, instead of leaving whatever the bootloader and the driver's probe chose
+# until the UI's display manager takes over some 15 seconds later.
+#
+# On the MP01 lk lights the frontlight at full for the boot logo, and leds_mtk
+# then probes at 32 of 80 and stays there until LunaDisplayManager sets the
+# user's level - bright enough to be unpleasant in a dark room. Opt-in per
+# machine: set boot_backlight_node and boot_backlight_level in machine.conf.
+set_boot_backlight() {
+    [ -n "$boot_backlight_node" ] && [ -n "$boot_backlight_level" ] || return 0
+    # The LED driver can still be finishing its probe; give it a second.
+    _i=0
+    while [ ! -w "$boot_backlight_node" ] && [ $_i -lt 10 ]; do
+        usleep 100000
+        _i=$((_i+1))
+    done
+    if echo "$boot_backlight_level" > "$boot_backlight_node" 2>/dev/null; then
+        tell_kmsg "initrd: backlight set to $boot_backlight_level via $boot_backlight_node"
+    else
+        tell_kmsg "initrd: could not set backlight via $boot_backlight_node"
+    fi
+}
+
 echo "Loading kernel modules" > /dev/kmsg
 load_kernel_modules
+set_boot_backlight
 mirror_trusty_log
 
 echo "Starting mdev" > /dev/kmsg
