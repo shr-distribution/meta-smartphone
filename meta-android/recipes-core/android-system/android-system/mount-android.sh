@@ -233,14 +233,21 @@ fi
 # before starting. Droidian binds both in from the host with optional entries
 # and so do we now. Neither exists on an Android 9 device, and neither exists on
 # sargo, so the entries stay optional and this is a no-op where they are absent.
+# The _a/_b fallbacks are what Droidian tries too: the device-mapper name comes
+# from the super metadata, not the running slot. The MP01 boots slot b and still
+# gets dynpart-vendor_dlkm_a, so the suffixed name alone never matched.
 try_mount_validated /vendor_dlkm "/etc/build.prop" \
     "/dev/mapper/dynpart-vendor_dlkm$ab_slot_suffix" \
     "/dev/mapper/dynpart-vendor_dlkm" \
+    "/dev/mapper/dynpart-vendor_dlkm_a" \
+    "/dev/mapper/dynpart-vendor_dlkm_b" \
     >/dev/null 2>&1
 
 try_mount_validated /odm "/etc" \
     "/dev/mapper/dynpart-odm$ab_slot_suffix" \
     "/dev/mapper/dynpart-odm" \
+    "/dev/mapper/dynpart-odm_a" \
+    "/dev/mapper/dynpart-odm_b" \
     "$(find_partition_path odm)" \
     >/dev/null 2>&1
 
@@ -543,7 +550,21 @@ load_vendor_dlkm_modules() {
 # The last thing logged before the stall is ccci closing ttyC2 on a POSIX
 # timer. Cellular needs the modem started properly rather than the module
 # merely inserted, so it wants its own investigation, not a line here.
-VENDOR_DLKM_MODULES="${VENDOR_DLKM_MODULES:-nvmem-mt635x-efuse.ko gt9886.ko gt9896s.ko focaltech_touch.ko mtk_gpufreq_mt6789.ko mali_mgm_mt6789.ko mali_prot_alloc_mt6789.ko fhctl.ko mali_kbase_mt6789.ko scp.ko sensorhub.ko hf_manager.ko audio_ipi.ko snd-soc-mtk-common.ko snd-soc-mt6366.ko snd-soc-mt6789-afe.ko mtk-sp-spk-amp.ko mt6358-accdet.ko snd-soc-audiodsp-common.ko mtk-scp-audio.ko snd-soc-mtk-scp-ultra.ko mtk-scp-ultra.ko mt6789-mt6366.ko}"
+    # The default is now to load nothing here and leave it to the vendor, as
+    # Halium/UBports and Droidian do: the container's init runs the vendor's own
+    # loader (insmod_sh + init.insmod.<hw>.cfg on MediaTek GKI, which modprobes
+    # every entry of /vendor/lib/modules/modules.load), in the vendor's order.
+    # The hand list below only existed because the container could not see
+    # vendor_dlkm (see the bind above), and every module missing from it was a
+    # dead subsystem - audio lacked mtk-btcvsd, camera lacked its whole stack.
+    #
+    # VENDOR_DLKM_MODULES=all or an explicit list still loads from the host,
+    # for bring-up or a vendor without such a loader.
+    VENDOR_DLKM_MODULES="${VENDOR_DLKM_MODULES:-none}"
+    if [ "$VENDOR_DLKM_MODULES" = "none" ]; then
+        log "vendor_dlkm: leaving module loading to the vendor's init"
+        return 0
+    fi
 
     if [ "$VENDOR_DLKM_MODULES" = "all" ]; then
         _todo=$(sed 's/#.*//; s/[[:space:]]//g; /^$/d' "$_d/modules.load")
@@ -633,6 +654,19 @@ VENDOR_DLKM_MODULES="${VENDOR_DLKM_MODULES:-nvmem-mt635x-efuse.ko gt9886.ko gt98
     # (/sys/kernel/debug/devices_deferred) rather than re-probing blindly.
     return 0
 }
+
+# The container gets /vendor_dlkm and /odm by binding these host paths
+# (lxc-config). If the partition only landed under $ANDROID_ROOT - via the
+# vendor fstab - the host path is an empty directory in our rootfs, and that
+# empty bind covers the real mount inside the container. /vendor/lib/modules is
+# a symlink into /vendor_dlkm, so the vendor's own module loader (insmod_sh on
+# MediaTek GKI) then finds no modules.load and loads nothing.
+for _p in vendor_dlkm odm; do
+    if ! mountpoint -q "/$_p" && mountpoint -q "$ANDROID_ROOT/$_p"; then
+        mkdir -p "/$_p"
+        mount --bind "$ANDROID_ROOT/$_p" "/$_p" && log "bound $ANDROID_ROOT/$_p to /$_p for the container"
+    fi
+done
 
 load_vendor_dlkm_modules
 
