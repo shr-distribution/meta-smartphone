@@ -7,9 +7,18 @@ Requires=android-system.service
 Conflicts=shutdown.target actdead.target
 # Inert on non-MediaTek devices: only run where the vendor ships the combo
 # driver. Covers both the WMT era (wmt_drv) and the connac era (conninfra).
+#
+# Checked in both /android/vendor/lib/modules and /android/vendor_dlkm/lib/modules:
+# on the MP01 the combo driver ships as a vendor_dlkm module, not a vendor one
+# (confirmed on hardware - vendor/lib/modules has neither wmt_drv nor connadp,
+# vendor_dlkm/lib/modules has both), and mtk-load-modules.sh itself already
+# checks both locations - this condition just never got the same fallback.
 ConditionPathExistsGlob=|/android/vendor/lib/modules/wmt_drv*.ko
 ConditionPathExistsGlob=|/android/vendor/lib/modules/conninfra*.ko
 ConditionPathExistsGlob=|/android/vendor/lib/modules/connadp*.ko
+ConditionPathExistsGlob=|/android/vendor_dlkm/lib/modules/wmt_drv*.ko
+ConditionPathExistsGlob=|/android/vendor_dlkm/lib/modules/conninfra*.ko
+ConditionPathExistsGlob=|/android/vendor_dlkm/lib/modules/connadp*.ko
 
 [Service]
 Type=oneshot
