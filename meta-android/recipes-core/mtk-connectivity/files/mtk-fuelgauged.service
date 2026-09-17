@@ -1,0 +1,19 @@
+[Unit]
+Description=MediaTek fuel gauge daemon in the host network namespace
+# After android-system: its ExecStartPost (start-android-hals) starts every
+# vendor service init skipped, fuelgauged included, and this has to replace
+# that instance rather than race it.
+After=android-system.service
+Requires=android-system.service
+Conflicts=shutdown.target
+# Inert where the vendor has no MediaTek userspace gauge.
+ConditionPathExists=/android/vendor/bin/fuelgauged
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/mtk-fuelgauged.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
