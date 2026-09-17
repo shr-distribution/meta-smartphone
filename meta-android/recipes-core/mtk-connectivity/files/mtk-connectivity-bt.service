@@ -20,11 +20,10 @@ Type=oneshot
 RemainAfterExit=yes
 # Seed BlueZ's address from MTK nvram (bluebinder_post.sh cannot read it).
 ExecStartPre=/usr/bin/mtk-bt-address.sh
-# The container ueventd creates /dev/stpbt system:system, but the MTK BT HAL
-# (user bluetooth) needs bluetooth:bluetooth per the vendor ueventd.rc, and
-# exits at boot without it. Fix the owner and (re)start the HAL; bluebinder
-# then proceeds on its own.
-ExecStart=/bin/sh -c 'i=0; while [ $i -lt 45 ]; do lxc-attach -n android -- sh -c "chown bluetooth:bluetooth /dev/stpbt 2>/dev/null && start bluetooth-1-0" && exit 0; sleep 2; i=$((i+1)); done; exit 1'
+# Wait for the connsys stage, fix /dev/stpbt's owner, restart the vendor's own
+# BT HAL service (name read from its rc) and then bluebinder - see the script.
+ExecStart=/usr/bin/mtk-bt-bringup.sh
+TimeoutStartSec=180
 
 [Install]
 WantedBy=multi-user.target
