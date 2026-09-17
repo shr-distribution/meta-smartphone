@@ -20,9 +20,11 @@ SRC_URI = " \
     file://mtk-load-modules.sh \
     file://mtk-bt-address.sh \
     file://mtk-bt-bringup.sh \
+    file://mtk-fuelgauged.sh \
     file://mtk-connectivity-modules.service \
     file://mtk-connectivity-wifi.service \
     file://mtk-connectivity-bt.service \
+    file://mtk-fuelgauged.service \
 "
 
 inherit systemd
@@ -30,6 +32,7 @@ inherit systemd
 do_install() {
     install -d ${D}${sbindir} ${D}${bindir}
     install -m 0755 ${UNPACKDIR}/mtk-load-modules.sh ${D}${sbindir}/mtk-load-modules.sh
+    install -m 0755 ${UNPACKDIR}/mtk-fuelgauged.sh   ${D}${sbindir}/mtk-fuelgauged.sh
     install -m 0755 ${UNPACKDIR}/mtk-bt-address.sh   ${D}${bindir}/mtk-bt-address.sh
     install -m 0755 ${UNPACKDIR}/mtk-bt-bringup.sh   ${D}${bindir}/mtk-bt-bringup.sh
 
@@ -37,17 +40,19 @@ do_install() {
     install -m 0644 ${UNPACKDIR}/mtk-connectivity-modules.service ${D}${systemd_system_unitdir}
     install -m 0644 ${UNPACKDIR}/mtk-connectivity-wifi.service    ${D}${systemd_system_unitdir}
     install -m 0644 ${UNPACKDIR}/mtk-connectivity-bt.service      ${D}${systemd_system_unitdir}
+    install -m 0644 ${UNPACKDIR}/mtk-fuelgauged.service           ${D}${systemd_system_unitdir}
 }
 
 SYSTEMD_SERVICE:${PN} = " \
     mtk-connectivity-modules.service \
     mtk-connectivity-wifi.service \
     mtk-connectivity-bt.service \
+    mtk-fuelgauged.service \
 "
 
 # modprobe/depmod, rfkill, hexdump, the container tool, and the kernel's
 # force-load support (the modules are stock vendor .ko with mismatched CRCs).
-RDEPENDS:${PN} = "kmod util-linux-hexdump lxc"
+RDEPENDS:${PN} = "kmod util-linux-hexdump util-linux-nsenter lxc"
 RRECOMMENDS:${PN} = "rfkill"
 
-FILES:${PN} = "${sbindir}/mtk-load-modules.sh ${bindir}/mtk-bt-address.sh ${bindir}/mtk-bt-bringup.sh"
+FILES:${PN} = "${sbindir}/mtk-load-modules.sh ${bindir}/mtk-bt-address.sh ${bindir}/mtk-bt-bringup.sh ${sbindir}/mtk-fuelgauged.sh"
