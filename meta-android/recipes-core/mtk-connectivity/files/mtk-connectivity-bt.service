@@ -7,8 +7,13 @@ Conflicts=shutdown.target actdead.target
 # bt_drv_<platform>.ko (bt_drv_connac1x.ko on mt6789) and no conninfra.ko at
 # all, so the exact-name conditions matched nothing there and this unit was
 # silently skipped.
+#
+# Also checked under vendor_dlkm: on the MP01 the combo driver ships there,
+# not under vendor (confirmed on hardware - see mtk-connectivity-modules.service).
 ConditionPathExistsGlob=|/android/vendor/lib/modules/bt_drv*.ko
 ConditionPathExistsGlob=|/android/vendor/lib/modules/conninfra*.ko
+ConditionPathExistsGlob=|/android/vendor_dlkm/lib/modules/bt_drv*.ko
+ConditionPathExistsGlob=|/android/vendor_dlkm/lib/modules/conninfra*.ko
 
 [Service]
 Type=oneshot

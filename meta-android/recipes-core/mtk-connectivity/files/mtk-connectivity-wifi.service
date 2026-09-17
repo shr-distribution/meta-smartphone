@@ -16,6 +16,8 @@ Conflicts=shutdown.target actdead.target
 # already up, and 10.1s on tissot, where it was not.
 ConditionPathExists=|/android/vendor/lib/modules/wmt_drv.ko
 ConditionPathExists=|/android/vendor/lib/modules/conninfra.ko
+ConditionPathExists=|/android/vendor_dlkm/lib/modules/wmt_drv.ko
+ConditionPathExists=|/android/vendor_dlkm/lib/modules/conninfra.ko
 ConditionPathExists=|/dev/wmtWifi
 
 [Service]
