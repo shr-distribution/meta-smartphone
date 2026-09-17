@@ -105,3 +105,22 @@ deviceinfo_force_hwc2="1"
 # down every boot while it sat at 4.38 V on a charger. The voltage and
 # temperature triggers still apply. Remove once the gauge reports a capacity.
 deviceinfo_battery_critical_percent="0"
+
+# The audio HAL (loaded into pulseaudio by module-droid) needs the vendor's
+# VNDK 31 libraries: /vendor/lib64/libnvram.so wants
+# android::base::Basename(const std::string&), which the Android 16 GSI's
+# libbase no longer exports. Without this pulseaudio crashes on start.
+# Verified on hardware: pulseaudio stays up with three module-droid-card sinks.
+deviceinfo_hybris_prefer_vndk="1"
+
+# The HAL's DL paths run at 48 kHz; opened at pulseaudio's default 44.1 kHz the
+# HAL resamples everything and playback sounds slightly off. Verified better on
+# hardware at 48000.
+deviceinfo_audio_sample_rate="48000"
+
+# The MT6789 claims Synchronization Train support (extended features page 2,
+# byte 0 bit 2) but answers Read Synchronization Train Parameters with
+# "Unknown HCI Command", which aborts hci init: hci0 never comes up. Mask the
+# bit in bluebinder. Verified on hardware: hci0 UP RUNNING, scans find
+# classic and LE devices.
+deviceinfo_bluebinder_ext_features_page_2_mask="0x0400000000000000"
