@@ -98,3 +98,10 @@ deviceinfo_compositor_geometry="800x600+0+0r270s1"
 # QT_QPA_FORCE_HWC2=1. The touch rotation is derived from
 # deviceinfo_compositor_geometry above and needs no separate key.
 deviceinfo_force_hwc2="1"
+
+# Turn off batteryd's percentage-based shutdown. The MTK userspace fuel gauge
+# rejects this unit's nvram calibration ("cali car tune 119, invalid"), so
+# /sys/class/power_supply/battery/capacity reads -1 and batteryd shut the phone
+# down every boot while it sat at 4.38 V on a charger. The voltage and
+# temperature triggers still apply. Remove once the gauge reports a capacity.
+deviceinfo_battery_critical_percent="0"
