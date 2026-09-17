@@ -37,7 +37,17 @@
 ANDROID_ROOT="${ANDROID_ROOT:-/android}"
 VMOD="$ANDROID_ROOT/vendor/lib/modules"
 KREL=$(uname -r)
-DST="/lib/modules/$KREL"
+# modprobe needs a depmod'd tree, but it must NOT be /lib/modules/$KREL: udev's
+# coldplug autoloads by modalias from there, so a depmod'd copy of the whole
+# vendor set in that place makes the *next* boot insmod every matching vendor
+# module before anything is ready. On the MP01 that pulls in mtk_lpm within a
+# second of udevd starting, the SoC freezes and the hardware watchdog bootloops
+# the device - every boot after the first. Keep the tree private under /run,
+# out of udev's sight and off persistent storage, and point depmod -b and
+# modprobe -d at it.
+MODBASE="/run/mtk-connectivity"
+DST="$MODBASE/lib/modules/$KREL"
+LEGACY="/lib/modules/$KREL"
 log() { echo "mtk-connectivity: $*"; }
 
 # On a GKI device /vendor/lib/modules is an absolute symlink to
@@ -73,12 +83,37 @@ if [ -d "$VMOD/../firmware" ]; then
     echo "$VMOD/../firmware" > /sys/module/firmware_class/parameters/path 2>/dev/null || true
 fi
 
-# modprobe wants a depmod'd tree and the vendor .ko are not under /lib/modules,
-# so mirror them once. All of them, not just the connectivity family: depmod
-# needs the full set to resolve inter-module dependencies.
+# Undo what earlier versions of this script left behind: a copy of every vendor
+# module in $LEGACY. Remove only files byte-identical to a vendor module, so a
+# rootfs that ships its own modules for this kernel keeps them, and drop the
+# depmod output too once no module is left there.
+if [ -d "$LEGACY" ]; then
+    _removed=0
+    for _ko in "$VMOD"/*.ko; do
+        _f="$LEGACY/${_ko##*/}"
+        if [ -f "$_f" ] && [ ! -L "$_f" ] && cmp -s "$_ko" "$_f"; then
+            rm -f "$_f" && _removed=$((_removed + 1))
+        fi
+    done
+    if [ "$_removed" -gt 0 ]; then
+        log "removed $_removed vendor module copies from $LEGACY"
+        if [ -n "$(find "$LEGACY" -name '*.ko*' 2>/dev/null | head -n 1)" ]; then
+            depmod "$KREL" 2>/dev/null || true
+        else
+            rm -f "$LEGACY"/modules.*
+            rmdir "$LEGACY" 2>/dev/null || true
+        fi
+    fi
+fi
+
+# The vendor .ko are not under a module directory, so link them into the
+# private tree. All of them, not just the connectivity family: depmod needs the
+# full set to resolve inter-module dependencies. Symlinks, so /run costs nothing.
 mkdir -p "$DST"
-cp -u "$VMOD"/*.ko "$DST"/ 2>/dev/null || true
-depmod "$KREL" 2>/dev/null || true
+for _ko in "$VMOD"/*.ko; do
+    [ -e "$_ko" ] && ln -sfn "$_ko" "$DST/${_ko##*/}"
+done
+depmod -b "$MODBASE" "$KREL" 2>/dev/null || true
 
 # --- property expansion ------------------------------------------------------
 # ${ro.vendor.wlan.gen} and friends. getprop works only once the container's
@@ -141,9 +176,9 @@ load_one() {
     # --force-vermagic is the precise tool and --force-modversions is not
     # needed. Falling back through all three keeps the pre-GKI devices working,
     # where the CRCs really do disagree.
-    if modprobe "$_m" 2>/dev/null; then :
-    elif modprobe --force-vermagic "$_m" 2>/dev/null; then :
-    elif modprobe --force "$_m" 2>/dev/null; then
+    if modprobe -d "$MODBASE" "$_m" 2>/dev/null; then :
+    elif modprobe -d "$MODBASE" --force-vermagic "$_m" 2>/dev/null; then :
+    elif modprobe -d "$MODBASE" --force "$_m" 2>/dev/null; then
         log "$_m loaded with --force (CRC mismatch - check the KMI)"
     else
         log "$_m failed to load"; return
