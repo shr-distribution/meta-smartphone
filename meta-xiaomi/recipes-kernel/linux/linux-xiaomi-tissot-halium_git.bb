@@ -13,7 +13,14 @@ source from Xiaomi"
 
 DEPENDS += "openssl-native"
 
-ANDROID_BOOTIMG_CMDLINE = "androidboot.console=ttyHSL0 androidboot.hardware=qcom msm_rtb.filter=0x237 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 androidboot.bootdevice=7824900.sdhci earlycon=msm_hsl_uart,0x78af000 firmware_class.path=/vendor/firmware_mnt/image androidboot.usbconfigfs=true androidboot.selinux=permissive androidboot.keymaster=1 androidboot.usbconfigfs=true --"
+# No lpm_levels.sleep_disabled=1 here. That flag is bring-up debris inherited
+# from the Halium reference cmdline: it makes the Qualcomm lpm-levels driver
+# refuse every low-power mode, so all eight cores idle in shallow WFI and the
+# SoC can never enter platform suspend. Measured on sargo (same driver, same
+# tree family): writing sleep_disabled=N at runtime engaged the deep C-states
+# within seconds and the device stayed stable. tissot boots the same 4.9 msm
+# tree, so drop it from the command line rather than undoing it after boot.
+ANDROID_BOOTIMG_CMDLINE = "androidboot.console=ttyHSL0 androidboot.hardware=qcom msm_rtb.filter=0x237 ehci-hcd.park=3 androidboot.bootdevice=7824900.sdhci earlycon=msm_hsl_uart,0x78af000 firmware_class.path=/vendor/firmware_mnt/image androidboot.usbconfigfs=true androidboot.selinux=permissive androidboot.keymaster=1 androidboot.usbconfigfs=true --"
 ANDROID_BOOTIMG_KERNEL_RAM_BASE = "0x80008000"
 ANDROID_BOOTIMG_RAMDISK_RAM_BASE = "0x81000000"
 ANDROID_BOOTIMG_SECOND_RAM_BASE = "0x00f00000"
