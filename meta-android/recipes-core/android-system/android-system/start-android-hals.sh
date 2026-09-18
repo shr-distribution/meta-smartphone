@@ -293,6 +293,38 @@ for n in $(all_rc_files | xargs -r awk '$1 == "write" && $2 ~ /^\/sys\/kernel\/b
 done
 echo "booted $dsp DSP subsystem(s) init skipped"
 
+# Re-enable the SoC low-power modes that the vendor init switched off.
+#
+# Qualcomm board rc files gate cpuidle and platform suspend on Android's boot
+# finishing. sargo's init.sdm670.rc, for instance:
+#
+#     on init && property:vendor.skip.init=0
+#         write /sys/module/lpm_levels/parameters/sleep_disabled 1
+#     on property:sys.boot_completed=1
+#         write /sys/module/lpm_levels/parameters/sleep_disabled 0
+#
+# The container runs "on init", so every boot ends with sleep_disabled=1 - and
+# nothing here ever sets sys.boot_completed, so the write that undoes it never
+# fires. Measured on sargo: with the flag set the cpuidle C1-C3 counters stay
+# at exactly 0 on all eight cores and the SoC can never enter platform suspend;
+# clearing it engaged the deep C-states within seconds and the device stayed
+# stable. Dropping lpm_levels.sleep_disabled=1 from the kernel command line was
+# necessary but not sufficient, because of this write.
+#
+# Write 0 ourselves once the HALs are up. The blanket "write" exclusion above
+# still stands; this is the one boot_completed write whose absence costs more
+# than an idle device's whole battery, and it is a plain module parameter,
+# not a hardware poke. Boards whose rc files never set it (tissot's
+# init.target.rc only writes 0) and kernels without lpm_levels are untouched.
+LPM_SLEEP_DISABLED=/sys/module/lpm_levels/parameters/sleep_disabled
+if [ -w "$LPM_SLEEP_DISABLED" ]; then
+    if echo 0 > "$LPM_SLEEP_DISABLED" 2>/dev/null; then
+        echo "lpm_levels: sleep_disabled cleared (now $(cat "$LPM_SLEEP_DISABLED"))"
+    else
+        echo "WARNING: could not clear $LPM_SLEEP_DISABLED"
+    fi
+fi
+
 # Do not return until the composer HAL is actually registered on hwbinder.
 #
 # Ordering surface-manager after this unit is necessary but not sufficient:
