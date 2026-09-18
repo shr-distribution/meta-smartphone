@@ -47,7 +47,60 @@ ANDROID_INIT_DIRS="/android/vendor/etc/init /android/odm/etc/init"
 CLASSES="hal core main late_start"
 
 # Belt and braces for the above, in case a vendor rc declares one of these.
-SKIP_SERVICES="bootanim bootanimation"
+#
+# Also skipped: RIL instances the board never uses. A Qualcomm vendor image
+# declares qcrild, qcrild2 and qcrild3 whatever the board actually has, and
+# marks the extra ones "disabled" so init leaves them alone unless a multisim
+# property says otherwise - qcrild2 has such a trigger, qcrild3 has none in any
+# rc file, so init would never start it. We start disabled services on purpose,
+# because init halts before the triggers that would normally start them fire,
+# but for a RIL instance with no slot behind it that means it exits at once and
+# is respawned every 5s forever. Seen on sargo, where /vendor/etc/init/qcrild.rc
+# declares all three and only two slots exist.
+#
+# Also skipped: ss_ramdump (/vendor/bin/subsystem_ramdump), which collects
+# Qualcomm subsystem ramdumps for post-mortem debugging. It is "disabled" in
+# init.<board>.rc and gated behind persist.vendor.sys.ssr.enable_ramdumps=1,
+# which also creates the /data/vendor/ramdump dirs it writes to. With ramdumps
+# off it finds no dirs and exits at once - same 5s respawn loop as above.
+# Android's own vendor rc does "stop ss_ramdump" when ramdumps are disabled.
+# Other hybris distros never hit this: SailfishOS, Droidian and UBports run
+# droid-hal-init, which honours "disabled", and SailfishOS additionally ships a
+# denylist (disabled_services.rc, _HYBRIS_DISABLED) covering the same class of
+# debug/logging daemons - log_service, ylog, fwklog, poweronlog, slogmodem.
+# We force-start disabled services, so we need the equivalent denylist here.
+# To collect ramdumps: set the property, then "setprop ctl.start ss_ramdump".
+#
+# deviceinfo_android_skip_services extends this per device.
+SKIP_SERVICES="bootanim bootanimation vendor.qcrild3 ss_ramdump"
+
+# Services with a prerequisite the start loop below cannot see. qcrild reaches
+# the modem over QMI, which needs rmt_storage (the modem's EFS backing store),
+# per_mgr (subsystem bring-up) and qseecomd. The loop walks the rc files in
+# readdir order, and on tissot qcrild.rc sorts ahead of the rc files declaring
+# those - so qcrild went first, found no modem, called exit(), and segfaulted
+# in its own static teardown on the way out:
+#
+#     __cxa_finalize -> ~SapModule -> android::sp<RadioConfigImpl>::operator=
+#
+# init restarts it and it loops - 13 to 16 core dumps in a single boot, with
+# ofono still reporting "active" so nothing above notices.
+#
+# It only worked by accident: the apexd gate stalled init long enough that init
+# had already started the prerequisites itself, so the loop skipped them as
+# running. That is timing, not ordering, and it is why shortening the gate
+# grace broke telephony. Starting these last makes the dependency explicit.
+LATE_SERVICES="vendor.qcrild vendor.qcrild2 vendor.qcrild3 vendor.ril-daemon vendor.ril-daemon2"
+
+# What the late services wait for, as init.svc.<name> entries that must read
+# "running" before they are started.
+LATE_PREREQS="vendor.rmt_storage vendor.per_mgr vendor.qseecomd"
+
+for _di in /usr/share/luneos/adaptations/*/deviceinfo; do
+    [ -f "$_di" ] && . "$_di" 2>/dev/null
+done
+[ -n "$deviceinfo_android_skip_services" ] &&
+    SKIP_SERVICES="$SKIP_SERVICES $deviceinfo_android_skip_services"
 
 # Services that must not run at all, because they fight the host compositor for
 # the display. These are NOT started by us - init reaches "on late-fs" long
@@ -167,20 +220,92 @@ all_rc_files() {
 # quotes both made the gate look eternally unsatisfied and, worse, "forced"
 # the literal value \"true\" over the correct one hwservicemanager had set,
 # wedging every libhidl WaitForProperty on the device.
-gates=$(all_rc_files | xargs -r awk '$1 == "wait_for_prop" { gsub(/^"|"$/, "", $3); print $2 "=" $3 }' 2>/dev/null | sort -u)
+# Is a gate satisfied? Not always a string compare: some of these properties are
+# state machines, not flags, and a later state still means the gate was passed.
+#
+# apexd.status is the case that matters. apexd walks '' -> starting ->
+# activated -> ready in about 2.5s, and "activated" is live for roughly 120ms
+# before apexd-snapshotde moves it on - measured on tissot at 17.417s and
+# 17.540s. The loop below polls every ~0.55s, so it hit that window about one
+# boot in five; on the other four it concluded nothing would ever set the
+# property and forced it, writing "activated" back over the "ready" that init
+# actions key on (the GSI init.rc has on property:apexd.status=ready blocks).
+#
+# init is not blocked by any of this: its own wait_for_prop apexd.status
+# activated completed in 408-489ms on every boot measured. Accepting the later
+# state removes both the pointless wait and the incorrect write.
+gate_satisfied() {
+    _name=$1; _want=$2
+    _have=$(getprop "$_name")
+    [ "$_have" = "$_want" ] && return 0
+    case "$_name" in
+        apexd.status)
+            # ready is past activated; starting is not.
+            [ "$_want" = activated ] && [ "$_have" = ready ] && return 0
+            ;;
+    esac
+    return 1
+}
+
+# A wait_for_prop only ever blocks init if the "on" block containing it runs.
+# Emit each gate with its block header so the conditional ones can be filtered
+# out below, rather than treating every wait_for_prop in the image as live.
+gates_raw=$(all_rc_files | xargs -r awk '
+    /^on /      { blk = $0; next }
+    /^service / { blk = ""; next }
+    $1 == "wait_for_prop" { gsub(/^"|"$/, "", $3); print blk "\t" $2 "=" $3 }
+' 2>/dev/null | sort -u)
+
+# Drop gates whose block is guarded by properties that do not hold. sargo has
+# two wait_for_prop sys.trace.traced_started lines, and both sit under
+# persist.debug.perfetto.* blocks that are unset on a normal boot - so the gate
+# never blocks anything, yet the scan waited out the full grace period for it
+# and then forced it. perfetto.rc says the property is "set by traced after
+# listen()ing on the consumer socket", so setting it ourselves tells perfetto
+# traced is ready when it may not be.
+gates=
+while IFS="	" read -r _blk _g; do
+    [ -n "$_g" ] || continue
+    _live=1
+    for _c in $_blk; do
+        case "$_c" in
+            property:*)
+                _cp=${_c#property:}
+                [ "$(getprop "${_cp%%=*}")" = "${_cp#*=}" ] || _live=0
+                ;;
+        esac
+    done
+    if [ "$_live" = 1 ]; then
+        gates="$gates $_g"
+    else
+        echo "ignoring inactive gate ${_g} (${_blk})"
+    fi
+done <<GATES_EOF
+$gates_raw
+GATES_EOF
+gates=$(printf '%s\n' $gates | sort -u)
 pending=
 if [ -n "$gates" ]; then
     i=0
-    while [ $i -lt 20 ]; do
+    # 10 half-seconds. Was 20, which was not a considered value: with the start
+    # loop racing qcrild ahead of its prerequisites, the extra 5s was what let
+    # init start them first, and shortening it broke telephony. With the
+    # ordering explicit that slack is no longer load-bearing. Overridable so a
+    # port that needs longer can have it without a patch.
+    gate_grace=${ANDROID_GATE_GRACE:-10}
+    while [ $i -lt "$gate_grace" ]; do
         pending=
         for g in $gates; do
-            [ "$(getprop "${g%%=*}")" = "${g#*=}" ] || pending="$pending $g"
+            gate_satisfied "${g%%=*}" "${g#*=}" || pending="$pending $g"
         done
         [ -n "$pending" ] || break
         i=$((i + 1))
         sleep 0.5
     done
     for g in $pending; do
+        # Re-check: the grace may have gone to fork overhead rather than to the
+        # gate genuinely never being set.
+        gate_satisfied "${g%%=*}" "${g#*=}" && continue
         echo "forcing init gate ${g%%=*}=${g#*=} (nothing in this image sets it)"
         setprop "${g%%=*}" "${g#*=}"
     done
@@ -201,12 +326,38 @@ started=0
 for s in $svcs; do
     case " $SKIP_SERVICES " in *" $s "*) continue ;; esac
     case " $conflict_svcs " in *" $s "*) continue ;; esac
+    case " $LATE_SERVICES " in *" $s "*) continue ;; esac
     [ "$(getprop init.svc.$s)" = "running" ] && continue
     setprop ctl.start "$s"
     started=$((started + 1))
 done
 
 echo "requested start of $started Android service(s) init skipped"
+
+# Now the late set, once what it depends on is up. Bounded, and it starts them
+# anyway on timeout: a device without these prerequisites should not lose its
+# RIL over one that was never going to appear.
+late_started=0
+for s in $LATE_SERVICES; do
+    case " $svcs " in *" $s "*) ;; *) continue ;; esac
+    case " $SKIP_SERVICES " in *" $s "*) continue ;; esac
+    [ "$(getprop init.svc.$s)" = "running" ] && continue
+    i=0
+    while [ $i -lt 40 ]; do
+        waiting=
+        for p in $LATE_PREREQS; do
+            case " $svcs " in *" $p "*) ;; *) continue ;; esac
+            [ "$(getprop init.svc.$p)" = "running" ] || waiting="$waiting $p"
+        done
+        [ -n "$waiting" ] || break
+        i=$((i + 1))
+        sleep 0.25
+    done
+    [ -n "$waiting" ] && echo "starting $s with$waiting not up after $((i / 4))s"
+    setprop ctl.start "$s"
+    late_started=$((late_started + 1))
+done
+[ "$late_started" -gt 0 ] && echo "requested start of $late_started modem service(s) after their prerequisites"
 
 # Stop the ones init already started from "on late-fs" before we got here.
 stopped=0
