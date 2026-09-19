@@ -2,7 +2,7 @@ DESCRIPTION = "System configuration and startup scripts for the Android compatib
 LICENSE = "GPL-3.0-only"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/GPL-3.0-only;md5=c79ff39f19dfec6d293b95dea7b07891"
 
-PR = "r9"
+PR = "r10"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
@@ -263,4 +263,36 @@ FILES:${PN}-stubs = "${localstatedir}/lib/lxc/android/stubs"
 INSANE_SKIP:${PN}-stubs += "file-rdeps"
 RDEPENDS:${PN} += "${PN}-stubs"
 
-SYSTEMD_SERVICE:${PN} = "android-system.service"
+# Deliberately NOT in SYSTEMD_SERVICE, and enabled by hand below.
+#
+# systemd.bbclass generates a postinst that runs "systemctl --no-block restart"
+# for every unit in SYSTEMD_SERVICE whenever the package is upgraded on a
+# running system, and a prerm that stops it. For this package that unit is the
+# entire Android container: an upgrade therefore tears down lxc and with it
+# every vendor HAL - display, WiFi, modem, audio - underneath a live session.
+# Measured on sargo (2026-09-19): two upgrades over the network, two hard
+# downs, the first ending in androidboot.bootreason=kernel_panic.
+#
+# There is no class knob to keep the enable and drop the restart, so do the
+# enablement here. An upgrade then only lays the new container files down and
+# the next boot picks them up, which is the only point at which they can take
+# effect anyway: pre-start.d hooks, the stub lists and the lxc config are all
+# read when the container starts.
+SYSTEMD_SERVICE:${PN} = ""
+
+# With the unit out of SYSTEMD_SERVICE the class no longer adds it to the
+# package, so name it here.
+FILES:${PN} += "${systemd_system_unitdir}/android-system.service"
+
+pkg_postinst:${PN}() {
+    if type systemctl >/dev/null 2>/dev/null; then
+        OPTS=""
+        if [ -n "$D" ]; then
+            OPTS="--root=$D"
+        fi
+        systemctl $OPTS enable android-system.service
+        if [ -z "$D" ]; then
+            systemctl daemon-reload
+        fi
+    fi
+}
