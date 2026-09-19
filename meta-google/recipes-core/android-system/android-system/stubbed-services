@@ -29,3 +29,11 @@ vendor/bin/hw/android.hardware.configstore@1.1-service
 # the stub must exit rather than sleep.
 vendor/bin/diag_mdlog exit
 vendor/bin/ssr_diag
+# Android's battery health HAL. Nothing in LuneOS consumes it (batteryd and
+# nyx read sysfs; LuneOS's own storaged is a different daemon outside the
+# container); the only container consumer is Android's storaged, which polls
+# hwservicemanager once a second when the HAL is absent, so both go. The
+# kernel drivers do the charging; healthd only logged and armed a 60 s
+# boot-time alarm that woke the SoC once a minute in suspend.
+vendor/bin/hw/android.hardware.health@2.0-service.bonito
+system/bin/storaged
