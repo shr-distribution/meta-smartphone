@@ -19,3 +19,10 @@ vendor/bin/hw/vendor.focaltech.hardware.biometrics.fingerprint@1.0-service
 # each with a flags_health_check exec, a third of the kernel log line rate
 # measured on the MP01. No other service in this image uses sdcard.
 system/bin/sdcard
+# The combo-chip firmware dump collector (service stp_dump in
+# init.connectivity.rc runs /vendor/bin/stp_dump3). With no Android framework
+# to hand a dump to, it busy-loops: measured on the MP01, 93 % of a CPU core
+# continuously and 121 minutes of CPU time in a 4h23m uptime, which is the
+# single largest awake-time drain on the device. It collects diagnostics only;
+# nothing in LuneOS consumes them. Same treatment as tissot's wcnss_filter.
+vendor/bin/stp_dump3
