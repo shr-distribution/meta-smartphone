@@ -67,7 +67,7 @@ S = "${UNPACKDIR}/${BP}"
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=sargo/${LINUX_VERSION}/lune;protocol=https"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
-SRCREV = "b15bd5fa782ee84f6e0a8c2b9c26e7250c35e75d"
+SRCREV = "27b2c53629dec09b15f027832e97bdd467d75bd7"
 
 LINUX_VERSION = "4.9.124"
 PV = "${LINUX_VERSION}+git"
