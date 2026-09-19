@@ -43,26 +43,25 @@ GKI_CLANG_VERSION ?= "r416183b"
 GKI_CLANG_DIR ?= ""
 GKI_CLANG_URI ?= ""
 
-# The MP01's own tree, published by Minimal on 15 Sep 2026. Before that this
-# recipe built the Q25's (android_kernel_xelex_mt6789, 5.10.198) as the closest
-# available stand-in for the MP01's stock 5.10.233; that substitution is no
-# longer necessary and this tree is genuinely 5.10.233, so the vermagic match is
-# real rather than forced.
+# The MP01's own tree, published by Minimal on 15 Sep 2026 (genuinely
+# 5.10.233, so the vermagic match is real), carried on the shr kernel repo
+# like every other LuneOS kernel: branch mp01/5.10.233/lune = Minimal's
+# 6ca3cc4 "initial publish" plus LuneOS's commits on top (the GKI task_struct
+# padding, the rt5133 error print and the mediatek DRM plane properties that
+# used to be .patch files here). Fixes go as commits on that branch and a
+# SRCREV bump, never as patches in this directory.
 #
-# It also carries what xelex could not: the E Ink panel (panel-z10-eink-vdo,
-# panel-z10-eink-i2c) and the MediaTek v2 display driver this device actually
-# runs, which is what makes 0004 possible.
+# It also carries what the Q25's xelex tree could not: the E Ink panel
+# (panel-z10-eink-vdo, panel-z10-eink-i2c) and the MediaTek v2 display driver
+# this device actually runs.
 SRC_URI = "\
-    git://github.com/minimalcompany/mp01-kernel.git;protocol=https;branch=main;name=kernel \
+    git://github.com/shr-distribution/linux.git;protocol=https;branch=mp01/5.10.233/lune;name=kernel \
     ${@(d.getVar('GKI_CLANG_URI') + ';name=clang;subdir=clang') if d.getVar('GKI_CLANG_URI') else ''} \
     file://mp01-stock.config;subdir=frag \
     file://vermagic.cfg;subdir=frag \
     file://luneos.cfg;subdir=frag \
-    file://0001-GKI-park-SYSVIPC-task_struct-fields-in-ABI-padding.patch \
-    file://0003-regulator-rt5133-print-the-HWEN-gpio-error-code.patch \
-    file://0004-drm-mediatek-create-the-standard-alpha-and-blend-plan.patch \
 "
-SRCREV_kernel = "6ca3cc48caf56b694be376d23458cc53c2455100"
+SRCREV_kernel = "7fb2662e0ded8c6c65ff110250f4cccb25d8620b"
 SRCREV_FORMAT = "kernel"
 
 PV = "5.10.233+git"
