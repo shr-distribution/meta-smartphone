@@ -12,18 +12,24 @@ COMPATIBLE_MACHINE = "^athena$"
 DESCRIPTION = "Linux kernel for the BlackBerry KEY2 (athena, SDM660), based on \
 tim-ecoder's 4.19 port of the BlackBerry/CAF sources used by LineageOS 23.2"
 
-# VERIFIED against the shipping e-4.1.1-a15-20260725 athena boot.img, not just
-# read out of the BoardConfig: header v0, 4096 byte pages, kernel 0x00008000,
-# ramdisk 0x01000000, tags 0x00000100, second 0x00000000 (no second image).
-# BOARD_KERNEL_BASE is 0x00000000 with the standard 0x8000 kernel offset, which
-# is why the kernel address looks unusually low; sargo uses the same set.
+# Boot geometry VERIFIED against the shipping e-4.1.1-a15 athena boot.img: header
+# v0, 4096 byte pages, kernel 0x00008000, ramdisk 0x01000000, tags 0x00000100,
+# second 0x00000000 (no second image).
 #
-# The cmdline is that image's, verbatim, plus androidboot.selinux=permissive.
-# It differs slightly from the lineage-23.2 BoardConfig (which has
-# regulator_ignore_unused and lacks swiotlb=1 / androidboot.serialconsole=0);
-# the shipping image wins because it is what this bootloader has actually
-# booted.
-ANDROID_BOOTIMG_CMDLINE = "androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 sched_enable_hmp=1 sched_enable_power_aware=1 service_locator.enable=1 swiotlb=1 androidboot.configfs=true androidboot.usbcontroller=a800000.dwc3 coherent_pool=1280K androidboot.serialconsole=0 androidboot.selinux=permissive printk.devkmsg=on"
+# The CMDLINE, however, is NOT that image's verbatim any more - and the reason is
+# worth keeping. That reference image runs a 4.4 kernel. It carries "swiotlb=1",
+# which is harmless there and FATAL on 4.19: the device hangs on the bootloader
+# splash with no console, no USB and no panic. Proven by a two-way controlled swap
+# on hardware (same kernel, same initramfs, same packer, cmdline the only variable;
+# adding the token to a working cmdline breaks it, removing it from a failing one
+# fixes it). On arm64 swiotlb=<n> sizes the bounce buffer in 2 KB slabs, so
+# swiotlb=1 asks for one slab, and 4.19 routes dma-direct through swiotlb far more
+# readily than 4.4 did. Without it the kernel maps a 64 MB IO TLB normally.
+#
+# Rule this implies: when a port changes kernel MAJOR VERSION, re-derive the cmdline
+# against a reference running THAT version, not merely the same device. For athena
+# the right reference is the LineageOS 4.19 build, not the 4.4-era /e/OS image.
+ANDROID_BOOTIMG_CMDLINE = "androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 sched_enable_hmp=1 sched_enable_power_aware=1 service_locator.enable=1 androidboot.configfs=true androidboot.usbcontroller=a800000.dwc3 coherent_pool=1280K androidboot.serialconsole=0 androidboot.selinux=permissive printk.devkmsg=on console=tty0"
 ANDROID_BOOTIMG_HEADER_VERSION = "0"
 ANDROID_BOOTIMG_PAGESIZE = "4096"
 # ANDROID_BOOTIMG_PAGESIZE above is only read by android_bootimg_v2() in
@@ -38,13 +44,15 @@ ANDROID_BOOTIMG_PAGESIZE = "4096"
 # with page_size=4096 and the offsets below intact.
 ANDROID_BOOTIMG_EXTRA_ABOOTIMG_ARGS = "-c pagesize=4096"
 ANDROID_BOOTIMG_KERNEL_RAM_BASE = "0x00008000"
-# Stock is 0x01000000, which leaves the kernel only 16.8 MB before the ramdisk
-# lands on top of it. The stock 4.4 kernel is 14.8 MB and just fits; our 4.19
-# one does not, even with the device trees trimmed to athena only (~17.2 MB).
-# Moved up to 32 MB, which is still far below the first reserved-memory region
-# in the athena dtb (wlan_msa_guard at 0x85600000, i.e. base+86 MB), so kernel
-# and ramdisk both sit in free DRAM with room to grow.
-ANDROID_BOOTIMG_RAMDISK_RAM_BASE = "0x02000000"
+# 0x01000000 is the value the shipping /e/OS boot.img for THIS device uses, and
+# the UBports Halium port for the Xiaomi Mi A2 (jasmine_sprout, also SDM660) uses
+# the identical set. It is therefore a proven-good address on this bootloader and
+# is deliberately NOT changed: the kernel is made to fit the window instead.
+#
+# The window is ramdisk_addr - kernel_addr = 0x01000000 - 0x8000 = 16,744,448 B.
+# Everything the kernel image contains, appended device trees included, has to
+# end below it or aboot writes the ramdisk through the middle of the kernel.
+ANDROID_BOOTIMG_RAMDISK_RAM_BASE = "0x01000000"
 ANDROID_BOOTIMG_SECOND_RAM_BASE = "0x00000000"
 ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x00000100"
 
