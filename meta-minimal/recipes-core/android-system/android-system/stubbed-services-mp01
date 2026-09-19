@@ -1,0 +1,14 @@
+# Android services stubbed out on the Minimal Phone MP01 under LuneOS/Halium
+# (see meta-android's pre-start.d/50-stub-services; picked by the vendor
+# codename "MP01").
+#
+# Fingerprint HALs. Both block forever inside the TrustKernel TEE driver
+# (tee_supp_cmd -> down) waiting for the TEE supplicant, which never answers
+# under LuneOS. A thread parked there is uninterruptible and refuses to
+# freeze, so every suspend attempt aborted with "One or more tasks refusing
+# to freeze" - measured 2026-09-19: 3240 aborts in 90 minutes, not one
+# suspend, until the phone was rebooted with these stubbed. Fingerprint stays
+# unavailable on this device until the TEE supplicant works; nothing else in
+# the container uses the TEE at runtime.
+vendor/bin/hw/android.hardware.biometrics.fingerprint@2.1-service
+vendor/bin/hw/vendor.focaltech.hardware.biometrics.fingerprint@1.0-service
