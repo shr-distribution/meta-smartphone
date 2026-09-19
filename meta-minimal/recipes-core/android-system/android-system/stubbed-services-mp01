@@ -12,3 +12,10 @@
 # the container uses the TEE at runtime.
 vendor/bin/hw/android.hardware.biometrics.fingerprint@2.1-service
 vendor/bin/hw/vendor.focaltech.hardware.biometrics.fingerprint@1.0-service
+# Android's USB-OTG storage FUSE daemon (service fuse_usbotg in
+# init.project.rc runs /system/bin/sdcard for /storage/usbotg). Nothing mounts
+# OTG media into the container under LuneOS, so it exits at once and init
+# restarts it every five seconds for the life of the boot - 12 starts a minute,
+# each with a flags_health_check exec, a third of the kernel log line rate
+# measured on the MP01. No other service in this image uses sdcard.
+system/bin/sdcard
