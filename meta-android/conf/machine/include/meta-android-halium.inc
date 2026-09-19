@@ -3,9 +3,19 @@ PACKAGE_EXTRA_ARCHS:append = " ${TUNE_PKGARCH}"
 # A recipe that forces ARM_INSTRUCTION_SET = "arm" (chromium/webruntime) gets
 # a TUNE_PKGARCH without the thumb suffix, so it and its default-tune
 # dependents publish/search sstate manifests under different -halium arches.
-# Register the *other* instruction-set variant too (32-bit arm only) so
-# manifests resolve in both directions.
-PACKAGE_EXTRA_ARCHS:append:arm = " ${@' '.join(a for a in [d.expand('${ARMPKGARCH}${ARMPKGSFX_DSP}${ARMPKGSFX_EABI}${ARMPKGSFX_ENDIAN}${ARMPKGSFX_FPU}-halium'), d.expand('${ARMPKGARCH}${ARM_THUMB_SUFFIX}${ARMPKGSFX_DSP}${ARMPKGSFX_EABI}${ARMPKGSFX_ENDIAN}${ARMPKGSFX_FPU}-halium')] if a != d.getVar('TUNE_PKGARCH'))}"
+# Name the *other* instruction-set variant (32-bit arm only) once here, since
+# two separate mechanisms need to know about it.
+HALIUM_ISET_VARIANT_ARCHS = "${@' '.join(a for a in [d.expand('${ARMPKGARCH}${ARMPKGSFX_DSP}${ARMPKGSFX_EABI}${ARMPKGSFX_ENDIAN}${ARMPKGSFX_FPU}-halium'), d.expand('${ARMPKGARCH}${ARM_THUMB_SUFFIX}${ARMPKGSFX_DSP}${ARMPKGSFX_EABI}${ARMPKGSFX_ENDIAN}${ARMPKGSFX_FPU}-halium')] if a != d.getVar('TUNE_PKGARCH'))}"
+
+# Register it so manifests resolve in both directions.
+PACKAGE_EXTRA_ARCHS:append:arm = " ${HALIUM_ISET_VARIANT_ARCHS}"
+
+# And tell the genericity check it is not a device feed. That check allows
+# TUNE_PKGARCH only (see generic-rootfs-qa.bbclass), which is complete on
+# arm64 but not on arm, where the distro default is thumb: webruntime-clang
+# and browser-shell land in the non-thumb variant of the *same* tune, shared
+# by every device on this machine rather than tied to one of them.
+GENERIC_ROOTFS_ALLOWED_ARCHS:append:arm = " ${HALIUM_ISET_VARIANT_ARCHS}"
 
 PREFERRED_PROVIDER_virtual/libgl ?= "mesa-gl"
 PREFERRED_PROVIDER_virtual/libgbm ?= "mesa-gl"
