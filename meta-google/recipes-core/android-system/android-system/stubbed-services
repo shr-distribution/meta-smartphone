@@ -22,3 +22,10 @@ vendor/bin/mm-pp-dpps
 # 235 coredumps and 30 MB in the first 8 minutes of uptime - about 5.5 GB a day
 # onto userdata. Measured, not estimated.
 vendor/bin/hw/android.hardware.configstore@1.1-service
+# On-device modem/diag loggers. diag_mdlog held DIAG_WS and the cdsp/lpass
+# IPC-router ports awake and was the DIAG_WS suspend aborter on battery
+# (measured 2026-09-19: DIAG_WS 7/min -> 0 with it stopped). Both are
+# "disabled" in the vendor rc; init exec-starts diag_mdlog as a oneshot, so
+# the stub must exit rather than sleep.
+vendor/bin/diag_mdlog exit
+vendor/bin/ssr_diag
