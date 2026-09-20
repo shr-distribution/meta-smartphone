@@ -1,0 +1,27 @@
+[Unit]
+Description=Select deep (suspend-to-RAM) as the system suspend state
+ConditionPathExists=/sys/power/mem_sleep
+# Must be settled before anything can ask for a suspend.
+Before=sleepd.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# /sys/power/mem_sleep only lists "deep" once the platform has registered its
+# suspend ops, which on Halium kernels happens well after local filesystems
+# are up. A tmpfiles "w-" line therefore ran too early and wrote into a file
+# that still offered s2idle alone: measured on sargo (2026-09-20), the boot
+# ran systemd-tmpfiles without an error and left [s2idle] selected, while the
+# identical write by hand three minutes later selected deep and stuck. Wait
+# for the state to appear rather than firing once and hoping.
+ExecStart=/bin/sh -c 'i=0; while [ $i -lt 30 ]; do \
+    if grep -qw deep /sys/power/mem_sleep; then \
+        printf deep > /sys/power/mem_sleep; \
+        echo "mem_sleep: $(cat /sys/power/mem_sleep)"; \
+        exit 0; \
+    fi; \
+    i=$((i+1)); sleep 1; \
+done; echo "mem_sleep: no deep state, leaving $(cat /sys/power/mem_sleep)"'
+
+[Install]
+WantedBy=multi-user.target
