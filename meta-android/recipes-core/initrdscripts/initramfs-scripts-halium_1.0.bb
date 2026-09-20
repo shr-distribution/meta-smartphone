@@ -14,6 +14,7 @@ SRC_URI += " \
   git://github.com/Tofee/initramfs-tools-halium.git;branch=tofe/halium-9.0;protocol=https \
   file://0001-halium-find-the-Android-image-instead-of-assuming-whe.patch \
   file://0002-halium-size-userdata-from-sysfs-not-proc-partitions.patch \
+  file://0003-halium-fail-loudly-when-the-rootfs-mount-fails.patch \
   file://functions \
 "
 
