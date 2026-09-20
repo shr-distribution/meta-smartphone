@@ -2,7 +2,7 @@ DESCRIPTION = "System configuration and startup scripts for the Android compatib
 LICENSE = "GPL-3.0-only"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/GPL-3.0-only;md5=c79ff39f19dfec6d293b95dea7b07891"
 
-PR = "r10"
+PR = "r11"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
@@ -71,7 +71,7 @@ SRC_URI = " \
     file://55-vintf-no-software-keymaster \
     file://60-camerahalserver-eager \
     file://70-fpdata-dirs \
-    file://mem-sleep.conf \
+    file://mem-sleep.service \
 "
 
 # Create additional android users we need (need to have same UIDs as in android)
@@ -225,9 +225,9 @@ do_install() {
 
     install -d ${D}${localstatedir}/lib/lxc/android/rootfs
 
-    # Deep suspend rather than s2idle; see the fragment for why.
-    install -d ${D}${nonarch_libdir}/tmpfiles.d
-    install -m 0644 ${UNPACKDIR}/mem-sleep.conf ${D}${nonarch_libdir}/tmpfiles.d/mem-sleep.conf
+    # Deep suspend rather than s2idle; see the unit for why it waits.
+    install -d ${D}${systemd_system_unitdir}
+    install -m 0644 ${UNPACKDIR}/mem-sleep.service ${D}${systemd_system_unitdir}/mem-sleep.service
 
     # Compatibility symlinks for the Android filesystem layout.
     #
@@ -251,7 +251,7 @@ do_install() {
         ${D}${sysconfdir}/systemd/system/basic.target.requires/android-system.service
 }
 
-FILES:${PN} += "/cache /data /factory /firmware /persist /system /vendor ${nonarch_libdir}/tmpfiles.d"
+FILES:${PN} += "/cache /data /factory /firmware /persist /system /vendor"
 
 # The stubs are shebanged "#!/system/bin/sh": they are bind-mounted over Android
 # service binaries and only ever run inside the container's mount namespace,
@@ -283,6 +283,7 @@ SYSTEMD_SERVICE:${PN} = ""
 # With the unit out of SYSTEMD_SERVICE the class no longer adds it to the
 # package, so name it here.
 FILES:${PN} += "${systemd_system_unitdir}/android-system.service"
+FILES:${PN} += "${systemd_system_unitdir}/mem-sleep.service"
 
 pkg_postinst:${PN}() {
     if type systemctl >/dev/null 2>/dev/null; then
@@ -291,6 +292,7 @@ pkg_postinst:${PN}() {
             OPTS="--root=$D"
         fi
         systemctl $OPTS enable android-system.service
+        systemctl $OPTS enable mem-sleep.service
         if [ -z "$D" ]; then
             systemctl daemon-reload
         fi
