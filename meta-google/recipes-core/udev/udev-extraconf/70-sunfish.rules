@@ -1,0 +1,47 @@
+# Pixel 4a (sunfish) device-node permissions that nothing else grants.
+#
+# Three rules. Everything else sunfish's ueventd.rc asks for is already in
+# 65-android.rules - either from the original fold-in or from the second one,
+# which happened because sunfish and sargo transcribed the same 20 rules
+# identically (smd7, the IPA data path, wlan, uinput, citadel0, ttyHS0,
+# btpower, the Cirrus/WCD audio nodes, i2c-5, ramdump_*, diag, rtc0, ...).
+#
+# Deliberately NOT here, having checked sunfish_defconfig rather than trusting
+# the ueventd.rc it was copied into:
+#
+#   ipu, ab-dram, abc-pcie-dma   the Pixel Neural Core / Airbrush nodes. No
+#                                CONFIG_IPU, CONFIG_AIRBRUSH or CONFIG_ABC_PCIE
+#                                anywhere in the config - the 4a has no Neural
+#                                Core, the entries are inherited from coral.
+#   iaxxx-odsp-celldrv           Knowles audio DSP; no CONFIG_IAXXX either.
+#   maxfg_history                Maxim fuel-gauge history; no driver in the
+#                                config, and LuneOS reads charge state from
+#                                /sys/class/power_supply through nyx anyway.
+#   access-kregistry             Android's Resume-on-Reboot key registry, which
+#                                nothing outside Android's own keystore uses.
+#   tunnel0                      compressed-offload audio node. sargo runs its
+#                                whole audio stack without one, so this is not
+#                                added on spec - re-add it if offload playback
+#                                misbehaves.
+#   .../1d84000.ufshc/by-name/frp
+#                                already granted by 65-android.rules at 0600.
+#                                sunfish's ueventd says 0660; no LuneOS
+#                                component touches factory reset protection, so
+#                                the generic value stands rather than a second
+#                                rule for one group-write bit.
+#
+# Shipped by the *generic* rootfs, not by a sunfish rootfs: sunfish builds only
+# a boot image (see sunfish.conf), so there is no per-machine image to carry
+# this. udev rules have to exist before the coldplug, which rules out the
+# runtime Tier 2 adaptation path in luneos-device-config - that service is
+# ordered after systemd-udev-trigger. Every rule keys on a node name, so on any
+# other device running this rootfs none of them match.
+
+# Qualcomm crypto engine (CONFIG_CRYPTO_DEV_QCEDEV). 65-android.rules carries
+# qseecom and qsee_ipc_irq_spss but not this one.
+ACTION=="add", KERNEL=="qce", OWNER="system", GROUP="drmrpc", MODE="0660"
+
+# NFC and the embedded secure element, both ST here where sargo has NXP
+# (CONFIG_NFC_ST21NFC, CONFIG_ESE_ST54J).
+ACTION=="add", KERNEL=="st21nfc", OWNER="nfc", GROUP="nfc", MODE="0660"
+ACTION=="add", KERNEL=="st54j_se", OWNER="secure_element", GROUP="secure_element", MODE="0660"
