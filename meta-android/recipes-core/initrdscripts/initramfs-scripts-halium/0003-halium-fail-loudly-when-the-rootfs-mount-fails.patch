@@ -1,0 +1,93 @@
+From: Herrie <claude.ai@herrie.org>
+Date: Fri, 19 Sep 2026 00:00:00 +0000
+Subject: [PATCH] halium: fail loudly when the rootfs mount fails
+
+mountroot() mounted the rootfs and never looked at the result:
+
+    mount -o loop,rw $imagefile /halium-system
+
+If that failed, execution carried straight on with an empty /halium-system.
+identify_android_image, the read-only remount and finally switch_root all
+behave as though an empty directory were a real root, so the first visible
+symptom is the system dying immediately after handover to /sbin/init - with
+nothing in the log pointing at the mount.
+
+Worse, the status mountroot reports was taken from the wrong command:
+
+    tell_kmsg "mounting ... (image developer mode)"
+    mountroot_status="$?"
+
+$? there is the exit status of tell_kmsg, i.e. of echo, which is always 0. In
+developer-image mode mountroot therefore reported success unconditionally,
+whatever happened to the mount.
+
+Check the mount, panic with the real rc, and require /sbin/init (or systemd)
+to exist under the new root before calling it mounted - a bind of an empty
+directory succeeds, and so does a loop mount of an image that is a valid
+filesystem but not a rootfs. Take mountroot_status from something meaningful
+in both branches, and warn if the read-only remount fails.
+
+Upstream-Status: Pending
+
+Signed-off-by: Herrie <claude.ai@herrie.org>
+---
+--- a/scripts/halium
++++ b/scripts/halium
+@@ -500,14 +500,38 @@
+ 	mkdir -p /halium-system
+ 
+ 	tell_kmsg "mounting system rootfs at /halium-system"
++	_rootfs_rc=0
+ 	if [ -n "$_syspart" ]; then
+ 		mount -o rw $_syspart /halium-system
++		_rootfs_rc=$?
++		_rootfs_what="$_syspart"
+ 	elif [ -f "$imagefile" ]; then
+ 		# Rootfs is an image file
+ 		mount -o loop,rw $imagefile /halium-system
++		_rootfs_rc=$?
++		_rootfs_what="$imagefile (loop)"
+ 	elif [ -d "$imagefile" ]; then
+ 		# Rootfs is a directory
+ 		mount -o bind /tmpmnt/halium-rootfs /halium-system
++		_rootfs_rc=$?
++		_rootfs_what="/tmpmnt/halium-rootfs (bind)"
++	else
++		panic "No rootfs to mount: _syspart empty and $imagefile is neither a file nor a directory"
++	fi
++
++	# Fail loudly. This mount is the whole point of mountroot, and every later
++	# step - identify_android_image, the remount, switch_root - behaves as if an
++	# empty /halium-system were a real root, so a silent failure here surfaces
++	# much later as an unexplained death just after handover to /sbin/init.
++	if [ "$_rootfs_rc" != 0 ]; then
++		panic "Failed to mount $_rootfs_what at /halium-system (mount rc=$_rootfs_rc)"
++	fi
++
++	# A zero exit status is not proof the root is usable: a bind of an empty
++	# directory succeeds, and so does a loop mount of an image whose filesystem
++	# mounted but is not a rootfs. Require something every LuneOS rootfs has.
++	if [ ! -x /halium-system/sbin/init ] && [ ! -x /halium-system/usr/lib/systemd/systemd ] ; then
++		panic "Mounted $_rootfs_what at /halium-system but it has no /sbin/init - wrong image, or the filesystem is empty"
+ 	fi
+ 	
+ 	# Identify image mode: either "rootfs" or "system"
+@@ -521,12 +545,17 @@
+ 	# /.writable_image exist, mount the rootfs as rw
+ 	if [ -e /tmpmnt/.writable_image ] || [ -e /halium-system/.writable_image ]; then
+ 		tell_kmsg "mounting $_syspart $imagefile (image developer mode)"
+-		mountroot_status="$?"
++		# Nothing is run in this branch, so the root is as good as the mount
++		# above left it. It used to take $? from tell_kmsg - i.e. from echo -
++		# which is always 0, so mountroot reported success unconditionally.
++		mountroot_status=0
+ 	else
+ 		# Neither of those exist, remount read-only
+ 		tell_kmsg "mounting $_syspart $imagefile (user mode)"
+ 		mount -o remount,ro /halium-system
+ 		mountroot_status="$?"
++		[ "$mountroot_status" = 0 ] || \
++			tell_kmsg "WARNING: remount,ro of /halium-system failed (rc=$mountroot_status)"
+ 	fi
+ 
+ 	# Mount the android system partition to a temporary location
