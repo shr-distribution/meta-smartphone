@@ -350,4 +350,43 @@ ACTION=="add", KERNEL=="vm_bms", OWNER="system", GROUP="system", MODE="0660"
 ACTION=="add", KERNEL=="voice_svc", OWNER="system", GROUP="audio", MODE="0660"
 ACTION=="add", KERNEL=="wcnss_ctrl", OWNER="system", GROUP="system", MODE="0660"
 ACTION=="add", KERNEL=="wcnss_wlan", OWNER="system", GROUP="system", MODE="0660"
+# ---------------------------------------------------------------------------
+# A second fold-in, on the same rule as the block above: present in at least
+# two per-machine files with owner, group and mode agreeing. sargo (Pixel 3a)
+# and sunfish (Pixel 4a) transcribe these identically from their respective
+# ueventd.rc, so they describe the platform rather than either phone, and
+# keeping two copies only makes it possible for them to drift.
+#
+# Some are Pixel-family rather than Android-generic (citadel0 is the Titan M
+# security chip; v4l2loopback is the node gst-droid's camera path wants). They
+# are here for the same reason as everything above: a rule for a node the
+# device does not have never matches, so shipping the union costs the other
+# machines nothing, and the alternative is a third device transcribing them a
+# third time.
+#
+# diag and rtc0 appeared twice in 70-sargo.rules with different modes; udev
+# applies rules in order, so the value kept here is the one that was already
+# winning there (system:diag 0660, and rtc0 at 0660 rather than 0640).
+# ---------------------------------------------------------------------------
+ACTION=="add", KERNEL=="diag", OWNER="system", GROUP="diag", MODE="0660"
+ACTION=="add", KERNEL=="rtc0", OWNER="system", GROUP="system", MODE="0660"
+ACTION=="add", KERNEL=="smd7", OWNER="bluetooth", GROUP="bluetooth", MODE="0660"
+ACTION=="add", KERNEL=="ipa", OWNER="system", GROUP="radio", MODE="0660"
+ACTION=="add", KERNEL=="wwan_ioctl", OWNER="system", GROUP="radio", MODE="0660"
+ACTION=="add", KERNEL=="ipaNatTable", OWNER="system", GROUP="radio", MODE="0660"
+ACTION=="add", KERNEL=="rmnet_ctrl", OWNER="usb", GROUP="usb", MODE="0660"
+ACTION=="add", KERNEL=="wlan", OWNER="system", GROUP="system", MODE="0666"
+ACTION=="add", KERNEL=="wcd-spi-ac-client", OWNER="system", GROUP="audio", MODE="0660"
+ACTION=="add", KERNEL=="msm_amrnb_in", OWNER="system", GROUP="audio", MODE="0640"
+ACTION=="add", KERNEL=="msm_a2dp_in", OWNER="system", GROUP="audio", MODE="0660"
+ACTION=="add", KERNEL=="msm_audio_cal", OWNER="system", GROUP="audio", MODE="0660"
+ACTION=="add", KERNEL=="msm_cirrus_playback", OWNER="system", GROUP="audio", MODE="0660"
+ACTION=="add", KERNEL=="i2c-5", OWNER="media", GROUP="media", MODE="0660"
+ACTION=="add", KERNEL=="v4l2loopback", GROUP="video", MODE="0660"
+ACTION=="add", KERNEL=="ttyHS0", OWNER="bluetooth", GROUP="net_bt", MODE="0660"
+ACTION=="add", KERNEL=="btpower", OWNER="bluetooth", GROUP="net_bt", MODE="0660"
+ACTION=="add", KERNEL=="uinput", OWNER="system", GROUP="bluetooth", MODE="0660"
+ACTION=="add", KERNEL=="citadel0", OWNER="hsm", GROUP="hsm", MODE="0660"
+ACTION=="add", KERNEL=="ramdump_*", OWNER="system", GROUP="system", MODE="0640"
+
 SUBSYSTEM=="input", KERNEL=="event[0-9]*", ATTRS{modalias}=="input:b0000v0000p0000e0000-e0, 3, kra2F, 30, 35, 36, 39, 3A, mlsfw", SYMLINK+="input/touchscreen0"

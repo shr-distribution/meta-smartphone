@@ -1,10 +1,20 @@
 # Pixel 3a (sargo) device-node permissions that are not in 65-android.rules.
 #
-# What is left after the common Android set was folded into that file: nodes no
-# other port has (the Titan M security chip, the Pixel Visual Core, the NXP
-# secure element) and the handful where sargo's ueventd disagrees with every
-# other machine - notably uinput, which bluetooth HID needs, and the IPA data
-# path nodes, which mobile data needs.
+# What is left after two rounds of folding the common set into that file: nodes
+# no other port here has - the Pixel Visual Core (easelcomm-client, mnh_sm),
+# the NXP secure element sargo uses where sunfish has an ST one, sargo's eMMC
+# frp path, and the older msm nodes (oncrpc, msm_camera, smd0, diag_arm9).
+#
+# The second round happened when sunfish was ported: 20 rules here turned out
+# to be transcribed identically from that device's ueventd.rc too - uinput,
+# the IPA data path, wlan, smd7, ttyHS0, btpower, citadel0, the Cirrus/WCD
+# audio nodes, i2c-5, v4l2loopback, ramdump_*, diag and rtc0 - so by the rule
+# 65-android.rules states for itself (two files, agreeing) they belong there.
+# Effective permissions were verified unchanged for every machine: 65 is read
+# before any 70-*, and no other per-machine file claims those nodes.
+#
+# hw_random still appears twice below, with the second line winning, exactly as
+# it did before - that pair is sargo's own and was left alone.
 #
 # Shipped by the *generic* rootfs, not by a sargo rootfs: sargo builds only a
 # boot image (see sargo.conf), so there is no per-machine image to carry this.
@@ -14,34 +24,12 @@
 # device running this rootfs none of them match.
 
 ACTION=="add", KERNEL=="hw_random", OWNER="root", GROUP="system", MODE="0440"
-ACTION=="add", KERNEL=="diag", OWNER="radio", GROUP="radio", MODE="0660"
 ACTION=="add", KERNEL=="diag_arm9", OWNER="radio", GROUP="radio", MODE="0660"
-ACTION=="add", KERNEL=="uinput", OWNER="system", GROUP="bluetooth", MODE="0660"
-ACTION=="add", KERNEL=="rtc0", OWNER="system", GROUP="system", MODE="0640"
 ACTION=="add", KERNEL=="oncrpc/*", OWNER="root", GROUP="system", MODE="0660"
 ACTION=="add", KERNEL=="msm_camera/*", OWNER="system", GROUP="system", MODE="0660"
 ACTION=="add", KERNEL=="smd0", OWNER="radio", GROUP="radio", MODE="0640"
-ACTION=="add", KERNEL=="diag", OWNER="system", GROUP="diag", MODE="0660"
-ACTION=="add", KERNEL=="wlan", OWNER="system", GROUP="system", MODE="0666"
-ACTION=="add", KERNEL=="rtc0", OWNER="system", GROUP="system", MODE="0660"
-ACTION=="add", KERNEL=="smd7", OWNER="bluetooth", GROUP="bluetooth", MODE="0660"
-ACTION=="add", KERNEL=="ipa", OWNER="system", GROUP="radio", MODE="0660"
-ACTION=="add", KERNEL=="wwan_ioctl", OWNER="system", GROUP="radio", MODE="0660"
-ACTION=="add", KERNEL=="ipaNatTable", OWNER="system", GROUP="radio", MODE="0660"
-ACTION=="add", KERNEL=="rmnet_ctrl", OWNER="usb", GROUP="usb", MODE="0660"
 ACTION=="add", KERNEL=="hw_random", OWNER="root", GROUP="root", MODE="0600"
-ACTION=="add", KERNEL=="wcd-spi-ac-client", OWNER="system", GROUP="audio", MODE="0660"
-ACTION=="add", KERNEL=="msm_amrnb_in", OWNER="system", GROUP="audio", MODE="0640"
-ACTION=="add", KERNEL=="msm_a2dp_in", OWNER="system", GROUP="audio", MODE="0660"
-ACTION=="add", KERNEL=="msm_cirrus_playback", OWNER="system", GROUP="audio", MODE="0660"
-ACTION=="add", KERNEL=="msm_audio_cal", OWNER="system", GROUP="audio", MODE="0660"
-ACTION=="add", KERNEL=="i2c-5", OWNER="media", GROUP="media", MODE="0660"
-ACTION=="add", KERNEL=="ramdump_*", OWNER="system", GROUP="system", MODE="0640"
-ACTION=="add", KERNEL=="ttyHS0", OWNER="bluetooth", GROUP="net_bt", MODE="0660"
-ACTION=="add", KERNEL=="btpower", OWNER="bluetooth", GROUP="net_bt", MODE="0660"
 ACTION=="add", KERNEL=="pn81a", OWNER="secure_element", GROUP="secure_element", MODE="0660"
-ACTION=="add", KERNEL=="citadel0", OWNER="hsm", GROUP="hsm", MODE="0660"
 ACTION=="add", KERNEL=="easelcomm-client", OWNER="cameraserver", GROUP="camera", MODE="0666"
 ACTION=="add", KERNEL=="mnh_sm", OWNER="cameraserver", GROUP="camera", MODE="0666"
 ACTION=="add", KERNEL=="block/platform/soc/7c4000.sdhci/by-name/frp", OWNER="system", GROUP="system", MODE="0660"
-ACTION=="add", KERNEL=="v4l2loopback", GROUP="video", MODE="0660"
