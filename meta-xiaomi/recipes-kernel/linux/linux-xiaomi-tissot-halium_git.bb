@@ -38,7 +38,7 @@ do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/tissot_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "2291ed623f8114cdafadf7feb4d5ddb844f940e8"
+SRCREV = "b3b9435a43a64fa1c3b0c748fe31e1641e92acea"
 
 LINUX_VERSION = "4.9.188"
 PV = "${LINUX_VERSION}+git"
