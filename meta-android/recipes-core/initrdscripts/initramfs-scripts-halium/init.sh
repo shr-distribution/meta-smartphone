@@ -621,6 +621,46 @@ load_kernel_modules() {
 
 quiet="n"
 
+# "initrd_probe_mount" - does a block-backed mount work, and does it still work
+# after everything this script does before mountroot?
+#
+# athena returns ENOENT from mount(2) for every block-backed filesystem while
+# tmpfs mounts fine, raw block I/O works and fsck/resize2fs read the same
+# partition happily. Two explanations survive: the kernel, or something this
+# init does to the environment between devtmpfs coming up and mountroot running.
+# Nothing between those two points had ever been tested.
+#
+# Probes the SAME partition at two points and reports both, so one boot decides:
+#
+#   EARLY ok, LATE fail  -> this script breaks it; bisect the steps between
+#   EARLY fail           -> nothing here matters; it is the kernel or the
+#                           environment we were handed
+#   both ok              -> the failure is inside mountroot's own logic
+#
+# Usage: add "initrd_probe_mount=/dev/mmcblk0p77" to the kernel cmdline.
+probe_mount() {
+    _pm_dev=$(sed -n 's/.*initrd_probe_mount=\([^ ]*\).*/\1/p' /proc/cmdline 2>/dev/null)
+    [ -n "$_pm_dev" ] || return 0
+    _pm_when="$1"
+    mkdir -p /probe_mnt 2>/dev/null
+    # control: a virtual fs, to prove mount(2) itself is reachable at this point
+    if mount -t tmpfs none /probe_mnt 2>/dev/null; then
+        umount /probe_mnt 2>/dev/null
+        _pm_tmpfs=ok
+    else
+        _pm_tmpfs=FAIL
+    fi
+    _pm_err=$(mount -t ext4 -o ro "$_pm_dev" /probe_mnt 2>&1)
+    _pm_rc=$?
+    if [ $_pm_rc -eq 0 ]; then
+        tell_kmsg "probe_mount[$_pm_when]: tmpfs=$_pm_tmpfs ext4=ok ($_pm_dev)"
+        umount /probe_mnt 2>/dev/null
+    else
+        tell_kmsg "probe_mount[$_pm_when]: tmpfs=$_pm_tmpfs ext4=FAIL rc=$_pm_rc [$_pm_err]"
+    fi
+    rmdir /probe_mnt 2>/dev/null
+}
+
 mkdir -m 0755 /rfs
 rootmnt=/rfs
 
@@ -631,6 +671,8 @@ mount -t sysfs sys /sys
 mkdir -p /dev
 
 setup_devtmpfs ""
+
+probe_mount early
 
 # Check whether we need to boot recovery
 cat /proc/cmdline | grep skip_initramfs
@@ -1205,6 +1247,8 @@ mount_device_vendor() {
 }
 
 # Call Halium's mount script
+probe_mount late
+
 mountroot
 
 # GSI case: bring in the device's own /vendor (no-op when a vendor.img shipped)
