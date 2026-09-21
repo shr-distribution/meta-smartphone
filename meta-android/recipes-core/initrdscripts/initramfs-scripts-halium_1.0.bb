@@ -16,6 +16,7 @@ SRC_URI += " \
   file://0002-halium-size-userdata-from-sysfs-not-proc-partitions.patch \
   file://0003-halium-fail-loudly-when-the-rootfs-mount-fails.patch \
   file://functions \
+  file://pkvm-modprobe \
 "
 
 SRCREV = "0a2275aafe651d19e9eb3aa7a801c4d28550298f"
@@ -27,9 +28,20 @@ do_install:append() {
 
     install -m 0644 ${S}/scripts/halium ${D}/halium-boot.sh
     install -m 0644 ${UNPACKDIR}/functions ${D}/functions
+
+    # The kernel execs CONFIG_MODPROBE_PATH itself, before /init, to load the
+    # pKVM early modules named in kvm-arm.protected_modules
+    # (arch/arm64/kvm/pkvm.c, __pkvm_request_early_module). Android's GKI
+    # config sets that to /system/bin/modprobe, where stock's generic ramdisk
+    # has toybox and ours had nothing - so on gs101/gs201 exynos-pd and
+    # pkvm_s2mpu never registered with the hypervisor and the USB PHY later
+    # took a fatal CFI panic. Harmless on any device whose kernel never asks.
+    install -d ${D}/system/bin
+    install -m 0755 ${UNPACKDIR}/pkvm-modprobe ${D}/system/bin/modprobe
 }
 
 FILES:${PN} += " \
     /init /machine.conf /distro.conf \
     /halium-boot.sh /functions \
+    /system/bin/modprobe \
 "

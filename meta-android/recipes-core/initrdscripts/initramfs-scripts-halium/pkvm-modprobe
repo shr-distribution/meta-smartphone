@@ -1,0 +1,44 @@
+#!/bin/sh
+# /system/bin/modprobe -- executed by the kernel itself, before /init, to load
+# the pKVM early modules named in kvm-arm.protected_modules
+# (arch/arm64/kvm/pkvm.c: "/system/bin/modprobe -q -d /lib/modules -- <name>").
+# Stock Android's generic ramdisk provides toybox here; ours had nothing, so
+# exynos-pd / pkvm_s2mpu never registered with the hypervisor and the USB PHY
+# later died with a CFI panic. This resolves modules.dep and insmods.
+dir=/lib/modules
+log=/pkvm-modprobe.log
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -d) dir=$2; shift 2 ;;
+        --) shift; break ;;
+        -*) shift ;;
+        *) break ;;
+    esac
+done
+name=$1
+[ -n "$name" ] || exit 1
+want=$(printf '%s' "$name" | tr - _)
+found=""
+while IFS= read -r line; do
+    mod=${line%%:*}
+    base=${mod##*/}; base=${base%.ko}
+    [ "$(printf '%s' "$base" | tr - _)" = "$want" ] || continue
+    found=$mod
+    deps=${line#*:}
+    rev=""
+    for d in $deps; do rev="$d $rev"; done
+    for m in $rev $mod; do
+        f=$m
+        [ -f "$f" ] || f="$dir/${m##*/}"
+        b=${f##*/}; b=${b%.ko}; b=$(printf '%s' "$b" | tr - _)
+        grep -q "^$b " /proc/modules 2>/dev/null && continue
+        if insmod "$f" 2>>"$log"; then echo "pkvm-modprobe: loaded $f" >>"$log"
+        else echo "pkvm-modprobe: insmod $f failed" >>"$log"; fi
+    done
+    break
+done < "$dir/modules.dep"
+[ -n "$found" ] || { echo "pkvm-modprobe: $name not in $dir/modules.dep" >>"$log"; exit 1; }
+b=${found##*/}; b=${b%.ko}; b=$(printf '%s' "$b" | tr - _)
+grep -q "^$b " /proc/modules 2>/dev/null && exit 0
+echo "pkvm-modprobe: $name not loaded" >>"$log"
+exit 1
