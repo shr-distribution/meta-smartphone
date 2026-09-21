@@ -27,3 +27,24 @@ deviceinfo_device_pixel_ratio="1.0"
 # camera-count gate would wrongly offer video calling. Close it off until
 # the sensors actually work.
 deviceinfo_video_call="false"
+
+# The MT6739 vendor blobs are VNDK 30 but the GSI is Android 16, whose
+# /system/lib no longer carries the symbols they were built against:
+# audio.primary.mt6739.so wants
+# TypeConverter<DefaultTraits<audio_format_t>>::mTable out of
+# libmedia_helper.so (Android 11 moved TypeConverter to libaudiofoundation,
+# and there is no vendor copy of libmedia_helper to shadow the GSI's), and
+# libnvram.so wants android::base::Basename out of libbase.so. libhybris has
+# one flat namespace with no APEX awareness, so it binds the vendor HAL to the
+# Android 16 copies and module-droid-card fails to load - pactl then shows no
+# cards at all and only the null-sinks exist, so the device is silent.
+#
+# This makes 70-pulseaudio-env put HYBRIS_USE_VENDOR_NAMESPACE and
+# HYBRIS_PREFER_VNDK in pulseaudio's environment. Both are required: the
+# namespace variable is what keeps the VNDK preference off /system, so
+# libbinder still matches the GSI's libbinder_ndk. Shimming the individual
+# libraries instead does not work - libbase is needed in both directions at
+# once (vendor libnvram wants VNDK 30's Basename while the GSI's own
+# libcutils wants Android 16's Tokenize), which only a namespace split can
+# satisfy.
+deviceinfo_hybris_prefer_vndk="1"
