@@ -1,0 +1,99 @@
+From: codepoet80 <jon.wise@jonandnic.com>
+Date: Wed, 17 Sep 2026 17:57:23 +0000
+Subject: [PATCH] sched: park SysV IPC in the ANDROID_KABI reserved padding
+
+LuneOS needs SysV IPC: libPmLogLib calls shmget()/shmat(), and without it
+every PmLogCtl invocation blocks forever waiting for com.webos.pmlogd.
+surface-manager.sh runs "PmLogCtl def surface-manager" on its first line, so
+on the Pixel Tablet the compositor never started and the device sat on the
+boot logo. The same failure is documented on MP01.
+
+Enabling CONFIG_SYSVIPC the naive way is KMI poison: sysv_sem and sysv_shm
+land in the middle of task_struct and every following member shifts, which
+moves the genksyms CRC of every exported symbol whose prototype mentions a
+task_struct. Under CONFIG_MODVERSIONS the stock vendor modules then refuse to
+load, and losing them loses the Tier A property the GKI port rests on.
+
+Park the two members in the reserved Android KABI padding instead. sysv_sem is
+one pointer and fits a single slot via ANDROID_KABI_USE(6, ...); sysv_shm is a
+list_head and no USE macro spans two slots, so it is written longhand across
+slots 7 and 8 in the shape the macro would have produced. android_kabi.h
+defines _ANDROID_KABI_REPLACE(_orig, _new) as _orig under __GENKSYMS__, so
+genksyms still sees the untouched reserved u64s and the ABI it computes does
+not move.
+
+Verified on tangorpro against the stock cp3a.260905.009 vendor:
+
+  - kmi-crc-check: 194/194 stock vendor_kernel_boot modules OK.
+  - Module.symvers byte-identical to the same tree built with SYSVIPC off.
+  - BTF comparison of 10,486 structs: only task_struct differs, and only by
+    naming slots 6-8 - thread is still at offset 3664 and the size is still
+    4800. A CRC check alone cannot show this, because the __GENKSYMS__ trick
+    keeps CRCs stable by construction.
+  - On device: /proc/sysvipc exists, PmLogCtl returns immediately, and the
+    compositor comes up.
+
+gs101 and gs201 share one KMI, so this covers bluejay and panther too.
+
+Upstream-Status: Inappropriate [embedded specific]
+
+The patch exists to keep a vendor's prebuilt modules loadable against a
+rebuilt ACK. It depends on the Android KABI padding macros and on slots 6-8 of
+task_struct being free in this tree, so it is specific to this KMI and has no
+meaning upstream.
+---
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1096,10 +1096,11 @@
+ 
+ 	struct nameidata		*nameidata;
+ 
+-#ifdef CONFIG_SYSVIPC
+-	struct sysv_sem			sysvsem;
+-	struct sysv_shm			sysvshm;
+-#endif
++	/*
++	 * LuneOS: sysvsem/sysvshm (CONFIG_SYSVIPC) would normally live here.
++	 * Inserting them mid-struct shifts every following member and breaks
++	 * the frozen KMI, so they are parked in ANDROID_KABI_USE(6..8) below.
++	 */
+ #ifdef CONFIG_DETECT_HUNG_TASK
+ 	unsigned long			last_switch_count;
+ 	unsigned long			last_switch_time;
+@@ -1553,9 +1554,19 @@
+ 	ANDROID_KABI_RESERVE(3);
+ 	ANDROID_KABI_RESERVE(4);
+ 	ANDROID_KABI_RESERVE(5);
+-	ANDROID_KABI_RESERVE(6);
+-	ANDROID_KABI_RESERVE(7);
+-	ANDROID_KABI_RESERVE(8);
++	/*
++	 * LuneOS: SysV IPC in reserved padding. genksyms still sees the
++	 * reserved u64s, so CRCs and offsets match the SYSVIPC=n KMI.
++	 * sysv_sem is one pointer (one slot), sysv_shm a list_head (two).
++	 */
++#ifdef CONFIG_ANDROID_KABI_RESERVE
++	ANDROID_KABI_USE(6, struct sysv_sem sysvsem);
++	_ANDROID_KABI_REPLACE(_ANDROID_KABI_RESERVE(7); _ANDROID_KABI_RESERVE(8),
++			      struct sysv_shm sysvshm);
++#else
++	struct sysv_sem			sysvsem;
++	struct sysv_shm			sysvshm;
++#endif
+ 
+ 	/*
+ 	 * New fields for task_struct should be added above here, so that
+@@ -1574,6 +1585,13 @@
+ 	 */
+ };
+ 
++#if defined(CONFIG_SYSVIPC) && defined(CONFIG_ANDROID_KABI_RESERVE)
++static_assert(sizeof(struct sysv_sem) == sizeof(u64),
++	      "sysv_sem must occupy exactly one ANDROID_KABI reserved slot");
++static_assert(sizeof(struct sysv_shm) == 2 * sizeof(u64),
++	      "sysv_shm must occupy exactly two ANDROID_KABI reserved slots");
++#endif
++
+ static inline struct pid *task_pid(struct task_struct *task)
+ {
+ 	return task->thread_pid;
