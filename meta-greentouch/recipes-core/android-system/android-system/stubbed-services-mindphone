@@ -1,0 +1,16 @@
+# Container services stubbed out on the mindphone (codename "mindset").
+#
+# Android's battery health HAL. Nothing in LuneOS consumes it: batteryd and
+# nyx read the battery straight from sysfs, and LuneOS's own storaged is a
+# different daemon living outside the container. What it does cost is sleep.
+# Traced on the phone 2026-09-21 with the alarm tracepoints that the debugfs
+# fix made available:
+#
+#   health@2.1-serv alarmtimer_start ... type:BOOTTIME  interval 600 s
+#   health@2.1-serv alarmtimer_start ... type:BOOTTIME  interval  60 s
+#
+# A BOOTTIME alarm wakes the SoC, so this polled the battery every ten
+# minutes from suspend, and every sleep in the preceding measurements ended
+# at 590-599 s on the PMIC. The same HAL is stubbed on the Google targets for
+# the same reason.
+vendor/bin/hw/android.hardware.health@2.1-service
