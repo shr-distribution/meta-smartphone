@@ -1,0 +1,52 @@
+[Unit]
+Description=Re-enable the SoC deep idle states Android's init turned off
+ConditionPathExists=/sys/module/lpm_levels/parameters/sleep_disabled
+# The container's init is what writes the disable, so this has to run after it.
+After=android-system.service
+Requires=android-system.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# Qualcomm's vendor init disables every SoC low-power mode early in boot and
+# relies on the Android framework to switch them back on:
+#
+#   init.sdm670.rc       on init && property:vendor.skip.init=0
+#                        # Disable powersaving
+#                        write .../lpm_levels/parameters/sleep_disabled 1
+#
+#   init.sdm670.power.rc on property:sys.boot_completed=1
+#                        # Turn on sleep modes.
+#                        write .../lpm_levels/parameters/sleep_disabled 0
+#
+# sys.boot_completed is set by SystemServer, which does not exist under
+# Halium, so only the first half ever runs and the cores spend every idle
+# moment in shallow WFI - clock-gated but still leaking - for the life of the
+# boot. Measured on sargo 2026-09-22: cpuidle C1-C3 residency was exactly 0
+# after 29 hours of uptime, against 9578 s on tissot, whose vendor init has no
+# such write. Enabling it is worth 20.3 mA of awake draw (117.8 -> 97.5 mA,
+# alternating A/B, 3 repeats, noise floor 5.2 mA) and 948 s of deep-state
+# residency per 120 s phase summed across the 8 cores.
+#
+# This is the same shape as the other Halium init bugs: a vendor action whose
+# undo is gated on a framework event that never arrives. Doing it here rather
+# than by patching the container's rc files keeps it working on a read-only
+# vendor image, and the ConditionPathExists makes it a no-op on any device
+# whose kernel has no lpm-levels driver.
+#
+# Retried rather than fired once: the container's write lands whenever its
+# init gets there, which is after this unit's ordering is satisfied, so a
+# single write can be overwritten a moment later.
+# $$ rather than $: systemd expands $i and ${i} itself in an ExecStart line
+# and hands the shell an empty string ("Referenced but unset environment
+# variable evaluates to an empty string: i").
+ExecStart=/bin/sh -c 'P=/sys/module/lpm_levels/parameters/sleep_disabled; \
+    i=0; while [ $$i -lt 30 ]; do \
+        printf N > "$$P" 2>/dev/null; \
+        sleep 1; \
+        [ "$$(cat "$$P")" = N ] && { echo "sleep_disabled=N after $${i}s"; exit 0; }; \
+        i=$$((i+1)); \
+    done; echo "sleep_disabled stuck at $$(cat "$$P")"; exit 0'
+
+[Install]
+WantedBy=multi-user.target

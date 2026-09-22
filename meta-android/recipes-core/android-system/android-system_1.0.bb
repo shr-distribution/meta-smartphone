@@ -2,7 +2,7 @@ DESCRIPTION = "System configuration and startup scripts for the Android compatib
 LICENSE = "GPL-3.0-only"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/GPL-3.0-only;md5=c79ff39f19dfec6d293b95dea7b07891"
 
-PR = "r11"
+PR = "r12"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
@@ -72,6 +72,7 @@ SRC_URI = " \
     file://60-camerahalserver-eager \
     file://70-fpdata-dirs \
     file://mem-sleep.service \
+    file://cpuidle-deep.service \
 "
 
 # Create additional android users we need (need to have same UIDs as in android)
@@ -228,6 +229,7 @@ do_install() {
     # Deep suspend rather than s2idle; see the unit for why it waits.
     install -d ${D}${systemd_system_unitdir}
     install -m 0644 ${UNPACKDIR}/mem-sleep.service ${D}${systemd_system_unitdir}/mem-sleep.service
+    install -m 0644 ${UNPACKDIR}/cpuidle-deep.service ${D}${systemd_system_unitdir}/cpuidle-deep.service
 
     # Compatibility symlinks for the Android filesystem layout.
     #
@@ -284,6 +286,7 @@ SYSTEMD_SERVICE:${PN} = ""
 # package, so name it here.
 FILES:${PN} += "${systemd_system_unitdir}/android-system.service"
 FILES:${PN} += "${systemd_system_unitdir}/mem-sleep.service"
+FILES:${PN} += "${systemd_system_unitdir}/cpuidle-deep.service"
 
 pkg_postinst:${PN}() {
     if type systemctl >/dev/null 2>/dev/null; then
@@ -293,6 +296,7 @@ pkg_postinst:${PN}() {
         fi
         systemctl $OPTS enable android-system.service
         systemctl $OPTS enable mem-sleep.service
+        systemctl $OPTS enable cpuidle-deep.service
         if [ -z "$D" ]; then
             systemctl daemon-reload
         fi
