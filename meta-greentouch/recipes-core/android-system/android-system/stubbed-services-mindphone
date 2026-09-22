@@ -14,3 +14,21 @@
 # at 590-599 s on the PMIC. The same HAL is stubbed on the Google targets for
 # the same reason.
 vendor/bin/hw/android.hardware.health@2.1-service
+# ... and Android's storaged with it, which is the HAL's only consumer inside
+# the container. It must go in the same breath: with the HAL stubbed and
+# storaged left running, storaged asks hwservicemanager for
+# android.hardware.health@2.0::IHealth/default once a second and init logs a
+# failed ctl.interface_start for each one. Measured on the phone the first
+# time the HAL was stubbed alone - one such line in the whole preceding boot,
+# then a steady 60 a minute from the moment the stub took effect. sargo pairs
+# these two for exactly this reason. LuneOS's own storaged is a different
+# daemon outside the container and is untouched by this.
+system/bin/storaged
+# Android's USB-OTG storage FUSE daemon (service fuse_usbotg runs
+# /system/bin/sdcard for /storage/usbotg). Nothing mounts OTG media into the
+# container under LuneOS, so it exits immediately and init restarts it every
+# five seconds for the life of the boot - measured here at 12 starts a minute
+# sustained across a two-hour boot, each one dragging in a
+# flags_health_check exec and an "exited 4 times before boot completed"
+# complaint. Same daemon, same treatment as the MP01.
+system/bin/sdcard
