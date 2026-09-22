@@ -6,7 +6,10 @@ After=android-system.service
 Requires=android-system.service
 
 [Service]
-Type=oneshot
+# simple, not oneshot: this watches for 45 s, and a oneshot would hold
+# multi-user.target up for all of it. Nothing needs to wait for the result -
+# deep idle is a power optimisation, not a prerequisite for anything.
+Type=simple
 RemainAfterExit=yes
 # Qualcomm's vendor init disables every SoC low-power mode early in boot and
 # relies on the Android framework to switch them back on:
@@ -34,19 +37,20 @@ RemainAfterExit=yes
 # vendor image, and the ConditionPathExists makes it a no-op on any device
 # whose kernel has no lpm-levels driver.
 #
-# Retried rather than fired once: the container's write lands whenever its
-# init gets there, which is after this unit's ordering is satisfied, so a
-# single write can be overwritten a moment later.
+# Re-asserted for a whole window rather than written once, and deliberately
+# not exiting at the first success. After=android-system.service only means
+# the service has started - lxc is up - not that the container's init has
+# reached its "on init" actions, so its write of 1 can land seconds after
+# ours of N. Keep writing for the window and report the state at the end.
 # $$ rather than $: systemd expands $i and ${i} itself in an ExecStart line
 # and hands the shell an empty string ("Referenced but unset environment
 # variable evaluates to an empty string: i").
 ExecStart=/bin/sh -c 'P=/sys/module/lpm_levels/parameters/sleep_disabled; \
-    i=0; while [ $$i -lt 30 ]; do \
-        printf N > "$$P" 2>/dev/null; \
-        sleep 1; \
-        [ "$$(cat "$$P")" = N ] && { echo "sleep_disabled=N after $${i}s"; exit 0; }; \
-        i=$$((i+1)); \
-    done; echo "sleep_disabled stuck at $$(cat "$$P")"; exit 0'
+    n=0; i=0; while [ $$i -lt 45 ]; do \
+        [ "$$(cat "$$P" 2>/dev/null)" = N ] || { printf N > "$$P" 2>/dev/null; n=$$((n+1)); }; \
+        i=$$((i+1)); sleep 1; \
+    done; \
+    echo "sleep_disabled=$$(cat "$$P" 2>/dev/null) after $${n} correction(s) in 45s"'
 
 [Install]
 WantedBy=multi-user.target
