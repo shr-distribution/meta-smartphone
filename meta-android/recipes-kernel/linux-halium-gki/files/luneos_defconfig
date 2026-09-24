@@ -23,8 +23,7 @@ CONFIG_AUTOFS_FS=y
 # enabling any of these changes genksyms CRCs of thousands of exported
 # symbols, and every stock vendor module then refuses to load (MODVERSIONS):
 #   CONFIG_SYSVIPC   (adds sysvsem/sysvshm to task_struct; IPC_NS goes with it)
-#                    -- now enabled below, KMI-preserved by
-#                    0001-sched-park-SysV-IPC-in-the-ANDROID_KABI-reserved-pad.patch
+#                    -- stays off; see the SysV IPC note below
 #   CONFIG_FANOTIFY  (fsnotify structs in the inode closure)
 #   CONFIG_NET_L3_MASTER_DEV (l3mdev_ops member in net_device)
 # They stay OFF for the Tier A (stock vendor modules) kernel. Userland impact:
@@ -104,18 +103,23 @@ CONFIG_UEVENT_HELPER_PATH=""
 # build-bootimg.sh does that in its modules.bzl section.
 CONFIG_BT_HCIVHCI=m
 
-# SysV IPC is not optional on LuneOS: libPmLogLib uses shmget/shmat, and without
-# it every PmLogCtl call blocks forever. surface-manager.sh runs
-# "PmLogCtl def surface-manager" on its first line, so the compositor never
-# starts and the device sits on the boot logo (tangorpro, 16 Sep 2026).
-# Enabled the naive way this is KMI poison (see the list above): sysv_sem and
-# sysv_shm land mid-task_struct and shift every following field. The
-# accompanying 0001-sched-park-SysV-IPC-in-the-ANDROID_KABI-reserved-pad.patch
-# parks them in the ANDROID_KABI reserved padding instead (sysvsem in slot 6,
-# sysvshm across slots 7-8 via _ANDROID_KABI_REPLACE), so genksyms sees the
-# unchanged reserved u64s.
-# Verified on tangorpro cp3a.260905.009: kmi-crc-check 194/194 stock
-# vendor_kernel_boot modules OK, Module.symvers byte-identical to the same
-# tree built with this off, BTF layouts of 10,486 structs unchanged except the
-# named slots in task_struct (thread still at 3664, size still 4800).
-CONFIG_SYSVIPC=y
+# SysV IPC stays OFF, and the ANDROID_KABI padding patch that used to accompany
+# it is gone.
+#
+# It was mandatory until 15 Sep 2026 because libPmLogLib called shmget()/
+# shmat(): without it every PmLogCtl blocked forever, and since
+# surface-manager.sh runs "PmLogCtl def surface-manager" on its first line the
+# compositor never started and the device sat on the boot logo (tangorpro,
+# 16 Sep 2026). PmLog now uses POSIX shared memory - libPmLogLib imports only
+# shm_open@GLIBC_2.34, with no SysV import anywhere on the LuneOS boot path -
+# so the requirement is gone and with it the reason to touch task_struct at all.
+#
+# That matters most here: enabled the naive way this is KMI poison (see the
+# list above), which is why this tree carried
+# 0001-sched-park-SysV-IPC-in-the-ANDROID_KABI-reserved-pad.patch to park
+# sysvsem/sysvshm in the reserved padding. Dropping the option drops the patch,
+# and the KMI is stock-shaped again rather than stock-shaped by construction.
+#
+# Check before re-enabling it on a future rootfs:
+#   readelf --dyn-syms /usr/lib/libPmLogLib.so.3.3.0 | grep -E 'shm|sem'
+# CONFIG_SYSVIPC is not set
