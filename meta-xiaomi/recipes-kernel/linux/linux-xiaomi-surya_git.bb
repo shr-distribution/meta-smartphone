@@ -23,7 +23,14 @@ SDMMAGPIE), the LineageOS 22.2 4.14 tree the /e/OS build on this device runs"
 # The cmdline is that image's, verbatim, plus androidboot.selinux=permissive.
 # It matches the lineage-22.2 BoardConfig exactly, which is expected: /e/OS
 # builds from that device tree.
-ANDROID_BOOTIMG_CMDLINE = "androidboot.hardware=qcom service_locator.enable=1 lpm_levels.sleep_disabled=1 loop.max_part=7 androidboot.init_fatal_reboot_target=recovery androidboot.selinux=permissive"
+#
+# printk.devkmsg=on is not cosmetic: the initramfs attaches a dynamic
+# netconsole target and then replays the early printk buffer into it, which is
+# how the host sees anything from before the USB gadget came up. A dynamic
+# target gets no CON_PRINTBUFFER, so without this the replay is rejected and
+# boot output starts mid-story. athena carries it for the same reason, and on
+# surya there is no debug UART to fall back on.
+ANDROID_BOOTIMG_CMDLINE = "androidboot.hardware=qcom service_locator.enable=1 lpm_levels.sleep_disabled=1 loop.max_part=7 androidboot.init_fatal_reboot_target=recovery androidboot.selinux=permissive printk.devkmsg=on"
 ANDROID_BOOTIMG_HEADER_VERSION = "2"
 ANDROID_BOOTIMG_PAGESIZE = "4096"
 ANDROID_BOOTIMG_KERNEL_RAM_BASE = "0x00008000"
