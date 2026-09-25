@@ -26,22 +26,30 @@ SRC_URI = "git://github.com/LineageOS/android_kernel_google_msm-4.14.git;branch=
            file://lineage-config \
            file://0002-techpack-qcacld-drop-Werror-from-the-vendor-Kbuilds.patch \
            "
-# Pinned to the revision this device's OWN vendor modules were built from, not
-# to a branch tip. The modules the owner pulled off the phone say so directly:
-#
-#   vermagic=4.14.336-gfe61ffb52659 SMP preempt mod_unload modversions aarch64
-#
-# fe61ffb52659 is the head of lineage-20 (Android 13, which matches the vendor
-# API level 33 the device reports). lineage-22.2, which this recipe used
-# before, is 4.14.355 and scored 42 of 42 modules failing to load.
-# Pinned to the revision the LineageOS 23.2 nightly for sunfish was built
-# from, taken out of that build's own build-manifest.xml:
+# Pinned to the revision the LineageOS 23.2 nightly for sunfish was built from,
+# taken out of that build's own build-manifest.xml:
 #
 #   LineageOS/android_kernel_google_msm-4.14  28f9290ae067d3e7857126eb6312720dbe9c7c80
 #
 # LOS 23.2 is the current, actively-maintained release for this device (latest
-# nightly 2026-09-17) - the target is now "match the latest LineageOS", not the
-# /e/OS 13 build the phone happened to arrive with.
+# nightly 2026-09-17), and the target is to match it - not the /e/OS 13 build
+# the phone happened to arrive with.
+#
+# An earlier revision aimed at the latter instead, pinning fe61ffb52659: the
+# modules the owner pulled off the phone name it directly,
+#
+#   vermagic=4.14.336-gfe61ffb52659 SMP preempt mod_unload modversions aarch64
+#
+# and that is the head of lineage-20 (Android 13, matching the vendor API
+# level 33 the device reports). The point was to keep the phone's own prebuilt
+# vendor modules loadable. That goal is gone: this recipe now builds the vendor
+# modules itself from this same tree, so they match by construction and the
+# revision is free to follow the distribution we actually want to track. Kept
+# here because the number is otherwise unrecoverable once the phone is
+# reflashed.
+#
+# For the record from that round: lineage-22.2 (4.14.355), which this recipe
+# used before either pin, scored 42 of 42 stock modules failing to load.
 SRCREV = "28f9290ae067d3e7857126eb6312720dbe9c7c80"
 
 LINUX_VERSION = "4.14.357"
