@@ -74,8 +74,8 @@ SRC_URI = "git://github.com/shr-distribution/linux.git;branch=key2/${LINUX_VERSI
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 # shr-distribution/linux key2/4.19:
-# "arm64: boot: append only the device trees the config asks for"
-SRCREV = "0108791143600fccdb44b88aa2f8a05cfeae3764"
+# "pidfd: add P_PIDFD to waitid()"
+SRCREV = "bc5d2089f85ea822e1311dfb581a80c514197074"
 
 LINUX_VERSION = "4.19"
 KV = "4.19.325"
