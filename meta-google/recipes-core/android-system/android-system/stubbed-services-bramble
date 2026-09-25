@@ -1,0 +1,23 @@
+# Android services stubbed out on bramble (Pixel 4a 5G) because they only spam
+# the journal under LuneOS/Halium (see meta-android's pre-start.d/50-stub-services).
+#
+# Same Pixel vendor stack as sargo and sunfish, so the same list, minus what
+# device/google/redbull does not ship. Nothing here is confirmed against a
+# running device; a path that does not exist is simply never stubbed.
+#
+# Pixel telemetry reporter; polls the never-present IStats framework service.
+vendor/bin/pixelstats-vendor
+# Titan M reboot-escrow HAL; polls keymaster hwservices that never register.
+vendor/bin/hw/android.hardware.rebootescrow-service.citadel
+# Display post-processing daemon; needs the framework sensorservice for the
+# ambient light sensor and crash-loops without it.
+vendor/bin/mm-pp-dpps
+# On-device modem/diag loggers. diag_mdlog holds DIAG_WS and the cdsp/lpass
+# IPC-router ports awake - measured on sargo as the suspend aborter. init
+# exec-starts it as a oneshot, so the stub must exit rather than sleep.
+vendor/bin/diag_mdlog exit
+vendor/bin/ssr_diag
+# Android's storaged, which polls hwservicemanager once a second when the
+# health HAL is absent. LuneOS's own storaged is a different daemon outside
+# the container.
+system/bin/storaged

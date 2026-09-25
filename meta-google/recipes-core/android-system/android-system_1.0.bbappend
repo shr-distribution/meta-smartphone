@@ -1,10 +1,10 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-# sargo and sunfish build no rootfs of their own - see their machine confs - so
-# their stub lists ship in the generic one, under the per-codename directory
-# 50-stub-services looks in. On any other device running this image the
-# codename does not match and the files are simply never read.
-SRC_URI:append:halium-arm64 = " file://stubbed-services file://stubbed-services-sunfish file://vendor-modules-sunfish"
+# sargo, sunfish and bramble build no rootfs of their own - see their machine
+# confs - so their stub lists ship in the generic one, under the per-codename
+# directory 50-stub-services looks in. On any other device running this image
+# the codename does not match and the files are simply never read.
+SRC_URI:append:halium-arm64 = " file://stubbed-services file://stubbed-services-sunfish file://stubbed-services-bramble file://vendor-modules-sunfish"
 
 do_install:append:halium-arm64() {
     install -d ${D}${localstatedir}/lib/lxc/android/stubbed-services.d
@@ -12,6 +12,8 @@ do_install:append:halium-arm64() {
         ${D}${localstatedir}/lib/lxc/android/stubbed-services.d/sargo
     install -m 0644 ${UNPACKDIR}/stubbed-services-sunfish \
         ${D}${localstatedir}/lib/lxc/android/stubbed-services.d/sunfish
+    install -m 0644 ${UNPACKDIR}/stubbed-services-bramble \
+        ${D}${localstatedir}/lib/lxc/android/stubbed-services.d/bramble
 
     # sunfish force-loads the stock vendor modules: pre-GKI Qualcomm, so the
     # drivers that matter (wlan, the audio dlkm stack, the haptics, and the
