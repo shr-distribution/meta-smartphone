@@ -1,4 +1,5 @@
 require recipes-core/android-system-image/android-system-image.inc
+require recipes-core/android-system-image/halium-luneos-gsi-16.inc
 
 COMPATIBLE_MACHINE = "sargo"
 
@@ -40,7 +41,7 @@ SARGO_ANDROID_VENDOR ?= "none"
 SARGO_DEVICE_PV = "20240301-3"
 
 # PV tracks what this recipe actually ships, which is the GSI.
-PV = "20260826-1"
+PV = "${HALIUM_LUNEOS_GSI16_PV}"
 
 # Device-agnostic halium_arm64 build.
 #
@@ -85,9 +86,9 @@ PV = "20260826-1"
 # PREFERRED_VERSION_android-headers-halium has to track it, not the vendor:
 # libhybris gates its per-generation support on ANDROID_VERSION_MAJOR from
 # those headers.
-SARGO_GSI_RELEASE ?= "halium-luneos-20260826"
-SARGO_GSI_TARBALL ?= "halium-luneos-16.0-20260826-1-halium_arm64.tar.bz2"
-SARGO_GSI_SHA256 ?= "8bcbb68b0bab9870d19560931a29c36e484873c797a32302048900e16cc147f3"
+SARGO_GSI_RELEASE ?= "${HALIUM_LUNEOS_GSI16_RELEASE}"
+SARGO_GSI_TARBALL ?= "${HALIUM_LUNEOS_GSI16_TARBALL}"
+SARGO_GSI_SHA256 ?= "${HALIUM_LUNEOS_GSI16_SHA256}"
 
 SARGO_DEVICE_TARBALL = "halium-luneos-9.0-${SARGO_DEVICE_PV}-${MACHINE}.tar.bz2"
 SARGO_DEVICE_URI = "https://github.com/webOS-ports/halium-images/releases/download/${SARGO_DEVICE_TARBALL}/${SARGO_DEVICE_TARBALL};name=device;subdir=device"

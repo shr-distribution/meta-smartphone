@@ -1,4 +1,5 @@
 require recipes-core/android-system-image/android-system-image.inc
+require recipes-core/android-system-image/halium-luneos-gsi-16.inc
 
 COMPATIBLE_MACHINE = "mido-halium"
 
@@ -61,10 +62,10 @@ MIDO_DEVICE_RELEASE ?= "${MIDO_DEVICE_TARBALL}"
 #
 # Newer halium-images releases are tagged by date and carry several artefacts
 # per release, so the tag and the asset are named separately.
-PV = "20260910-1"
-MIDO_GSI_RELEASE ?= "halium-luneos-20260910"
-MIDO_GSI_TARBALL ?= "halium-luneos-16.0-${PV}-halium_arm64.tar.bz2"
-MIDO_GSI_SHA256 ?= "583ea441a11671ebdbe0b17e220a98a68ba28d227235e7274cc6df69f84bab18"
+PV = "${HALIUM_LUNEOS_GSI16_PV}"
+MIDO_GSI_RELEASE ?= "${HALIUM_LUNEOS_GSI16_RELEASE}"
+MIDO_GSI_TARBALL ?= "${HALIUM_LUNEOS_GSI16_TARBALL}"
+MIDO_GSI_SHA256 ?= "${HALIUM_LUNEOS_GSI16_SHA256}"
 
 SRC_URI = "\
     https://github.com/webOS-ports/halium-images/releases/download/${MIDO_GSI_RELEASE}/${MIDO_GSI_TARBALL};name=gsi;subdir=gsi \
