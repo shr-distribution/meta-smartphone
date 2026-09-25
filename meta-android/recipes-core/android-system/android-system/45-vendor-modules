@@ -1,0 +1,268 @@
+#!/bin/sh
+
+# Load the vendor's own kernel modules into the LuneOS kernel, force-loading
+# them when their CRCs no longer match.
+#
+# WHY THIS EXISTS
+#
+# A pre-GKI vendor ships its drivers as .ko files on the vendor partition and
+# loads them from its own init, through /vendor/bin/init.insmod.sh reading
+# /vendor/etc/init.insmod.<hw>.cfg. That works on stock and keeps working under
+# Halium - right up until the kernel is rebuilt. The LuneOS config delta moves
+# struct layouts (SYSVIPC alone adds two fields to task_struct), the stock
+# defconfigs set CONFIG_MODVERSIONS, and every stock module is then refused:
+#
+#   snd_event_dlkm: disagrees about version of symbol module_layout
+#
+# The vendor's loader calls plain `modprobe`, with no --force, so it cannot
+# recover - and it sets vendor.all.modules.ready unconditionally afterwards, so
+# nothing downstream notices either. CONFIG_MODULE_FORCE_LOAD=y in the kernel
+# fragment makes the force *possible*; this hook is what actually asks for it.
+#
+# Measured on sunfish (Pixel 4a), 22 Sep 2026, with 44 vendor modules and not
+# one of them loaded:
+#
+#   - no wlan.ko          -> no wlan0 at all, though the firmware was up
+#                            ("icnss: WLAN FW is ready: 0xd87")
+#   - no audio dlkm stack -> no ALSA card ("Cannot get card index for b1")
+#   - no drv2624.ko       -> no /sys/class/leds/vibrator, so the vibrator HAL
+#                            started and exited 124 times
+#   - no incrementalfs.ko -> vold "Failed to prepare user 0 storage"
+#   - no adsp_loader_dlkm -> and this is the one that is easy to miss: see the
+#                            note on "enable" below. No ADSP means no sensors,
+#                            no CHRE and an adsprpcd that restarted 2561 times
+#                            in ten minutes.
+#
+# WHY IT IS OPT-IN PER DEVICE
+#
+# Force-loading a module whose CRCs have moved is a calculated risk, not a free
+# action: a module that disagrees about a struct layout corrupts memory rather
+# than failing cleanly. It has proven safe where it has been tried (mindphone:
+# wifi, BT and GPS all came up force-loaded), but "safe on that device" is the
+# most it can mean. Loading the full vendor set also has device-specific
+# hazards of its own - mtk_lpm froze the SoC on the MP01, ccci_md_all once
+# wedged PID 1 - so a device has to ask for this by name. Drop a file named
+# after the codename in vendor-modules.d/ to opt in; everything else is inert.
+#
+# WHY HERE AND NOT A SYSTEMD UNIT
+#
+# The modules go into the *host* kernel, and /sys/kernel/boot_adsp/boot is a
+# host path too, so none of this needs the container - but all of it has to
+# happen before the container's HALs start looking for the hardware. pre-start
+# is exactly that moment, and vendor is already mounted by then (mount-android.sh
+# runs in android-system.service's ExecStartPre). The same reasoning 50-stub-services
+# uses, one hook earlier.
+
+DIR=/var/lib/lxc/android/vendor-modules.d
+ANDROID_ROOT="${ANDROID_ROOT:-/android}"
+KREL=$(uname -r)
+
+# NOT /lib/modules/$KREL. udev's coldplug autoloads by modalias out of there, so
+# a depmod'd copy of a whole vendor module set in that directory makes the *next*
+# boot insmod every matching vendor module before anything is ready - which is how
+# the MP01 came to pull in mtk_lpm a second after udevd started, freeze the SoC and
+# get bootlooped by the hardware watchdog on every boot after the first. Keep the
+# tree private under /run, out of udev's sight, and point depmod -b and modprobe -d
+# at it. (Learned by mtk-load-modules.sh; the same trap applies to any vendor set.)
+MODBASE="/run/vendor-modules"
+DST="$MODBASE/lib/modules/$KREL"
+
+log() { echo "$(basename "$0"): $*"; }
+
+# The codename, the way 50-stub-services works it out: there is no property
+# service yet, so read the phone's own vendor build.prop rather than getprop.
+prop() {
+    for f in "$LXC_ROOTFS_PATH/vendor/build.prop" "$ANDROID_ROOT/vendor/build.prop" \
+             /vendor/build.prop "$LXC_ROOTFS_PATH/system/build.prop"; do
+        [ -r "$f" ] || continue
+        v=$(sed -n "s/^$1=//p" "$f" 2>/dev/null | head -n1)
+        [ -n "$v" ] && { echo "$v"; return 0; }
+    done
+    return 1
+}
+
+codename=$(prop ro.product.vendor.device) \
+    || codename=$(prop ro.vendor.product.device) \
+    || codename=$(prop ro.product.device) \
+    || codename=
+
+if [ -z "$codename" ] && [ -r /proc/device-tree/compatible ]; then
+    _compat=$(tr '\0' '\n' < /proc/device-tree/compatible 2>/dev/null | head -n1)
+    case "$_compat" in *,*) codename=${_compat#*,} ;; esac
+fi
+
+[ -n "$codename" ] && [ -r "$DIR/$codename" ] || exit 0
+OPTS="$DIR/$codename"
+log "vendor module loading enabled for '$codename'"
+
+# Directives in the opt-in file, one per line; blank lines and # ignored:
+#
+#   skip <module>    do not load this one
+#   extra <module>   load it although the vendor's cfg does not list it - for a
+#                    .ko that ships on the vendor partition but is loaded by
+#                    something other than init.insmod.sh, which therefore gets
+#                    no chance to be forced. Loaded after the cfg.
+#   cfg <path>       name the init.insmod cfg explicitly
+SKIP=" "
+EXTRA=
+CFG=
+while read -r _k _v _rest; do
+    case "$_k" in
+        ''|\#*) continue ;;
+        skip)   SKIP="$SKIP${_v%.ko} " ;;
+        extra)  EXTRA="$EXTRA ${_v%.ko}" ;;
+        cfg)    CFG="$_v" ;;
+        *)      log "unknown directive '$_k' in $OPTS, ignoring" ;;
+    esac
+done < "$OPTS"
+
+VMOD="$ANDROID_ROOT/vendor/lib/modules"
+if [ ! -d "$VMOD" ]; then
+    # GKI layout: /vendor/lib/modules is a symlink into vendor_dlkm, and which
+    # of these actually got populated varies (see mtk-load-modules.sh).
+    for _cand in /vendor_dlkm/lib/modules "$ANDROID_ROOT"/vendor_dlkm/lib/modules \
+                 "$LXC_ROOTFS_PATH"/vendor/lib/modules; do
+        [ -d "$_cand" ] && { VMOD=$_cand; break; }
+    done
+fi
+[ -d "$VMOD" ] || { log "no vendor module directory; nothing to do"; exit 0; }
+
+# Find the vendor's loader config. Its name carries ro.hardware, which is the
+# SoC or the device depending on the vendor, so prefer an exact match and fall
+# back to whatever single init.insmod*.cfg is there.
+if [ -z "$CFG" ]; then
+    _hw=$(prop ro.hardware)
+    for _c in "$ANDROID_ROOT/vendor/etc/init.insmod.$_hw.cfg" \
+              "$ANDROID_ROOT/vendor/etc/init.insmod.$codename.cfg" \
+              "$ANDROID_ROOT"/vendor/etc/init.insmod*.cfg; do
+        [ -r "$_c" ] && { CFG=$_c; break; }
+    done
+fi
+
+# Firmware for these modules lives on the vendor partition. The kernel resolves
+# request_firmware() against the host filesystem, not the container's, so the
+# search path has to be a host path.
+if [ -d "$ANDROID_ROOT/vendor/firmware" ]; then
+    echo "$ANDROID_ROOT/vendor/firmware" \
+        > /sys/module/firmware_class/parameters/path 2>/dev/null || true
+fi
+
+# depmod wants a module directory; the vendor's .ko are not in one. Symlink them
+# all in - the full set, not just the ones being loaded, so inter-module
+# dependencies resolve - and depmod that instead.
+mkdir -p "$DST"
+for _ko in "$VMOD"/*.ko; do
+    [ -e "$_ko" ] && ln -sfn "$_ko" "$DST/${_ko##*/}"
+done
+depmod -b "$MODBASE" "$KREL" 2>/dev/null || true
+
+loaded=0
+failed=0
+forced=0
+skipped=0
+
+load_one() {
+    _m=${1%.ko}
+    case "$SKIP" in *" $_m "*) log "$_m: skipped by $OPTS"; skipped=$((skipped + 1)); return ;; esac
+    # Already in the kernel (built in, or loaded by an earlier pass)?
+    [ -d "/sys/module/$(echo "$_m" | tr - _)" ] && return
+    [ -f "$DST/$_m.ko" ] || { log "$_m: not on the vendor partition, skipping"; return; }
+
+    # Escalate rather than starting at --force. On a port where only the
+    # vermagic string differs - ours carries its own scmversion - the CRCs are
+    # genuinely fine and --force-vermagic is the precise tool; reaching for
+    # --force there would silence a real KMI break. Plain first, so a module
+    # that does not need forcing is never forced.
+    if modprobe -d "$MODBASE" "$_m" </dev/null 2>/dev/null; then
+        loaded=$((loaded + 1))
+    elif modprobe -d "$MODBASE" --force-vermagic "$_m" </dev/null 2>/dev/null; then
+        loaded=$((loaded + 1))
+    elif modprobe -d "$MODBASE" --force "$_m" </dev/null 2>/dev/null; then
+        loaded=$((loaded + 1)); forced=$((forced + 1))
+    else
+        log "$_m: failed to load"
+        failed=$((failed + 1))
+    fi
+}
+
+# Walk the vendor's cfg in its own order. The format is the one init.insmod.sh
+# reads - "<action>|<argument>", one per line:
+#
+#   modprobe|a.ko b.ko ...   the ordered module list ("*" means modules.load)
+#   enable|<sysfs path>      echo 1 into it
+#   wait|<path>              block until it appears
+#   setprop|<property>       ignored here - there is no property service yet,
+#                            and the container's own insmod.sh sets these
+#                            anyway (unconditionally, which is why a failed
+#                            load never showed up as a failed boot).
+#
+# "enable" is not decoration and not something to reorder past: on sunfish the
+# three lines
+#
+#   enable|/sys/kernel/boot_adsp/boot
+#   enable|/sys/kernel/boot_cdsp/boot
+#   enable|/sys/kernel/boot_slpi/boot
+#
+# are what actually boot the audio DSP and the sensor DSP, and boot_adsp is
+# created by adsp_loader_dlkm.ko - the first entry in that device's modprobe
+# line. Miss the module and the sysfs node is not there to write to; miss the
+# write and the DSP never starts even with the module loaded. Either way the
+# symptom is the same and points somewhere else entirely: fastrpc cannot open
+# its channel ("Transport endpoint is not connected"), so adsprpcd restarts
+# forever, CHRE never reaches the sensor DSP, and sensorfw reports that the
+# device simply has no accelerometer.
+run_cfg() {
+    while IFS='|' read -r _action _arg; do
+        _action=$(printf '%s' "$_action" | tr -d '[:space:]')
+        case "$_action" in
+            ''|\#*) continue ;;
+            modprobe)
+                if [ "$_arg" = "*" ]; then
+                    [ -r "$VMOD/modules.load" ] || { log "modprobe|* but no modules.load"; continue; }
+                    for _m in $(cat "$VMOD/modules.load"); do load_one "$(basename "$_m")"; done
+                else
+                    for _m in $_arg; do load_one "$_m"; done
+                fi
+                ;;
+            enable)
+                if [ -w "$_arg" ]; then
+                    echo 1 > "$_arg" 2>/dev/null \
+                        && log "enabled $_arg" \
+                        || log "enable $_arg: write failed"
+                else
+                    log "enable $_arg: not present (its module probably did not load)"
+                fi
+                ;;
+            wait)
+                _n=0
+                while [ ! -e "$_arg" ] && [ "$_n" -lt 5 ]; do
+                    sleep 1; _n=$((_n + 1))
+                done
+                [ -e "$_arg" ] || log "wait $_arg: timed out after 5s"
+                ;;
+            setprop) ;;
+            *) log "unknown action '$_action' in $CFG, ignoring" ;;
+        esac
+    done
+}
+
+if [ -n "$CFG" ] && [ -r "$CFG" ]; then
+    log "following $CFG"
+    # Not "cat | while read": the counters have to survive the loop, and a
+    # pipeline would run it in a subshell where they do not.
+    run_cfg < "$CFG"
+elif [ -r "$VMOD/modules.load" ]; then
+    log "no init.insmod cfg; falling back to $VMOD/modules.load"
+    # modules.load is a list, not an order - stock feeds it to libmodprobe,
+    # which resolves modules.dep per entry - so let modprobe do the same here
+    # rather than trusting the file's sequence.
+    for _m in $(cat "$VMOD/modules.load"); do load_one "$(basename "$_m")"; done
+else
+    log "neither an init.insmod cfg nor modules.load; nothing to do"
+    exit 0
+fi
+
+for _m in $EXTRA; do load_one "$_m"; done
+
+log "loaded $loaded module(s) ($forced force-loaded), $failed failed, $skipped skipped"
+exit 0
