@@ -1,0 +1,26 @@
+[Unit]
+Description=Initialise MediaTek ConnInfra combo driver
+# After android-system so the vendor partition is mounted: conninfra_conf_init()
+# pulls the platform config through request_firmware(), which resolves against
+# the vendor firmware directory. A miss there is only a pr_warn and the rest of
+# the init still runs, but there is no reason to take it.
+After=android-system.service
+Requires=android-system.service
+Conflicts=shutdown.target actdead.target
+
+# Only where the combo driver is built into the kernel rather than shipped as
+# vendor modules. In module mode (mp01, q25) insmod already ran the init and
+# this is a no-op; the helper handles that case correctly anyway, but there is
+# no point starting it.
+#
+# The node, not a .ko: that is the whole distinction being tested. See
+# mtk-conninfra-init.c for why the two builds need different bring-up.
+ConditionPathExists=/dev/conninfra_dev
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/mtk-conninfra-init
+
+[Install]
+WantedBy=multi-user.target
