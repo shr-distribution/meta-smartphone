@@ -1,6 +1,11 @@
 [Unit]
 Description=Power on MediaTek combo Wi-Fi
-After=mtk-connectivity-modules.service
+# mtk-conninfra-init is ordered before but deliberately not Required: on a
+# module-mode device it condition-skips and there is nothing to wait for. Where
+# the combo driver is built in (radon), that ioctl is what brings the wlan
+# sub-driver into existence at all, so powering the chip on ahead of it would
+# spend the full 90 iterations polling for an interface that cannot appear yet.
+After=mtk-connectivity-modules.service mtk-conninfra-init.service
 Requires=mtk-connectivity-modules.service
 Conflicts=shutdown.target actdead.target
 

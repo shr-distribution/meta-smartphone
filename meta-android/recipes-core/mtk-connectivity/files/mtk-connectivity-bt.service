@@ -1,6 +1,6 @@
 [Unit]
 Description=MediaTek Bluetooth bring-up (nvram MAC + container HAL owner)
-After=android-system.service mtk-connectivity-modules.service
+After=android-system.service mtk-connectivity-modules.service mtk-conninfra-init.service
 Requires=android-system.service
 Conflicts=shutdown.target actdead.target
 # Globs, not exact names. The WMT era ships bt_drv.ko; the connac era ships
@@ -10,10 +10,19 @@ Conflicts=shutdown.target actdead.target
 #
 # Also checked under vendor_dlkm: on the MP01 the combo driver ships there,
 # not under vendor (confirmed on hardware - see mtk-connectivity-modules.service).
+#
+# And the /dev nodes, not just the modules. Where the combo driver is built into
+# the kernel (CONFIG_MTK_COMBO=y - radon) no .ko is shipped or produced at all,
+# so every glob above misses and this unit was skipped on the one device that
+# most needed it. The nodes are the era-independent marker: stpbt is registered
+# by the bt chardev whichever way the driver was built, and conninfra_dev covers
+# the window before mtk-conninfra-init has brought the sub-drivers up.
 ConditionPathExistsGlob=|/android/vendor/lib/modules/bt_drv*.ko
 ConditionPathExistsGlob=|/android/vendor/lib/modules/conninfra*.ko
 ConditionPathExistsGlob=|/android/vendor_dlkm/lib/modules/bt_drv*.ko
 ConditionPathExistsGlob=|/android/vendor_dlkm/lib/modules/conninfra*.ko
+ConditionPathExists=|/dev/stpbt
+ConditionPathExists=|/dev/conninfra_dev
 
 [Service]
 Type=oneshot
