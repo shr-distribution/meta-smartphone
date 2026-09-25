@@ -1,0 +1,34 @@
+From: LuneOS <webos-ports@googlegroups.com>
+Date: Tue, 23 Sep 2026 12:00:00 +0200
+Subject: [PATCH] main: include fcntl.h for open() and O_RDONLY
+
+is_input_device() calls open(path, O_RDONLY), but main.c includes no
+<fcntl.h>. It compiles for FuriLabs because something in their include
+chain happens to pull it in; with OE's GCC 15, which defaults to C23
+where an implicit declaration is an error rather than a warning, it
+fails:
+
+  main.c:765:10: error: implicit declaration of function 'open';
+                 did you mean 'popen'?
+  main.c:765:21: error: 'O_RDONLY' undeclared (first use in this function);
+                 did you mean 'MS_RDONLY'?
+
+The second message is the giveaway that this is a missing include and
+not a toolchain quirk: <sys/mount.h> is included and does define
+MS_RDONLY, so the header that should have defined O_RDONLY is simply
+absent.
+
+Upstream-Status: Pending
+
+Signed-off-by: LuneOS <webos-ports@googlegroups.com>
+---
+--- a/main.c
++++ b/main.c
+@@ -49,6 +49,7 @@
+ #include <errno.h>
+ #include <pthread.h>
+ #include <dirent.h>
++#include <fcntl.h>
+ 
+ #include <sys/reboot.h>
+ #include <sys/mount.h>
