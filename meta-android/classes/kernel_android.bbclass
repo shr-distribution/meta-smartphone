@@ -36,6 +36,14 @@ ANDROID_BOOTIMG_DTB ?= ""
 
 KERNEL_OUTPUT ?= "${KERNEL_OUTPUT_DIR}/${KERNEL_IMAGETYPE}"
 
+# Hard assignment on purpose: kernel.bbclass has already set this to
+# "initramfs-${KERNEL_ARTIFACT_NAME}" and every android-kernel machine needs the
+# android-image name instead. Do NOT weaken it to ?= - the earlier assignment
+# then wins and every such machine silently gets the wrong ramdisk name.
+#
+# A machine that needs a different ramdisk sets INITRAMFS_NAME in its *kernel
+# recipe*, after this class is inherited (radon does, to boot FuriOS' bootman
+# initramfs); setting it in machine.conf cannot work, as that is parsed first.
 INITRAMFS_NAME = "initramfs-android-image-${MACHINE}.cpio.gz"
 
 def android_bootimg_v2(d, kernel, ramdisk, dtb, out):
