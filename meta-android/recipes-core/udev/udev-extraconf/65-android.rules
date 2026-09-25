@@ -389,4 +389,13 @@ ACTION=="add", KERNEL=="uinput", OWNER="system", GROUP="bluetooth", MODE="0660"
 ACTION=="add", KERNEL=="citadel0", OWNER="hsm", GROUP="hsm", MODE="0660"
 ACTION=="add", KERNEL=="ramdump_*", OWNER="system", GROUP="system", MODE="0640"
 
+# Third fold-in, same rule again: sunfish (Pixel 4a) and bramble (Pixel 4a 5G)
+# grant these identically in their ueventd.rc. They are the ST NFC controller
+# and secure element - where sargo has the NXP pn81a, which stays in
+# 70-sargo.rules because only one device has it - and the Qualcomm crypto
+# engine. 70-sunfish.rules held exactly these three and is gone with them.
+ACTION=="add", KERNEL=="qce", OWNER="system", GROUP="drmrpc", MODE="0660"
+ACTION=="add", KERNEL=="st21nfc", OWNER="nfc", GROUP="nfc", MODE="0660"
+ACTION=="add", KERNEL=="st54j_se", OWNER="secure_element", GROUP="secure_element", MODE="0660"
+
 SUBSYSTEM=="input", KERNEL=="event[0-9]*", ATTRS{modalias}=="input:b0000v0000p0000e0000-e0, 3, kra2F, 30, 35, 36, 39, 3A, mlsfw", SYMLINK+="input/touchscreen0"
