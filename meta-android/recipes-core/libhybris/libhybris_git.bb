@@ -25,6 +25,7 @@ SRC_URI = "git://github.com/Herrie82/libhybris;branch=herrie/android16-tls;proto
     file://0006-linker-let-a-process-ask-for-the-vendor-s-VNDK-libra.patch \
     file://0007-hooks-hook-MEOW_get_tls_meow_offset-for-Mali-blobs.patch \
     file://0008-hooks-provide-SetTaskProfiles-for-A12-vendor-blobs.patch \
+    file://0009-linker-fall-back-to-the-nearest-VNDK-APEX.patch \
 "
 
 S = "${UNPACKDIR}/${BB_GIT_DEFAULT_DESTSUFFIX}/hybris"
