@@ -1,4 +1,5 @@
 require recipes-core/android-system-image/android-system-image.inc
+require recipes-core/android-system-image/halium-luneos-gsi-16.inc
 
 COMPATIBLE_MACHINE = "tissot-halium"
 
@@ -64,10 +65,10 @@ TISSOT_DEVICE_TARBALL ?= "halium-luneos-9.0-${TISSOT_DEVICE_PV}-tissot.tar.bz2"
 #
 # webOS-ports/halium-images tags newer releases by date and carries several
 # artefacts per release, so the tag and the asset are named separately.
-PV = "20260910-1"
-TISSOT_GSI_RELEASE ?= "halium-luneos-20260910"
-TISSOT_GSI_TARBALL ?= "halium-luneos-16.0-${PV}-halium_arm64.tar.bz2"
-TISSOT_GSI_SHA256 ?= "583ea441a11671ebdbe0b17e220a98a68ba28d227235e7274cc6df69f84bab18"
+PV = "${HALIUM_LUNEOS_GSI16_PV}"
+TISSOT_GSI_RELEASE ?= "${HALIUM_LUNEOS_GSI16_RELEASE}"
+TISSOT_GSI_TARBALL ?= "${HALIUM_LUNEOS_GSI16_TARBALL}"
+TISSOT_GSI_SHA256 ?= "${HALIUM_LUNEOS_GSI16_SHA256}"
 
 SRC_URI = "\
     https://github.com/webOS-ports/halium-images/releases/download/${TISSOT_GSI_RELEASE}/${TISSOT_GSI_TARBALL};name=gsi;subdir=gsi \
