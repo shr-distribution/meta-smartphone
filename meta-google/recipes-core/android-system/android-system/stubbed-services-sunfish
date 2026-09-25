@@ -32,10 +32,49 @@ vendor/bin/hw/android.hardware.configstore@1.1-service
 # exec-starts it as a oneshot, so the stub must exit rather than sleep.
 vendor/bin/diag_mdlog exit
 vendor/bin/ssr_diag
-# Android's battery health HAL and storaged. Nothing in LuneOS consumes them
-# (batteryd and nyx read sysfs); the only container consumer is Android's
-# storaged, which polls hwservicemanager once a second when the HAL is absent.
-# sunfish ships the 2.1 HAL where sargo ships 2.0 - device.mk names
-# android.hardware.health@2.1-service with an -impl-sunfish.
-vendor/bin/hw/android.hardware.health@2.1-service
+# storaged, which polls hwservicemanager once a second for the battery health
+# HAL. Nothing in LuneOS consumes either (batteryd and nyx read sysfs).
 system/bin/storaged
+#
+# The health HAL itself is deliberately NOT stubbed, though sargo's list stubs
+# its 2.0 equivalent. Stubbing it here cost more noise than it saved: on
+# 22 Sep 2026 it produced 621 lines of
+#
+#   init: Control message: Could not find
+#         'android.hardware.health@2.1::IHealth/default' for ctl.interface_start
+#         from pid: 39 (/system/system_ext/bin/hwservicemanager)
+#
+# in one ten-minute boot, plus 26 lazy-start attempts, because storaged is not
+# the only client. The one that keeps asking is gnss_service - identified by
+# pid: it is the process logging "HidlServiceManagement: Waited one second for
+# android.hardware.health@2.1::IHealth/default", once a second, forever - and
+# GPS is something LuneOS does want, so silencing the client is the wrong end.
+#
+# Note the vendor's own rc declares the service with no "interface" line:
+#
+#   service health-hal-2-1 /vendor/bin/hw/android.hardware.health@2.1-service
+#       class hal charger
+#
+# so init cannot resolve a ctl.interface_start for it no matter what, and the
+# only way the request is ever satisfied is the real HAL registering IHealth on
+# its own. It reads /sys/class/power_supply, which works here (google_battery
+# and google_charger are in-kernel and healthy), so let it run.
+#
+# If it does misbehave on hardware, note it holds WAKE_ALARM and BLOCK_SUSPEND
+# for its periodic battery chores - the class of thing that made diag_mdlog the
+# measured suspend aborter on sargo. Re-stub it then and accept the spam.
+# USB gadget HAL. LuneOS owns the USB gadget on the host side (its own configfs
+# gadget for adb/rndis, driven by usb-gadget.target), so the container never
+# gets a /config/usb_gadget/g1 - and this HAL's constructor treats that as
+# fatal. Confirmed on the device, 22 Sep 2026: 125 starts and 124 SIGABRTs in
+# ten minutes, the backtrace one frame deep in the constructor
+#
+#   #01 pc 43e0  UsbGadget::UsbGadget()+116
+#   #02 pc 420c  main+40
+#
+# and the binary carries the string that goes with it, "configfs setup not done
+# yet", next to the /config/usb_gadget/g1/os_desc paths it checks. Every crash
+# also sets sys.init.updatable_crashing=1, which ran flags_health_check 269
+# times in the same window, so this is noisy well beyond its own service.
+# class hal, restart-on-death - so the sleeping stub, not the exiting one.
+vendor/bin/hw/android.hardware.usb.gadget-service.sunfish
