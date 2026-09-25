@@ -21,6 +21,7 @@ S = "${UNPACKDIR}"
 
 SRC_URI = " \
     file://mtk-conninfra-init.c \
+    file://mtk-wifi-nvram.c \
     file://mtk-load-modules.sh \
     file://mtk-bt-address.sh \
     file://mtk-bt-bringup.sh \
@@ -39,11 +40,13 @@ inherit systemd
 # combo driver takes no other trigger).
 do_compile() {
     ${CC} ${CFLAGS} ${LDFLAGS} -o ${B}/mtk-conninfra-init ${UNPACKDIR}/mtk-conninfra-init.c
+    ${CC} ${CFLAGS} ${LDFLAGS} -o ${B}/mtk-wifi-nvram     ${UNPACKDIR}/mtk-wifi-nvram.c
 }
 
 do_install() {
     install -d ${D}${sbindir} ${D}${bindir}
     install -m 0755 ${B}/mtk-conninfra-init          ${D}${sbindir}/mtk-conninfra-init
+    install -m 0755 ${B}/mtk-wifi-nvram              ${D}${sbindir}/mtk-wifi-nvram
     install -m 0755 ${UNPACKDIR}/mtk-load-modules.sh ${D}${sbindir}/mtk-load-modules.sh
     install -m 0755 ${UNPACKDIR}/mtk-fuelgauged.sh   ${D}${sbindir}/mtk-fuelgauged.sh
     install -m 0755 ${UNPACKDIR}/mtk-bt-address.sh   ${D}${bindir}/mtk-bt-address.sh
@@ -70,4 +73,4 @@ SYSTEMD_SERVICE:${PN} = " \
 RDEPENDS:${PN} = "kmod util-linux-hexdump util-linux-nsenter lxc"
 RRECOMMENDS:${PN} = "rfkill"
 
-FILES:${PN} = "${sbindir}/mtk-conninfra-init ${sbindir}/mtk-load-modules.sh ${bindir}/mtk-bt-address.sh ${bindir}/mtk-bt-bringup.sh ${sbindir}/mtk-fuelgauged.sh"
+FILES:${PN} = "${sbindir}/mtk-conninfra-init ${sbindir}/mtk-wifi-nvram ${sbindir}/mtk-load-modules.sh ${bindir}/mtk-bt-address.sh ${bindir}/mtk-bt-bringup.sh ${sbindir}/mtk-fuelgauged.sh"

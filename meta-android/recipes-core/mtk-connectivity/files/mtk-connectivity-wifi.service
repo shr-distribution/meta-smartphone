@@ -28,6 +28,19 @@ ConditionPathExists=|/dev/wmtWifi
 [Service]
 Type=oneshot
 RemainAfterExit=yes
+# Load the Wi-Fi calibration data BEFORE asking the chip to power on.
+#
+# Writing "1" below takes wmt_cdev_wifi.c's WLAN_OPID_FUNC_ON branch, and the
+# driver refuses that until it holds the NVRAM blob - g_NvramFsm has to be
+# NVRAM_STATE_READY, which only the "WR-BUF:NVRAM" write sets. Android's WLAN
+# HAL does that during Wi-Fi bring-up; on Halium nobody does, so the power-on
+# fails with the unhelpful "WMT turn on WIFI fail!" and both Wi-Fi and
+# Bluetooth stay dead, since the pre-calibration this feeds is what powers the
+# shared combo chip. See mtk-wifi-nvram.c for the full chain.
+#
+# Leading '-' because a device with no MediaTek NVRAM should still reach the
+# power-on loop below, which is a no-op there anyway.
+ExecStartPre=-/usr/sbin/mtk-wifi-nvram
 # The write only takes once the container's wmt/connac daemons have patched the
 # CONSYS firmware, so retry until wlan0 appears. /dev/wmtWifi is the WMT-era
 # power switch; on connac the module bring-up already yields wlan0, in which
