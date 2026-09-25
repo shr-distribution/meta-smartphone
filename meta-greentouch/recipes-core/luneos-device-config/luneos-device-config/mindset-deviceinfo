@@ -21,11 +21,15 @@ deviceinfo_display_dpi="190"
 # the pages would inflate and clip.
 deviceinfo_device_pixel_ratio="1.0"
 
-# The cameras are wired up and the HAL enumerates them, but they are not
-# usable (the front sensor's kernel driver reads 0xffffffff and the rear
-# pipeline has never delivered frames on this port), so a derived
-# camera-count gate would wrongly offer video calling. Close it off until
-# the sensors actually work.
+# There is no camera on this device at all - it is a kosher phone, and that is
+# the point of it. The HAL still enumerates sensors because the MT6739 stock
+# kernel carries MediaTek's reference-design sensor list, so a derived
+# camera-count gate would wrongly offer video calling. Close it off.
+#
+# The symptoms match: the "front" sensor's driver reads 0xffffffff and the
+# "rear" pipeline has never delivered a frame, which is what probing a part
+# that was never fitted looks like. mindphone.conf declares no camera features
+# for the same reason.
 deviceinfo_video_call="false"
 
 # The MT6739 vendor blobs are VNDK 30 but the GSI is Android 16, whose
