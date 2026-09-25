@@ -1,0 +1,51 @@
+# sunfish (Pixel 4a) opts in to force-loading the stock vendor kernel modules.
+# The presence of this file is what enables 45-vendor-modules; see the long
+# comment at the top of that script for why it is per-device.
+#
+# This is the "single biggest open risk in this port" that sunfish.conf named,
+# now measured rather than predicted. The vendor partition carries 44 .ko files
+# and init.insmod.sunfish.cfg modprobes them in one line; against a kernel built
+# with luneos.cfg not one of them loads:
+#
+#   snd_event_dlkm x36, swr_dlkm x6, wcd_core_dlkm x4, q6_pdr_dlkm x4,
+#   mpq_adapter x4, wlan, wglink_dlkm, wcd_spi_dlkm, stub_dlkm, rdbg,
+#   pinctrl_wcd_dlkm, drv2624, msm_geni_ir, msm_11ad_proxy, llcc_perfmon, lcd,
+#   hdmi_dlkm, gspca_main, br_netfilter, incrementalfs
+#       - "disagrees about version of symbol module_layout"
+#
+# (The repeat counts are dependents, not retries: modprobe tries a dependency
+# once per module that needs it, and never gets to the dependents themselves.)
+#
+# One correction to the note in linux-google-sunfish_git.bb while this is
+# fresh: it expected the audio stack and the touchscreen to be built in,
+# because only nine symbols on that cfg line are =m in sunfish_defconfig. The
+# touchscreen half is right - ftm5 is built in and touch works. The audio half
+# is not: the vendor partition ships the whole dlkm stack as modules
+# (adsp_loader, apr, q6*, wcd*, swr*, *_macro, bolero, machine, platform,
+# stub, snd_event) and there is no ALSA card without them.
+#
+# No skips. The vendor's list and the vendor's order are the only known-good
+# arrangement for this device, and the first boot that uses it should differ
+# from stock in as few ways as possible. If something wedges, these are the
+# entries that can go without losing anything LuneOS uses - none of them is
+# suspected, they are just the cheap ones to give up:
+#
+#   rdbg                          Qualcomm's remote-debug transport; nothing
+#                                 here talks to it, and luneos.cfg already
+#                                 turns the in-tree driver off
+#   msm_11ad_proxy, wil6210       60 GHz WiGig; the Pixel 4a has no such radio
+#   mpq-adapter, mpq-dmx-hw-plugin  DVB demux
+#   gspca_main, lcd, hdmi_dlkm, msm-geni-ir, llcc_perfmon
+#
+# To drop one, add a line: skip <module>
+
+# incrementalfs is the one .ko on this vendor partition that init.insmod.sunfish.cfg
+# does not list - Android's own incfs code loads it with finit_module instead, and
+# that path has no way to force anything:
+#
+#   E incfs: finit_module for IncFs "/vendor/lib/modules/incrementalfs.ko"
+#            failed: Exec format error
+#   E vold : Failed to prepare user 0 storage
+#
+# so it has to be named here to be force-loaded at all.
+extra incrementalfs
