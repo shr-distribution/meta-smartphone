@@ -14,6 +14,8 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 RDEPENDS:${PN} = "sed parse-android-dynparts libdevmapper python3-core python3-misc"
 # binder-ping (start-android-hals.sh composer readiness probe, replacing lshal)
 RDEPENDS:${PN} += "libgbinder-tools"
+# modprobe/depmod, for the 45-vendor-modules pre-start hook
+RDEPENDS:${PN} += "kmod"
 
 # MediaTek combo-chip connectivity (WLAN/BT/GPS) bring-up. The recipe is generic
 # and self-gating: its systemd units only start when the MTK connectivity kernel
@@ -65,6 +67,7 @@ SRC_URI = " \
     file://10-boot-marker \
     file://30-mount-nothing \
     file://40-rootfs-rw \
+    file://45-vendor-modules \
     file://50-stub-services \
     file://stub-exit \
     file://stub-sleep \
@@ -211,7 +214,13 @@ do_install() {
     install -m 0755 ${UNPACKDIR}/10-boot-marker ${D}${localstatedir}/lib/lxc/android/pre-start.d/
     install -m 0755 ${UNPACKDIR}/30-mount-nothing ${D}${localstatedir}/lib/lxc/android/pre-start.d/
     install -m 0755 ${UNPACKDIR}/40-rootfs-rw ${D}${localstatedir}/lib/lxc/android/pre-start.d/
+    install -m 0755 ${UNPACKDIR}/45-vendor-modules ${D}${localstatedir}/lib/lxc/android/pre-start.d/
     install -m 0755 ${UNPACKDIR}/50-stub-services ${D}${localstatedir}/lib/lxc/android/pre-start.d/
+
+    # Per-codename opt-in for 45-vendor-modules. Empty here: force-loading the
+    # stock vendor modules is a per-device decision (see the hook), so a device
+    # layer drops a file named after its codename in to ask for it.
+    install -d ${D}${localstatedir}/lib/lxc/android/vendor-modules.d
 
     # Per-codename stub lists. 50-stub-services picks the one matching the
     # phone, so a device with no rootfs of its own can still have a list.
