@@ -337,21 +337,53 @@ fi
 # fstab.enableswap that sort earlier under a plain glob. Getting this wrong on
 # mt6739 skipped the modem's nvcfg/protect1/protect2 mounts, and the modem came
 # up "exception" with no RIL.
-fstab=
-hw=$(getprop ro.hardware 2>/dev/null)
-[ -n "$hw" ] && [ -e "$ANDROID_ROOT/vendor/etc/fstab.$hw" ] && fstab="$ANDROID_ROOT/vendor/etc/fstab.$hw"
-if [ -z "$fstab" ]; then
-    for f in "$ANDROID_ROOT"/vendor/etc/fstab*; do
-        case "$f" in *.enableswap) continue ;; esac
-        [ -e "$f" ] && { fstab="$f"; break; }
-    done
-fi
-if [ -z "$fstab" ]; then
+# Read EVERY fstab the vendor ships, not one of them. A vendor splits these
+# by purpose rather than shipping a single file: the SoC fstab (fstab.<hw>)
+# carries firmware_mnt, dsp and the modem's config partitions, while persist
+# gets a file of its own and OTA gets fstab.postinstall. Picking one silently
+# drops the others.
+#
+# This used to prefer fstab.$(getprop ro.hardware) and fall back to the first
+# glob match that was not .enableswap. Both halves failed on sunfish:
+# getprop answers nothing here - this runs as ExecStartPre, before the
+# container and therefore before the property service exists - and the glob
+# sorts fstab.persist ahead of fstab.postinstall and fstab.sunfish. So persist
+# was mounted, firmware_mnt never was, and with no /vendor/firmware_mnt the
+# modem, CDSP and Venus images could not be found at all:
+#
+#   ueventd: firmware: attempted /vendor/firmware_mnt/image/modem.mdt,
+#            open failed: No such file or directory
+#   subsys-pil-tz aae0000.qcom,venus: venus: Initializing image failed(rc:-5)
+#   adsprpcd: fastRPC device driver is disabled, retrying...   (x1518)
+#
+# Same class as the mt6739 case in the comment above, which is why that one
+# was not enough: the rule is not "pick the right fstab", it is "do not pick".
+#
+# postinstall is skipped because it exists to mount system_other during an A/B
+# OTA, which is not our business; enableswap is skipped as before. The
+# per-entry skip list below still filters out anything the host or the
+# container's own init owns.
+fstabs=
+for f in "$ANDROID_ROOT"/vendor/etc/fstab*; do
+    [ -e "$f" ] || continue
+    case "$f" in
+        *.enableswap|*.postinstall) continue ;;
+    esac
+    fstabs="$fstabs $f"
+done
+if [ -z "$fstabs" ]; then
     log "no vendor fstab found, skipping extra mounts"
     exit 0
 fi
-log "reading $fstab for additional mount points"
+log "reading$fstabs for additional mount points"
 
+# One inner loop per file rather than one over the concatenation: '#endhalium'
+# below means "stop reading THIS fstab", and over a concatenation it would stop
+# reading the remaining ones too - which is the bug this function just grew out
+# of, in a different shape.
+#
+# shellcheck disable=SC2086 - deliberate word splitting over the file list
+for fstab in $fstabs; do
 # shellcheck disable=SC2002
 cat "$fstab" | while read -r src dst fstype flags _rest; do
     case "$src" in
@@ -387,6 +419,7 @@ cat "$fstab" | while read -r src dst fstype flags _rest; do
     log "mounting $path as $target"
     mount "$path" "$target" -t "$fstype" -o "$(parse_mount_flags "$flags")" 2>/dev/null \
         || log "WARNING: failed to mount $path at $target"
+done
 done
 
 # --- APEX (Android 10+) -----------------------------------------------------
