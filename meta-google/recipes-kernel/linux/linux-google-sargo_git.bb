@@ -54,6 +54,29 @@ inherit kernel_android pkgconfig
 # local.conf. sargo-staging/make-debug-boot.sh does both for you.
 LUNEOS_ENABLE_ADB ??= "0"
 
+# Test switch: build this kernel WITHOUT fanotify.
+#
+#   CONF=$(mktemp --suffix=.conf); echo 'LUNEOS_TEST_NO_FANOTIFY = "1"' > $CONF
+#   MACHINE=sargo bitbake -R $CONF linux-google-sargo
+#
+# Why sargo: CONFIG_FANOTIFY is KMI-poison under MODVERSIONS (it adds a member to
+# struct user_struct, which struct cred points at, so it moves ~64% of all
+# exported-symbol CRCs), and sunfish wants it gone. sargo is the one device here
+# with a complete working stack - UI, Atlas, the lot - so it is the right place to
+# prove nothing in LuneOS userspace actually needs fanotify. It costs sargo nothing
+# either way: this kernel builds its own modules, so the KMI is not at stake here.
+#
+# Where the requirement came from: the Mer/SFOS kernel config checker, which lists
+#     CONFIG_FANOTIFY    y,!    # optional, required for systemd readahead.
+# where "!" is its own notation for "Failure will be warned, not errored". So it was
+# never a hard requirement, and its stated reason - systemd-readahead - was removed
+# from systemd in v217 (2014). This rootfs ships systemd 257 and has no readahead
+# unit or binary at all.
+#
+# After booting the test kernel, the thing to check is that nothing changed:
+# journalctl -b for new systemd warnings, plus the usual UI/Atlas/wifi/audio pass.
+LUNEOS_TEST_NO_FANOTIFY ??= "0"
+
 do_configure:append() {
     if [ "${LUNEOS_ENABLE_ADB}" = "1" ]; then
         halium_kernel_add_cmdline "enable_adb"
@@ -102,6 +125,12 @@ do_configure:append() {
   kernel_conf_variable_fixup USB_F_AUDIO_SRC y
   kernel_conf_variable_fixup USB_F_ACC y
   kernel_conf_variable_fixup USB_CONFIGFS y
+
+  # see LUNEOS_TEST_NO_FANOTIFY above; oldnoconfig below drops the dependent
+  # CONFIG_FANOTIFY_ACCESS_PERMISSIONS on its own
+  if [ "${LUNEOS_TEST_NO_FANOTIFY}" = "1" ]; then
+      kernel_conf_variable_fixup FANOTIFY n
+  fi
   oe_runmake oldnoconfig
 }
 
