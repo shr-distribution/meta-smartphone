@@ -1,0 +1,6 @@
+# Address and raise the gadget netdev as soon as the kernel creates it.
+#
+# The gadget unit runs before the netdev exists - writing the UDC is what makes
+# the kernel create rndis0 - so setting the address there races. INTERFACE is
+# passed through so the script does not have to guess which one fired.
+ACTION=="add", SUBSYSTEM=="net", KERNEL=="rndis0|usb0", RUN+="/usr/local/bin/usb-ip.sh $env{INTERFACE}"
