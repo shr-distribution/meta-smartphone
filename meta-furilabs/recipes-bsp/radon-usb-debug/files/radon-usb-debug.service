@@ -1,0 +1,19 @@
+[Unit]
+Description=USB debug gadget (rndis + adb)
+DefaultDependencies=no
+After=local-fs.target
+Before=android-system.service basic.target
+Conflicts=shutdown.target
+# Only where a UDC exists to bind to.
+ConditionPathExistsGlob=/sys/class/udc/*
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/luneos-usb-setup.sh
+# The script waits up to 10s for adbd to claim the FunctionFS endpoints and may
+# then rebuild the gadget rndis-only, so give it room.
+TimeoutStartSec=120
+
+[Install]
+WantedBy=basic.target

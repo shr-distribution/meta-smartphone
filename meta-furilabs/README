@@ -1,0 +1,56 @@
+meta-furilabs
+=============
+
+LuneOS machine support for FuriLabs phones.
+
+Machines
+--------
+
+  radon    FuriPhone FLX1s - MediaTek Dimensity 900 (MT6877), 6.7" 720x1600,
+           Linux 4.19.325.
+
+This layer is unusual among the meta-smartphone layers in that the vendor
+ships everything a port needs, in public, under their own name:
+
+  github.com/furilabs/linux-furiphone-radon     the kernel tree (GPL, complete)
+  github.com/furilabs/adaptation-furiphone-radon  the device adaptation package
+  github.com/furilabs/radon-vendor-32           the Android 12L vendor image
+
+FuriLabs' own distribution (FuriOS) is Debian-based and runs the same
+libhybris + LXC Android container stack LuneOS does, so their kernel is
+already configured for a glibc/systemd userspace. See radon.conf and
+luneos.cfg for what that means in practice - the short version is that the
+LuneOS kernel config delta for this device is very nearly empty, which is
+true of no other port in this tree.
+
+Two things this layer needs that are not in it:
+
+  * Google's prebuilt Android Clang r416183b, which the kernel is built with -
+    the release FuriLabs themselves pin, and the same one sunfish, q25, mp01
+    and bramble already use. Point local.conf at it:
+
+      GKI_CLANG_DIR:radon = ".../prebuilts-master/clang/host/linux-x86/clang-r416183b"
+
+  * An install path. The FLX1s is flashed with MediaTek's SP Flash Tool (or
+    mtkclient on Linux), NOT fastboot, so none of the fastboot install kits in
+    this tree apply. Do not write preloader or super.
+
+Port notes, fetch scripts and the config audit live in
+~/webos/LuneOS/furilabs/radon.
+
+Dependencies
+------------
+
+  URI: git://git.openembedded.org/openembedded-core
+  branch: wrynose
+
+  URI: git://git.openembedded.org/meta-openembedded
+  branch: wrynose
+
+  URI: git://github.com/shr-distribution/meta-smartphone (meta-android)
+  branch: wrynose
+
+Maintainer
+----------
+
+  LuneOS / webOS Ports

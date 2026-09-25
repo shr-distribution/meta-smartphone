@@ -1,0 +1,179 @@
+# Tier 1 adaptation for the FuriPhone FLX1s (radon, MT6877 / Dimensity 900,
+# 6.7" 720x1600).
+#
+# Only what cannot be derived belongs here. The codename, vendor API level and
+# touchscreen node all derive correctly on a Treble device; what follows is the
+# display numbers, which are a layout judgement rather than a measurement, and
+# a small number of MediaTek-stack facts taken from FuriLabs' own adaptation
+# package rather than guessed.
+
+# 6.7" diagonal, 720x1600: sqrt(720^2 + 1600^2) / 6.7 = 262 ppi.
+#
+# GridUnit = round(dpi * 1.44 / 25.4) = 15, i.e. 1.45 mm of glass per grid unit
+# against sargo's 1.44 mm - the shell chrome comes out very nearly the same
+# physical size as on a device where it is known to fit. In grid units the
+# screen is 720/15 = 48 wide against sargo's 43, so the fixed-size system menu
+# (Units.gu(40) = 600 px) fits the 720 px width with room to spare.
+deviceinfo_display_dpi="262"
+
+# For reference: FuriLabs' vendor build.prop declares ro.sf.lcd_density=320.
+# That is Android's density BUCKET (xhdpi), not a measurement, and it is what
+# Android apps scale against - it is not the same quantity as the 262 above,
+# which is the true physical ppi and is what GridUnit wants. Recorded because
+# the two numbers look contradictory and are not; if shell chrome comes out
+# visibly wrong on hardware, 320 is the other number worth trying.
+
+# webOS apps are fixed-layout Enyo pages, so the ratio decides how many CSS
+# pixels they are handed. 720 / 1.6 = 450, which is exactly the canvas width
+# sargo targets (1080 / 2.4) and what the pages are built for; 1600 / 1.6 =
+# 1000 of height, a normal portrait phone canvas. This is the cleanest fit of
+# any port here - no compromise in either axis.
+#
+# For reference rather than as a target: FuriLabs run phosh at scale 2 on this
+# panel (etc/phosh/phoc.ini, [output:DSI-1] scale = 2), i.e. a 360x800 logical
+# desktop. That is the right call for GTK apps and the wrong one for Enyo
+# pages, which want ~450 CSS px of width; the two toolkits simply disagree, and
+# 1.6 is the LuneOS answer.
+#
+# UNVERIFIED on hardware.
+deviceinfo_device_pixel_ratio="1.6"
+
+# The panel is mounted upright - no rotation, unlike mp01.
+#
+# CONFIRMED three ways. FuriLabs' own vendor build.prop says
+#   ro.surface_flinger.primary_display_orientation=ORIENTATION_0
+# which is the property mp01 needed as ORIENTATION_270 for its rotated panel -
+# here it is 0. The kernel defconfig agrees
+# (CONFIG_MTK_LCM_PHYSICAL_ROTATION="0"), and FuriLabs' phoc.ini drives DSI-1
+# with no rotate= line (their X11/Wayland development outputs carry a
+# commented-out "#rotate = 90", which is for running the shell on a desktop,
+# not for this panel).
+#
+# So the panel is mounted upright and needs no rotation. Do not copy mp01's
+# r270 across.
+deviceinfo_compositor_geometry="720x1600+0+0r0s1"
+
+# Do not let the compositor open the hwcomposer HAL a second time; the Android
+# composer service already has it, and on MediaTek the second HWCMediator
+# fights it for DRM master forever. 20-surface-manager-env turns this into
+# QT_QPA_FORCE_HWC2=1.
+#
+# Carried over from mp01, where it was verified on hardware. CONFIRMED to be
+# the same display stack here, from FuriLabs' own vendor build.prop:
+#   ro.hardware.hwcomposer=mtk_common
+# which is the identical HAL mp01 fought with.
+#
+# VERIFIED ON HARDWARE (24 Sep 2026): without it surface-manager spends its
+# whole 90s start timeout unable to take DRM master and systemd restarts it
+# forever; with it the compositor gets far enough to fail on EGL instead, which
+# is what exposed deviceinfo_hardware_egl below.
+deviceinfo_force_hwc2="1"
+
+# Which GLES driver Android's EGL loader should load.
+#
+# VERIFIED ON HARDWARE (24 Sep 2026): without this, surface-manager gets a
+# correct display config and then aborts on every start -
+#
+#   couldn't find an OpenGL ES implementation, make sure one of
+#   persist.graphics.egl, ro.hardware.egl and ro.board.platform is set
+#   COREDUMP_SIGNAL=6 (SIGABRT); the restart counter reached 753
+#
+# FuriLabs' vendor sets ro.board.platform=mt6877 and no ro.hardware.egl, and
+# there is no libGLES_mt6877.so - /vendor/lib64/egl holds libGLES_mali.so and
+# Mali's libGLES_meow.so wrapper. "meow" is what the MP01, the other
+# MediaTek/Mali device in this tree, uses (70-mp01.rules: "same Mali, same
+# ro.hardware.egl=meow"), and libhybris here already carries a patch written for
+# that blob: 0007-hooks-hook-MEOW_get_tls_meow_offset-for-Mali-blobs.
+#
+# 20-surface-manager-env turns this into LUNEOS_ANDROID_EGL, which
+# surface-manager-daemon.service setprops once the container's property service
+# exists. This was the last of the four fixes needed to bring the UI up.
+deviceinfo_hardware_egl="meow"
+
+# The audio HAL's DL paths run at 48 kHz. Not a guess: FuriLabs load their own
+# droid card at exactly that rate,
+#   etc/pulse/arm_droid_card_custom.pa:
+#     load-module module-droid-card rate=48000 voice_virtual_stream=true hw_volume=false
+# and opening the HAL at pulseaudio's default 44.1 kHz makes it resample
+# everything.
+deviceinfo_audio_sample_rate="48000"
+
+# hw_volume=false in that same line is worth knowing about: FuriLabs disable
+# the HAL's own volume control because it is not adjustable on this device.
+# LuneOS has no deviceinfo key for that today; if playback volume turns out to
+# be stuck, that is the thread to pull.
+
+# The Android 12L vendor's libraries are wanted in preference to the GSI's
+# where both exist. On mp01 this was needed because the vendor audio HAL links
+# against symbols the Android 16 GSI's libbase no longer exports.
+#
+# CONFIRMED to be the same situation: FuriLabs' vendor build.prop gives
+#   ro.vndk.version=32, ro.vendor.build.version.sdk=32,
+#   ro.vendor.build.version.release=12, ro.board.platform=mt6877
+# i.e. an Android 12L MediaTek vendor against the same Android 16 GSI - one
+# VNDK generation newer than mp01's 31, same mismatch shape.
+#
+# UNVERIFIED. If pulseaudio starts cleanly without it, drop it - it is not free
+# (it shadows GSI libraries that may be newer).
+deviceinfo_hybris_prefer_vndk="1"
+
+# Deliberately absent:
+#
+#   deviceinfo_key_devices_by_name
+#       Derivation takes everything claiming KEY_POWER or a volume key that is
+#       not the touchscreen. Unlike mp01 and q25 there is no physical QWERTY
+#       here to over-collect, so the derived set should be right. The device
+#       does have a third key - the assistant button, which FuriLabs drive from
+#       /dev/input/event2 with keycode 112 (KEY_PROG1) - and their
+#       input-redirector-ignore lists event0..event3, which says the first four
+#       input nodes are the built-in keys and touch. If derivation picks up
+#       something odd, get the real strings from
+#         grep -h '^N: Name' /proc/bus/input/devices
+#       and pin them here; the MediaTek names to expect are mtk-pmic-keys (the
+#       PMIC power key) and mtk-kpd (the matrix keypad the volume rocker hangs
+#       off), as on mp01 and q25.
+#
+#   deviceinfo_touchscreen_by_name
+#       CONFIG_TOUCHSCREEN_FTS_FT8057S is the only touch driver enabled, so
+#       derivation cannot pick the wrong one.
+#
+#   deviceinfo_bluebinder_ext_features_page_2_mask
+#       mp01 needed this because the MT6789's controller advertises
+#       Synchronization Train support and then rejects the command, aborting
+#       hci init. The MT6877 is a different controller generation (CONSYS_6877)
+#       and may not have the bug. Do not add it pre-emptively - if hci0 never
+#       comes up and the journal shows "Unknown HCI Command" during init, copy
+#       mp01's value and see.
+#
+#   deviceinfo_battery_critical_percent
+#       mp01 had to disable batteryd's percentage shutdown because its fuel
+#       gauge reads -1. Nothing suggests that here; leave the safety net armed
+#       until there is evidence against it.
+
+# --- ofono / RIL topology --------------------------------------------------
+# The FLX1s is dual SIM and its HAL says so, but LuneOS only ever saw one.
+#
+# 40-ofono-binder derives the slots from lshal, and lshal produces NOTHING on
+# this device - verified on FuriLabs' own FuriOS, where neither the host binary
+# nor /system/bin/lshal inside the container returns a line. The generator then
+# warns, bails, and the shipped single-slot binder.conf stays. State the
+# topology outright instead; that is exactly what this override is for.
+#
+# Confirmed from the vendor on FuriOS:
+#   ro.telephony.sim.count        = 2
+#   persist.radio.multisim.config = dsds
+#   binder-list -d /dev/hwbinder  = android.hardware.radio@1.0..1.6::IRadio/slot1
+#                                   android.hardware.radio@1.0..1.6::IRadio/slot2
+deviceinfo_binder_slots="slot1 slot2"
+
+# Needed alongside the line above, not instead of it: with the slots given
+# explicitly the generator never runs lshal, so it cannot derive the version
+# either, and ofono-binder-plugin falls back to its own 1.2 default - which on
+# this class of modem answers getSignalStrength with
+# "getSignalStrengthResponse_1_2 INVALID_RESPONSE" forever and leaves the UI
+# with no bars.
+#
+# The HAL advertises up to 1.6 here. 1.4 is the cap the generator applies for
+# everyone: 1.5+ switches the plugin to setRadioPower_1_5 /
+# setIndicationFilter_1_5, which a vendor may register without implementing.
+deviceinfo_binder_radio_interface="1.4"
