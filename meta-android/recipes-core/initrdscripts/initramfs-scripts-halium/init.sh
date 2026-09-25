@@ -321,9 +321,161 @@ load_usb_prereq_modules() {
     return 1
 }
 
+# Write the whole boot record to a spare partition when the initramfs gives up.
+#
+# "initrd_log_to_part" (below) is a PROBE: it exits before mountroot ever runs,
+# so it can only ever answer "does storage come up", never "why did the boot
+# fail". This is the other half - the same dump, taken at the moment of failure,
+# with everything the boot actually did in it.
+#
+# That works because tell_kmsg writes to /dev/kmsg and Halium's mountroot does
+#     exec &>/dev/kmsg
+# on entry, so every line the premount scripts and mountroot print is already in
+# the kernel ring buffer. Dumping dmesg here therefore captures the whole run,
+# not just the panic string.
+#
+# Gated on "initrd_log_fail" so it stays inert on every device that does not ask
+# for it. Read it back over the preloader:
+#
+#   ( cd ~/mtkclient && python3 mtk.py r init_boot_a fail.bin )
+#   tr -d '\0' < fail.bin | less
+# Make a block device node for a partition NAME, from sysfs major:minor.
+#
+# Not /dev/<name>: panic() and the debug branches can be reached before
+# start_mdev(), and create_partition_links() only runs on the normal path, so
+# /dev may hold no block nodes at all. An earlier version of the log probe wrote
+# to a path that did not exist and the partition read back as zeros - a false
+# negative indistinguishable from "storage is down".
+#
+# Usage: mknod_partname init_boot_a /dev/faillog
+mknod_partname() {
+    _mp_want=$1
+    _mp_node=$2
+    for _mp_blk in /sys/class/block/*; do
+        [ -r "$_mp_blk/uevent" ] || continue
+        [ "$(sed -n 's/^PARTNAME=//p' "$_mp_blk/uevent" 2>/dev/null)" = "$_mp_want" ] || continue
+        _mp_dev=$(cat "$_mp_blk/dev" 2>/dev/null)
+        [ -n "$_mp_dev" ] || continue
+        rm -f "$_mp_node"
+        if mknod "$_mp_node" b "${_mp_dev%%:*}" "${_mp_dev##*:}" 2>/dev/null; then
+            echo "$_mp_node"
+            return 0
+        fi
+    done
+    return 1
+}
+
+# Dump the kernel log to a spare partition PERIODICALLY, in the background.
+#
+# dump_fail_to_part() below only fires from panic(), so it records a failure and
+# nothing else. A HANG - which is what this device actually does - never reaches
+# panic, writes nothing, and is then indistinguishable from "the kernel never
+# started". Measured: after flashing a panic-only image, init_boot_a read back as
+# 8 MiB of zeros, which answered nothing.
+#
+# So write continuously instead. Whatever stage the boot dies at, the last dump
+# names it, because tell_kmsg goes to /dev/kmsg and Halium's mountroot does
+#     exec &>/dev/kmsg
+# on entry - so the ring buffer holds every line the premount scripts and
+# mountroot print.
+#
+# Uses init_boot_b, leaving init_boot_a to the panic dump: two partitions means
+# the two writers can never interleave, and a panic still gets the richer record.
+start_progress_dumper() {
+    grep -q initrd_log_fail /proc/cmdline 2>/dev/null || return 0
+
+    _pd_node=$(mknod_partname init_boot_b /dev/progresslog) || {
+        tell_kmsg "PROGRESS: no init_boot_b to write to"
+        return 1
+    }
+    tell_kmsg "PROGRESS: dumping every 3s to $_pd_node"
+    (
+        _pd_n=0
+        while [ $_pd_n -lt 200 ] && [ ! -e /run/initrd-stage-done ]; do
+            {
+                echo "=== LUNEOS INITRAMFS PROGRESS LOG ==="
+                echo "sample: $_pd_n"
+                echo "uptime: $(cat /proc/uptime 2>/dev/null)"
+                echo "stage: $(cat /run/initrd-stage 2>/dev/null)"
+                echo "--- mounts ---"
+                cat /proc/mounts 2>/dev/null
+                echo "--- dmesg ---"
+                dmesg 2>/dev/null
+                echo "=== END ==="
+            } > "$_pd_node" 2>/dev/null
+            sync
+            _pd_n=$((_pd_n + 1))
+            sleep 3
+        done
+    ) &
+}
+
+# Name the current stage, for the dumper to record.
+#
+# A hang inside a command that prints nothing (a blocking mount, an lvm scan
+# waiting on a device) leaves no kmsg line, so the dmesg tail alone cannot say
+# where it stopped. This does.
+stage() {
+    echo "$1" > /run/initrd-stage 2>/dev/null
+    tell_kmsg "STAGE: $1"
+}
+
+dump_fail_to_part() {
+    grep -q initrd_log_fail /proc/cmdline 2>/dev/null || return 0
+
+    dump_target=$(mknod_partname init_boot_a /dev/faillog) \
+        || dump_target=$(mknod_partname init_boot_b /dev/faillog)
+    if [ -z "$dump_target" ]; then
+        tell_kmsg "FAILLOG: no init_boot partition to write to"
+        return 1
+    fi
+    tell_kmsg "FAILLOG: writing to $dump_target"
+
+    {
+        echo "=== LUNEOS INITRAMFS FAILURE LOG ==="
+        echo "reason: $1"
+        echo "uptime: $(cat /proc/uptime 2>/dev/null)"
+        echo "cmdline: $(cat /proc/cmdline 2>/dev/null)"
+        echo "--- mounts ---"
+        cat /proc/mounts 2>/dev/null
+        echo "--- /dev ---"
+        ls /dev 2>/dev/null | tr '\n' ' '; echo
+        echo "--- /dev/mapper ---"
+        ls -l /dev/mapper 2>/dev/null
+        echo "--- lvm ---"
+        if command -v lvm >/dev/null 2>&1; then
+            lvm pvs 2>&1
+            lvm vgs 2>&1
+            lvm lvs 2>&1
+        fi
+        echo "--- partnames ---"
+        for _b in /sys/class/block/*; do
+            sed -n 's/^PARTNAME=/  /p' "$_b/uevent" 2>/dev/null
+        done
+        echo "--- lsmod ---"
+        lsmod 2>/dev/null
+        echo "--- /halium-system ---"
+        ls /halium-system 2>/dev/null | tr '\n' ' '; echo
+        echo "--- /tmpmnt ---"
+        ls /tmpmnt 2>/dev/null | tr '\n' ' '; echo
+        echo "--- e2fsck ---"
+        cat /run/e2fsck.out 2>/dev/null
+        echo "--- dmesg ---"
+        dmesg 2>/dev/null
+        echo "=== END ==="
+    } > "$dump_target" 2>/dev/null
+    sync
+    tell_kmsg "FAILLOG: written to $dump_target"
+}
+
 panic() {
     tell_kmsg "$distro_name initramfs failed:"
     tell_kmsg "$1"
+
+    # Get the record onto permanent storage FIRST. Everything below this line
+    # (module loading, gadget bind, adbd, the debug shell) has hung on this
+    # hardware before, and a log that only exists in RAM is lost when it does.
+    dump_fail_to_part "$1"
 
     # Bring up the hardware this shell needs, with the REAL loader.
     #
@@ -1088,6 +1240,13 @@ start_mdev
 # mountroot() searches /dev by partition NAME; mdev only makes kernel names.
 create_partition_links
 
+# Start recording to a spare partition as early as storage allows - here, which
+# is the first point where block devices are guaranteed to exist. Everything
+# after this line is on the record even if it hangs rather than panics. No-op
+# without initrd_log_fail on the cmdline.
+start_progress_dumper
+stage "storage up, entering pre-mountroot setup"
+
 # Refuse to boot on a battery too flat to survive it, and charge instead.
 #
 # Learned the hard way on the MP01 (15 Sep 2026). That device never powers off -
@@ -1249,10 +1408,15 @@ mount_device_vendor() {
 # Call Halium's mount script
 probe_mount late
 
+stage "entering mountroot"
+
 mountroot
+
+stage "mountroot returned"
 
 # GSI case: bring in the device's own /vendor (no-op when a vendor.img shipped)
 mount_device_vendor
+stage "vendor mounted"
 
 tell_kmsg "Stopping mdev"
 stop_mdev
@@ -1267,4 +1431,9 @@ mount -o bind,rw $datadir/userdata ${rootmnt}/media/internal
 mount -o bind,rw $datadir/userdata/.cryptofs ${rootmnt}/media/cryptofs
 
 tell_kmsg "Switching to root filesystem"
+# Let the progress dumper stop: past this point the initramfs is gone and any
+# further write would only overwrite the record of how we got here.
+stage "switching root"
+: > /run/initrd-stage-done 2>/dev/null
+sleep 4
 exec switch_root ${rootmnt} /sbin/init
