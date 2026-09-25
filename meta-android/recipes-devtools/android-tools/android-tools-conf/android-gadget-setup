@@ -92,7 +92,13 @@ usb_setup_configfs() {
     echo $USB_FUNCTIONS | grep -q "mass_storage" && ln -s $GADGET_DIR/g1/functions/storage.0 $GADGET_DIR/g1/configs/c.1
     echo $USB_FUNCTIONS | grep -q "adb" && ln -s $GADGET_DIR/g1/functions/ffs.adb $GADGET_DIR/g1/configs/c.1
 
-    if echo $USB_FUNCTIONS | grep -q "rndis"; then
+    # Bind now ONLY if adb is not in the mix. A FunctionFS function has no
+    # descriptors until its filesystem is mounted and adbd has written them to
+    # ep0, and both of those happen after this function returns - so binding
+    # here with ffs.adb linked into the config fails with ENODEV and takes the
+    # whole gadget down, rndis included. The bind for adb configurations is
+    # done at the end of this script instead, after the mount.
+    if echo $USB_FUNCTIONS | grep -q "rndis" && ! echo $USB_FUNCTIONS | grep -q "adb"; then
         write $GADGET_DIR/g1/UDC "$(first_real_udc)"
         
         # Setup usb IP address
@@ -104,8 +110,6 @@ usb_setup_configfs() {
             ip link set $INTERFACE up
             break
         done
-    elif echo $USB_FUNCTIONS | grep -q "adb"; then
-       (usleep 1000000 ; write $GADGET_DIR/g1/UDC "$(first_real_udc)")&
     fi
 }
 
@@ -177,8 +181,39 @@ else
 fi
 
 #below are now needed in order to use FunctionFS for ADB, tested to work with 3.4+ kernels
+# FunctionFS for adb.
+#
+# No -o uid=/gid=. Those options need a functionfs built with uid/gid support,
+# and where it is absent the mount fails outright rather than ignoring them:
+#
+#   mount -o uid=2000,gid=2000 -t functionfs adb /dev/usb-ffs/adb   -> rc=32
+#   mount                      -t functionfs adb /dev/usb-ffs/adb   -> rc=0, ep0
+#
+# measured both ways on radon's 4.19 MediaTek kernel. The failure is silent in
+# the worst way: with no ep0 there are no descriptors, so writing the UDC fails
+# with ENODEV ("echo: write error: No such device") and the WHOLE gadget fails
+# to bind - taking rndis, and with it the only network path to the device, down
+# alongside adb. That is the real reason adb has never worked on this port; it
+# was long blamed on function ordering, which was never the problem.
+#
+# adbd runs as root on LuneOS, so the ownership those options were asking for
+# bought nothing. A device that genuinely needs them should set them here
+# conditionally after checking the mount succeeds, not unconditionally.
+#
+# The /proc/filesystems guard stays, but note it only becomes true once an ffs
+# instance exists - the mkdir of functions/ffs.adb above is what registers it.
 if grep -q functionfs /proc/filesystems; then
     mkdir -p /dev/usb-ffs/adb
-    mount -o uid=2000,gid=2000 -t functionfs adb /dev/usb-ffs/adb
+    mount -t functionfs adb /dev/usb-ffs/adb
+fi
+
+# Bind the UDC for any configuration containing adb, now that FunctionFS is
+# mounted. adbd still has to open ep0 and write the descriptors before the bind
+# can succeed, so give it a moment - the caller (luneos-usb-setup.sh on radon)
+# starts adbd and waits for ep1 before re-binding deterministically, which is
+# the reliable form. This deferred write keeps the standalone
+# "android-gadget-setup adb" path working as it always did.
+if echo $USB_FUNCTIONS | grep -q "adb"; then
+    (usleep 1000000; write $GADGET_DIR/g1/UDC "$(first_real_udc)") &
 fi
 
