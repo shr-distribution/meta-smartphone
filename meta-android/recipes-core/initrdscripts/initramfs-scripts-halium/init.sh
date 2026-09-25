@@ -552,8 +552,62 @@ panic() {
 }
 
 mount_kernel_modules() {
-    # Avoid overriding kernel modules in LuneOS
-    tell_kmsg "Skip overriding of kernel modules"
+    # Stage the kernel modules that ride in this initramfs into the rootfs.
+    #
+    # On a device whose vendor loads kernel modules (the QTI audio DLKM stack,
+    # qcacld wlan, touch, haptics ...), the modules and the kernel have to agree
+    # about the ABI. Trying to make the *vendor's* prebuilt .ko files load into
+    # our kernel is a losing game: the LuneOS config delta moves the genksyms
+    # CRC of 8158 of 12823 exported symbols. Bisected per option on sunfish, two
+    # options account for all of it - FANOTIFY (a member in struct user_struct,
+    # which struct cred points at) and CGROUP_DEVICE (CGROUP_SUBSYS_COUNT sizes
+    # arrays in struct css_set) - and the sets overlap, so removing one while the
+    # other stays improves nothing. Even CRC-clean, 5 of the 41 still fail.
+    #
+    # So build the modules instead, from the same kernel tree and config, where
+    # they match by construction. They ship in this initramfs rather than in the
+    # rootfs for two reasons: the rootfs is the generic halium-arm64 one and
+    # cannot carry per-machine modules, and shipping them next to the kernel in
+    # one boot image makes it impossible for the two to drift apart.
+    #
+    # The initramfs is freed at switch_root, so copy them where the running
+    # system can reach them; mount-android.sh then binds this directory over
+    # /android/vendor/lib/modules so the container's own init.insmod.sh loads
+    # ours, in the vendor's own order.
+    kver=$(uname -r)
+
+    # Two layouts, because the two device shapes package modules differently:
+    #
+    #   /lib/modules/$kver/...    a kernel-modules package (sunfish, kernel.bbclass)
+    #   /usr/lib/modules/*.ko     flat, from a standalone recipe's tarball (bramble)
+    #
+    # The flat one exists because those modules must also override the
+    # vendor_boot ramdisk's, which is flat - see stage_our_kernel_modules().
+    # Either way mount-android.sh wants them under /lib/modules/$kver in the
+    # rootfs, where its overlay looks.
+    src=
+    if [ -d "/lib/modules/$kver" ]; then
+        src="/lib/modules/$kver"
+    else
+        for _ko in /usr/lib/modules/*.ko; do
+            [ -e "$_ko" ] && { src=/usr/lib/modules; break; }
+        done
+    fi
+    [ -n "$src" ] || { tell_kmsg "no staged kernel modules for $kver"; return 0; }
+
+    dst="${rootmnt}/lib/modules/$kver"
+    if [ -f "$dst/.luneos-staged" ]; then
+        tell_kmsg "kernel modules for $kver already staged in the rootfs"
+        return 0
+    fi
+
+    mkdir -p "$dst" || { tell_kmsg "WARNING: cannot create $dst"; return 0; }
+    if cp -a "$src/." "$dst/" 2>/dev/null; then
+        : > "$dst/.luneos-staged"
+        tell_kmsg "staged $(find "$dst" -name '*.ko' | wc -l) kernel modules into the rootfs"
+    else
+        tell_kmsg "WARNING: failed to stage kernel modules into $dst"
+    fi
 }
 
 # Create /dev/<partname> symlinks from sysfs PARTNAME.
@@ -654,6 +708,46 @@ process_bind_mounts() {
     done
 }
 
+# Put our own build of the vendor's modules where the vendor's own index files
+# point, before anything is modprobed.
+#
+# This cannot be left to cpio ordering. The bootloader concatenates the
+# vendor_boot ramdisk and then ours, and a later entry replaces an earlier one
+# only at the SAME path - but the vendor keeps its modules in a real
+# /lib/modules directory, while our rootfs is usrmerge, so ours are packaged at
+# /usr/lib/modules. On top of that, our /lib -> usr/lib symlink cannot be
+# created over the directory the vendor already made, so in the merged initramfs
+# /lib/modules is theirs and /usr/lib/modules is ours: two different places, no
+# override at all.
+#
+# Copy explicitly instead. It is a few MB in a tmpfs, it is logged, and it does
+# not depend on archive order or symlink semantics.
+#
+# Why it matters here more than anywhere else: on bramble the modules in that
+# ramdisk include ufs_qcom, ufshcd-core and ufshcd-pltfrm. Load the vendor's
+# binaries against our kernel and there is no storage, no rootfs and no boot -
+# so this is the difference between a device that starts and one that does not.
+stage_our_kernel_modules() {
+    ours=/usr/lib/modules
+    theirs=/lib/modules
+
+    # nothing of ours, or nowhere to put it
+    [ -d "$ours" ] || return 0
+    [ "$(readlink -f "$ours")" = "$(readlink -f "$theirs")" ] && return 0
+    [ -d "$theirs" ] || return 0
+
+    n=0
+    for ko in "$ours"/*.ko; do
+        [ -e "$ko" ] || continue
+        cp -f "$ko" "$theirs/$(basename "$ko")" 2>/dev/null && n=$((n+1))
+    done
+    if [ "$n" -gt 0 ]; then
+        tell_kmsg "initrd: installed $n of our own kernel modules over the vendor's"
+    else
+        tell_kmsg "initrd: WARNING: found $ours but copied no modules from it"
+    fi
+}
+
 load_kernel_modules() {
     # GKI devices ship the early kernel modules at /lib/modules in a vendor
     # ramdisk the bootloader merges before this one (a vendor_boot "dlkm"
@@ -662,6 +756,9 @@ load_kernel_modules() {
     # normally insmods them; without this, storage (UFS on Tensor) never
     # appears and mountroot panics.
     [ -f /lib/modules/modules.load ] || return 0
+    # ours over theirs first - the list and the dependency data stay the
+    # vendor's, only the binaries become ours
+    stage_our_kernel_modules
     tell_kmsg "initrd: loading $(wc -l < /lib/modules/modules.load) vendor kernel modules"
     # The kernel does NOT apply "module.param=" cmdline options to loadable
     # modules - modprobe does, by parsing /proc/cmdline and passing them to
@@ -1424,6 +1521,12 @@ stop_mdev
 tell_kmsg "Umounting unneeded filesystems"
 umount -l /proc
 umount -l /sys
+
+# Our own build of the vendor's kernel modules, staged into the rootfs for
+# mount-android.sh to bind over /android/vendor/lib/modules. Done here rather
+# than earlier because it needs ${rootmnt} mounted and writable.
+mount_kernel_modules
+stage "kernel modules staged"
 
 tell_kmsg "Setup the user data directory"
 # finally setup the user data directory

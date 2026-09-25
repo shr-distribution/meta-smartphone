@@ -330,6 +330,63 @@ if [ -e "$sys_persist" ] && ! mountpoint -q /mnt/vendor/persist 2>/dev/null; the
     fi
 fi
 
+# --- our own build of the vendor's kernel modules ---------------------------
+# Bind our modules over /android/vendor/lib/modules so the container's own
+# init.insmod.sh loads them, in the vendor's own order, with the vendor's own
+# dependency and softdep data.
+#
+# Why ours and not the vendor's: the vendor's prebuilt .ko files are built
+# against a kernel without the LuneOS config delta, and that delta moves the
+# genksyms CRC of most exported symbols - measured on sunfish, 8158 of 12823 - so
+# every module fails with "disagrees about version of symbol module_layout".
+# Bisected per option, only two do it: FANOTIFY (adds a member to struct
+# user_struct, which struct cred points at) and CGROUP_DEVICE (bumps
+# CGROUP_SUBSYS_COUNT, which dimensions arrays in struct css_set). The namespace
+# options move nothing, contrary to what an earlier version of this comment said.
+#
+# Removing them is not the fix, for two reasons: the poison sets overlap, so drift
+# is a max and not a sum - dropping one while another stays changes nothing - and
+# even a fully CRC-clean build still fails 5 of sunfish's 41 vendor modules,
+# wlan.ko included. Since we build the kernel from the vendor's own tree and
+# config we can build their modules too, and then they match by construction
+# instead of by luck - no CONFIG_MODULE_FORCE_LOAD, no CRC archaeology.
+#
+# The index files come from the vendor and are reused deliberately: modules.dep
+# and modules.softdep reference modules by name, not by build, so they stay
+# valid for our binaries, and modules.load preserves the load order the vendor
+# spent effort on. Any module we do not build keeps the vendor's copy, which
+# simply fails to load as it would have anyway.
+overlay_kernel_modules() {
+    kver=$(uname -r)
+    src="/lib/modules/$kver"
+    vdir="$ANDROID_ROOT/vendor/lib/modules"
+
+    [ -d "$src" ] || return 0
+    [ -d "$vdir" ] || { log "no $vdir to overlay, leaving our modules unused"; return 0; }
+    mountpoint -q "$vdir" 2>/dev/null && return 0
+
+    stage=/run/luneos-vendor-modules
+    rm -rf "$stage"; mkdir -p "$stage" || return 0
+
+    # the vendor's own files first: .ko plus modules.{load,dep,softdep,alias}
+    cp -a "$vdir/." "$stage/" 2>/dev/null
+
+    # then ours on top, flattened - the vendor's layout is flat and its
+    # modules.dep names them that way
+    n=0
+    for ko in $(find "$src" -name '*.ko' 2>/dev/null); do
+        cp -f "$ko" "$stage/$(basename "$ko")" 2>/dev/null && n=$((n+1))
+    done
+    [ "$n" -gt 0 ] || { log "no modules found under $src, skipping overlay"; return 0; }
+
+    if mount --bind "$stage" "$vdir" 2>/dev/null; then
+        log "overlaid $n of our own kernel modules on $vdir"
+    else
+        log "WARNING: could not bind $stage over $vdir"
+    fi
+}
+overlay_kernel_modules
+
 # --- everything else the vendor's own fstab asks for ------------------------
 # The vendor is the source of truth for firmware_mnt, dsp, metadata and friends;
 # this is the whole reason a device-agnostic GSI can work at all.
