@@ -1,0 +1,46 @@
+From: LuneOS <webos-ports@googlegroups.com>
+Date: Sat, 26 Sep 2026 00:00:01 +0200
+Subject: [PATCH] input: kpd_customkey: run the key handler in a thread
+
+key_irq_handler() is registered with devm_request_irq(), so it runs in hard
+IRQ context - and then calls two things that may sleep:
+
+	cancel_delayed_work_sync(&data->sleep_work);
+	...
+	mutex_lock(&data->lock);
+
+cancel_delayed_work_sync() waits for a running work item to finish, and
+mutex_lock() blocks on contention. Neither is allowed with interrupts off.
+It survives in practice only because the work is usually not pending and
+the mutex is usually uncontended, which makes it the kind of bug that bites
+under load rather than on the bench; CONFIG_DEBUG_ATOMIC_SLEEP reports it as
+"BUG: sleeping function called from invalid context".
+
+Ask for a threaded handler instead. Passing NULL as the primary handler
+means every edge is taken straight to the IRQ thread, where sleeping is
+legal, so both calls become correct as written and neither has to be
+restructured. IRQF_ONESHOT is required for a threaded IRQ with no primary
+handler, and is wanted here anyway: it keeps the line masked until the
+thread has finished, which debounces a switch that is read in that thread.
+
+No functional change beyond the context the handler runs in.
+Upstream-Status: Inappropriate [ODM driver, exists only in the vendor tree]
+
+Not-signed-off: add your own Signed-off-by before sending this to FuriLabs.
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+---
+--- a/drivers/input/keyboard/kpd_customkey.c
++++ b/drivers/input/keyboard/kpd_customkey.c
+@@ -253,8 +253,10 @@
+     }
+ 
+     for (i = 0; i < data->key_count; i++) {
+-        ret = devm_request_irq(&pdev->dev, data->keys[i].irq, key_irq_handler,
+-                              IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
++        ret = devm_request_threaded_irq(&pdev->dev, data->keys[i].irq,
++                              NULL, key_irq_handler,
++                              IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING |
++                              IRQF_ONESHOT,
+                               data->keys[i].name, &data->keys[i]);
+         if (ret) {
+             dev_err(&pdev->dev, "Failed to request IRQ %d for key %s\n", 

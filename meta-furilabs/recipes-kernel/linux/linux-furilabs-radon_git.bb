@@ -303,7 +303,45 @@ S = "${UNPACKDIR}/${BP}"
 
 SRC_URI = "git://github.com/furilabs/linux-furiphone-radon.git;branch=forky;protocol=https \
            file://luneos.cfg \
+           file://0001-input-kpd_customkey-release-the-wakeup-source-uncondi.patch \
+           file://0002-input-kpd_customkey-run-the-key-handler-in-a-thread.patch \
+           file://0003-input-kpd_customkey-report-switch-state-at-probe.patch \
 "
+
+# Carried as a patch against FuriLabs' own branch rather than on a fork. The
+# older devices in this tree share one shr-distribution/linux.git monorepo, but
+# every port that tracks a vendor or LineageOS repo keeps its changes as files
+# here (sunfish, surya), which leaves SRCREV pinned upstream and the change
+# trivially sendable to FuriLabs instead of needing a rebase forever.
+#
+# Three fixes to kpd_customkey.c, the ODM driver behind the FLX1s privacy
+# switches (cam_switch on GPIO 51, nwk_switch on GPIO 52). Each carries its own
+# measurement in its commit message:
+#
+#   0001  a leaked wakeup source. The release was guarded on a global shared by
+#         every key, and when the last edge left the GPIO low it was skipped
+#         entirely - so one flip of either switch pinned the device awake for
+#         the rest of the uptime, while dmesg claimed the lock was released.
+#   0002  the handler slept in hard IRQ context (cancel_delayed_work_sync and
+#         mutex_lock under devm_request_irq). Now a threaded IRQ.
+#   0003  switch state was never reported at probe, so the input core started
+#         at 0 with a latched switch already held and swallowed the first
+#         transition as a duplicate - the first flip after boot produced no
+#         event at all, and EVIOCGKEY disagreed with the sysfs attributes.
+#
+# 0003 changes what userspace sees, deliberately: it is what makes evdev usable
+# on these switches. The killswitch daemon should still poll the sysfs
+# attributes, because the driver never calls sysfs_notify() either.
+#
+# Safe against the CRC/KMI worry that governs the GKI machines: this changes
+# function bodies in a driver that is built in (CONFIG_KEYBOARD_CUSTOMKEY=y) and
+# exports no symbols, so no __crc_* value, no module_layout CRC and no vermagic
+# can move. Verified by diffing Module.symvers across the rebuild - identical.
+# It would not matter here anyway: radon loads no prebuilt vendor modules at all
+# (lsmod shows three, all from this tree), because its MediaTek connectivity
+# drivers are built in rather than force-loaded - see the CONFIG_MTK_COMBO note
+# in mtk-connectivity. Do not read this as licence to change config symbols,
+# which is where struct layouts and CRCs really do move.
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
