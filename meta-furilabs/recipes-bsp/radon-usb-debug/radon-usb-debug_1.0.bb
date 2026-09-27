@@ -29,6 +29,7 @@ SRC_URI = " \
     file://99-radon-usbnet.rules \
     file://radon-usb-debug.service \
     file://adbd-no-gadget-setup.conf \
+    file://adbd-early-start.conf \
 "
 
 inherit systemd
@@ -44,6 +45,10 @@ do_install() {
     # adbd must not rebuild the gadget underneath us - see the drop-in itself.
     install -D -m 0644 ${UNPACKDIR}/adbd-no-gadget-setup.conf \
         ${D}${systemd_system_unitdir}/android-tools-adbd.service.d/10-no-gadget-setup.conf
+
+    # ...and it has to be startable in the early window that waits for it.
+    install -D -m 0644 ${UNPACKDIR}/adbd-early-start.conf \
+        ${D}${systemd_system_unitdir}/android-tools-adbd.service.d/20-early-start.conf
 
     # adbd's own unit has ConditionPathExists=/etc/usb-debugging-enabled.
     install -d ${D}${sysconfdir}
@@ -64,4 +69,5 @@ FILES:${PN} += " \
     ${sysconfdir}/udev/rules.d/99-radon-usbnet.rules \
     ${sysconfdir}/usb-debugging-enabled \
     ${systemd_system_unitdir}/android-tools-adbd.service.d/10-no-gadget-setup.conf \
+    ${systemd_system_unitdir}/android-tools-adbd.service.d/20-early-start.conf \
 "
