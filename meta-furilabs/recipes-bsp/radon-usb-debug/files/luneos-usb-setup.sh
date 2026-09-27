@@ -27,6 +27,22 @@ GADGET=/sys/kernel/config/usb_gadget/g1
 
 bound() { [ -s "$GADGET/UDC" ] && [ -n "$(cat "$GADGET/UDC" 2>/dev/null)" ]; }
 
+# The first UDC that is not a dummy. "ls /sys/class/udc | head -1" is not good
+# enough: a kernel built with CONFIG_USB_DUMMY_HCD exports dummy_udc, which sorts
+# before every real controller name, so the gadget gets bound to the loopback
+# controller and no USB appears on the cable at all. android-gadget-setup skips
+# dummies for the same reason; keep the two in agreement.
+first_real_udc() {
+    for _u in /sys/class/udc/*; do
+        [ -e "$_u" ] || continue
+        _n=${_u##*/}
+        case "$_n" in *dummy*) continue ;; esac
+        echo "$_n"
+        return 0
+    done
+    return 1
+}
+
 teardown() {
     [ -d "$GADGET" ] || return 0
     echo "" > "$GADGET/UDC" 2>/dev/null
@@ -66,7 +82,7 @@ while [ $i -lt 10 ]; do
     i=$((i+1))
 done
 
-UDC=$(ls /sys/class/udc 2>/dev/null | head -n 1)
+UDC=$(first_real_udc)
 [ -n "$UDC" ] && echo "$UDC" > "$GADGET/UDC" 2>/dev/null
 
 if ! bound; then
@@ -74,7 +90,7 @@ if ! bound; then
     systemctl stop android-tools-adbd.service 2>/dev/null
     teardown
     /usr/bin/android-gadget-setup rndis
-    UDC=$(ls /sys/class/udc 2>/dev/null | head -n 1)
+    UDC=$(first_real_udc)
     [ -n "$UDC" ] && ! bound && echo "$UDC" > "$GADGET/UDC" 2>/dev/null
 fi
 
