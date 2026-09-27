@@ -92,6 +92,35 @@ deviceinfo_hybris_prefer_vndk="1"
 # off. Same HAL family and the same MT6358 codec as the MP01.
 deviceinfo_audio_sample_rate="48000"
 
+# The codec's analog output gains, which nothing else ever sets.
+#
+# The same HAL that needs the rate above also routes through the audio DSP over
+# audio_ipi and touches no ALSA control at all - a full "amixer contents" dump on
+# this device is byte-identical during playback and at idle. So the kernel's
+# defaults stand, and the kernel leaves "Lineout Volume" at 0, the *minimum* of a
+# -10 dB..+8 dB range, which puts the speaker 18 dB below unity. MEASURED here
+# rather than assumed: mt6358 logged "set_speaker_gain(), spk_gain = 0" on every
+# power-up until the control was set, and "= 18" once it was.
+#
+# 10 is unity on all three - the TLV is dBscale-min=-10.00dB in 1 dB steps, so
+# index 10 is 0 dB and 18 is +8 dB. Unity rather than maximum because there is
+# nothing to calibrate against on this unit; see below.
+#
+# UNVERIFIED as a listening level. This unit's loudspeaker is dead in hardware:
+# silent under stock Android too (which reports AUDIO_DEVICE_OUT_SPEAKER at
+# volume 15/15, master mute off), and silent through 24 s of case pressing and
+# flexing while a microphone capture with a working earpiece control in the same
+# recording proved the measurement rig. So the speaker gain could not be judged
+# by ear or by mic here. Expect to re-tune Lineout Volume on a Q25 whose speaker
+# works.
+#
+# Routing is deliberately absent. "RCV Mux" is Open at boot and nothing ever
+# switches it, so the earpiece stays silent - but pinning it to "Voice Playback"
+# here would send media out of the earpiece on a healthy device, which is worse
+# than the gap it fills. On a unit whose speaker is dead, append
+# ";RCV Mux=Voice Playback;Handset Volume=14" locally to hear anything at all.
+deviceinfo_alsa_mixer_init="Lineout Volume=10,10;Headset Volume=10,10;Handset Volume=10"
+
 # The MT6789 claims Synchronization Train support (extended features page 2,
 # byte 0 bit 2) and then answers Read Synchronization Train Parameters with
 # "Unknown HCI Command", which aborts hci init - hci0 never comes up at all.
