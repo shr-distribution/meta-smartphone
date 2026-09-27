@@ -1,0 +1,262 @@
+From 6d82c1d03386917bad45f2e9187702bb9e5d7dd0 Mon Sep 17 00:00:00 2001
+From: LuneOS <claude.ai@herrie.org>
+Date: Sat, 26 Sep 2026 21:43:16 +0200
+Subject: [PATCH] bbqX0kbd: resolve the Q20 Alt/Sym symbol layers in the driver
+
+The keyboard reports uppercase ASCII scancodes; the driver turns them into
+keycodes and also reports the raw scancode as EV_MSC/MSC_SCAN. Android reads
+the scancode through Q25_keyboard.kl/.kcm, which is how punctuation works
+there. Anything reading only EV_KEY - Qt's evdevkeyboard plugin, which is what
+LuneOS's compositor uses - sees only what the two existing lookup functions
+produce: digits, and only behind the Alt+RightShift num-lock latch, plus
+navigation and volume keys. Every symbol printed on the keyboard falls through
+"default: returnValue = keycode", so on LuneOS the whole punctuation set is
+unreachable - no # ( ) _ + @ * / : ; ' " ? ! , . \ ^ = { } [ ] < > &
+
+Map them here instead, to the keycode and shift state a US layout needs, and
+stop reporting Alt and Sym themselves: on this keyboard they are layer
+selectors printed on the keys rather than PC modifiers, and reporting them
+makes the toolkit see Alt+Shift+3 instead of '#'.
+
+Three things that are easy to get wrong and are handled:
+
+  - The keycodes the layers emit (KEY_MINUS, KEY_SLASH, KEY_SEMICOLON,
+    KEY_APOSTROPHE, KEY_COMMA, KEY_DOT, KEY_BACKSLASH, KEY_LEFTBRACE,
+    KEY_RIGHTBRACE) are not in the base table, and the input core silently
+    drops an event for a key the device never declared, so they are added to
+    input->keybit.
+  - What was emitted is remembered per scancode, so releasing Alt before the
+    key still produces the matching release rather than leaving the symbol
+    held down for ever.
+  - A shift the user is already holding is not fought over: the synthetic
+    KEY_LEFTSHIFT is only injected when neither physical shift is down.
+
+The nine letter-to-digit entries duplicate bbqX0kbd_get_num_lock_keycode()
+deliberately: that one only fires behind the num-lock latch, while the printed
+layout says Alt.
+
+q20_layers=0 restores the stock behaviour without a rebuild.
+
+Layout taken from the diagram in bbq20kbd_pmod_codes.h: the character printed
+above a key is Alt, the one below it is Sym.
+
+Upstream-Status: Pending
+
+Destined for a shr-distribution/linux branch for this device (q25/5.10.198/lune,
+by the MP01's naming), which is where every other LuneOS kernel change lives. It
+is a .patch here only because the Q25 still fetches LineageOS's tree directly;
+see the note in linux-zinwa-q25_git.bb.
+
+Signed-off-by: LuneOS <claude.ai@herrie.org>
+---
+ .../input/keyboard/bbqX0kbd/bbqX0kbd_main.c   | 176 +++++++++++++++++-
+ 1 file changed, 174 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/keyboard/bbqX0kbd/bbqX0kbd_main.c b/drivers/input/keyboard/bbqX0kbd/bbqX0kbd_main.c
+index 0ce96c1..290b7fc 100644
+--- a/drivers/input/keyboard/bbqX0kbd/bbqX0kbd_main.c
++++ b/drivers/input/keyboard/bbqX0kbd/bbqX0kbd_main.c
+@@ -178,6 +178,157 @@ static unsigned short bbqX0kbd_get_num_lock_keycode(unsigned short keycode)
+ 	return returnValue;
+ }
+ 
++/*
++ * The BlackBerry Q20 symbol layers, resolved here rather than in userspace.
++ *
++ * This keyboard reports uppercase ASCII scancodes and the driver turns them
++ * into keycodes; it also reports the raw scancode as EV_MSC/MSC_SCAN. Android
++ * reads the *scancode* through Q25_keyboard.kl/.kcm, which is how punctuation
++ * works there. Anything reading only EV_KEY - Qt's evdevkeyboard plugin, which
++ * is what LuneOS's compositor uses - sees only what the two lookup functions
++ * above produce: digits (and only behind the Alt+RightShift num-lock latch) and
++ * navigation keys. Every symbol printed on the keyboard falls through
++ * "default: returnValue = keycode", so the whole punctuation set is
++ * unreachable: no # ( ) _ + @ * / : ; ' " ? ! , . \ ^ = { } [ ] < > &
++ *
++ * So map them here, to the keycode plus shift state a US layout needs, and do
++ * not report Alt or Sym themselves: on this keyboard they are layer selectors
++ * printed on the keys, not PC modifiers, and reporting them would make the
++ * toolkit see Alt+Shift+3 rather than '#'.
++ *
++ * Layout is the Q20's own, from the diagram in bbq20kbd_pmod_codes.h: the
++ * character printed ABOVE a key is Alt, the one BELOW it is Sym.
++ *
++ * q20_layers=0 restores the stock behaviour without a rebuild.
++ */
++static bool q20_layers = true;
++module_param(q20_layers, bool, 0644);
++MODULE_PARM_DESC(q20_layers,
++	"resolve the Q20 Alt/Sym symbol layers in-kernel (default 1)");
++
++struct q20_layer_key {
++	unsigned short in;	/* keycode the base layer produced */
++	unsigned short out;	/* keycode to report instead */
++	bool shift;		/* ... with shift, for the shifted symbols */
++};
++
++/* Alt: the character printed above the key. The nine letter-to-digit entries
++ * are here as well as in bbqX0kbd_get_num_lock_keycode() on purpose - that one
++ * only fires behind the num-lock latch, and the printed layout says Alt. */
++static const struct q20_layer_key q20_alt_layer[] = {
++	{ KEY_W, KEY_1,          false }, { KEY_E, KEY_2,          false },
++	{ KEY_R, KEY_3,          false }, { KEY_S, KEY_4,          false },
++	{ KEY_D, KEY_5,          false }, { KEY_F, KEY_6,          false },
++	{ KEY_Z, KEY_7,          false }, { KEY_X, KEY_8,          false },
++	{ KEY_C, KEY_9,          false },
++	{ KEY_Q, KEY_3,          true  },	/* # */
++	{ KEY_T, KEY_9,          true  },	/* ( */
++	{ KEY_Y, KEY_0,          true  },	/* ) */
++	{ KEY_U, KEY_MINUS,      true  },	/* _ */
++	{ KEY_I, KEY_MINUS,      false },	/* - */
++	{ KEY_O, KEY_EQUAL,      true  },	/* + */
++	{ KEY_P, KEY_2,          true  },	/* @ */
++	{ KEY_A, KEY_8,          true  },	/* * */
++	{ KEY_G, KEY_SLASH,      false },	/* / */
++	{ KEY_H, KEY_SEMICOLON,  true  },	/* : */
++	{ KEY_J, KEY_SEMICOLON,  false },	/* ; */
++	{ KEY_K, KEY_APOSTROPHE, false },	/* ' */
++	{ KEY_L, KEY_APOSTROPHE, true  },	/* " */
++	{ KEY_V, KEY_SLASH,      true  },	/* ? */
++	{ KEY_B, KEY_1,          true  },	/* ! */
++	{ KEY_N, KEY_COMMA,      false },	/* , */
++	{ KEY_M, KEY_DOT,        false },	/* . */
++	{ KEY_BACKSPACE, KEY_ESC, false },	/* ESC */
++};
++
++/* Sym: the character printed below the key. Only the symbols - the navigation
++ * and volume entries on that layer are already done by
++ * bbqX0kbd_get_altgr_keycode() before we are reached, and the Z/X backlight
++ * pair by bbqX0kbd_set_brightness(). The degree sign on Sym+C has no US
++ * keycode and is left alone. */
++static const struct q20_layer_key q20_sym_layer[] = {
++	{ KEY_T, KEY_BACKSLASH,  false },	/* \ */
++	{ KEY_U, KEY_6,          true  },	/* ^ */
++	{ KEY_I, KEY_EQUAL,      false },	/* = */
++	{ KEY_O, KEY_LEFTBRACE,  true  },	/* { */
++	{ KEY_P, KEY_RIGHTBRACE, true  },	/* } */
++	{ KEY_A, KEY_SLASH,      true  },	/* ? */
++	{ KEY_D, KEY_LEFTBRACE,  false },	/* [ */
++	{ KEY_F, KEY_RIGHTBRACE, false },	/* ] */
++	{ KEY_V, KEY_COMMA,      true  },	/* < */
++	{ KEY_N, KEY_DOT,        true  },	/* > */
++	{ KEY_SPACE, KEY_7,      true  },	/* & */
++};
++
++static const struct q20_layer_key *q20_lookup(const struct q20_layer_key *t,
++					      size_t n, unsigned short kc)
++{
++	size_t i;
++
++	for (i = 0; i < n; ++i)
++		if (t[i].in == kc)
++			return &t[i];
++	return NULL;
++}
++
++/*
++ * What we emitted for each scancode, so that the release matches the press.
++ * Without this, letting go of Alt before the key would report a release for a
++ * keycode that was never pressed and leave the symbol held down for ever.
++ * Single instance driver (see g_bbqX0kbd_data), so file scope is enough.
++ */
++static unsigned short q20_held_keycode[NUM_KEYCODES];
++static bool q20_held_shift[NUM_KEYCODES];
++
++/* Returns true when it has reported the key itself and the caller should not. */
++static bool q20_report_key(struct bbqX0kbd_data *kbd, struct input_dev *dev,
++			   uint8_t scancode, unsigned short keycode, bool pressed)
++{
++	const struct q20_layer_key *m;
++	unsigned short out;
++	bool shift;
++
++	if (!q20_layers)
++		return false;
++
++	/* Layer selectors, not modifiers - never reported. */
++	if (keycode == KEY_LEFTALT || keycode == KEY_RIGHTALT)
++		return true;
++
++	if (pressed) {
++		if (kbd->modifier_keys_status & LEFT_ALT_BIT)
++			m = q20_lookup(q20_alt_layer, ARRAY_SIZE(q20_alt_layer), keycode);
++		else if (kbd->modifier_keys_status & RIGHT_ALT_BIT)
++			m = q20_lookup(q20_sym_layer, ARRAY_SIZE(q20_sym_layer), keycode);
++		else
++			m = NULL;
++		if (!m)
++			return false;
++		out = m->out;
++		/* Do not fight a shift the user is already holding. */
++		shift = m->shift && !(kbd->modifier_keys_status &
++				      (LEFT_SHIFT_BIT | RIGHT_SHIFT_BIT));
++		q20_held_keycode[scancode] = out;
++		q20_held_shift[scancode] = shift;
++
++		if (shift)
++			input_report_key(dev, KEY_LEFTSHIFT, 1);
++		input_report_key(dev, out, 1);
++	} else {
++		out = q20_held_keycode[scancode];
++		if (!out)
++			return false;
++		shift = q20_held_shift[scancode];
++		q20_held_keycode[scancode] = 0;
++
++		input_report_key(dev, out, 0);
++		if (shift)
++			input_report_key(dev, KEY_LEFTSHIFT, 0);
++	}
++	return true;
++}
++
++
+ static unsigned short bbqX0kbd_get_altgr_keycode(unsigned short keycode)
+ {
+ 	unsigned short returnValue;
+@@ -386,7 +537,10 @@ static void bbqX0kbd_work_handler(struct work_struct *work_struct)
+ #if (DEBUG_LEVEL & DEBUG_LEVEL_LD)
+ 					BBQX0KBD_KEYBOARD_LOG("%s AFTER : MODKEYS: 0x%02X LOCKKEYS: 0x%02X scancode: %d(%c) keycode: %d State: %d reportKey: %d\n", __func__, bbqX0kbd_data->modifier_keys_status, bbqX0kbd_data->lockStatus, fifoData[1], fifoData[1],  keycode, fifoData[0], reportKey);
+ #endif
+-					if (reportKey == 2)
++					if (reportKey == 2 &&
++					    !q20_report_key(bbqX0kbd_data, bbqX0kbd_data->input_dev,
++							    fifoData[1], keycode,
++							    fifoData[0] == KEY_PRESSED_STATE))
+ 						input_report_key(bbqX0kbd_data->input_dev, keycode, fifoData[0] == KEY_PRESSED_STATE);
+ 					break;
+ 				}
+@@ -537,7 +691,10 @@ static void bbqX0kbd_work_fnc(struct work_struct *work_struct_ptr)
+ #if (DEBUG_LEVEL & DEBUG_LEVEL_LD)
+ 				BBQX0KBD_KEYBOARD_LOG("%s BEFORE: MODKEYS: 0x%02X LOCKKEYS: 0x%02X scancode: %d(%c) keycode: %d State: %d reportKey: %d\n", __func__, bbqX0kbd_data->modifier_keys_status, bbqX0kbd_data->lockStatus, bbqX0kbd_data->fifoData[pos][1], bbqX0kbd_data->fifoData[pos][1], keycode, bbqX0kbd_data->fifoData[pos][0], reportKey);
+ #endif
+-				if (reportKey == 2)
++				if (reportKey == 2 &&
++				    !q20_report_key(bbqX0kbd_data, input_dev,
++						    bbqX0kbd_data->fifoData[pos][1], keycode,
++						    bbqX0kbd_data->fifoData[pos][0] == KEY_PRESSED_STATE))
+ 					input_report_key(input_dev, keycode, bbqX0kbd_data->fifoData[pos][0] == KEY_PRESSED_STATE);
+ 				break;
+ 			}
+@@ -1058,6 +1215,21 @@ static int bbqX0kbd_probe(struct i2c_client *client, const struct i2c_device_id
+ 	for (i = 0; i < NUM_KEYCODES; i++)
+ 		__set_bit(bbqX0kbd_data->keycode[i], input->keybit);
+ 
++	/*
++	 * The Q20 layer tables emit keycodes the base table does not contain -
++	 * KEY_MINUS, KEY_SLASH, KEY_SEMICOLON, KEY_APOSTROPHE, KEY_COMMA,
++	 * KEY_DOT, KEY_BACKSLASH, KEY_LEFTBRACE, KEY_RIGHTBRACE - and the input
++	 * core silently DROPS an event for a key the device never declared. The
++	 * comment in bbq20kbd_pmod_codes.h says as much about the base set; it
++	 * applies to these just the same. Declared unconditionally, so turning
++	 * q20_layers off at runtime cannot leave a key undeclared.
++	 */
++	for (i = 0; i < ARRAY_SIZE(q20_alt_layer); i++)
++		__set_bit(q20_alt_layer[i].out, input->keybit);
++	for (i = 0; i < ARRAY_SIZE(q20_sym_layer); i++)
++		__set_bit(q20_sym_layer[i].out, input->keybit);
++	__set_bit(KEY_LEFTSHIFT, input->keybit);
++
+ 	__clear_bit(KEY_RESERVED, input->keybit);
+ 
+ 	__set_bit(EV_REP, input->evbit);
