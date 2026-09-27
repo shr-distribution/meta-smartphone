@@ -1,0 +1,80 @@
+From: LuneOS <webos-ports@googlegroups.com>
+Date: Sat, 26 Sep 2026 00:00:00 +0200
+Subject: [PATCH] input: kpd_customkey: release the wakeup source unconditionally
+
+The FLX1s privacy switches (cam_switch on GPIO 51, nwk_switch on GPIO 52)
+are handled by this driver. Every edge takes a wakeup source and schedules
+delayed_sleep_work_fn() to drop it again WAKEUP_HOLD_MS later, so userspace
+gets a chance to react before the system is allowed to suspend.
+
+The release was guarded by a file-scope "gpio_value", set from whichever key
+fired last:
+
+	if(gpio_value)
+		__pm_relax(data->ws);
+	printk(KERN_INFO "Wake lock released after %d ms gpio_value:%d\n", ...);
+
+That is wrong twice over.
+
+One, the variable is a single global shared by every key the DT describes,
+so two switches racing each other decide one another's release. Two, and
+worse, when the last edge left the GPIO low the guard is false and
+__pm_relax() is never reached at all - the wakeup source stays active for
+the rest of the uptime and the system can no longer suspend. The printk
+claims otherwise regardless of what happened, which is how this hides:
+
+	[78298.855215] Wake lock released after 3000 ms gpio_value:1
+	[78310.119112] Wake lock released after 3000 ms gpio_value:0   <- leaked
+
+Both switches idle with their GPIO low, so a single flip of either one is
+enough to pin the device awake, and the message in dmesg says it was
+released.
+
+There is no reason to make the release conditional: the hold is a fixed
+timeout, not a level. Drop the guard, and with it the shared global, which
+has no other user. __pm_relax() on an already inactive source is harmless,
+so the unguarded call is safe on every path.
+
+Observed on a FuriPhone FLX1s (MT6877) running LuneOS.
+
+kpd_customkey.c is an ODM driver that exists only in FuriLabs' vendor tree
+(it arrived in "Import ODM changes", 1f9da8203452), so there is no kernel.org
+upstream to send this to - but it is worth offering to FuriLabs, since FuriOS
+runs the same driver on the same switches and has the same leak.
+
+Upstream-Status: Inappropriate [ODM driver, exists only in the vendor tree]
+
+Not-signed-off: add your own Signed-off-by before sending this to FuriLabs.
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+---
+--- a/drivers/input/keyboard/kpd_customkey.c
++++ b/drivers/input/keyboard/kpd_customkey.c
+@@ -58,7 +58,6 @@
+ };
+ struct gpio_keys_data *gData = NULL;
+ 
+-static int gpio_value = 1;
+ static ssize_t key_state_show(struct device *dev, 
+                              struct device_attribute *attr, 
+                              char *buf) {
+@@ -78,10 +77,9 @@
+     struct gpio_keys_data *data = container_of(to_delayed_work(work), 
+                                              struct gpio_keys_data, sleep_work);
+ 
+-    if(gpio_value)
+-	__pm_relax(data->ws);
++    __pm_relax(data->ws);
+ 
+-    printk(KERN_INFO "Wake lock released after %d ms gpio_value:%d\n", WAKEUP_HOLD_MS,gpio_value);
++    printk(KERN_INFO "Wake lock released after %d ms\n", WAKEUP_HOLD_MS);
+ }
+ 
+ static irqreturn_t key_irq_handler(int irq, void *dev_id) {
+@@ -98,7 +96,6 @@
+     __pm_stay_awake(data->ws);
+ 
+     value = gpio_get_value(key->gpio);
+-    gpio_value = value;
+     mutex_lock(&data->lock);
+     key->pressed = (value ? 0 : 1);
+     mutex_unlock(&data->lock);

@@ -1,0 +1,54 @@
+From: LuneOS <webos-ports@googlegroups.com>
+Date: Sat, 26 Sep 2026 00:00:02 +0200
+Subject: [PATCH] input: kpd_customkey: report switch state at probe
+
+The keys this driver serves on the FLX1s are latching privacy switches, not
+momentary buttons, so one of them is very likely already held when the
+driver probes - both idle with their GPIO low.
+
+Nothing tells the input core that. It starts with every key's state at 0,
+and input_handle_event() drops any report whose value matches the state it
+already holds. So the first flip after boot reports "released", which the
+core discards as a duplicate, and userspace sees nothing at all; only the
+flip back produces an event. Measured on a FLX1s: the driver logged all
+four edges
+
+	Key cam_switch (GPIO 51) triggered, pressed: 0 / then 1
+	Key nwk_switch (GPIO 52) triggered, pressed: 0 / then 1
+
+while two independent evdev readers on the device received none of them, and
+EVIOCGKEY disagreed with the sysfs attributes for the same switches.
+
+Report each key's current level once, after input_register_device() and
+before the interrupts are hooked up, so the core starts out agreeing with
+the hardware and the very next edge is a real transition. The GPIO is
+re-read rather than reusing the value cached during DT parsing, which was
+sampled earlier in probe.
+Upstream-Status: Inappropriate [ODM driver, exists only in the vendor tree]
+
+Not-signed-off: add your own Signed-off-by before sending this to FuriLabs.
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+---
+--- a/drivers/input/keyboard/kpd_customkey.c
++++ b/drivers/input/keyboard/kpd_customkey.c
+@@ -252,6 +252,20 @@
+         return ret;
+     }
+ 
++    /* Seed the input core with what the switches actually read. Without this
++     * its state starts at 0 for every code while a latched switch may already
++     * be held, and input_handle_event() then discards the first transition as
++     * a duplicate - so the first flip after boot produces no event at all and
++     * EVIOCGKEY lies about the hardware.
++     */
++    for (i = 0; i < data->key_count; i++) {
++        struct key_config *key = &data->keys[i];
++
++        key->pressed = (gpio_get_value(key->gpio) ? 0 : 1);
++        input_report_key(data->input_dev, key->key_code, key->pressed);
++    }
++    input_sync(data->input_dev);
++
+     for (i = 0; i < data->key_count; i++) {
+         ret = devm_request_threaded_irq(&pdev->dev, data->keys[i].irq,
+                               NULL, key_irq_handler,
