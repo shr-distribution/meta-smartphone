@@ -66,3 +66,55 @@ deviceinfo_device_pixel_ratio="1.6"
 #   deviceinfo_touchscreen_by_name
 #       mtk_touchscreen_hodafonehw.ko is the only touch device on the bus, so
 #       derivation cannot pick the wrong one.
+
+# --- MediaTek MT6789 userspace, carried over from the MP01 and radon ----------
+# These four are not Q25 discoveries. Three of them were established on the
+# MP01, which is the same SoC and the same Android 12 MediaTek vendor, and the
+# same three appear independently in the radon (MT6877) adaptation - so they are
+# properties of MediaTek's A12 vendor userspace rather than of either board.
+# Each is recorded with what would happen without it, so a future reader can
+# tell whether it still applies.
+
+# Qt's hwcomposer QPA backend, rather than letting it pick. ro.hardware.hwcomposer
+# is mtk_common here, the same as the MP01, where the compositor otherwise spun
+# trying to become DRM master.
+deviceinfo_force_hwc2="1"
+
+# The audio HAL (loaded into pulseaudio by module-droid) needs the vendor's
+# VNDK 31 libraries rather than the GSI's. VERIFIED on this device rather than
+# assumed: the Q25's own /vendor/lib64/libnvram.so, pulled out of super.img,
+# imports android::base::Basename(const std::string&), which the Android 16
+# GSI's libbase no longer exports. Without this pulseaudio crashes on start.
+deviceinfo_hybris_prefer_vndk="1"
+
+# MediaTek's HAL runs its downlink paths at 48 kHz; opened at pulseaudio's
+# default 44.1 kHz the HAL resamples everything and playback sounds slightly
+# off. Same HAL family and the same MT6358 codec as the MP01.
+deviceinfo_audio_sample_rate="48000"
+
+# The MT6789 claims Synchronization Train support (extended features page 2,
+# byte 0 bit 2) and then answers Read Synchronization Train Parameters with
+# "Unknown HCI Command", which aborts hci init - hci0 never comes up at all.
+# Attributed to the chip on the MP01, not to that board, and this is the same
+# chip with the same connac1x Bluetooth, so it should apply unchanged. If hci0
+# does come up without it, delete the line rather than leaving it to rot.
+deviceinfo_bluebinder_ext_features_page_2_mask="0x0400000000000000"
+
+# NOT copied from the MP01:
+#
+#   deviceinfo_battery_critical_percent="0"
+#       There it works around the MTK userspace gauge rejecting that unit's
+#       nvram calibration, so capacity reads -1 and batteryd shuts the phone
+#       down every boot. The Q25 has different charging hardware entirely
+#       (mt6358_battery plus hodafone_battery, upm6922/upm6722 chargers,
+#       mt6375 PD), so the failure may simply not occur. If the phone powers
+#       off within a minute on a charger, check
+#       /sys/class/power_supply/battery/capacity first - that is this symptom.
+#
+#   deviceinfo_backlight_outdoor_scale="25"
+#       E Ink specific: a reflective panel wants less frontlight in daylight,
+#       not more. The Q25 has a normal IPS LCD.
+#
+#   deviceinfo_compositor_geometry
+#       The MP01's panel is mounted rotated. The Q25's is 720x720 and square,
+#       so there is no rotation to declare.
