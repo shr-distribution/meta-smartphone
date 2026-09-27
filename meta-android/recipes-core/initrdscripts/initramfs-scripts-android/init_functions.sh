@@ -143,6 +143,21 @@ mount_root_partition() {
 	fi
 }
 
+# Stop the udhcpd started by setup_usb_network, before switch_root.
+#
+# It must not outlive the initramfs. switch_root does not kill anything, so the
+# process would keep running on an unlinked binary while still holding UDP 67:
+# the rootfs's own udhcpd (usb-ip.sh on radon) then cannot bind and exits, and if
+# the rootfs rebuilds the gadget the surviving daemon is left answering on an
+# interface that no longer exists. Either way the host stops being offered an
+# address, which is the one thing this is here to do.
+stop_udhcpd() {
+	if [ -r /run/udhcpd-usb.pid ]; then
+		kill "$(cat /run/udhcpd-usb.pid)" 2>/dev/null
+		rm -f /run/udhcpd-usb.pid
+	fi
+}
+
 setup_usb_network_android() {
 	# Only run when the legacy android usb driver is really there - not merely
 	# when its class directory is. On some vendor kernels (radon, MediaTek 4.19)
@@ -202,18 +217,61 @@ setup_usb_network_configfs() {
 }
 
 # $1: IP address of usb interface
+# $1: optional "addr/prefix" override; without it, one /24 per machine (below)
 setup_usb_network() {
 	# Run all usb network setup functions (add more below!)
 	setup_usb_network_android
 	setup_usb_network_configfs
 
-	# Setup usb IP address
-	IP=$1
+	# One /24 per machine, so several LuneOS devices can be attached to one
+	# host at once. Every device used to take 172.16.42.2/16 and every
+	# host-side link 172.16.42.1/24, which leaves the host with several routes
+	# for one subnet: it picks one, and traffic for the second device goes out
+	# the first device's interface.
+	#
+	# Keep this table in sync with the two other copies:
+	#   meta-mainline/.../initramfs-scripts-simple/init_functions.sh
+	#   meta-pine64-luneos/.../luneos-usb-gadget.sh
+	# .42/.43/.44 belong to pinephone/pinephonepro/pinetab2 there. Halium
+	# devices share .45 by default, so add an entry here before connecting two
+	# of them at the same time.
+	if [ -n "$1" ]; then
+		IP="$1"
+		NET=$(echo "$1" | cut -d. -f1-3)
+	else
+		case "$(tr -d " \t\n" < /etc/hostname 2>/dev/null)" in
+			radon) NET=172.16.46 ;;
+			*)     NET=172.16.45 ;;
+		esac
+		IP="$NET.2/24"
+	fi
+
 	for INTERFACE in usb0 rndis0 eth0; do
 		# try to setup interface. If it fails, try the next one.
 		ip address add "$IP" dev $INTERFACE || continue
 		# It succeeded, now bring it up and exit
 		ip link set $INTERFACE up
+		echo "  $INTERFACE up at $IP (host gets $NET.1)"
+
+		# Hand the host its address so recovery is reachable without the
+		# host being configured per device. No "option router" and no
+		# "option dns" on purpose: this must never become the host's
+		# default gateway or resolver.
+		if command -v udhcpd >/dev/null 2>&1; then
+			mkdir -p /run
+			cat > /run/udhcpd-usb.conf <<EOF
+interface $INTERFACE
+start $NET.1
+end $NET.1
+max_leases 1
+option subnet 255.255.255.0
+lease_file /run/udhcpd-usb.leases
+pidfile /run/udhcpd-usb.pid
+EOF
+			: > /run/udhcpd-usb.leases
+			udhcpd /run/udhcpd-usb.conf ||
+				echo "  warning: udhcpd failed; host must set $NET.1/24 itself"
+		fi
 		break
 	done
 }
