@@ -1,0 +1,56 @@
+# Android services stubbed out on surya (POCO X3 NFC) because they only spam the
+# journal under LuneOS/Halium (see meta-android's pre-start.d/50-stub-services).
+#
+# Justified from a logcat taken on the device on 2026-09-26, not copied from
+# another port's list. Paths checked against the actual images in
+# ~/webos/LuneOS/staging/surya-staging - a path that does not exist stubs
+# nothing and says nothing.
+
+# LineageOS display post-processing HAL. It SIGABRTs on startup, every time:
+#
+#   vendor.lineage.livedisplay@2.0-impl-sdm: PictureAdjustment backend not ready, exiting.
+#   libc: Fatal signal 6 (SIGABRT) in tid 570 (vendor.lineage.)
+#   DEBUG: Abort message: 'PictureAdjustment backend not ready, exiting.'
+#
+# The backend it wants is SDM's picture-adjustment interface, reached through a
+# framework path that does not exist under Halium. init restarts it, so the
+# crash repeats and each one writes a tombstone. It is LineageOS's colour and
+# reading-mode tuning - nothing in LuneOS consumes it, so stubbing removes no
+# capability. Binary confirmed present at this path in vendor.img.
+vendor/bin/hw/vendor.lineage.livedisplay@2.1-service.surya
+
+#-----------------------------------------------------------------------------
+# NOT stubbed: minimedia, and NOT the cause of the hwservicemanager loop.
+#-----------------------------------------------------------------------------
+# An earlier reading of the 2026-09-26 log blamed `minimedia` (pid 555) for the
+# once-per-second ISensors polling, because it hosts
+# android.frameworks.sensorservice@1.0::ISensorManager and its log goes quiet
+# just as the polling starts. That was wrong twice over: CameraService is
+# event-driven and logs nothing when idle, and it had just finished enumerating
+# the cameras successfully (cameraId 0, 1, 21), so going quiet is what working
+# looks like.
+#
+# The client is host-side: sensorfwd. sensorfw's HybrisBackend::getBackend()
+# tries HybrisBackendBinderAidl::isSupported(), then
+# HybrisBackendBinderHidl::isSupported(), five times with sleep(1) between
+# rounds, then gives up - and systemd restarts it. That is exactly the cadence
+# and the count in the log (195 rounds over four minutes is about 39 runs of
+# five). Nothing inside the container logs anything because the caller is not in
+# the container; only hwservicemanager reports the attempts.
+#
+# So do not stub minimedia. It would remove camera and video for a symptom it
+# does not cause.
+#
+# The HIDL half can never succeed here: surya's Android-15 vendor ships only
+# /vendor/bin/hw/android.hardware.sensors-service.multihal (checked in
+# vendor.img - no @2.x HIDL service exists). The AIDL half is the one that has
+# to work, and it looks up android.hardware.sensors.ISensors/default on
+# /dev/binder through libgbinder - which the container's own servicemanager
+# serves fine (log: "Caller(pid=403) Found
+# android.hardware.sensors.ISensors/default in device VINTF manifest").
+#
+# That makes this a libgbinder servicemanager API-level problem, not a missing
+# backend, and the gbinder ApiLevel handling in luneos-device-config was
+# reworked on 2026-09-25 - AFTER the rootfs these logs came from
+# (luneos-dev-image-halium-arm64 20260924122732). Rebuild the rootfs and retest
+# before adding anything here for sensors.
