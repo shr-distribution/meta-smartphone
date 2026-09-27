@@ -34,7 +34,9 @@ fi
 echo "Recovery mode: $RECOVERYMODE"
 ###
 
-setup_usb_network 172.16.42.2/16
+# No address argument: setup_usb_network picks one /24 per machine so several
+# devices can be attached to one host at once (see init_functions.sh).
+setup_usb_network
 
 if [ -f /scripts/local-premount/ORDER ]; then
     . /scripts/local-premount/ORDER
@@ -42,7 +44,7 @@ fi
 
 if [ "$RECOVERYMODE" = "yes" ] ; then
     # start telnetd for this IP
-    start_telnetd 172.16.42.2
+    start_telnetd "$USB_ADDR"
     
     # start minimalist recovery UI, and have a shell as fallback
     /usr/bin/luneos_recovery_ui ||
@@ -56,6 +58,7 @@ else
 
     #info "Stopping debug services"
     #stop_telnetd
+    stop_udhcpd
     stop_mdev
 
     if [ -f /scripts/local-bottom/ORDER ]; then

@@ -21,7 +21,9 @@ setup_log
 
 # setup_framebuffer
 
-setup_usb_network 172.16.42.2/16
+# No address argument: setup_usb_network picks one /24 per machine so several
+# devices can be attached to one host at once (see init_functions.sh).
+setup_usb_network
 
 mount_sdcard "/sdcard"
 
@@ -47,6 +49,7 @@ mount_proc_sys_dev_configfs "/rfs"
 
 #info "Stopping debug services"
 #stop_telnetd
+stop_udhcpd
 stop_mdev
 
 info "Umounting unneeded filesystems"
