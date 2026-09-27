@@ -101,13 +101,53 @@ usb_setup_configfs() {
     if echo $USB_FUNCTIONS | grep -q "rndis" && ! echo $USB_FUNCTIONS | grep -q "adb"; then
         write $GADGET_DIR/g1/UDC "$(first_real_udc)"
         
-        # Setup usb IP address
-        IP=172.16.42.2/16
+        # One /24 per machine, so several LuneOS devices can be attached to
+        # one host at once. Every device used to take 172.16.42.2/16 and
+        # every host-side link 172.16.42.1/24, which leaves the host with
+        # several routes for one subnet: it picks one, and traffic for the
+        # second device leaves through the first device's interface.
+        #
+        # Keep this table in sync with the other copies:
+        #   initramfs-scripts-android/init_functions.sh (same layer)
+        #   meta-mainline/.../initramfs-scripts-simple/init_functions.sh
+        #   meta-pine64-luneos/.../luneos-usb-gadget.sh
+        # .42/.43/.44 are pinephone/pinephonepro/pinetab2. Halium devices
+        # share .45 by default, so add an entry before connecting two of
+        # them at the same time.
+        case "$(tr -d " \t\n" < /etc/hostname 2>/dev/null)" in
+            radon) NET=172.16.46 ;;
+            *)     NET=172.16.45 ;;
+        esac
+        IP="$NET.2/24"
         for INTERFACE in usb0 rndis0 eth0; do
             # try to setup interface. If it fails, try the next one.
             ip address add "$IP" dev $INTERFACE || continue
             # It succeeded, now bring it up and exit
             ip link set $INTERFACE up
+
+            # Hand the host its address, so it needs no per-device setup: one
+            # DHCP ("auto") connection profile matches every LuneOS device
+            # instead of a static 172.16.42.1/24 profile per device. Without
+            # this, moving a device off .42 makes it unreachable until the
+            # host is reconfigured by hand.
+            #
+            # Deliberately no "option router" and no "option dns": a phone must
+            # never become the host's default gateway or resolver. One address
+            # on one point-to-point link, nothing else.
+            if command -v udhcpd >/dev/null 2>&1; then
+                mkdir -p /run
+                cat > /run/udhcpd-usb.conf <<EOF
+interface $INTERFACE
+start $NET.1
+end $NET.1
+max_leases 1
+option subnet 255.255.255.0
+lease_file /run/udhcpd-usb.leases
+pidfile /run/udhcpd-usb.pid
+EOF
+                : > /run/udhcpd-usb.leases
+                udhcpd /run/udhcpd-usb.conf || true
+            fi
             break
         done
     fi

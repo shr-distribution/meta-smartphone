@@ -66,6 +66,21 @@ stop_mdev() {
 }
 
 # $1: IP address to listen to
+# Stop the udhcpd started by setup_usb_network, before switch_root.
+#
+# It must not outlive the initramfs. switch_root does not kill anything, so the
+# process would keep running on an unlinked binary while still holding UDP 67:
+# the rootfs's own udhcpd (luneos-usb-gadget.sh, usb-ip.sh) then cannot bind and
+# exits, and if the rootfs rebuilds the gadget the surviving daemon is left
+# answering on an interface that no longer exists. Either way the host stops
+# being offered an address, which is the one thing this is here to do.
+stop_udhcpd() {
+	if [ -r /run/udhcpd-usb.pid ]; then
+		kill "$(cat /run/udhcpd-usb.pid)" 2>/dev/null
+		rm -f /run/udhcpd-usb.pid
+	fi
+}
+
 start_telnetd() {
 	# /dev/pts (needed for telnet)
 	mkdir /dev/pts
@@ -184,16 +199,40 @@ setup_usb_network_configfs() {
 	echo 0x0100 > $CONFIGFS/g1/bcdDevice # v1.0.0
 	echo 0x0200 > $CONFIGFS/g1/bcdUSB # USB2
 
+	# Name the gadget after this device instead of a constant "LuneOS Device"
+	# with a constant serial. The initramfs carries a per-machine /etc/hostname,
+	# so this works here too, and it is the only way to tell two LuneOS devices
+	# apart on the host: the descriptors were byte-identical and both ends use
+	# 172.16.42.2, so udev reported ID_MODEL=LuneOS_Device for both and only one
+	# could hold the address. There is no machine-id in the initramfs, so the
+	# serial falls back to the DT serial-number.
+	gadget_name=$(tr -d " \t\n" < /etc/hostname 2>/dev/null)
+	[ -n "$gadget_name" ] || gadget_name=$(tr -d "\0" < /proc/device-tree/model 2>/dev/null | tr " /" "--")
+	[ -n "$gadget_name" ] || gadget_name=device
+	gadget_serial=$(tr -d "\0" < /proc/device-tree/serial-number 2>/dev/null)
+	[ -n "$gadget_serial" ] || gadget_serial=fedcba9876543210
+
 	mkdir -p $CONFIGFS/g1/strings/0x409
-	echo "fedcba9876543210" > $CONFIGFS/g1/strings/0x409/serialnumber
-	echo "LuneOS" > $CONFIGFS/g1/strings/0x409/manufacturer 
-	echo "LuneOS Device" > $CONFIGFS/g1/strings/0x409/product 
+	echo "$gadget_serial" > $CONFIGFS/g1/strings/0x409/serialnumber
+	echo "LuneOS" > $CONFIGFS/g1/strings/0x409/manufacturer
+	echo "LuneOS $gadget_name" > $CONFIGFS/g1/strings/0x409/product
 
 	N="usb0"
 	mkdir -p $CONFIGFS/g1/functions/ecm.$N
 
-	# first byte of address must be even
-	HOST="FA:75:7F:BB:F4:E6" # "HostPC"
+	# Host-side MAC, derived per device rather than one constant for all of them.
+	# With an identical MAC the host's predictable-interface-name scheme wants to
+	# call every link enx<samemac>: only the first gets that name and the rest
+	# fall back to usb0/usb1 in probe order, so NetworkManager profiles pinned to
+	# an interface name keep attaching to whichever device enumerated first.
+	# gadget_serial is set above. First byte stays fa: locally administered
+	# (bit 1) and unicast (bit 0), which is what "must be even" was about.
+	if [ -n "$gadget_serial" ] && command -v md5sum >/dev/null 2>&1; then
+		HOST="fa:$(printf "%s" "$gadget_serial" | md5sum |
+			sed "s/\(..\)\(..\)\(..\)\(..\)\(..\).*/\1:\2:\3:\4:\5/")"
+	else
+		HOST="FA:75:7F:BB:F4:E6" # "HostPC"
+	fi
 	echo $HOST > $CONFIGFS/g1/functions/ecm.$N/host_addr
 
 	C=1
@@ -222,17 +261,66 @@ setup_usb_network_configfs() {
 }
 
 # $1: IP address of usb interface
+# $1: optional "addr/prefix" override; without it, one /24 per machine (below)
 setup_usb_network() {
 	# Run all usb network setup functions (add more below!)
 	setup_usb_network_configfs
 
-	# Setup usb IP address
-	IP=$1
+	# One /24 per machine, so several LuneOS devices can be connected to one
+	# host at once. Every device used to claim 172.16.42.2/16 and every
+	# host-side link 172.16.42.1/24, which leaves the host with several routes
+	# for one subnet: it picks one, and traffic for the second device goes out
+	# the first device's interface. Distinct subnets are the actual fix.
+	#
+	# Keep in sync with the same table in meta-pine64-luneos'
+	# luneos-usb-gadget.sh, which does this from the rootfs.
+	if [ -n "$1" ]; then
+		IP="$1"
+		NET=$(echo "$1" | cut -d. -f1-3)
+	else
+		case "$(tr -d " \t\n" < /etc/hostname 2>/dev/null)" in
+			pinephone)    NET=172.16.42 ;;
+			pinephonepro) NET=172.16.43 ;;
+			pinetab2)     NET=172.16.44 ;;
+			*)            NET=172.16.45 ;;
+		esac
+		IP="$NET.2/24"
+	fi
+
+	# Publish it: recovery's telnetd has to bind the address this function
+	# actually assigned. It used to be told 172.16.42.2 literally, which is only
+	# still right for the pinephone - on every other machine telnetd would bind
+	# an address that is not on the interface, fail, and take recovery's only
+	# remote entry point with it.
+	USB_ADDR="${IP%%/*}"
+	USB_NET="$NET"
+
 	for INTERFACE in usb0 rndis0 eth0 usb1; do
 		# try to setup interface. If it fails, try the next one.
 		ip address add "$IP" dev $INTERFACE || continue
 		# It succeeded, now bring it up and exit
 		ip link set $INTERFACE up
+		echo "  $INTERFACE up at $IP (host gets $NET.1)"
+
+		# Hand the host its address so recovery is reachable without the host
+		# being configured per device. No "option router" and no "option dns" on
+		# purpose: this must never become the host's default gateway or
+		# resolver - it answers on one point-to-point link with one address.
+		if command -v udhcpd >/dev/null 2>&1; then
+			mkdir -p /run
+			cat > /run/udhcpd-usb.conf <<EOF
+interface $INTERFACE
+start $NET.1
+end $NET.1
+max_leases 1
+option subnet 255.255.255.0
+lease_file /run/udhcpd-usb.leases
+pidfile /run/udhcpd-usb.pid
+EOF
+			: > /run/udhcpd-usb.leases
+			udhcpd /run/udhcpd-usb.conf ||
+				echo "  warning: udhcpd failed; host must set $NET.1/24 itself"
+		fi
 		break
 	done
 }
