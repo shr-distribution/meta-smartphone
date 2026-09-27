@@ -174,7 +174,30 @@ usb_setup_android_usb() {
 # serial=$(getprop ro.serialno 0123456789ABCDEF)
 
 
-if [ -d $ANDROID_USB ]; then
+# Pick the interface that actually works, not merely the one whose directory
+# exists. On radon (FuriPhone FLX1s, MediaTek 4.19) the vendor kernel creates the
+# android_usb class directory but none of its attributes:
+#
+#   /sys/class/android_usb/android0 -> ../../devices/virtual/android_usb/android0
+#   /sys/class/android_usb/android0/enable   -> No such file or directory
+#
+# so "[ -d $ANDROID_USB ]" is true and this committed to the legacy interface,
+# where every write then failed:
+#
+#   android-gadget-setup: line 55: .../android0/functions: Permission denied
+#   android-gadget-setup: line 55: .../android0/f_ffs/aliases: No such file or directory
+#
+# Nothing was built as a result - in particular functions/ffs.adb was never
+# created, so functionfs never registered, /dev/usb-ffs/adb stayed empty, adbd
+# had no ep0 to write descriptors to, and luneos-usb-setup.sh timed out waiting
+# for ep1 and fell back to rndis alone. adb has never worked on that port for
+# this reason. (The rndis gadget that does work there is built by the initramfs's
+# own configfs path, not by this script.)
+#
+# Test for a writable "enable" attribute instead: that is what
+# usb_setup_android_usb needs first, and it is present on every device where the
+# legacy interface is real.
+if [ -w "$ANDROID_USB/enable" ]; then
     usb_setup_android_usb
 else
     usb_setup_configfs /sys/kernel/config

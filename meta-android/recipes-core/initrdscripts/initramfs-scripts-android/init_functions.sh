@@ -144,9 +144,16 @@ mount_root_partition() {
 }
 
 setup_usb_network_android() {
-	# Only run, when we have the android usb driver
+	# Only run when the legacy android usb driver is really there - not merely
+	# when its class directory is. On some vendor kernels (radon, MediaTek 4.19)
+	# /sys/class/android_usb/android0 exists with none of its attributes, so
+	# "[ -e $SYS ]" passed and every write below then failed with "Permission
+	# denied" or "No such file or directory". Nothing was built, and the boot log
+	# filled with errors that look like a broken gadget but are not: the gadget on
+	# those devices comes from the configfs path below. Test an attribute this
+	# function actually writes. Same test as android-gadget-setup uses.
 	SYS=/sys/class/android_usb/android0
-	[ -e "$SYS" ] || return
+	[ -w "$SYS/enable" ] || return
 	
 	# Do the setup
 	printf "%s" "0" >"$SYS/enable"
