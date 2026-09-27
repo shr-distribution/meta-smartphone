@@ -43,9 +43,24 @@ GKI_CLANG_URI ?= ""
 SRC_URI = "\
     git://github.com/LineageOS/android_kernel_xelex_mt6789.git;protocol=https;branch=lineage-23.2;name=kernel \
     ${@(d.getVar('GKI_CLANG_URI') + ';name=clang;subdir=clang') if d.getVar('GKI_CLANG_URI') else ''} \
+    file://vermagic.cfg;subdir=frag \
+    file://0001-bbqX0kbd-Q20-symbol-layers.patch \
     file://luneos.cfg;subdir=frag \
 "
 SRCREV_kernel = "2a873a3511ee0eeead1442e60145093192a4535d"
+
+# The one patch in this directory, and it should not stay here.
+#
+# 0001-bbqX0kbd-Q20-symbol-layers.patch makes the physical keyboard able to type
+# punctuation at all under LuneOS - see its own commit message, and the keyboard
+# section of ~/webos/LuneOS/zinwa/zinwa-q25-notes.md for how the gap was found.
+#
+# Every other LuneOS kernel carries its fixes as commits on an shr-distribution
+# branch with a SRCREV bump, never as .patch files next to the recipe (see
+# linux-minimal-mp01_git.bb, which says so). This one is a patch only because
+# the Q25 still fetches LineageOS's tree directly. When a
+# shr-distribution/linux branch exists for this device - q25/5.10.198/lune, by
+# the MP01's naming - this becomes a commit there and this line goes away.
 SRCREV_FORMAT = "kernel"
 
 PV = "5.10.198+git"
@@ -73,6 +88,14 @@ EXCLUDE_FROM_WORLD = "1"
 # then the delta.
 Q25_KERNEL_CONFIGS ?= "gki_defconfig mgk.config entry_level.config q20_v12_factory.config"
 LUNEOS_KERNEL_FRAGMENT ?= "1"
+# Trade the stock full LTO for ThinLTO. The device config sets
+# CONFIG_LTO_CLANG_FULL, whose final "LTO vmlinux.o" link is single-threaded -
+# measured at ~20 minutes of one core here, which is most of the build. ThinLTO
+# parallelises it. KMI-neutral by construction: CRCs come from genksyms on
+# preprocessed source, not from codegen, and the MP01 verified 0/345 both ways
+# on this same SoC. check-kmi.sh is still the gate per build. Set to "0" for a
+# shipped image if you would rather match the vendor's codegen exactly.
+KERNEL_LTO_THIN ?= "0"
 
 python do_check_toolchain() {
     clang_dir = d.getVar("GKI_CLANG_DIR")
@@ -134,15 +157,71 @@ gki_clear_oe_env() {
 #                         jobserver-exec parses clean as python3 (checked).
 #
 # The first three match Google's build.config.aarch64 exactly.
+#
+# MTK_PLATFORM_VERSION is a fifth addition, and this one IS device-specific.
+# MediaTek's Mali tree has a bug: drivers/gpu/.../midgard/Makefile line 21 does
+#
+#     MTK_PLATFORM_VERSION := $(CONFIG_MTK_PLATFORM:"%"=%)
+#
+# without exporting it, and the two SIBLING directories
+# memory_group_manager/ and protected_memory_allocator/ then use it to name
+# their modules:
+#
+#     obj-m += mali_mgm_$(MTK_PLATFORM_VERSION).o
+#     obj-m += mali_prot_alloc_$(MTK_PLATFORM_VERSION).o
+#
+# kbuild descends into them with the variable unset, so we produced
+# "mali_mgm_.ko" and "mali_prot_alloc_.ko" against the stock
+# "mali_mgm_mt6789.ko" and "mali_prot_alloc_mt6789.ko". (mali_kbase escapes it
+# because drivers/gpu/mediatek/Makefile *exports* MTK_PLATFORM, which is what
+# names that one.) Android's build passes the variable in the environment, which
+# is why the vendor never hit it.
+#
+# Harmless while we ship no modules of our own - the device loads its own
+# correctly-named stock pair - but it is exactly the silent failure
+# kmi-crc-matching.md warns about under "DO match the layout exactly": the
+# vendor's modules.load and modules.dep address modules by name, so a future
+# module override would quietly skip these two and load the vendor's binaries
+# against our kernel instead.
 KERNEL_MAKE = "make -C ${S} O=${B} LLVM=1 LLVM_IAS=1 ARCH=arm64 \
     CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_COMPAT=arm-linux-gnueabi- \
-    PYTHON=python3"
+    PYTHON=python3 MTK_PLATFORM_VERSION=mt6789"
+
+do_configure:prepend() {
+    # The other half of the vermagic match; files/vermagic.cfg explains why it
+    # matters. scripts/setlocalversion ends with
+    #
+    #     if test "${LOCALVERSION+set}" != "set"; then
+    #             scm=$(scm_version --short)
+    #             res="$res${scm:++}"
+    #     fi
+    #
+    # i.e. a "+" whenever the tree is not sitting on a clean annotated tag -
+    # which a git checkout of a branch never is. That single character is enough
+    # to miss the match ("...gfcab0aff02db+" != "...gfcab0aff02db") and then not
+    # one stock module loads. An empty .scmversion short-circuits scm_version()
+    # to the empty string, so ${scm:++} expands to nothing.
+    : > ${S}/.scmversion
+}
 
 do_configure() {
     gki_clear_oe_env
     export PATH="${@gki_clang_bin(d)}:$PATH"
     mkdir -p ${B}
     ${KERNEL_MAKE} ${Q25_KERNEL_CONFIGS}
+    # Vermagic first, and unconditionally - including for the
+    # LUNEOS_KERNEL_FRAGMENT="0" baseline. It belongs to "reproduce the vendor's
+    # kernel", not to the LuneOS delta, so the baseline must carry it too or the
+    # baseline is not a baseline.
+    ${S}/scripts/kconfig/merge_config.sh -m -O ${B} \
+        ${B}/.config ${UNPACKDIR}/frag/vermagic.cfg
+    ${KERNEL_MAKE} olddefconfig
+    if [ "${KERNEL_LTO_THIN}" = "1" ]; then
+        printf '%s\n' '# CONFIG_LTO_CLANG_FULL is not set' 'CONFIG_LTO_CLANG_THIN=y' \
+            > ${B}/thinlto.cfg
+        ${S}/scripts/kconfig/merge_config.sh -m -O ${B} ${B}/.config ${B}/thinlto.cfg
+        ${KERNEL_MAKE} olddefconfig
+    fi
     if [ "${LUNEOS_KERNEL_FRAGMENT}" = "1" ]; then
         ${S}/scripts/kconfig/merge_config.sh -m -O ${B} \
             ${B}/.config ${UNPACKDIR}/frag/luneos.cfg
@@ -159,7 +238,42 @@ do_compile() {
         Image.gz modules
 }
 
-do_install[noexec] = "1"
+# Ship our patched keyboard driver in the initramfs, where it REPLACES the
+# vendor's copy. Without this the patch is dead code: bbqX0kbd.ko is in the stock
+# vendor_boot ramdisk's modules.load, so the device would load the vendor's
+# binary and never see our symbol layers.
+#
+# The mechanism is the MP01's, for its patched mediatek-drm.ko. The bootloader
+# concatenates vendor_boot's ramdisk and then ours, and later cpio entries win,
+# so a file at lib/modules/bbqX0kbd.ko in this image substitutes for the
+# vendor's; init.sh's load_kernel_modules() then inserts ours in the vendor's own
+# dependency order. /override/modules cannot do it - those are inserted BEFORE
+# the vendor set.
+#
+# This is one 66 KB module, not the 344-module wholesale copy q25.conf explains
+# we must not do: the boot image goes from ~22.6 MB to ~22.7 MB, nowhere near
+# the ~28 MB at which the MP01 measured lk refusing to load one at all.
+#
+# q25.conf adds this package to ANDROID_EXTRA_INITRAMFS_IMAGE_INSTALL.
+do_install() {
+    install -d ${D}${nonarch_base_libdir}/modules
+    install -m 0644 ${B}/drivers/input/keyboard/bbqX0kbd/bbqX0kbd.ko \
+        ${D}${nonarch_base_libdir}/modules/bbqX0kbd.ko
+    # 488 KB unstripped against the vendor's 66 KB, and an unstripped .ko also
+    # trips the debug-files QA check. Stripped with the toolchain that built it:
+    # OE's strip does not understand a module built outside its cross
+    # environment.
+    ${@gki_clang_bin(d).split(':')[0]}/llvm-strip --strip-debug \
+        ${D}${nonarch_base_libdir}/modules/bbqX0kbd.ko
+}
+
+FILES:${PN} = "${nonarch_base_libdir}/modules/bbqX0kbd.ko"
+
+# We strip it ourselves, above; OE's strip and debug-split cannot.
+INHIBIT_PACKAGE_STRIP = "1"
+INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
+# A kernel module legitimately records the path it was built in.
+INSANE_SKIP:${PN} += "buildpaths"
 
 do_deploy() {
     install -d ${DEPLOYDIR}
@@ -168,5 +282,9 @@ do_deploy() {
     # whether a config change just stopped the vendor's modules from loading.
     install -m 0644 ${B}/Module.symvers ${DEPLOYDIR}/Module.symvers
     install -m 0644 ${B}/.config ${DEPLOYDIR}/kernel-config
+    # What the stock modules will be checked against. If this does not read
+    # exactly 5.10.198-android12-9-gfcab0aff02db, not one of them will insmod -
+    # see files/vermagic.cfg. Cheaper to read than to discover on the device.
+    install -m 0644 ${B}/include/config/kernel.release ${DEPLOYDIR}/kernel.release
 }
 addtask deploy after do_compile before do_build
