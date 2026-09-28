@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LuneOS <claude.ai@herrie.org>
+Date: Sun, 27 Sep 2026 18:20:00 +0200
+Subject: [PATCH] qcacld: drop -Werror from the vendor Kbuild
+
+This tree is built by LineageOS with the Android prebuilt clang, which does
+not diagnose what GCC 15 does. Building qcacld-3.0 with OpenEmbedded's
+aarch64 cross toolchain turns a pre-existing warning into a hard error and
+the build stops in drivers/staging before it reaches vmlinux:
+
+  wlan_hdd_cfg80211.c:1019:5: error: conflicting types for
+  'wlan_hdd_send_hang_reason_event' due to enum/integer mismatch; have
+  'int(struct hdd_context *, enum qdf_hang_reason, void *, size_t)'
+  [-Werror=enum-int-mismatch]
+
+That is a declaration in wlan_hdd_cfg80211.h using int where the definition
+uses the enum - benign in practice on this ABI, and not something to fix
+blind in a driver nobody here can test. -Wenum-int-mismatch is a GCC 13
+diagnostic; the toolchain this code was written for had no opinion about it.
+
+Only the unconditional -Werror is removed, and only in vendor code. The
+-Werror=<specific> forms the top-level kernel Makefile sets are left alone,
+and the warnings themselves are unchanged and still printed.
+
+Unlike surya's equivalent patch this touches exactly one file: fajita's 4.9
+tree keeps its audio drivers in sound/soc/msm rather than a techpack/ with
+its own Kbuilds, and nothing under techpack/ here sets -Werror at all.
+
+Same treatment as the surya (SM7150) and mindphone (MT6739) ports.
+
+Upstream-Status: Inappropriate [vendor tree is built with Android's clang]
+---
+ drivers/staging/qcacld-3.0/Kbuild | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/staging/qcacld-3.0/Kbuild b/drivers/staging/qcacld-3.0/Kbuild
+--- a/drivers/staging/qcacld-3.0/Kbuild
++++ b/drivers/staging/qcacld-3.0/Kbuild
+@@ -1658,7 +1658,6 @@ ccflags-y += $(INCS)
+ 
+ cppflags-y +=	-DANI_OS_TYPE_ANDROID=6 \
+ 		-Wall\
+-		-Werror\
+ 		-D__linux__
+ 
+ cppflags-$(CONFIG_PTT_SOCK_SVC_ENABLE) += -DPTT_SOCK_SVC_ENABLE
