@@ -49,6 +49,10 @@ INITRAMFS_NAME = "initramfs-android-image-${MACHINE}.cpio.gz"
 def android_bootimg_v2(d, kernel, ramdisk, dtb, out):
     """Assemble a v1/v2 Android boot image.
 
+    v1 adds only the recovery_dtbo fields to v0; the dtb section arrives in v2.
+    A v1 image therefore carries its device tree appended to the kernel, and
+    the caller is responsible for having put it there.
+
     abootimg cannot do this and meta-oe's mkbootimg is the pre-header-version
     AOSP one, so neither tool in the tree can produce it. The format is small
     and stable enough to write directly. v3/v4 are written the same way, by
@@ -131,7 +135,7 @@ python android_bootimg_deploy() {
     # arrangement. A v2 header wants the tree in its own section instead, so
     # split it back off rather than making every such machine restate its dts.
     hv = int(d.getVar("ANDROID_BOOTIMG_HEADER_VERSION"))
-    if hv in (1, 2) and not dtb:
+    if hv == 2 and not dtb:
         with open(kernel, "rb") as f:
             blob = f.read()
         fdt = blob.find(b"\xd0\x0d\xfe\xed")
@@ -148,6 +152,27 @@ python android_bootimg_deploy() {
             f.write(blob[fdt:])
         bb.note("Split the appended device tree off the kernel: %d byte kernel, "
                 "%d byte dtb" % (fdt, len(blob) - fdt))
+
+    # v1 has no dtb section - it only adds the recovery_dtbo fields to v0 - so
+    # its device tree stays concatenated onto the kernel, which is where the
+    # bootloader looks for it. That is what BOARD_KERNEL_IMAGE_NAME :=
+    # Image.gz-dtb with BOARD_BOOT_HEADER_VERSION := 1 already delivers
+    # (fajita), in which case there is nothing to do here.
+    #
+    # This used to take the split path above for v1 as well, which produced an
+    # image with an FDT-less kernel and a dtb that went nowhere, silently:
+    # android_bootimg_v2 writes the dtb section only for hv >= 2. A v1 machine
+    # that does name a tree gets it appended instead.
+    if hv == 1 and dtb:
+        kernel_with_dtb = os.path.join(b, "kernel-with-appended-dtb")
+        bb.note("Header version 1 has no dtb section: appending %s to the "
+                "kernel" % dtb)
+        with open(kernel_with_dtb, "wb") as out:
+            for part in (kernel, dtb):
+                with open(part, "rb") as f:
+                    shutil.copyfileobj(f, out)
+        kernel = kernel_with_dtb
+        dtb = ""
 
     if hv == 0:
         # v0 has nowhere to put a device tree, so it is concatenated onto the
