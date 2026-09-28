@@ -129,6 +129,43 @@ deviceinfo_alsa_mixer_init="Lineout Volume=10,10;Headset Volume=10,10;Handset Vo
 # does come up without it, delete the line rather than leaving it to rot.
 deviceinfo_bluebinder_ext_features_page_2_mask="0x0400000000000000"
 
+# --- the BlackBerry toolbelt ------------------------------------------------
+# What the four toolbelt keys mean, where they differ from the obvious reading.
+#
+# MEASURED on this device, from the driver's own trace:
+#
+#     Answer (green)    scancode 0x06 -> keycode 231  KEY_SEND       -> Qt::Key_Call
+#     BlackBerry logo   scancode 0x11 -> keycode 580  KEY_APPSELECT  -> Qt::Key_Menu
+#     Back              scancode 0x07 -> keycode 158  KEY_BACK       -> Qt::Key_Back
+#     Hangup (red)      scancode 0x12 -> keycode 172  KEY_HOMEPAGE   -> Qt::Key_HomePage
+#     Mute (mtk-kpd)    keycode 113   KEY_MUTE                       -> Qt::Key_VolumeMute
+#
+# Only the red key needs saying. bbqX0kbd's keycode table came from a Solder
+# Party BBQ20 Pmod, so on this phone the *hangup* key announces itself as
+# KEY_HOMEPAGE - and the shell's default, reading that at face value, would open
+# the launcher with the key that should end a call. The other four already land
+# on the right action by default: Key_Call answers, Key_Menu opens the launcher
+# (the BlackBerry logo key is the menu key), Key_Back is left to the focused
+# application, and Key_VolumeMute mutes.
+#
+# call.hangup ends a call when there is one and otherwise sleeps and locks the
+# phone, which is what the End key did on BlackBerry OS.
+#
+# Needs the four keycodes to be in webos-keymap.qmap - Qt drops anything not in
+# it - which is qt-features-webos patch 0004.
+deviceinfo_key_actions="Key_HomePage=call.hangup"
+
+# The physical keyboard's layout, reported onward as
+# PalmSystem.deviceInfo.keyboardType.
+#
+# Declared rather than derived because it cannot be derived: evdev scancodes are
+# positional, so a QWERTZ keyboard and a QWERTY one advertise exactly the same
+# keys. The Q25 ships in one layout only - the letters are printed on the keys in
+# QWERTY order, three rows of ten, nine and seven - so there is one right answer
+# here, unlike the Astro Slide which is sold as QWERTY, QWERTZ and AZERTY from the
+# same hardware.
+deviceinfo_keyboard_layout="QWERTY"
+
 # NOT copied from the MP01:
 #
 #   deviceinfo_battery_critical_percent="0"

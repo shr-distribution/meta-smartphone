@@ -45,6 +45,7 @@ SRC_URI = "\
     ${@(d.getVar('GKI_CLANG_URI') + ';name=clang;subdir=clang') if d.getVar('GKI_CLANG_URI') else ''} \
     file://vermagic.cfg;subdir=frag \
     file://0001-bbqX0kbd-Q20-symbol-layers.patch \
+    file://0002-bbqX0kbd-sym-tap-emoji-key.patch \
     file://luneos.cfg;subdir=frag \
 "
 SRCREV_kernel = "2a873a3511ee0eeead1442e60145093192a4535d"

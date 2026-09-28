@@ -1,0 +1,98 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LuneOS <claude.ai@herrie.org>
+Date: Mon, 28 Sep 2026 14:30:00 +0200
+Subject: [PATCH] bbqX0kbd: let Sym tapped on its own open the emoji panel
+
+The Q20 symbol-layer patch stops reporting Alt and Sym themselves, for good
+reason: on this keyboard they are layer selectors printed on the keys rather
+than PC modifiers, and reporting them makes the toolkit see Alt+Shift+3 instead
+of '#'. The cost is that userspace never learns the Sym key exists at all.
+Measured by reading the event node while it was pressed: five presses of Sym
+and five of Alt produced nothing, while a control letter came through.
+
+That matters now there is somewhere for it to go. The keyboard has an emoji
+panel, and on a phone whose keys are physical there is no on-screen Sym key to
+open it with.
+
+Held with another key, Sym still picks the symbol printed below that key -
+that is the whole point of the layer and does not change. Tapped alone it
+previously meant nothing, so that is the press free to carry something else:
+KEY_EMOJI_PICKER, which is what the code is for (HUTRR101).
+
+"Alone" is decided by watching for any other key between press and release
+rather than by a timer. A chord is a chord however slowly it is typed, and a
+tap is only a tap if nothing else happened.
+
+KEY_EMOJI_PICKER is added to input->keybit, because the input core silently
+drops an event for a key the device never declared - the same trap the layer
+keycodes fell into.
+
+Note for anyone testing this: the module cannot be swapped on a running
+device. rmmod bbqX0kbd takes the kernel down with it, measured on a Q25, so
+this needs the boot image it ships in.
+
+Upstream-Status: Pending
+
+Destined for the same shr-distribution/linux branch as the symbol-layer patch.
+---
+--- a/drivers/input/keyboard/bbqX0kbd/bbqX0kbd_main.c
++++ b/drivers/input/keyboard/bbqX0kbd/bbqX0kbd_main.c
+@@ -281,6 +281,9 @@
+ static bool q20_held_shift[NUM_KEYCODES];
+ 
+ /* Returns true when it has reported the key itself and the caller should not. */
++/* Sym is down and nothing else has been pressed since; see q20_report_key(). */
++static bool q20_sym_alone;
++
+ static bool q20_report_key(struct bbqX0kbd_data *kbd, struct input_dev *dev,
+ 			   uint8_t scancode, unsigned short keycode, bool pressed)
+ {
+@@ -291,9 +294,36 @@
+ 	if (!q20_layers)
+ 		return false;
+ 
+-	/* Layer selectors, not modifiers - never reported. */
+-	if (keycode == KEY_LEFTALT || keycode == KEY_RIGHTALT)
++	/*
++	 * Layer selectors, not modifiers - never reported as themselves.
++	 *
++	 * Sym on its own is the exception. Held with another key it picks the
++	 * symbol printed below that key, which is the whole point of the layer
++	 * and must not change; tapped alone it means nothing at all, so that is
++	 * the press free to carry something else - KEY_EMOJI_PICKER, which the
++	 * keyboard uses to open its emoji panel.
++	 *
++	 * "Alone" is decided by watching for any other key between press and
++	 * release, rather than by a timer: a chord is a chord however slowly it
++	 * is typed, and a tap is only a tap if nothing else happened.
++	 */
++	if (keycode == KEY_LEFTALT || keycode == KEY_RIGHTALT) {
++		if (keycode == KEY_RIGHTALT) {
++			if (pressed) {
++				q20_sym_alone = true;
++			} else if (q20_sym_alone) {
++				q20_sym_alone = false;
++				input_report_key(dev, KEY_EMOJI_PICKER, 1);
++				input_sync(dev);
++				input_report_key(dev, KEY_EMOJI_PICKER, 0);
++			}
++		}
+ 		return true;
++	}
++
++	/* Sym is being used as a layer, so its release is not a tap. */
++	if (pressed)
++		q20_sym_alone = false;
+ 
+ 	if (pressed) {
+ 		if (kbd->modifier_keys_status & LEFT_ALT_BIT)
+@@ -1229,6 +1259,9 @@
+ 	for (i = 0; i < ARRAY_SIZE(q20_sym_layer); i++)
+ 		__set_bit(q20_sym_layer[i].out, input->keybit);
+ 	__set_bit(KEY_LEFTSHIFT, input->keybit);
++	/* Sym tapped on its own; the input core drops an event for a key the
++	 * device never declared. */
++	__set_bit(KEY_EMOJI_PICKER, input->keybit);
+ 
+ 	__clear_bit(KEY_RESERVED, input->keybit);
+ 
