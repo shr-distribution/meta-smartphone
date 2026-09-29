@@ -1,0 +1,52 @@
+bbqX0kbd: make the BlackBerry key a Ctrl
+
+This keyboard has no Ctrl. Reading its capability bitmap back off the device,
+the only modifiers it reports are KEY_LEFTSHIFT, KEY_RIGHTSHIFT, KEY_LEFTALT
+and KEY_RIGHTALT - neither KEY_LEFTCTRL nor KEY_RIGHTCTRL is advertised at all.
+Alt and Sym are the two Alt codes, and they are spent on the symbols printed on
+the key faces, so neither is free to become one. The result is that no keyboard
+shortcut - Ctrl+C, Ctrl+V, Ctrl+A - can be typed on this device, however well
+the rest of the stack handles them.
+
+The BlackBerry logo key is the one key that can be given up. The shell maps
+Key_Menu and Key_HomePage to the same action:
+
+    d[Qt.Key_HomePage] = "shell.launcher";
+    d[Qt.Key_Menu]     = "shell.launcher";
+
+so on this device it is a duplicate of the key directly beside it, and nothing
+is lost by repurposing it. It is also the right key for the job ergonomically:
+it sits under the thumb, next to the letters the shortcuts use.
+
+No other change is needed. The driver already carries KEY_LEFTCTRL through
+bbqX0kbd_modkeys_to_bits() and has a case for it in both report paths, which
+tracks the modifier bit and falls through to report the key - that case was
+simply unreachable while no scancode produced it. The keybits are declared from
+this table (__set_bit(keycode[i], input->keybit)), so the new code declares
+itself, unlike KEY_EMOJI_PICKER which is not in the table and needed its own
+__set_bit. q20_report_key() swallows only the two Alt codes, so Ctrl is
+reported normally; bbqX0kbd_get_altgr_keycode() passes it through its default
+arm unchanged; and bbqX0kbd_set_brightness() switches only on letter keys.
+
+Qt needs nothing either: KEY_LEFTCTRL is in its own generated keymap rather
+than the webOS overlay. Verified by injecting code 29 from a uinput keyboard -
+the input method logged the key as Qt::Key_Control with ControlModifier set,
+and Ctrl+A/Ctrl+C/Ctrl+V reached a web application as real DOM key events.
+Upstream-Status: Pending
+
+---
+ drivers/input/keyboard/bbqX0kbd/bbq20kbd_pmod_codes.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/input/keyboard/bbqX0kbd/bbq20kbd_pmod_codes.h b/drivers/input/keyboard/bbqX0kbd/bbq20kbd_pmod_codes.h
+--- a/drivers/input/keyboard/bbqX0kbd/bbq20kbd_pmod_codes.h
++++ b/drivers/input/keyboard/bbqX0kbd/bbq20kbd_pmod_codes.h
+@@ -68,7 +68,7 @@
+ #endif
+ 
+ 	[0x06] = KEY_SEND,
+-	[0x11] = 580,
++	[0x11] = KEY_LEFTCTRL,
+ 	[0x07] = KEY_BACK,
+ 	[0x12] = KEY_HOMEPAGE,
+ 
