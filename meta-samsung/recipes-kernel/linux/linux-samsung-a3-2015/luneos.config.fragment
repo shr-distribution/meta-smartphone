@@ -1,0 +1,36 @@
+# LuneOS additions on top of msm8916_defconfig + pmos.config.
+#
+# The version suffix comes from LINUX_VERSION_EXTENSION in the bbclass, so the
+# kernel's own CONFIG_LOCALVERSION has to be empty or the release string ends
+# up carrying both.
+CONFIG_LOCALVERSION=""
+
+# The LuneOS initramfs (initramfs-scripts-android) brings up USB networking at
+# 172.16.42.2 by writing a CDC ECM gadget through /config/usb_gadget, before any
+# module from the rootfs can be loaded. Everything on that path therefore has to
+# be built in, and pmos.config leaves the composite gadget and ECM as modules /
+# disabled because postmarketOS configures its gadget from the rootfs instead.
+CONFIG_USB_LIBCOMPOSITE=y
+CONFIG_USB_CONFIGFS=y
+CONFIG_USB_CONFIGFS_ECM=y
+
+# The NFC controller the A3 2015 actually carries (nfc@27 in
+# msm8916-samsung-a2015-common.dtsi). NCI core is already a module.
+CONFIG_NFC_S3FWRN5=m
+CONFIG_NFC_S3FWRN5_I2C=m
+
+# Module compression: GZIP, not pmos.config's ZSTD.
+#
+# LuneOS' kmod is built without zstd - "kmod version 34.2 / -ZSTD +XZ +ZLIB" on
+# the device - and so is the depmod that runs at image time. With ZSTD-compressed
+# modules the result is silent and total: depmod writes a ZERO-BYTE modules.dep,
+# modprobe answers "Module msm not found in directory", and not one of the 680
+# modules can load. No DRM, so no /dev/dri/card0, so surface-manager fails and
+# the screen stays black; no wifi, no bluetooth, no audio, no touch either.
+# Nothing in the build warns about any of it.
+#
+# postmarketOS can select ZSTD because their kmod has it. tissot and rosy both
+# ship CONFIG_MODULE_COMPRESS_GZIP, which kmod's +ZLIB handles, so match them.
+CONFIG_MODULE_COMPRESS_GZIP=y
+# CONFIG_MODULE_COMPRESS_ZSTD is not set
+# CONFIG_MODULE_DECOMPRESS is not set
