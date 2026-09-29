@@ -1,0 +1,17 @@
+[Unit]
+Description=Recover the Samsung WCNSS WiFi calibration from the stock system partition
+DefaultDependencies=no
+# wcn36xx is loaded by the udev coldplug, and it asks for the NV file as soon
+# as it binds, so this has to be in place before udev starts - the same
+# ordering msm-firmware-loader.service uses for the blobs it links.
+Before=systemd-udevd.service msm-firmware-loader.service
+After=systemd-remount-fs.service
+ConditionPathExists=!/lib/firmware/wlan/prima/WCNSS_qcom_wlan_nv.bin
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/samsung-a3-wcnss-nv.sh
+
+[Install]
+WantedBy=sysinit.target
