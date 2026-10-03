@@ -5,7 +5,9 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 PACKAGES = "${PN}"
 
-RDEPENDS:${PN} = "busybox-mdev e2fsprogs-e2fsck e2fsprogs-resize2fs"
+# luneos-charger: init.sh runs it on off-mode charging boots (and copes
+# without it, holding headless).
+RDEPENDS:${PN} = "busybox-mdev e2fsprogs-e2fsck e2fsprogs-resize2fs luneos-charger"
 
 SRC_URI += " \
   file://init.sh \
