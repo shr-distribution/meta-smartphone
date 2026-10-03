@@ -1344,6 +1344,91 @@ create_partition_links
 start_progress_dumper
 stage "storage up, entering pre-mountroot setup"
 
+# Off-mode charging: a charger plugged into a powered-off phone.
+#
+# The bootloader then starts the kernel with androidboot.mode=charger (on the
+# cmdline, or in /proc/bootconfig on boot header v4 devices). Halium's script
+# answers that by switching root to the Android image's own init, which on a
+# LuneOS image has no charger UI to run: athena (BlackBerry KEY2) sat on the
+# bootloader logo for as long as it was plugged in, and powered off ~20 s after
+# it was unplugged.
+#
+# Stay here instead. The charger hardware charges on its own, so all that is
+# left is a screen: luneos-charger draws one on the framebuffer and lights the
+# notification LED, and tells us how it ended:
+#   10  the power key was held: reboot. The warm reboot comes up as a normal
+#       boot, because the bootloader only picks charger mode on a cold power-on
+#       by the charger (checked on athena).
+#   20  the charger was removed: power off, as Android's charger mode does.
+# Anything else (no framebuffer, no power key, not installed) leaves a headless
+# hold that still powers off when the charger goes away.
+#
+# This runs before wait_if_battery_flat on purpose: a flat battery on a charger
+# is exactly this case, and here it gets a screen.
+charger_mode_requested() {
+    grep -q 'androidboot.mode=charger' /proc/cmdline 2>/dev/null && return 0
+    grep -qE '^androidboot\.mode *= *"?charger' /proc/bootconfig 2>/dev/null
+}
+
+# Any non-battery power supply online. With no "online" attribute anywhere
+# there is no way to tell, so assume it is still plugged in rather than power
+# off a charging phone on a guess.
+charger_supply_online() {
+    _cs_seen=0
+    for _cs in /sys/class/power_supply/*; do
+        case "$(cat "$_cs/type" 2>/dev/null)" in Battery|BMS) continue ;; esac
+        [ -r "$_cs/online" ] || continue
+        _cs_seen=1
+        [ "$(cat "$_cs/online" 2>/dev/null)" = "1" ] && return 0
+    done
+    [ $_cs_seen -eq 0 ]
+}
+
+charger_poweroff() {
+    sync
+    echo 1 > /proc/sys/kernel/sysrq 2>/dev/null
+    echo o > /proc/sysrq-trigger
+    while :; do sleep 60; done
+}
+
+run_charger_mode() {
+    tell_kmsg "charger: off-mode charging boot, staying in the initramfs"
+
+    # mdev does not necessarily create these (or not under these names).
+    mkdir -p /dev/input
+    for _c in /sys/class/graphics/fb[0-9]* /sys/class/input/event[0-9]*; do
+        [ -r "$_c/dev" ] || continue
+        case $_c in
+        */graphics/*) _n=/dev/${_c##*/} ;;
+        *)            _n=/dev/input/${_c##*/} ;;
+        esac
+        [ -e "$_n" ] && continue
+        _d=$(cat "$_c/dev")
+        mknod "$_n" c "${_d%%:*}" "${_d##*:}"
+    done
+
+    if [ -x /usr/sbin/luneos-charger ]; then
+        /usr/sbin/luneos-charger > /dev/kmsg 2>&1
+        case $? in
+        10) tell_kmsg "charger: power key held, rebooting into a normal boot"
+            sync
+            reboot -f
+            echo b > /proc/sysrq-trigger ;;
+        20) tell_kmsg "charger: charger removed, powering off"
+            charger_poweroff ;;
+        esac
+        tell_kmsg "charger: luneos-charger failed, holding without a screen"
+    fi
+
+    while charger_supply_online; do
+        sleep 2
+    done
+    tell_kmsg "charger: charger removed, powering off"
+    charger_poweroff
+}
+
+charger_mode_requested && run_charger_mode
+
 # Refuse to boot on a battery too flat to survive it, and charge instead.
 #
 # Learned the hard way on the MP01 (15 Sep 2026). That device never powers off -
