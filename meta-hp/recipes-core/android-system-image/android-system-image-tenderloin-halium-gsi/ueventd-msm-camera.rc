@@ -1,0 +1,11 @@
+# Appended to the vendor's ueventd.rc (HALIUM_LEGACY_UEVENTD_EXTRA). The 3.4 kernel's legacy
+# msm_camera driver names its nodes control0, config0 and frame0; liboemcamera opens them under
+# /dev/msm_camera/, where Android's own ueventd.rc puts the subsystem. The camera provider runs as
+# cameraserver in the camera group, and the HAL takes its preview buffers from pmem_adsp, which the
+# board's ueventd.rc leaves to root.
+subsystem msm_camera
+    devname uevent_devname
+    dirname /dev/msm_camera
+
+/dev/msm_camera/*         0660   system     camera
+/dev/pmem_adsp            0660   system     camera

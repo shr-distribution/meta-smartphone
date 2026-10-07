@@ -1,0 +1,14 @@
+<!-- The camera provider of tenderloin-camera.tar.xz. The Halium 9 build had no camera HAL, so its
+     manifest has no entry to turn into hwbinder, and hwservicemanager refuses a service that no
+     VINTF manifest declares. -->
+<manifest version="1.0" type="device">
+    <hal format="hidl">
+        <name>android.hardware.camera.provider</name>
+        <transport>hwbinder</transport>
+        <version>2.4</version>
+        <interface>
+            <name>ICameraProvider</name>
+            <instance>legacy/0</instance>
+        </interface>
+    </hal>
+</manifest>
