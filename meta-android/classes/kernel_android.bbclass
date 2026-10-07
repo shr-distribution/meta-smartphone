@@ -208,6 +208,19 @@ python android_bootimg_deploy() {
             cmd += ["-c", "%s=%s" % (key, d.getVar(var))]
         cmd += (d.getVar("ANDROID_BOOTIMG_EXTRA_ABOOTIMG_ARGS") or "").split()
         bb.process.run(cmd)
+
+        # abootimg has no key for the os_version word (header offset 44, the last of the
+        # ten words after the magic), so ANDROID_BOOTIMG_OS_VERSION was silently ignored
+        # on this path. The Samsung bootloader of the SM-T520 ran an image carrying the
+        # tablet's own value and not one with 0 there, so write it into the header. The
+        # image id covers only kernel, ramdisk and second, not this word.
+        osv = int(d.getVar("ANDROID_BOOTIMG_OS_VERSION"), 0)
+        if osv:
+            import struct
+            with open(bootimg, "r+b") as f:
+                f.seek(44)
+                f.write(struct.pack("<I", osv))
+            bb.note("Wrote os_version 0x%x into the version 0 boot image header" % osv)
     elif hv >= 3:
         from halium.bootimg import write_bootimg_v3
         bb.note("Assembling a header version %d boot image (fixed 4096 byte "
