@@ -28,9 +28,11 @@ KERNEL_HAS_RENAMEAT2 = "1"
 #  - Bluetooth from the Linux backports 4.2-rc7 stack with BCSP (the 3.4 stack's mgmt 1.0 never answers
 #    StartDiscovery);
 #  - no runtime debug options (DEBUG_OBJECTS, DEBUG_MUTEXES, DEBUG_LIST, FTRACE, SCHEDSTATS, ...);
-#  - the touch input boost driver built again (it does nothing until /sys/kernel/cpu_input_boost is set);
 #  - clock_gettime64 and clock_getres_time64: without them glibc makes two syscalls per time query, and
-#    WebAppMgr used half a core at idle.
+#    WebAppMgr used half a core at idle;
+#  - msm_camera returns error_code 0 for a real frame (HP's camera blob leaves it uninitialized);
+#  - the touch input boost driver left out: it changed the cpufreq policy synchronously on every touch
+#    and boots hung behind it. tenderloin-touch-boost uses the interactive governor's boostpulse instead.
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=herrie/tenderloin-3.4-gsi;protocol=https"
 
 CMDLINE = "androidboot.selinux=permissive  androidboot.hardware=tenderloin"
@@ -53,7 +55,7 @@ do_deploy[depends] += "initramfs-android-image:do_image_complete"
 DEPENDS += "u-boot-mkimage-native"
 KERNEL_OUTPUT ?= "${KERNEL_OUTPUT_DIR}/${KERNEL_IMAGETYPE}"
 
-SRCREV = "fa84927843a0802519286e3ae73092532e77373a"
+SRCREV = "fea6d480c4b34177cbddc61dce416f58de38d753"
 
 LINUX_VERSION = "3.4.113"
 PV = "${LINUX_VERSION}+git"
