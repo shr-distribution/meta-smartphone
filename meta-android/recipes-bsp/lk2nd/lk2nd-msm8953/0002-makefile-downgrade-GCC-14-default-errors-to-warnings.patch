@@ -1,4 +1,4 @@
-From: Herrie <claude.ai@herrie.org>
+From: Herman van Hazendonk <github.com@herrie.org>
 Subject: [PATCH] makefile: downgrade GCC 14 default errors to warnings
 
 GCC 14 promotes several long-standing C warnings to errors by default
@@ -9,6 +9,7 @@ calling arch_clean_cache_range() without including arch/ops.h).
 Downgrade them back to warnings, matching the existing -fcommon
 accommodation for GCC 10.
 
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
 Upstream-Status: Pending
 ---
  makefile | 2 ++

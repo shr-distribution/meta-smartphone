@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Herman van Hazendonk <github.com@herrie.org>
-Date: Sat, 30 Aug 2026 21:30:00 +0200
+From: Eugenio Paolantonio (g7) <me@medesimo.eu>
+Date: Tue, 19 Jan 2021 01:10:38 +0000
 Subject: [PATCH] halium: find the Android image instead of assuming where it is
 
 identify_android_image() only recorded which *kind* of image it saw, and
@@ -27,9 +27,9 @@ FuriLabs fork, which had already fixed this the same way; the rest of
 that tree has grown FuriOS-specific recovery handling, so only this part
 is carried over.
 
-Upstream-Status: Backport [FuriLabs/initramfs-tools-halium]
-
+Signed-off-by: Eugenio Paolantonio (g7) <me@medesimo.eu>
 Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Backport [https://github.com/FuriLabs/initramfs-tools-halium/commit/6020ed3a12b1]
 ---
 --- a/scripts/halium
 +++ b/scripts/halium

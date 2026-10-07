@@ -1,4 +1,4 @@
-From: LuneOS <webos-ports@googlegroups.com>
+From: Herman van Hazendonk <github.com@herrie.org>
 Date: Sat, 26 Sep 2026 00:00:01 +0200
 Subject: [PATCH] input: kpd_customkey: run the key handler in a thread
 
@@ -24,10 +24,11 @@ handler, and is wanted here anyway: it keeps the line masked until the
 thread has finished, which debounces a switch that is read in that thread.
 
 No functional change beyond the context the handler runs in.
-Upstream-Status: Inappropriate [ODM driver, exists only in the vendor tree]
 
 Not-signed-off: add your own Signed-off-by before sending this to FuriLabs.
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Inappropriate [ODM driver, exists only in the vendor tree]
 ---
 --- a/drivers/input/keyboard/kpd_customkey.c
 +++ b/drivers/input/keyboard/kpd_customkey.c

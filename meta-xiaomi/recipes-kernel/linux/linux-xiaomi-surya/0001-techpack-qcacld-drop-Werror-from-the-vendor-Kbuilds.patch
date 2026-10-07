@@ -1,5 +1,5 @@
 From af43072bc95ba6a5fde0f624ecd50abbb57d57f9 Mon Sep 17 00:00:00 2001
-From: LuneOS <claude.ai@herrie.org>
+From: Herman van Hazendonk <github.com@herrie.org>
 Date: Tue, 8 Sep 2026 21:28:35 +0200
 Subject: [PATCH] techpack, qcacld: drop -Werror from the vendor Kbuilds
 
@@ -17,6 +17,7 @@ themselves are unchanged and still printed.
 Same treatment as the MT6739 (mindphone) port, which needed -Werror dropped
 from 30 MediaTek vendor Makefiles for the same reason.
 
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
 Upstream-Status: Inappropriate [vendor tree is built with Android's clang]
 ---
  drivers/staging/qcacld-3.0/Kbuild               | 2 +-

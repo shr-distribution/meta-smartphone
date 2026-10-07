@@ -1,5 +1,5 @@
 From 38264d6e16f861a78b04f86922edde532ba81d58 Mon Sep 17 00:00:00 2001
-From: LuneOS <claude.ai@herrie.org>
+From: Herman van Hazendonk <github.com@herrie.org>
 Date: Wed, 9 Sep 2026 01:07:42 +0200
 Subject: [PATCH 2/2] init: keep the build flags out of linux_banner
 
@@ -21,6 +21,7 @@ Pass the compiler's own version line instead, which is what upstream 4.14
 records (upstream runs $CC -v inside mkcompile_h; this tree takes the
 string as an argument, so it is produced here).
 
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
 Upstream-Status: Inappropriate [vendor tree modification, not upstream code]
 ---
  init/Makefile | 2 +-
