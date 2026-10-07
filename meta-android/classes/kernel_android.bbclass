@@ -34,6 +34,19 @@ ANDROID_BOOTIMG_OS_VERSION ?= "0"
 # for a device whose bootloader will not accept the kernel's own.
 ANDROID_BOOTIMG_DTB ?= ""
 
+# Size of the boot partition, for a device whose bootloader wants an AVB hash
+# footer on the boot image. Empty (the default) writes no footer.
+#
+# Set it where the stock vbmeta *chains* boot rather than hashing it - a chain
+# descriptor for "boot" in `avbtool info_image vbmeta.img` - and the stock
+# boot.img ends in an AVB footer, as on MediaTek's Android 11 devices. The
+# footer is unsigned (algorithm NONE), so verification still has to be
+# disabled in the top-level vbmeta; see lib/halium/avb.py for why it is
+# written at all.
+#
+# The deployed image grows to exactly this size, so flash it as a whole.
+ANDROID_BOOTIMG_AVB_PARTITION_SIZE ?= ""
+
 KERNEL_OUTPUT ?= "${KERNEL_OUTPUT_DIR}/${KERNEL_IMAGETYPE}"
 
 # Hard assignment on purpose: kernel.bbclass has already set this to
@@ -208,6 +221,16 @@ python android_bootimg_deploy() {
                 (d.getVar("ANDROID_BOOTIMG_HEADER_VERSION"),
                  d.getVar("ANDROID_BOOTIMG_PAGESIZE")))
         android_bootimg_v2(d, kernel, initramfs, dtb or None, bootimg)
+
+    avb_size = d.getVar("ANDROID_BOOTIMG_AVB_PARTITION_SIZE")
+    if avb_size:
+        from halium.avb import add_hash_footer
+        try:
+            add_hash_footer(bootimg, "boot", int(avb_size, 0))
+        except ValueError as e:
+            bb.fatal(str(e))
+        bb.note("Added an unsigned AVB hash footer for a %s byte boot partition"
+                % avb_size)
 
     deploydir = d.getVar("DEPLOYDIR")
     name = d.getVar("KERNEL_IMAGE_NAME")
