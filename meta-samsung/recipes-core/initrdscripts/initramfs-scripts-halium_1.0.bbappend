@@ -1,3 +1,4 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
 COMPATIBLE_MACHINE:sm-t220 = "^sm-t220$"
+COMPATIBLE_MACHINE:sm-t520 = "^sm-t520$"

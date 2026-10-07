@@ -1,0 +1,13 @@
+[Unit]
+Description=Let the Wi-Fi driver settle the MAC address of wlan0 before connman looks at it
+Requires=sys-subsystem-net-devices-wlan0.device
+After=sys-subsystem-net-devices-wlan0.device
+Before=connman.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh -c 'ip link set wlan0 up && ip link set wlan0 down'
+
+[Install]
+WantedBy=connman.service

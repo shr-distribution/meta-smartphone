@@ -1,0 +1,13 @@
+[Unit]
+Description=Attach the BCM4339 Bluetooth controller to its UART (SM-T520)
+Before=bluetooth.service
+After=android-system.service
+ConditionPathExists=/android/vendor/firmware/bcm4335.hcd
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bcm-hciattach.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=bluetooth.service

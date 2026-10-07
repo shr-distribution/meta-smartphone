@@ -1,0 +1,9 @@
+# SM-T520: keep udev away from the loop devices while the APEX images are attached.
+#
+# The container's start attaches about a dozen APEX images to loop devices (mount-android.sh, and apexd in the
+# container). On this 3.4 kernel the loop driver can hang when udev opens a loop device (to probe it, or because
+# of its inotify watch) while another process is attaching one: the mounts of some APEXes then never finish. On
+# one boot of the tablet the container saw 3 of its 11 APEXes, the generated linker configuration was invalid
+# ("undefined namespace: vndk") and the camera HAL, mediametrics and others failed to load; the next boot was fine.
+# The treble session found the same hang on the Nexus 5 and uses this rule there.
+SUBSYSTEM=="block", KERNEL=="loop[0-9]*", ENV{UDEV_DISABLE_PERSISTENT_STORAGE_RULES_FLAG}="1", OPTIONS+="nowatch"

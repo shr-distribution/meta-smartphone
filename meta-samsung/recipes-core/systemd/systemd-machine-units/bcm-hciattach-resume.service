@@ -1,0 +1,12 @@
+[Unit]
+Description=Attach the BCM4339 Bluetooth controller again after it was powered on (SM-T520)
+After=android-system.service
+ConditionPathExists=/android/vendor/firmware/bcm4335.hcd
+# One unblock of the rfkill switch sends several udev events; each one only tries to start this unit.
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bcm-hciattach.sh
+# hciattach daemonises and has to keep the UART after the script is done; the default would kill it with the unit.
+KillMode=process

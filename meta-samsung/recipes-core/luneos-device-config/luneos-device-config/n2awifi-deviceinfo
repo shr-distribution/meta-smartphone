@@ -1,0 +1,88 @@
+# Tier 1 adaptation for the Samsung Galaxy Tab Pro 10.1 Wi-Fi (SM-T520,
+# n2awifi, Exynos 5420). Nothing here has been run on hardware.
+#
+# Only what cannot be derived belongs here. The codename is the directory name;
+# luneos-device-config reads ro.product.vendor.device first, and the Lineage
+# 18.1 device tree sets PRODUCT_DEVICE := n2awifi (stock says picassowifi).
+
+# The panel is 2560x1600, native LANDSCAPE: the kernel's framebuffer reports
+# "U:2560x1600p-60" with a stride of 10240 bytes (read on the tablet, 4 Oct 2026).
+# This used to say 1600x2560 portrait, from TARGET_SCREEN_WIDTH/HEIGHT in
+# android_device_samsung_n2a-common's device-common.mk, which is the reverse of the
+# panel; the compositor then rendered a portrait output onto a landscape display and
+# the screen stayed black. Geometry format as radon.
+# TODO(verify): the rotation the touch needs on the tablet.
+deviceinfo_compositor_geometry="2560x1600+0+0r0s1"
+
+# Physical density of a 10.1" 2560x1600 panel: sqrt(1600^2 + 2560^2) / 10.1 =
+# 299 ppi, from the nominal diagonal. Not Lineage's 320 / ro.sf.lcd_density,
+# which is Android's density bucket.
+# TODO(verify): the real panel size (dumpsys display xDpi/yDpi).
+deviceinfo_display_dpi="299"
+
+# The GPU is an ARM Mali-T628 behind one file, /vendor/lib/egl/libGLES_mali.so,
+# which the EGL loader finds as libGLES_<name>.so for ro.hardware.egl=mali.
+# The vendor build.prop is given that property by the image recipe; this is
+# the host-side setting.
+# UNVERIFIED on hardware.
+deviceinfo_hardware_egl="mali"
+
+# The composer HAL (android.hardware.graphics.composer@2.1-service over the Exynos
+# HWC 1.x) serves its first client fine and shows every later one black: backlight
+# on, frames still reaching the panel (self-refresh exits fire), nothing on screen.
+# Seen on the tablet 6 Oct 2026: restarting surface-manager, killing it, or any crash
+# left the display black until the HAL was replaced or the tablet rebooted. With a
+# fresh HAL for each compositor start, a clean restart, a SIGKILL, and two SIGKILLs
+# during a panel request all kept the full UI.
+deviceinfo_hwc_fresh_start="1"
+
+# A 10.1" tablet: the tablet shell and the tablet keyboard layouts. This defaults to
+# false (a phone), and /etc/palm/luna-platform.conf then overrides the TabletUi=true
+# that luna.conf ships, so the on-screen keyboard came up in its phone layout.
+deviceinfo_tablet_ui="true"
+
+# Display scaling for web apps (Clock, Calendar, ...). Left undeclared, the generator
+# derives a ratio that gives a PHONE sized viewport of 450 CSS px: 2560 / 450 = 5.69 here,
+# and fixed-layout Enyo pages then come out hugely scaled (seen in the Clock app on the
+# tablet, 4 Oct 2026). A tablet should hand them what the TouchPad did, a viewport about
+# 1024 CSS px wide: 2560 / 1024 = 2.5.
+# TODO(verify): tune by eye on the panel, as sargo's 2.4 was (it ends at 450 px there).
+deviceinfo_device_pixel_ratio="2.5"
+
+# Do not let the compositor open the hwcomposer HAL a second time; the Android
+# composer service in the container already has it (the SM-T220, mp01 and radon
+# need the same). Without it the compositor takes the libhybris v11 route and
+# opens Samsung's hwc1 module (hwcomposer.exynos5.so) itself, and aborts:
+#   incStrongRequireStrong() called on 0x... which isn't already owned
+#   surface-manager-daemon.service: Main process exited, code=dumped, status=6/ABRT
+# Found on the tablet on 4 Oct 2026: with QT_QPA_FORCE_HWC2=1 (what this sets,
+# see generators/20-surface-manager-env) the compositor stays up.
+deviceinfo_force_hwc2="1"
+
+# The container's Android Wi-Fi HAL (vendor.wifi_hal_legacy) starts the vendor
+# wpa_supplicant, which takes wlan0 away from the host's wpa_supplicant that connman
+# talks to: networks are listed but never joined, or scanning says "No carrier".
+# LuneOS drives Wi-Fi from the host, so keep the HAL, and with it the second
+# supplicant, from starting.
+# Verified on the tablet by stopping vendor.wifi_hal_legacy by hand.
+#
+# vendor.bluetooth-1-0, the Android Bluetooth HAL, is skipped too: Bluetooth is brought up on the host with
+# hciattach (systemd-machine-units), and the HAL opening /dev/ttySAC0 would fight it for the UART.
+#
+# gpsd and the livedisplay HAL crash at start-up and init restarts them every few seconds, which keeps the
+# container's init busy: gpsd cannot find a symbol in the Android 11 framework (SensorManager), and the
+# Wi-Fi tablet has no GPS anyway; the livedisplay HAL's interface is in no VINTF manifest.
+deviceinfo_android_skip_services="vendor.wifi_hal_legacy vendor.bluetooth-1-0 gpsd vendor.livedisplay-hal-2-0-samsung-exynos"
+
+# Deliberately absent, because no value could be read yet:
+#
+#   deviceinfo_binder_slots, deviceinfo_binder_radio_interface
+#       the Wi-Fi model has no modem.
+#
+#   deviceinfo_hybris_prefer_vndk
+#       to be decided from a boot: a per-device workaround for the audio HAL,
+#       not a default.
+
+# A Wi-Fi-only tablet: no modem, so no IRadio slot. Skips the ofono generator's wait for one,
+# which cost about 35 seconds of every boot before the UI (measured on the SM-T520, 4 Oct 2026).
+deviceinfo_modem="false"

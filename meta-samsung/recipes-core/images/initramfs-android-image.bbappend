@@ -35,4 +35,18 @@ IMAGE_INSTALL:remove:a3-2015 = "android-tools bash"
 # the machine by hand. linux-samsung-a3-2015_git.bb sets the matching
 # INITRAMFS_NAME; the two must agree or do_deploy fails looking for a file that
 # was never produced.
-IMAGE_FSTYPES:forcevariable = "${@'cpio.xz' if d.getVar('MACHINE') == 'a3-2015' else 'cpio.gz'}"
+IMAGE_FSTYPES:forcevariable = "${@'cpio.xz' if d.getVar('MACHINE') in ('a3-2015', 'sm-t520') else 'cpio.gz'}"
+
+# sm-t520: the BOOT partition is 8 MiB (BOARD_BOOTIMAGE_PARTITION_SIZE in
+# Lineage's BoardConfig.mk) and the kernel alone is 4.2 MiB, which leaves under
+# 3.8 MiB for the ramdisk. As built for other machines it is 5.04 MiB gzipped;
+# measured on this tree (find | cpio -H newc, then the compressor):
+#
+#     gzip -9   5042594      xz -9e   3945916      zstd -19   4333249
+#
+# So xz, as on the A3 2015 (the kernel has CONFIG_RD_XZ=y), and bash goes too
+# (0.9 MB; busybox ash runs the initramfs scripts). adbd stays: unlike the A3
+# this tablet has a USB gadget the first boot will want to debug through, and
+# the 3.4 kernel's legacy android_usb gadget is what the initramfs drives.
+# linux-samsung-sm-t520_git.bb sets the matching INITRAMFS_NAME.
+IMAGE_INSTALL:remove:sm-t520 = "bash"
