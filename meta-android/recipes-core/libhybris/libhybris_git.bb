@@ -10,23 +10,14 @@ LIC_FILES_CHKSUM = "file://../LICENSE.Apache2;md5=3b83ef96387f14655fc854ddc3c6bd
 # linker_main() - so every Android library with a TLS segment lands in static
 # TLS. glibc's exit handlers then dlclose those libraries and the linker's
 # CHECK(mod.static_offset == SIZE_MAX) aborts, which on a 16 GSI killed every
-# getprop/setprop and with them start-android-hals.sh.
-SRCREV = "032a289a5a55744b53caa008d4e4d84fdcc975d1"
+# getprop/setprop and with them start-android-hals.sh. Our own fixes for
+# vendor blobs from Android 9 to 16 sit on top of it, in the same branch.
+SRCREV = "d853df6989cf1ccc3102ff3ec3a032662392ed54"
 PV = "0.1.0+git"
-PR = "r3"
+PR = "r9"
 PE = "1"
 
-SRC_URI = "git://github.com/Herrie82/libhybris;branch=herrie/android16-tls;protocol=https \
-    file://0001-tests-build-test_audio-as-gnu99-for-strdup.patch \
-    file://0002-linker-search-the-VNDK-APEX-when-there-is-no-ld.config.patch \
-    file://0003-q-linker-restore-legacy-StaticTlsLayout-finish_layout.patch \
-    file://0004-hooks-functional-system-property-find-wait-read_callback.patch \
-    file://0005-hooks-route-__tls_get_addr-to-the-q-linker.patch \
-    file://0006-linker-let-a-process-ask-for-the-vendor-s-VNDK-libra.patch \
-    file://0007-hooks-hook-MEOW_get_tls_meow_offset-for-Mali-blobs.patch \
-    file://0008-hooks-provide-SetTaskProfiles-for-A12-vendor-blobs.patch \
-    file://0009-linker-fall-back-to-the-nearest-VNDK-APEX.patch \
-"
+SRC_URI = "git://github.com/webOS-ports/libhybris;branch=herrie/android16-tls;protocol=https"
 
 S = "${UNPACKDIR}/${BB_GIT_DEFAULT_DESTSUFFIX}/hybris"
 

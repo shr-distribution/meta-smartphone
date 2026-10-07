@@ -2,7 +2,7 @@
 # android-headers repository stops at halium-11.0. This set was generated from a
 # halium-16.0 tree (lineage-23.2 / android-16.0.0_r4) with libhybris'
 # utils/extract-headers.sh, taken from the Android 16 update on
-# Herrie82/libhybris herrie/android16-tls.
+# webOS-ports/libhybris herrie/android16-tls.
 #
 # Two things about regenerating it. The script cannot autodetect the version on
 # a 16 tree - it reads build/core/version_defaults.mk, and the version now comes
