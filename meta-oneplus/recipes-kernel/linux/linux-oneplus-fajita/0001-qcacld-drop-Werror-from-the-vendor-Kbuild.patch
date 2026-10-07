@@ -1,5 +1,5 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: LuneOS <claude.ai@herrie.org>
+From: Herman van Hazendonk <github.com@herrie.org>
 Date: Sun, 27 Sep 2026 18:20:00 +0200
 Subject: [PATCH] qcacld: drop -Werror from the vendor Kbuild
 
@@ -28,6 +28,7 @@ its own Kbuilds, and nothing under techpack/ here sets -Werror at all.
 
 Same treatment as the surya (SM7150) and mindphone (MT6739) ports.
 
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
 Upstream-Status: Inappropriate [vendor tree is built with Android's clang]
 ---
  drivers/staging/qcacld-3.0/Kbuild | 1 -

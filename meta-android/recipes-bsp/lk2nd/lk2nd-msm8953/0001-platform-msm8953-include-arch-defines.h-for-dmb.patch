@@ -1,4 +1,4 @@
-From: Herrie <claude.ai@herrie.org>
+From: Herman van Hazendonk <github.com@herrie.org>
 Subject: [PATCH] platform: msm8953: include arch/defines.h for dmb()
 
 dmb() is a macro from arch/defines.h which platform.c only picked up
@@ -10,6 +10,7 @@ implicitly with older toolchains. GCC 14 promotes
 
 Include the header explicitly.
 
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
 Upstream-Status: Pending
 ---
  platform/msm8953/platform.c | 1 +

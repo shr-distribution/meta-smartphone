@@ -1,4 +1,4 @@
-From: LuneOS <webos-ports@googlegroups.com>
+From: Herman van Hazendonk <github.com@herrie.org>
 Date: Tue, 23 Sep 2026 12:00:00 +0200
 Subject: [PATCH] main: include fcntl.h for open() and O_RDONLY
 
@@ -18,9 +18,8 @@ not a toolchain quirk: <sys/mount.h> is included and does define
 MS_RDONLY, so the header that should have defined O_RDONLY is simply
 absent.
 
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
 Upstream-Status: Pending
-
-Signed-off-by: LuneOS <webos-ports@googlegroups.com>
 ---
 --- a/main.c
 +++ b/main.c

@@ -1,4 +1,4 @@
-From: LuneOS <webos-ports@googlegroups.com>
+From: Herman van Hazendonk <github.com@herrie.org>
 Date: Sat, 26 Sep 2026 00:00:02 +0200
 Subject: [PATCH] input: kpd_customkey: report switch state at probe
 
@@ -24,10 +24,11 @@ before the interrupts are hooked up, so the core starts out agreeing with
 the hardware and the very next edge is a real transition. The GPIO is
 re-read rather than reusing the value cached during DT parsing, which was
 sampled earlier in probe.
-Upstream-Status: Inappropriate [ODM driver, exists only in the vendor tree]
 
 Not-signed-off: add your own Signed-off-by before sending this to FuriLabs.
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Inappropriate [ODM driver, exists only in the vendor tree]
 ---
 --- a/drivers/input/keyboard/kpd_customkey.c
 +++ b/drivers/input/keyboard/kpd_customkey.c

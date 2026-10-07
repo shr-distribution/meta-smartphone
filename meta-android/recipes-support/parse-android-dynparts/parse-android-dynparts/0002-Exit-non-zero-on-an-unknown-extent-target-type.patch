@@ -1,7 +1,7 @@
 From fb263b987e6e168eacaa04e8a1734ef379ab3a93 Mon Sep 17 00:00:00 2001
-From: LuneOS <webos-ports@googlegroups.com>
+From: Herman van Hazendonk <github.com@herrie.org>
 Date: Sat, 22 Aug 2026 19:40:10 +0200
-Subject: Exit non-zero on an unknown extent target type
+Subject: [PATCH] Exit non-zero on an unknown extent target type
 
 The unknown-target-type arm of the switch does "return false" from main(),
 which is an int, so false converts to 0 and the process reports success. The
@@ -14,6 +14,7 @@ considerably worse failure than exiting non-zero would be.
 
 Every other error path in main() returns 1; make this one match.
 
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
 Upstream-Status: Pending
 ---
  main.cpp | 2 +-

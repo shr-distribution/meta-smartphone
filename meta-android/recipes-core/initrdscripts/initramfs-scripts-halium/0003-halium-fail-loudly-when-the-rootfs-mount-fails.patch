@@ -1,4 +1,4 @@
-From: Herrie <claude.ai@herrie.org>
+From: Herman van Hazendonk <github.com@herrie.org>
 Date: Fri, 19 Sep 2026 00:00:00 +0000
 Subject: [PATCH] halium: fail loudly when the rootfs mount fails
 
@@ -27,9 +27,8 @@ directory succeeds, and so does a loop mount of an image that is a valid
 filesystem but not a rootfs. Take mountroot_status from something meaningful
 in both branches, and warn if the read-only remount fails.
 
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
 Upstream-Status: Pending
-
-Signed-off-by: Herrie <claude.ai@herrie.org>
 ---
 --- a/scripts/halium
 +++ b/scripts/halium

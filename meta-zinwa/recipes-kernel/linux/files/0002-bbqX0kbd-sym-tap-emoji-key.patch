@@ -1,5 +1,5 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: LuneOS <claude.ai@herrie.org>
+From: Herman van Hazendonk <github.com@herrie.org>
 Date: Mon, 28 Sep 2026 14:30:00 +0200
 Subject: [PATCH] bbqX0kbd: let Sym tapped on its own open the emoji panel
 
@@ -31,9 +31,11 @@ Note for anyone testing this: the module cannot be swapped on a running
 device. rmmod bbqX0kbd takes the kernel down with it, measured on a Q25, so
 this needs the boot image it ships in.
 
-Upstream-Status: Pending
 
 Destined for the same shr-distribution/linux branch as the symbol-layer patch.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Pending
 ---
 --- a/drivers/input/keyboard/bbqX0kbd/bbqX0kbd_main.c
 +++ b/drivers/input/keyboard/bbqX0kbd/bbqX0kbd_main.c

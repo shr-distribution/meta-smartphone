@@ -1,7 +1,7 @@
 From c87ad54b20ebe8b5f7bc520fbd39f0b9113c4d90 Mon Sep 17 00:00:00 2001
-From: LuneOS <webos-ports@googlegroups.com>
+From: Herman van Hazendonk <github.com@herrie.org>
 Date: Sat, 22 Aug 2026 19:40:10 +0200
-Subject: Support metadata spanning multiple block devices
+Subject: [PATCH] Support metadata spanning multiple block devices
 
 Devices that launched before Android 10 and were later upgraded use *retrofit*
 dynamic partitions: rather than one dedicated "super", the logical partitions
@@ -33,6 +33,7 @@ the recorded name does not already carry that suffix, which on a real device it
 does. An optional name=path argument overrides the lookup entirely, for porting
 and testing.
 
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
 Upstream-Status: Pending
 ---
  main.cpp | 83 ++++++++++++++++++++++++++++++++++++++++++++++++++++----

@@ -1,5 +1,5 @@
 From 6d82c1d03386917bad45f2e9187702bb9e5d7dd0 Mon Sep 17 00:00:00 2001
-From: LuneOS <claude.ai@herrie.org>
+From: Herman van Hazendonk <github.com@herrie.org>
 Date: Sat, 26 Sep 2026 21:43:16 +0200
 Subject: [PATCH] bbqX0kbd: resolve the Q20 Alt/Sym symbol layers in the driver
 
@@ -40,14 +40,14 @@ q20_layers=0 restores the stock behaviour without a rebuild.
 Layout taken from the diagram in bbq20kbd_pmod_codes.h: the character printed
 above a key is Alt, the one below it is Sym.
 
-Upstream-Status: Pending
 
 Destined for a shr-distribution/linux branch for this device (q25/5.10.198/lune,
 by the MP01's naming), which is where every other LuneOS kernel change lives. It
 is a .patch here only because the Q25 still fetches LineageOS's tree directly;
 see the note in linux-zinwa-q25_git.bb.
 
-Signed-off-by: LuneOS <claude.ai@herrie.org>
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Pending
 ---
  .../input/keyboard/bbqX0kbd/bbqX0kbd_main.c   | 176 +++++++++++++++++-
  1 file changed, 174 insertions(+), 2 deletions(-)
