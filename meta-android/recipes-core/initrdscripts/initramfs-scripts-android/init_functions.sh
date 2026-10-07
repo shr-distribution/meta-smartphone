@@ -78,6 +78,36 @@ stop_telnetd() {
 	umount /dev/pts
 }
 
+# Opt-in boot log: with LUNEOS_BOOTLOG on the kernel command line, keep copying
+# the kernel log (which carries this initramfs's own output, see setup_log) to
+# $1/luneos-boot.log, so it can be read from recovery when nothing else on the
+# device is reachable. It is flushed every couple of seconds so that it survives
+# a hang or a reset; the previous boot's log is kept as luneos-boot.log.prev.
+# $1: directory the userdata partition is mounted on
+start_bootlog() {
+	grep -q LUNEOS_BOOTLOG /proc/cmdline || return 0
+	BOOTLOG="$1/luneos-boot.log"
+	[ -f "$BOOTLOG" ] && mv -f "$BOOTLOG" "$BOOTLOG.prev"
+	(
+		while :; do
+			dmesg > "$BOOTLOG" 2>/dev/null
+			sync
+			sleep 2
+		done
+	) &
+	echo $! > /run/bootlog.pid
+	info "Boot log: $BOOTLOG"
+}
+
+# Take one last copy and stop the loop; called before switching to the rootfs.
+stop_bootlog() {
+	[ -r /run/bootlog.pid ] || return 0
+	kill "$(cat /run/bootlog.pid)" 2>/dev/null
+	rm -f /run/bootlog.pid
+	dmesg > "$BOOTLOG" 2>/dev/null
+	sync
+}
+
 # $1: target directory of mount
 mount_sdcard() {
 	# First, try to find the device
