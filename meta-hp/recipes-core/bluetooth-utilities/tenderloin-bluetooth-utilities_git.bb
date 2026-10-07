@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = " \
 "
 
 PV = "0.1.0+git"
-SRCREV = "4ece753d4109c92497474b2acb5fabb34c6cbd12"
+SRCREV = "7be1f8ab249229cc23d2566e136ceda0603303f8"
 
 COMPATIBLE_MACHINE = "tenderloin-halium"
 PACKAGE_ARCH:tenderloin-halium = "${MACHINE_ARCH}"
