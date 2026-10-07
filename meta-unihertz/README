@@ -1,0 +1,189 @@
+meta-unihertz
+=============
+
+LuneOS machine and kernel support for the Unihertz QWERTY phones, all three of
+which are MediaTek MT6771 (Helio P60/P70), arm64, pre-GKI 4.14 ALPS:
+
+    titanpocket   Unihertz Titan Pocket   3.1" 716x720    Android 11 vendor
+    titanslim     Unihertz Titan Slim     4.2" 768x1280   Android 11 vendor
+    titan         Unihertz Titan          4.6" 1430x1440  Android 10 vendor
+
+Primary target is the **Titan Pocket**.
+
+These machines build a boot image and nothing else. The rootfs comes from
+MACHINE=halium-arm64 and the GSI is picked at install time, so the per-device
+artefact is one boot.img:
+
+    MACHINE=titanpocket bitbake initramfs-android-image
+    MACHINE=titanpocket bitbake linux-unihertz-titanpocket
+
+
+The kernel, and why it is someone's hobby rather than a vendor drop
+------------------------------------------------------------------
+
+Unihertz have never released kernel source for any Titan and have ignored GPL
+requests since 2020. Both trees used here are Nikita Ukhrenkov's (TheKit /
+NotKit): a MediaTek ALPS BSP with the device-specific drivers disassembled out
+of the stock kernel binaries and rewritten - panels, touchscreens, the AW9523
+keyboard matrix, camera sensors, the Chipsailing fingerprint reader. Treat him
+as the upstream for this port; the Ubuntu Touch adaptation is the reference
+implementation of the same hardware on the same libhybris/LXC stack.
+
+    titan                 gitlab.com/ubports/porting/community-ports/android10/
+                          unihertz-titan/kernel-alps-mt6771, branch halium-10.0,
+                          4.14.141 (the Android-10 ALPS drop)
+    titanpocket/titanslim github.com/ubuntu-touch-unihertz-titan/
+                          kernel-alps-mt6771, branch halium-11.0,
+                          4.14.186 (the Android-11 ALPS drop), built from
+                          github.com/shr-distribution/linux, branch
+                          unihertz-mt6771/4.14/halium-11.0: that branch with
+                          the LuneOS commits on top
+
+**The two trees are at different sublevels in different repositories, so the
+Titan cannot share a build with the other two.** The Pocket and the Slim can -
+see below.
+
+
+Status
+------
+
+**`MACHINE=titanpocket bitbake linux-unihertz-titanpocket` builds clean** as of
+30 Sep 2026 - 1679 tasks, all succeeded - and produces a 17.2 MB header-v2 boot
+image that reproduces the stock geometry field for field and carries the stock
+dt_table blob byte for byte. This is, as far as anyone has written down, the
+first kernel ever built from the halium-11.0 tree.
+
+Getting there took seven patches (now commits on the shr-distribution/linux
+branch) and two config changes;
+the staging kit's README tabulates them. Five of the seven are real bugs rather
+than toolchain noise, including one that only appears because LuneOS enables
+CONFIG_VT and one exported function that returns -ENOMEM as a pointer.
+
+The deploy set is ~/webos/LuneOS/staging/titanpocket-staging.
+
+Nothing has run on hardware.
+
+The material risk is specific and worth stating before anyone spends a day on
+it: **on the Pocket and the Slim, nobody has ever shown that a kernel built
+from this tree boots.** The Ubuntu Touch port for those two devices still packs
+the *stock prebuilt* kernel image and builds only loadable modules out of the
+source tree; the drivers TheKit recovered (GT1151QM, CHSC5432, the two R63308
+panels, is31fl, AW9523) are there, and the defconfigs were regenerated from the
+devices' own /proc/config.gz, but the whole-kernel path is untravelled.
+
+The Titan is the opposite: upstream builds that kernel from source and ships
+it, and the branch saw commits in September 2026. If the Pocket fights, build
+MACHINE=titan first to separate "this family does not work" from "this branch
+does not work".
+
+Fallback if the Pocket's source kernel will not come up: pack the *stock*
+kernel image the way Ubuntu Touch does, with our initramfs. LuneOS can afford
+that better than they can - their entire AppArmor-as-a-loadable-module
+contraption exists because Ubuntu Touch confines with AppArmor and we do not.
+What we would still need from a stock kernel is namespaces, and that is the
+thing to check first: their LXC config disables the PID/IPC/UTS namespaces and
+ships a patched liblxc that drops CLONE_NEWIPC, which is the tell.
+
+
+Can one image serve the Pocket and the Slim?
+--------------------------------------------
+
+Probably, and the remaining question is a single pair of symbols.
+
+Already shared, measured rather than assumed:
+
+  - the same repository, branch and revision
+  - a BYTE-IDENTICAL dtb: TitanPocket-mt6771.dtb and TitanSlim-mt6771.dtb are
+    both md5 1c0ec5e5c084e9bbb559ea99651a2e56, 114,158 bytes, one dt_table
+    entry at offset 64, page_size 2048, platform id 0
+  - identical boot geometry, header version and page size
+  - the same rootfs and the same GSI tarball
+
+The defconfigs differ in eight lines. Seven union cleanly:
+CONFIG_ARCH_MTK_PROJECT (inert in this tree - upstream says so in the commit
+that merged the Titan's own eMMC/UFS split, and no matching directory exists),
+CUSTOM_KERNEL_LCM (a list, by Makefile construction), the two touchscreens, the
+image sensors, the cam_cal drivers, the TEE fingerprint symbol, AW9523.
+
+The eighth does not: CONFIG_LCM_WIDTH and CONFIG_LCM_HEIGHT are single strings,
+720x720 against 768x1280. recipes-kernel/linux/files/titanpocket-slim-union.cfg
+is the ready-to-try union with that conflict written up; settling it needs both
+devices in hand.
+
+Note this is *not* available for the Titan even in principle: besides the
+different kernel base, its dt_table declares platform id 0 exactly as the
+Pocket's does, so a two-entry table would give lk nothing to choose on.
+
+
+What is deliberately not here yet
+---------------------------------
+
+  - **Tier 1 adaptations** (luneos-device-config). The display scaling these
+    devices need cannot be derived - q25's 720x720 panel needed its grid unit
+    and device pixel ratio tuned by eye, and the Pocket's 716x720 will be worse.
+    Guessing values into the tree would be worse than leaving it empty. Take
+    them off hardware, the way adaptations/sargo/deviceinfo documents.
+  - **udev rules.** The Ubuntu Touch port ships a 265-line rules file for this
+    family; most of it duplicates what 65-android.rules already does. Trim
+    against that rather than copying.
+  - **The keyboard's symbol layers.** This is the one piece of userland work
+    that is certain to be needed, and q25 is the worked example: Qt's
+    evdevkeyboard plugin reads only EV_KEY and never MSC_SCAN, so Android .kl
+    and .kcm files - and the xkb symbol files Ubuntu Touch ships for
+    unihertz_vndr/titan and titanpocket - buy nothing. Whatever the AW9523
+    driver reports for punctuation is what the shell gets. Audit it the way
+    0001-bbqX0kbd-Q20-symbol-layers.patch did, declare any new keycodes in
+    input->keybit or the input core drops them silently, and ship the patched
+    module through ANDROID_EXTRA_INITRAMFS_IMAGE_INSTALL if the vendor's binary
+    would otherwise win.
+  - **MTK connectivity.** Generic already: mtk-load-modules.sh in meta-android
+    drives the WMT-era modules.load path these devices need, mtk-bt-address.sh
+    reads the BT MAC from /mnt/vendor/nvdata/APCFG/APRDEB/BT_Addr, and the
+    fstab.$(getprop ro.hardware) selection fix mindphone forced is in place.
+  - **A per-machine initramfs machine.conf.** Deliberately not shipped: these
+    machines take meta-android's generic one, whose sdcard_partition and
+    system_partition are placeholders. That is fine - the initrd finds the
+    partitions by name, and only the panic path reads system_partition (radon
+    established this, and mindphone shipped copy-pasted numbers that never
+    mattered). Add one only if something actually asks for it.
+  - **An install kit.** All three unlock and take fastboot, and the Titan has a
+    real recovery partition; the Pocket and Slim have dynamic partitions, so
+    install the way bluejay does - rootfs.img and android-rootfs.img pushed into
+    userdata, nothing written to super. mtkclient over the preloader is the
+    recovery path and the only way to read expdb when a kernel dies before USB.
+
+
+Expect the build to fail first
+------------------------------
+
+Neither tree has ever been compiled with anything but the Clang the Android
+build selects (r383902). OE builds it with its own GCC, and both MediaTek 4.14
+ports that came before hit the same classes of breakage - mindphone needed six
+rounds on the MT6739 ALPS tree, athena eleven commits on a 4.19. Expect at
+least: obsolete "#alloc" section-flag syntax in vendor asm, -Werror in the MTK
+vendor Makefiles, %llx against a 32-bit phys_addr_t, and host-tool C23 fallout
+(already handled here with BUILD_CFLAGS -std=gnu17).
+
+Fix those on a branch of shr-distribution/linux rather than as layer patches -
+mindphone's 4.14 work lives on dnim/4.14.186 and athena's on key2/4.19 - and
+split build plumbing from real bugs the way athena's notes describe. The
+Pocket and the Slim build unihertz-mt6771/4.14/halium-11.0, which carries them
+as commits; the Titan builds its halium-10.0 tree as it is, with no commits of
+ours yet.
+
+
+Verification gates before hardware
+----------------------------------
+
+  mer_verify_kernel_config on the built .config, not on the defconfig - a
+  savedefconfig-minimal file says nothing about symbols left at their default
+  (~/webos/gsigki/mer-kernel-check).
+
+  Check the produced boot image against the stock one field for field, the way
+  radon's check-bootimg.py does. Header v2, page 2048, kernel 0x40080000,
+  ramdisk 0x55000000, tags and dtb 0x54000000, and the dtb section still the
+  stock dt_table blob.
+
+  Never build a dtb or dtbo for these devices. radon bricked twice on a
+  self-built dtbo, which dies inside lk with no log, no console and no
+  recovery signal - indistinguishable from a dead phone.
