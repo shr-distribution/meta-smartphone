@@ -26,6 +26,7 @@ setup_log
 setup_usb_network
 
 mount_sdcard "/sdcard"
+start_bootlog "/sdcard"
 
 # Determine Android's media directory
 ANDROID_MEDIA_DIR="/sdcard/media"
@@ -51,6 +52,8 @@ mount_proc_sys_dev_configfs "/rfs"
 #stop_telnetd
 stop_udhcpd
 stop_mdev
+
+stop_bootlog
 
 info "Umounting unneeded filesystems"
 umount_proc_sys_dev_configfs ""
