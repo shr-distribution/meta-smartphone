@@ -85,5 +85,10 @@ do_configure:append:halium() {
     # do_configure:append, and the order the two appends end up in is not worth
     # depending on - running it twice is harmless, running it never is not.
     # olddefconfig replaced oldnoconfig in 4.19, so accept either.
-    oe_runmake olddefconfig || oe_runmake oldnoconfig
+    #
+    # The first attempt has to be oe_runmake_call, not oe_runmake: oe_runmake
+    # ends in die, which exits the whole shell function, so on a 3.4 tree
+    # (no olddefconfig target) the "|| oe_runmake oldnoconfig" never ran and
+    # do_configure aborted. oe_runmake_call just returns make's status.
+    oe_runmake_call olddefconfig || oe_runmake oldnoconfig
 }

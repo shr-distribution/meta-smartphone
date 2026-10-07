@@ -1,0 +1,84 @@
+From: Herman van Hazendonk <github.com@herrie.org>
+Subject: [PATCH] ARM: add renameat2 for the flags == 0 case
+
+Android 16's bionic implements rename() and renameat() as
+renameat2(..., 0) and has no fallback when the kernel returns ENOSYS
+(bionic/libc/bionic/rename.cpp). On these 3.4 kernels that makes every
+rename() in a GSI userspace fail, including the atomic file replacement init
+and libbase use for persistent properties.
+
+Add syscall 382, the slot renameat2() has on ARM and which is still free
+between sched_getattr and seccomp, and implement only the flags == 0 case by
+calling sys_renameat(). Any flag is refused with EINVAL: RENAME_NOREPLACE and
+RENAME_EXCHANGE came with the 3.15 renameat2() and need filesystem support
+this kernel lacks, so they cannot honestly be offered here.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Inappropriate [stopgap on 3.4; mainline has the full renameat2() since 3.15]
+---
+diff --git a/arch/arm/include/asm/unistd.h b/arch/arm/include/asm/unistd.h
+index 21911d42..4ee33de5 100644
+--- a/arch/arm/include/asm/unistd.h
++++ b/arch/arm/include/asm/unistd.h
+@@ -404,6 +404,7 @@
+ #define __NR_setns			(__NR_SYSCALL_BASE+375)
+ #define __NR_process_vm_readv		(__NR_SYSCALL_BASE+376)
+ #define __NR_process_vm_writev		(__NR_SYSCALL_BASE+377)
++#define __NR_renameat2			(__NR_SYSCALL_BASE+382)
+ #define __NR_seccomp			(__NR_SYSCALL_BASE+383)
+ #define __NR_getrandom			(__NR_SYSCALL_BASE+384)
+ 
+diff --git a/arch/arm/kernel/calls.S b/arch/arm/kernel/calls.S
+index d76242b9..782e2ff8 100644
+--- a/arch/arm/kernel/calls.S
++++ b/arch/arm/kernel/calls.S
+@@ -391,7 +391,7 @@
+ 		CALL(sys_ni_syscall)
+ /* 380 */	CALL(sys_ni_syscall)
+ 		CALL(sys_ni_syscall)
+-		CALL(sys_ni_syscall)
++		CALL(sys_renameat2)
+ 		CALL(sys_seccomp)
+ 		CALL(sys_getrandom)
+ #ifndef syscalls_counted
+diff --git a/fs/namei.c b/fs/namei.c
+index 4acf5091..ce50c711 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -4065,6 +4065,22 @@ exit:
+ 	return error;
+ }
+ 
++/*
++ * Android 16's bionic implements rename() and renameat() as renameat2(..., 0)
++ * with no fallback, so a kernel without the syscall fails every rename() with
++ * ENOSYS. This is the flags == 0 case only: renameat2() proper arrived in 3.15
++ * together with RENAME_NOREPLACE and RENAME_EXCHANGE, which need filesystem
++ * support this kernel does not have, so any flag is refused with EINVAL.
++ */
++SYSCALL_DEFINE5(renameat2, int, olddfd, const char __user *, oldname,
++		int, newdfd, const char __user *, newname, unsigned int, flags)
++{
++	if (flags)
++		return -EINVAL;
++
++	return sys_renameat(olddfd, oldname, newdfd, newname);
++}
++
+ SYSCALL_DEFINE2(rename, const char __user *, oldname, const char __user *, newname)
+ {
+ 	return sys_renameat(AT_FDCWD, oldname, AT_FDCWD, newname);
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index 03dc7513..36a8b551 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -766,6 +766,9 @@ asmlinkage long sys_linkat(int olddfd, const char __user *oldname,
+ 			   int newdfd, const char __user *newname, int flags);
+ asmlinkage long sys_renameat(int olddfd, const char __user * oldname,
+ 			     int newdfd, const char __user * newname);
++asmlinkage long sys_renameat2(int olddfd, const char __user *oldname,
++			      int newdfd, const char __user *newname,
++			      unsigned int flags);
+ asmlinkage long sys_futimesat(int dfd, const char __user *filename,
+ 			      struct timeval __user *utimes);
+ asmlinkage long sys_faccessat(int dfd, const char __user *filename, int mode);
