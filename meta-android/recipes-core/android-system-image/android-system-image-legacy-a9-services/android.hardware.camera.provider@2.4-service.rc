@@ -1,0 +1,8 @@
+# Camera provider as a service, started once the camera daemon is stable (see camera-provider-wait.sh).
+service vendor.camera-provider-2-4 /vendor/bin/camera-provider-wait.sh
+    class hal
+    user cameraserver
+    group audio camera input drmrpc
+    ioprio rt 4
+    capabilities SYS_NICE
+    writepid /dev/cpuset/camera-daemon/tasks /dev/stune/top-app/tasks

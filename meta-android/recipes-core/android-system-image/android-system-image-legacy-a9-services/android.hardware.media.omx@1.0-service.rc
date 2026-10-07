@@ -1,0 +1,18 @@
+# OMX HAL service built from the Android 9 tree (frameworks/av/services/mediacodec). The old
+# monolithic Halium 9 image did not run one (hybris' minimediaservice loaded the vendor codecs in
+# process); under the GSI the gst-droid gate only exposes libgstdroid once IOmxStore is registered,
+# because libgstdroid's start-up asks for it and libhidl waits for ever otherwise.
+#
+# The vendor encoders (OMX.qcom.video.encoder.*) load the Android 9 libgui.so from /vendor/lib, which
+# needs android::PermissionCache::checkPermission, a symbol the Android 16 libbinder no longer has.
+# Without the shim dlopen("libOmxVenc.so") fails, the OMX core answers NotImplemented, and gst-droid
+# finds no hardware video encoder (the decoders do not load libgui and worked all along).
+service vendor.media.omx /vendor/bin/hw/android.hardware.media.omx@1.0-service
+    setenv LD_PRELOAD /vendor/lib/libpermissioncache_shim.so
+    interface android.hardware.media.omx@1.0::IOmx default
+    interface android.hardware.media.omx@1.0::IOmxStore default
+    class main
+    user mediacodec
+    group camera drmrpc mediadrm
+    ioprio rt 4
+    writepid /dev/cpuset/foreground/tasks

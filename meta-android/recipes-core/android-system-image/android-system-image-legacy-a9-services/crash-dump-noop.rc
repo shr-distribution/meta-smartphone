@@ -1,0 +1,8 @@
+# Replace the runtime's crash_dump32 with an immediate exit, from inside the container.
+#
+# On a 3.4 kernel crash_dump32 aborts for any non-root crashing process ("failed to raise ambient
+# capability N: Invalid argument", PR_CAP_AMBIENT is 4.3), the abort goes through the same handler,
+# which starts another crash_dump32: hundreds of them, then the OOM killer takes the device down.
+# The host's own bind mount is hidden by the container's APEX mount, so this has to run here.
+on property:apex.all.ready=true
+    mount none /vendor/bin/crash_dump_noop /apex/com.android.runtime/bin/crash_dump32 bind

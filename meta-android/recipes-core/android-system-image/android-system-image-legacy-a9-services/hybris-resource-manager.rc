@@ -1,0 +1,12 @@
+# Android 16's MediaCodec needs the media resource manager (media.resource_manager) and refuses to
+# create a codec without it ("Failed to get ResourceManagerService ... failed to initialize
+# ResourceManager"). droidmedia's recorder, and with it hardware video recording, creates its encoder
+# through MediaCodec. minimediaservice only fakes the resource manager up to Android 12, and the GSI
+# keeps the stock mediaserver, which registers the real one, switched off (its service runs
+# mediaserver_HYBRIS_DISABLED). Run the stock binary under a name of our own instead: it registers the
+# resource manager and MediaPlayerService, which nothing else here registers.
+service vendor.hybris-resmgr /system/bin/mediaserver
+    class main
+    user media
+    group audio camera inet net_bt net_bt_admin net_bw_acct drmrpc mediadrm
+    ioprio rt 4

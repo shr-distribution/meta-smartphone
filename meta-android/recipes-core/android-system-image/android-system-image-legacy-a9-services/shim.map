@@ -1,0 +1,11 @@
+LIBC_PLATFORM {
+    global:
+        __system_properties_init;
+};
+LIBC {
+    global:
+        sched_setscheduler;
+        _ZN7android15PermissionCache15checkPermissionERKNS_8String16Eij;
+    local:
+        *;
+};

@@ -1,0 +1,10 @@
+service vendor.hwcomposer-2-1 /vendor/bin/hw/android.hardware.graphics.composer@2.1-service
+    # see permissioncache_shim.c: the vendor's hwcomposer links libmedia, which wants PermissionCache
+    setenv LD_PRELOAD /vendor/lib/libpermissioncache_shim.so
+    interface android.hardware.graphics.composer@2.1::IComposer default
+    class hal animation
+    user system
+    group graphics drmrpc
+    capabilities SYS_NICE
+    onrestart restart surfaceflinger
+    task_profiles ServiceCapacityLow

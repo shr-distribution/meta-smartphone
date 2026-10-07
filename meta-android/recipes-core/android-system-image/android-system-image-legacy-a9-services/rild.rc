@@ -1,0 +1,6 @@
+# rild through rild-wait.sh, which waits for the modem subsystem (see there).
+service vendor.ril-daemon /vendor/bin/rild-wait.sh
+    class main
+    user radio
+    group radio cache inet misc audio log readproc wakelock
+    capabilities BLOCK_SUSPEND NET_ADMIN NET_RAW
