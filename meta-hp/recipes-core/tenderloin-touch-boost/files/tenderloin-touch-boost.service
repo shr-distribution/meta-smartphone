@@ -1,0 +1,11 @@
+[Unit]
+Description=Boost the CPU frequency on touch input
+After=android-system.service
+
+[Service]
+ExecStart=/usr/sbin/tenderloin-touch-boost
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
