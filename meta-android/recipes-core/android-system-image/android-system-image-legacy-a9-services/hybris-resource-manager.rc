@@ -5,8 +5,15 @@
 # keeps the stock mediaserver, which registers the real one, switched off (its service runs
 # mediaserver_HYBRIS_DISABLED). Run the stock binary under a name of our own instead: it registers the
 # resource manager and MediaPlayerService, which nothing else here registers.
+#
+# updatable: class main starts before the APEX linker configuration is loaded, and init keeps a
+# service in the mount namespace it first started in. In that bootstrap namespace the statsd APEX's
+# libstatspull.so cannot be found, so mediaserver never linked and init restarted it every few
+# seconds. An updatable service is queued until the APEXes are ready and then starts in the default
+# namespace.
 service vendor.hybris-resmgr /system/bin/mediaserver
     class main
     user media
     group audio camera inet net_bt net_bt_admin net_bw_acct drmrpc mediadrm
     ioprio rt 4
+    updatable
