@@ -6,10 +6,11 @@ COMPATIBLE_MACHINE = "mindphone"
 # Pinned, not shared: the 32-bit GSI is a separate build on its own cadence, and
 # the release the arm64 ports track (20260910) published no halium_arm asset.
 # Everything else comes from halium-luneos-gsi-16.inc, so the URL is still
-# assembled in exactly one place.
+# assembled in exactly one place. The same build as the legacy 32-bit devices
+# (android-system-image-legacy-gsi.inc); it carries com.android.vndk.v27 to v34.
 HALIUM_LUNEOS_GSI16_ARCH = "halium_arm"
-HALIUM_LUNEOS_GSI16_PV = "20260830-1"
-HALIUM_LUNEOS_GSI16_SHA256 = "77d6ce81311d5e57939d961d196a0908c140db6403a54e8be180c0e4bb29eb82"
+HALIUM_LUNEOS_GSI16_PV = "20261007-1"
+HALIUM_LUNEOS_GSI16_SHA256 = "3f62631989cc03148725e22be84d3c60ed68f16cc8f5aef56157ee612fae5ae4"
 
 PV = "${HALIUM_LUNEOS_GSI16_PV}"
 

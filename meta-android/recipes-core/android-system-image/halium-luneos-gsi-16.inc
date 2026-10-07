@@ -37,8 +37,10 @@
 #
 # (they live in /system_ext/apex, not /system/apex).
 
-HALIUM_LUNEOS_GSI16_PV ?= "20260910-1"
-HALIUM_LUNEOS_GSI16_SHA256 ?= "583ea441a11671ebdbe0b17e220a98a68ba28d227235e7274cc6df69f84bab18"
+# 20261007-1 adds the /persist and /efs directories and the /firmware link that halium_arm got
+# on 5 Oct 2026, for pre-Treble arm64 vendors (bullhead).
+HALIUM_LUNEOS_GSI16_PV ?= "20261007-1"
+HALIUM_LUNEOS_GSI16_SHA256 ?= "89d73b83a161e9ef5270aab803b4120519f02144aa8df631fac0a86eaa1a84ea"
 
 # 32-bit ports (mindphone) set this to halium_arm and bring their own PV/SHA -
 # the arm GSI is a separate build and is not published on the same cadence.
@@ -47,7 +49,9 @@ HALIUM_LUNEOS_GSI16_ARCH ?= "halium_arm64"
 # The release TAG drops the -N suffix that PV carries: PV 20260910-1 lives under
 # the tag halium-luneos-20260910. Derived rather than written out again, because
 # a second place to edit is how this file came to be needed.
-HALIUM_LUNEOS_GSI16_RELEASE ?= "halium-luneos-${@d.getVar('HALIUM_LUNEOS_GSI16_PV').split('-')[0]}"
+# Exception: the 20261007 builds (halium_arm and halium_arm64) were published in the
+# halium-luneos-20261005 release, next to the vendor images made for them.
+HALIUM_LUNEOS_GSI16_RELEASE ?= "halium-luneos-${@{'20261007': '20261005'}.get(d.getVar('HALIUM_LUNEOS_GSI16_PV').split('-')[0], d.getVar('HALIUM_LUNEOS_GSI16_PV').split('-')[0])}"
 
 HALIUM_LUNEOS_GSI16_TARBALL ?= "halium-luneos-16.0-${HALIUM_LUNEOS_GSI16_PV}-${HALIUM_LUNEOS_GSI16_ARCH}.tar.bz2"
 HALIUM_LUNEOS_GSI16_URL ?= "https://github.com/webOS-ports/halium-images/releases/download/${HALIUM_LUNEOS_GSI16_RELEASE}/${HALIUM_LUNEOS_GSI16_TARBALL}"
