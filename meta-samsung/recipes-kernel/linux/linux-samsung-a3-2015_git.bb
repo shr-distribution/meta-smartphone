@@ -28,5 +28,4 @@ do_deploy[depends] += " lk2nd-msm8916:do_deploy"
 
 SRC_URI += " \
     file://defconfig \
-    file://0001-drm-panel-s6e88a0-ams452ef01-register-a-backlight-for.patch \
 "

@@ -15,17 +15,18 @@ LINUX_VERSION_EXTENSION = "-luneos"
 LINUX_KMETA_BRANCH = "yocto-7.2"
 KMETA = "kernel-meta"
 
-# wip/msm8916/7.3-rc2 at the time of writing. These branches are rebased onto
-# each new upstream -rc rather than extended, so the branch name and the SRCREV
-# move together: bump both, and expect the old SRCREV to stop being reachable.
-# The newest *tag* (v6.12.1-msm8916) is the alternative if a moving base is not
-# wanted, and wip/msm8916/7.0 is the repository's own default branch, which
-# tracks a final release rather than an -rc.
-SRCREV_machine = "717e5e25225035d13c09b376aab5f23a5d7abe61"
+# msm8916-mainline/${LINUX_VERSION}/main in shr-distribution/linux: the
+# msm8916-mainline team's wip/msm8916/7.3-rc2 (717e5e25225035d13c09b376aab5f23a5d7abe61)
+# with LuneOS' device patches committed on top, the same arrangement as
+# linux-mainline-8953. The patches live there as commits, not as .patch files
+# in this layer. The upstream wip branches are rebased onto each new -rc rather
+# than extended, so a bump means rebasing these commits onto the new wip branch
+# and pushing it as a new msm8916-mainline/<version>/main.
+SRCREV_machine = "f9e0bf03c2fce153637d236a8d91564d74dd7fc2"
 SRCREV_meta = "31a9aee38a2827fac9db03afde5bc9fe88b49957"
 
 SRC_URI = " \
-    git://github.com/msm8916-mainline/linux.git;branch=wip/msm8916/7.3-rc2;protocol=https;name=machine \
+    git://github.com/shr-distribution/linux.git;branch=msm8916-mainline/${LINUX_VERSION}/main;protocol=https;name=machine \
     git://git.yoctoproject.org/yocto-kernel-cache;type=kmeta;name=meta;branch=${LINUX_KMETA_BRANCH};destsuffix=${KMETA} \
 "
 
