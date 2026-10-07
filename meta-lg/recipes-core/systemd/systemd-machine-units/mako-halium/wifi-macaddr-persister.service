@@ -1,0 +1,11 @@
+[Unit]
+Description=Saving WiFi MAC Addr on first boot
+After=android-system.service
+Requires=android-system.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/persist-wifi-mac-addr.sh
+
+[Install]
+WantedBy=multi-user.target

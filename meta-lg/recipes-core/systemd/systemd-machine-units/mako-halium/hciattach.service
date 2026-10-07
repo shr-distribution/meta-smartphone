@@ -1,0 +1,13 @@
+[Unit]
+Description=Run hciattach when HCI UART device becomes available
+Before=bluetooth.service
+After=android-system.service dev-ttyHS99.device
+ConditionPathExists=/system/vendor/firmware
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/hciattach.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=bluetooth.service

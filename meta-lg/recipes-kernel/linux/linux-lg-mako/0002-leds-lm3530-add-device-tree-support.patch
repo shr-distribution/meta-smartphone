@@ -1,0 +1,124 @@
+From: Herman van Hazendonk <github.com@herrie.org>
+Subject: [PATCH] leds: lm3530: add device tree support
+
+The LM3530 driver only takes platform data, so a board using a device tree
+had no way to describe the chip. The Nexus 4 backlight is an LM3530.
+
+Parse ti,max-current, ti,linear-mapping, ti,ramp-rise, ti,ramp-fall,
+default-brightness and max-brightness into the platform data, and take an
+optional HWEN enable-gpios. Only manual (I2C controlled) mode is described.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Pending
+
+diff --git a/drivers/leds/leds-lm3530.c b/drivers/leds/leds-lm3530.c
+index e44a3db106c3..bcaf716e158f 100644
+--- a/drivers/leds/leds-lm3530.c
++++ b/drivers/leds/leds-lm3530.c
+@@ -17,7 +17,9 @@
+ #include <linux/led-lm3530.h>
+ #include <linux/types.h>
+ #include <linux/regulator/consumer.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/module.h>
++#include <linux/of.h>
+ 
+ #define LM3530_LED_DEV "lcd-backlight"
+ #define LM3530_NAME "lm3530-led"
+@@ -106,6 +108,7 @@ struct lm3530_data {
+ 	struct led_classdev led_dev;
+ 	struct i2c_client *client;
+ 	struct lm3530_platform_data *pdata;
++	struct gpio_desc *hwen;
+ 	enum lm3530_mode mode;
+ 	struct regulator *regulator;
+ 	enum led_brightness brightness;
+@@ -405,12 +408,50 @@ static struct attribute *lm3530_attrs[] = {
+ };
+ ATTRIBUTE_GROUPS(lm3530);
+ 
++static struct lm3530_platform_data *lm3530_parse_dt(struct device *dev)
++{
++	struct lm3530_platform_data *pdata;
++	u32 val;
++
++	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
++	if (!pdata)
++		return ERR_PTR(-ENOMEM);
++
++	/* Only manual (I2C controlled) mode is described by the binding. */
++	pdata->mode = LM3530_BL_MODE_MANUAL;
++
++	if (!device_property_read_u32(dev, "ti,max-current", &val)) {
++		if (val > 7)
++			return ERR_PTR(dev_err_probe(dev, -EINVAL,
++						     "ti,max-current out of range\n"));
++		pdata->max_current = val;
++	}
++
++	pdata->brt_ramp_law = device_property_read_bool(dev, "ti,linear-mapping");
++
++	if (!device_property_read_u32(dev, "ti,ramp-rise", &val))
++		pdata->brt_ramp_rise = val & 7;
++	if (!device_property_read_u32(dev, "ti,ramp-fall", &val))
++		pdata->brt_ramp_fall = val & 7;
++
++	if (!device_property_read_u32(dev, "default-brightness", &val))
++		pdata->brt_val = min_t(u32, val, MAX_BRIGHTNESS);
++
++	return pdata;
++}
++
+ static int lm3530_probe(struct i2c_client *client)
+ {
+ 	struct lm3530_platform_data *pdata = dev_get_platdata(&client->dev);
+ 	struct lm3530_data *drvdata;
+ 	int err = 0;
+ 
++	if (!pdata && dev_fwnode(&client->dev)) {
++		pdata = lm3530_parse_dt(&client->dev);
++		if (IS_ERR(pdata))
++			return PTR_ERR(pdata);
++	}
++
+ 	if (pdata == NULL) {
+ 		dev_err(&client->dev, "platform data required\n");
+ 		return -ENODEV;
+@@ -441,6 +482,17 @@ static int lm3530_probe(struct i2c_client *client)
+ 	drvdata->led_dev.brightness_set = lm3530_brightness_set;
+ 	drvdata->led_dev.max_brightness = MAX_BRIGHTNESS;
+ 	drvdata->led_dev.groups = lm3530_groups;
++	device_property_read_u32(&client->dev, "max-brightness",
++				 &drvdata->led_dev.max_brightness);
++	if (drvdata->led_dev.max_brightness > MAX_BRIGHTNESS)
++		drvdata->led_dev.max_brightness = MAX_BRIGHTNESS;
++
++	/* optional HWEN pin: the chip ignores I2C while it is low */
++	drvdata->hwen = devm_gpiod_get_optional(&client->dev, "enable",
++						GPIOD_OUT_HIGH);
++	if (IS_ERR(drvdata->hwen))
++		return dev_err_probe(&client->dev, PTR_ERR(drvdata->hwen),
++				     "failed to get enable GPIO\n");
+ 
+ 	i2c_set_clientdata(client, drvdata);
+ 
+@@ -483,12 +535,19 @@ static const struct i2c_device_id lm3530_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, lm3530_id);
+ 
++static const struct of_device_id lm3530_of_match[] = {
++	{ .compatible = "ti,lm3530" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, lm3530_of_match);
++
+ static struct i2c_driver lm3530_i2c_driver = {
+ 	.probe = lm3530_probe,
+ 	.remove = lm3530_remove,
+ 	.id_table = lm3530_id,
+ 	.driver = {
+ 		.name = LM3530_NAME,
++		.of_match_table = lm3530_of_match,
+ 	},
+ };
+ 

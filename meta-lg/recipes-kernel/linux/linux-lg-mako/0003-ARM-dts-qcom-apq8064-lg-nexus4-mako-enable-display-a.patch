@@ -1,0 +1,123 @@
+From: Herman van Hazendonk <github.com@herrie.org>
+Subject: [PATCH] ARM: dts: qcom: apq8064-lg-nexus4-mako: enable display and
+ backlight
+
+Enable MDP, the DSI host and the DSI PHY (vddio-supply) and describe the
+LG LH467WX1-SD01 panel. Supplies and pins are taken from the downstream
+mako kernel: VCI=L8, IOVCC=LVS6, DSI vdda=L2, avdd=L11, vddio=LVS7,
+reset=PM8921 GPIO 42, DSV boost enable=TLMM GPIO 57.
+
+The earlier WIP port used TLMM 54 for reset and LVS7 for IOVCC, and never
+enabled dsi0_phy.
+
+The LM3530 backlight is placed on gsbi1_i2c at 0x38 as in the WIP port. That
+bus is not verified on hardware, and its HWEN pin is left out of the device
+tree. Not tested on hardware.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Pending
+
+diff --git a/arch/arm/boot/dts/qcom/qcom-apq8064-lg-nexus4-mako.dts b/arch/arm/boot/dts/qcom/qcom-apq8064-lg-nexus4-mako.dts
+index fdbbc1389297..5dd779b803d0 100644
+--- a/arch/arm/boot/dts/qcom/qcom-apq8064-lg-nexus4-mako.dts
++++ b/arch/arm/boot/dts/qcom/qcom-apq8064-lg-nexus4-mako.dts
+@@ -23,6 +23,13 @@ chosen {
+ 		stdout-path = "serial2:115200n8";
+ 	};
+ 
++	backlight: backlight {
++		compatible = "led-backlight";
++		leds = <&backlight_led>;
++		brightness-levels = <0 2 6 12 20 30 42 56 70 82 94 104 114>;
++		default-brightness-level = <3>;
++	};
++
+ 	battery_cell: battery-cell {
+ 		compatible = "simple-battery";
+ 		constant-charge-current-max-microamp = <900000>;
+@@ -44,6 +51,47 @@ ramoops@88d00000 {
+ 	};
+ };
+ 
++&dsi0 {
++	vdda-supply = <&pm8921_l2>;	/* VDD_MIPI */
++	avdd-supply = <&pm8921_l11>;
++	vddio-supply = <&pm8921_lvs7>;
++
++	status = "okay";
++
++	panel@0 {
++		reg = <0>;
++		compatible = "lg,lh467wx1-sd01";
++
++		vci-supply = <&pm8921_l8>;
++		iovcc-supply = <&pm8921_lvs6>;
++
++		reset-gpios = <&pm8921_gpio 42 GPIO_ACTIVE_LOW>;
++		dsv-gpios = <&tlmm_pinmux 57 GPIO_ACTIVE_HIGH>;
++		backlight = <&backlight>;
++
++		port {
++			panel_in: endpoint {
++				remote-endpoint = <&dsi0_out>;
++			};
++		};
++	};
++};
++
++&dsi0_in {
++	remote-endpoint = <&mdp_dsi1_out>;
++};
++
++&dsi0_out {
++	remote-endpoint = <&panel_in>;
++	data-lanes = <0 1 2 3>;
++};
++
++&dsi0_phy {
++	vddio-supply = <&pm8921_lvs7>;
++
++	status = "okay";
++};
++
+ &gsbi1 {
+ 	qcom,mode = <GSBI_PROT_I2C>;
+ 
+@@ -54,6 +102,22 @@ &gsbi1_i2c {
+ 	clock-frequency = <200000>;
+ 
+ 	status = "okay";
++
++	/*
++	 * LM3530 backlight controller. The I2C bus (taken from the earlier WIP
++	 * port) and the HWEN pin are not verified on hardware: no enable-gpios
++	 * is given, so the chip is left as the bootloader set it.
++	 */
++	backlight_led: backlight@38 {
++		compatible = "ti,lm3530";
++		reg = <0x38>;
++
++		/* downstream GEN_CONFIG 0x17: manual mode, linear mapping, current code 5 */
++		ti,max-current = <5>;
++		ti,linear-mapping;
++		default-brightness = <16>;
++		max-brightness = <114>;
++	};
+ };
+ 
+ &gsbi4 {
+@@ -66,6 +130,14 @@ &gsbi4_serial {
+ 	status = "okay";
+ };
+ 
++&mdp {
++	status = "okay";
++};
++
++&mdp_dsi1_out {
++	remote-endpoint = <&dsi0_in>;
++};
++
+ &pm8821 {
+ 	interrupts-extended = <&tlmm_pinmux 76 IRQ_TYPE_LEVEL_LOW>;
+ };
