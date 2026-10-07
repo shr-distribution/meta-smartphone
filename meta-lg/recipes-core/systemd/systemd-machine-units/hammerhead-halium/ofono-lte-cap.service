@@ -1,0 +1,13 @@
+[Unit]
+Description=Cap oFono's radio technology preference at LTE
+Documentation=file:///usr/bin/ofono-lte-cap.sh
+Requires=ofono.service
+After=ofono.service
+PartOf=ofono.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/ofono-lte-cap.sh
+
+[Install]
+WantedBy=ofono.service

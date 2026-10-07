@@ -2,7 +2,9 @@
 
 # first, get the bluetooth address if possible
 if [ -e /persist/bluetooth/.bdaddr ] ; then
-	bdaddr=$(hexdump -e  '/1 "%X:"' /persist/bluetooth/.bdaddr)
+	# %02X: a bare %X drops the leading zero of a byte (0e -> E) and hciattach then
+	# rejects the address as "Incorrect bdaddr"
+	bdaddr=$(hexdump -e  '/1 "%02X:"' /persist/bluetooth/.bdaddr)
 else
 	bdaddr=""
 fi
