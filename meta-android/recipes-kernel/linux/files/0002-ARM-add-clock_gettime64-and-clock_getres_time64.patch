@@ -1,0 +1,141 @@
+From: Herman van Hazendonk <github.com@herrie.org>
+Subject: [PATCH] ARM: add clock_gettime64 and clock_getres_time64
+
+A 32-bit userspace built with 64-bit time_t (glibc 2.34 and later, as LuneOS is) calls
+clock_gettime64 first and falls back to clock_gettime only on ENOSYS, without remembering
+the answer. These 3.4 kernels have neither those syscalls nor a vDSO clock on ARM, so every
+time query in every process costs two system calls. WebAppMgr, idle with the UI up, made
+12888 failing clock_gettime64 calls in four seconds on the HP TouchPad and used half a core;
+with this patch it is idle.
+
+Add the two read-only clock calls at their upstream ARM numbers (403 and 406), reading the
+clock as clock_gettime and clock_getres do and copying it out in the 64-bit layout. The
+numbers in between stay sys_ni_syscall. clock_nanosleep_time64 is left out: its remaining-time
+write-back goes through the restart block in the 32-bit layout.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Inappropriate [stopgap on 3.4; mainline has the time64 syscalls since 5.1]
+---
+diff --git a/arch/arm/include/asm/unistd.h b/arch/arm/include/asm/unistd.h
+index 4ee33de56c23..cd4cb5e27314 100644
+--- a/arch/arm/include/asm/unistd.h
++++ b/arch/arm/include/asm/unistd.h
+@@ -408,4 +408,6 @@
+ #define __NR_seccomp			(__NR_SYSCALL_BASE+383)
+ #define __NR_getrandom			(__NR_SYSCALL_BASE+384)
++#define __NR_clock_gettime64		(__NR_SYSCALL_BASE+403)
++#define __NR_clock_getres_time64	(__NR_SYSCALL_BASE+406)
+ 
+ /*
+@@ -424,5 +426,5 @@
+  */
+ #ifdef __KERNEL__
+-#define __NR_syscalls  (388)
++#define __NR_syscalls  (408)
+ #endif
+ 
+diff --git a/arch/arm/kernel/calls.S b/arch/arm/kernel/calls.S
+index 782e2ff87184..4bcb2908368c 100644
+--- a/arch/arm/kernel/calls.S
++++ b/arch/arm/kernel/calls.S
+@@ -395,4 +395,26 @@
+ 		CALL(sys_seccomp)
+ 		CALL(sys_getrandom)
++/* 385 */	CALL(sys_ni_syscall)		/* memfd_create */
++		CALL(sys_ni_syscall)		/* bpf */
++		CALL(sys_ni_syscall)		/* execveat */
++		CALL(sys_ni_syscall)		/* userfaultfd */
++		CALL(sys_ni_syscall)		/* membarrier */
++/* 390 */	CALL(sys_ni_syscall)		/* mlock2 */
++		CALL(sys_ni_syscall)		/* copy_file_range */
++		CALL(sys_ni_syscall)		/* preadv2 */
++		CALL(sys_ni_syscall)		/* pwritev2 */
++		CALL(sys_ni_syscall)		/* pkey_mprotect */
++/* 395 */	CALL(sys_ni_syscall)		/* pkey_alloc */
++		CALL(sys_ni_syscall)		/* pkey_free */
++		CALL(sys_ni_syscall)		/* statx */
++		CALL(sys_ni_syscall)		/* rseq */
++		CALL(sys_ni_syscall)		/* io_pgetevents */
++/* 400 */	CALL(sys_ni_syscall)		/* migrate_pages */
++		CALL(sys_ni_syscall)		/* kexec_file_load */
++		CALL(sys_ni_syscall)
++		CALL(sys_clock_gettime64)
++		CALL(sys_ni_syscall)		/* clock_settime64 */
++/* 405 */	CALL(sys_ni_syscall)		/* clock_adjtime64 */
++		CALL(sys_clock_getres_time64)
+ #ifndef syscalls_counted
+ .equ syscalls_padding, ((NR_syscalls + 3) & ~3) - NR_syscalls
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index 36a8b551a7fb..73e08d556230 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -322,4 +322,9 @@ asmlinkage long sys_clock_adjtime(clockid_t which_clock,
+ asmlinkage long sys_clock_getres(clockid_t which_clock,
+ 				struct timespec __user *tp);
++struct kernel_timespec64;
++asmlinkage long sys_clock_gettime64(clockid_t which_clock,
++				    struct kernel_timespec64 __user *tp);
++asmlinkage long sys_clock_getres_time64(clockid_t which_clock,
++					struct kernel_timespec64 __user *tp);
+ asmlinkage long sys_clock_nanosleep(clockid_t which_clock, int flags,
+ 				const struct timespec __user *rqtp,
+diff --git a/kernel/posix-timers.c b/kernel/posix-timers.c
+index 02824a5c2693..17c229606a20 100644
+--- a/kernel/posix-timers.c
++++ b/kernel/posix-timers.c
+@@ -1030,4 +1030,55 @@ SYSCALL_DEFINE2(clock_getres, const clockid_t, which_clock,
+ }
+ 
++/*
++ * The 64-bit time variants, which a 32-bit userspace built for time64 (glibc 2.34 and later)
++ * calls first. Without them every clock_gettime() costs a failing clock_gettime64 syscall
++ * and then the old one, as this kernel has no vDSO clock on ARM.
++ */
++struct kernel_timespec64 {
++	long long tv_sec;
++	long long tv_nsec;
++};
++
++static int put_timespec64_user(const struct timespec *ts, struct kernel_timespec64 __user *uts)
++{
++	struct kernel_timespec64 t = { .tv_sec = ts->tv_sec, .tv_nsec = ts->tv_nsec };
++
++	return copy_to_user(uts, &t, sizeof(t)) ? -EFAULT : 0;
++}
++
++SYSCALL_DEFINE2(clock_gettime64, const clockid_t, which_clock,
++		struct kernel_timespec64 __user *, tp)
++{
++	struct k_clock *kc = clockid_to_kclock(which_clock);
++	struct timespec kernel_tp;
++	int error;
++
++	if (!kc)
++		return -EINVAL;
++
++	error = kc->clock_get(which_clock, &kernel_tp);
++	if (!error)
++		error = put_timespec64_user(&kernel_tp, tp);
++
++	return error;
++}
++
++SYSCALL_DEFINE2(clock_getres_time64, const clockid_t, which_clock,
++		struct kernel_timespec64 __user *, tp)
++{
++	struct k_clock *kc = clockid_to_kclock(which_clock);
++	struct timespec rtn_tp;
++	int error;
++
++	if (!kc)
++		return -EINVAL;
++
++	error = kc->clock_getres(which_clock, &rtn_tp);
++	if (!error && tp)
++		error = put_timespec64_user(&rtn_tp, tp);
++
++	return error;
++}
++
+ /*
+  * nanosleep for monotonic and realtime clocks
