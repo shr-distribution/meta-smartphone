@@ -1,0 +1,45 @@
+[Unit]
+# SM-T220: without this the Samsung/Huaqin audio HAL never selects its Awinic
+# speaker path and the speakers stay silent (headphones work).
+#
+# libaudio_param_parser-vnd.so's appGetXmlDirFromProperty() builds the audio
+# parameter directory like this:
+#
+#     buf = malloc(512);
+#     ... property_get("ro.omc.build.version", ...) ...
+#     strcat(buf, "/vendor/etc/audio_param_huaqin/NA");     // buf never cleared
+#     property_set("persist.vendor.audio.tuning.def_path", buf);
+#
+# Android's allocator returns zeroed memory for a fresh block, so this works
+# there. Under libhybris the allocator is the host's glibc malloc, which hands
+# back recycled memory, so the path gets a few bytes of stale pointer in front:
+#
+#     "\264\254\213\233U/vendor/etc/audio_param_huaqin/NA/AudioParamOptions.xml"
+#
+# (seen with strace on the PulseAudio process). The HAL then cannot open its
+# AudioParamOptions.xml, treats every feature option as undefined
+# ("MTK_AUDIO_NUMBER_OF_MIC undefined in AudioParamOptions"), and
+# setNonSmartPAType() falls back to speaker type 0. Type 0 only switches the
+# codec's own line-out; the vendor options say MTK_AUDIO_SPEAKER_PATH is
+# int_hp_buf, which is the path that also turns the two Awinic AW87xxx
+# amplifiers (profile "Music") on.
+#
+# The fix is one allocation: malloc(512) becomes calloc(512, 1). A process-wide
+# MALLOC_PERTURB_ is not an option - glibc's thread cache bypasses it, and
+# turning the cache off as well stopped module-droid-card loading at all.
+#
+# Done at runtime on a copy of the device's own library, bind-mounted over the
+# vendor path, so nothing from the vendor partition is redistributed. The
+# script checks every instruction word it changes and skips any other build.
+Description=SM-T220 audio parameter parser fixup (zero-initialised path buffer)
+After=android-system.service
+Wants=android-system.service
+Before=pulseaudio.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/mtk-audio-param-fixup.sh
+
+[Install]
+WantedBy=multi-user.target

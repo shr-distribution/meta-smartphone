@@ -1,0 +1,94 @@
+# Tier 1 adaptation for the Samsung Galaxy Tab A7 Lite Wi-Fi (SM-T220,
+# gta7litewifi, MT8768T). Brought up on the tablet on 4 Oct 2026; every setting
+# below is in use on the working device unless its comment says otherwise.
+#
+# Only what cannot be derived belongs here. What is set is read from the
+# kernel; what is missing is listed below with the reason.
+
+# The panel is 800x1340 (CONFIG_LCM_WIDTH / CONFIG_LCM_HEIGHT) and mounted
+# upright (CONFIG_MTK_LCM_PHYSICAL_ROTATION="0"). Geometry format as radon.
+deviceinfo_compositor_geometry="800x1340+0+0r0s1"
+
+# The HAL set read from the stock vendor (T220XXSAEYE4, /vendor/build.prop):
+#   ro.hardware.hwcomposer=mtk_common   ro.hardware.egl=mtk
+#   ro.board.platform=mt6765            ro.vndk.version=31
+#   ro.product.vendor.device=gta7litewifi (so the codename here is correct)
+
+# Do not let the compositor open the hwcomposer HAL a second time; the Android
+# composer service already has it. mp01 needed this and verified it on hardware
+# (see mp01-deviceinfo), and radon too; this vendor names the identical HAL,
+# ro.hardware.hwcomposer=mtk_common.
+# In use and the compositor runs; not tested without it.
+deviceinfo_force_hwc2="1"
+
+# A 10.1" tablet: the tablet shell and the tablet keyboard layouts. This defaults to
+# false (a phone), and /etc/palm/luna-platform.conf then overrides the TabletUi=true
+# that luna.conf ships, so the on-screen keyboard came up in its phone layout.
+deviceinfo_tablet_ui="true"
+
+# Which GLES driver Android's EGL loader should load. The stock vendor sets
+# ro.hardware.egl=mtk, and /vendor/lib64/egl holds
+#   libEGL_mtk.so (9.9 KB), libGLESv1_CM_mtk.so, libGLESv2_mtk.so,
+#   libGLES_meow.so (2.6 MB), libMEOW_qt.so, libMEOW_trace.so
+# with the PowerVR userspace (libIMGegl.so, libPVROCL.so, ...) in /vendor/lib64.
+# So the GPU is Imagination's, but it sits behind the same MediaTek "meow"
+# wrapper mp01 and radon use for their Mali. Those two set "meow" because
+# libGLES_meow.so is all they have; here the stock choice is "mtk", which is
+# what is set. If surface-manager aborts with "couldn't find an OpenGL ES
+# implementation" (radon-deviceinfo records that failure), try "meow".
+# "mtk" is in use and surface-manager's EGL initialises with it.
+deviceinfo_hardware_egl="mtk"
+
+# The Android 12 vendor's libraries are wanted in preference to the GSI's where
+# both exist. mp01 needed this because its vendor audio HAL links against
+# symbols the Android 16 GSI's libbase no longer exports; this vendor is the
+# same VNDK generation (31, Android 12). Not free - it shadows GSI libraries
+# that may be newer - so drop it if pulseaudio starts cleanly without it.
+# In use, and the vendor audio HAL loads with it; not tested without it.
+deviceinfo_hybris_prefer_vndk="1"
+
+# Physical density, from what the tablet's own HWC reports (dumpsys display:
+# xDpi=189.906, yDpi=197.883, i.e. a 107.0 x 172.0 mm panel, 7.98" diagonal):
+#   sqrt(800^2 + 1340^2) / 7.98 = 195.6 ppi.
+# GridUnit = round(196 * 1.44 / 25.4) = 11, so the 800 px width is 72 grid units.
+# Not Lineage's 213 / ro.sf.lcd_density, which is Android's density bucket (the
+# same caveat radon-deviceinfo records for its 320).
+# TODO(verify): the driver's panel size has not been checked with a ruler.
+deviceinfo_display_dpi="196"
+
+# init_connectivity.rc declares /vendor/bin/stp_dump3 as a "disabled" service that
+# only starts when persist.vendor.connsys.coredump.mode is 1 or 2, but
+# start-android-hals.sh starts every service init left stopped, so it ran
+# regardless: init logged "Processed ctl.start for 'stp_dump' from pid: 0". It is
+# MediaTek's connectivity firmware core-dump collector. It sat at about 93% CPU in
+# top (56 CPU-minutes accumulated in one reading) next to a load average around 26.
+# Nothing on LuneOS reads its dumps, and stopping it was harmless. (It was not what
+# limited an ssh file copy: that stayed under 1 MiB/s with it stopped, the Wi-Fi
+# path being the limit.) prop.halium (see android-system) sets the property to 0
+# as well, which keeps init's own trigger from starting it.
+deviceinfo_android_skip_services="stp_dump"
+
+# The pack's capacity, which the gauge cannot report. Its kernel carries MediaTek's
+# reference capacity table (g_Q_MAX in mtk_battery_table.h, identical to the mt6768
+# platform's) instead of this pack's, so charge_full reads 2946 mAh, charge_full_design
+# a factor of ten below that, and charge_counter is only charge_full times the
+# percentage. The stock gauge profile (battery0_profile_t1..t5 in the stock device
+# tree) spans about 5.06 Ah and the published spec is 5100 mAh. nyx-modules takes
+# these in place of the driver's figures. Both are the rated figure, so a consumer
+# comparing them sees no wear: this gauge does not measure wear, and the device cannot
+# say more than that.
+deviceinfo_battery_full_capacity_mah="5100"
+deviceinfo_battery_design_capacity_mah="5100"
+
+# Deliberately absent, because no value could be read yet:
+#
+#   deviceinfo_device_pixel_ratio
+#       a layout judgement for how many CSS pixels Enyo pages get; it wants to
+#       be set while looking at the shell on this panel, not guessed.
+#
+#   deviceinfo_binder_slots, deviceinfo_binder_radio_interface
+#       the Wi-Fi model has no modem.
+
+# A Wi-Fi-only tablet: no modem, so no IRadio slot. Skips the ofono generator's wait for one,
+# which cost about 35 seconds of every boot before the UI (measured on the SM-T520, 4 Oct 2026).
+deviceinfo_modem="false"

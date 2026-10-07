@@ -1,0 +1,16 @@
+# SM-T220 Android property overrides, bind-mounted over /system/etc/prop.halium
+# (see the prop.halium entry in the android-system lxc-config). Same values
+# FuriOS ships for its MediaTek adaptations.
+
+# disable connsys coredump mode. init_connectivity.rc starts
+# /vendor/bin/stp_dump3 while this is 1 or 2, and on this tablet it sat at about
+# 93% CPU in top (56 CPU-minutes accumulated in one reading), with
+# wmt_dev_tra_poll warnings in dmesg. The same rc stops the service when the value
+# is 0. start-android-hals.sh also starts it, so the adaptation lists it in
+# deviceinfo_android_skip_services as well.
+persist.vendor.connsys.coredump.mode=0
+
+# disable aee core dumps. These are "enable" on this device otherwise, and the
+# MediaTek AEE daemons write crash databases that nothing on LuneOS reads.
+persist.vendor.aeev.core.dump=disable
+persist.vendor.aeev.core.direct=disable
