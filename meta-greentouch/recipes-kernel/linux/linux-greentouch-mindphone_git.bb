@@ -49,7 +49,11 @@ do_configure:prepend() {
     cat ${S}/arch/arm/configs/k39tv1_bsp_1g_defconfig ${UNPACKDIR}/luneos.cfg > ${WORKDIR}/defconfig
 }
 
-SRCREV = "d44077839221ef6caa3a4de9d9d7d10e431e424e"
+# shr-distribution/linux dnim/4.14.186:
+# "fork: CLONE_PIDFD: do not require a zeroed *parent_tidptr" - without it the
+# Sep 25 waitid(P_PIDFD) backport makes Qt's QProcess::startDetached() fail with
+# EINVAL, so the compositor never reports ready and restarts every 90 s.
+SRCREV = "06873421d3907d19e3629f17c81a5fed068c0d42"
 
 KV = "4.14.186"
 PV = "${KV}+git"

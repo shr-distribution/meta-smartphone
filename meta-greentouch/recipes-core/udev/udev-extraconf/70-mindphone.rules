@@ -26,3 +26,17 @@ ACTION=="add", KERNEL=="smd3", OWNER="bluetooth", GROUP="net_bt_stack", MODE="06
 ACTION=="add", KERNEL=="smd2", OWNER="bluetooth", GROUP="net_bt_stack", MODE="0660"
 ACTION=="add", KERNEL=="mdm", OWNER="system", GROUP="radio", MODE="0660"
 ACTION=="add", KERNEL=="i2c-5", OWNER="media", GROUP="media", MODE="0660"
+
+# The volume rocker and power key arrive on mtk-kpd, and the headset button on
+# ACCDET. udev tags both ID_INPUT_KEY only; the compositor is launched with a
+# bare "-plugin evdevkeyboard", which discovers devices through
+# ID_INPUT_KEYBOARD, so without these no hardware key reaches the shell.
+# Was a device-only /etc/udev/rules.d/71-mindphone-keypad.rules until a userdata
+# reflash deleted it (1 Oct 2026).
+ACTION=="add|change", SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="mtk-kpd", ENV{ID_INPUT_KEYBOARD}="1"
+ACTION=="add|change", SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="ACCDET", ENV{ID_INPUT_KEYBOARD}="1"
+
+# WAM runs as wam (group compositor), not in group system, so the generic
+# 65-android.rules ion mode of 0664 leaves it read-only. The vendor ueventd.rc
+# grants 0666. Was device-only 72-mindphone-gpu.rules, lost the same way.
+ACTION=="add", KERNEL=="ion", OWNER="system", GROUP="system", MODE="0666"

@@ -32,3 +32,10 @@ system/bin/storaged
 # flags_health_check exec and an "exited 4 times before boot completed"
 # complaint. Same daemon, same treatment as the MP01.
 system/bin/sdcard
+# The combo-chip firmware dump collector (service stp_dump in init_connectivity.rc runs
+# /vendor/bin/stp_dump3). The vendor build.prop ships persist.vendor.connsys.coredump.mode=2, a debug
+# setting that starts it, and with nothing to hand a dump to it busy-loops on pselect6() for /dev/stpwmt
+# without ever reading it: about 4,700 calls a second, 54,249 s of CPU time in a 54,653 s uptime
+# (2026-10-06), a whole core for the life of the boot. Diagnostics only; nothing in LuneOS consumes them.
+# Same treatment as the MP01.
+vendor/bin/stp_dump3

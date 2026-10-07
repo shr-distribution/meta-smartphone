@@ -11,7 +11,7 @@ SRC_URI:append:mindphone = " file://stubbed-services-mindphone"
 
 # PACKAGE_ARCH is MACHINE_ARCH, so this bumps the revision of the mindphone
 # package alone and leaves every other machine's sstate untouched.
-PR:append:mindphone = ".2"
+PR:append:mindphone = ".3"
 
 do_install:append:mindphone() {
     install -d ${D}${localstatedir}/lib/lxc/android/stubbed-services.d
