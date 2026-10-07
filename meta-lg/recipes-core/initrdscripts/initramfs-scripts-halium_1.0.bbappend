@@ -1,3 +1,4 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-COMPATIBLE_MACHINE:mako = "mako"
+
+COMPATIBLE_MACHINE:mako-halium = "mako-halium"

@@ -1,0 +1,33 @@
+From: Herman van Hazendonk <github.com@herrie.org>
+Subject: [PATCH] ARM: dts: qcom: apq8064-lg-nexus4-mako: enable USB gadget
+
+Enable the first USB controller in peripheral mode, with the PHY supplies
+taken from the downstream mako kernel (msm_otg): HSUSB_3p3 is PM8921 L3 and
+HSUSB_1p8 is L4, the same as on the Nexus 7.
+
+This gives the LuneOS initramfs the USB gadget it uses for USB networking.
+No ID or VBUS extcon is described, so host mode is not available. Not tested
+on hardware.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Pending
+
+diff --git a/arch/arm/boot/dts/qcom/qcom-apq8064-lg-nexus4-mako.dts b/arch/arm/boot/dts/qcom/qcom-apq8064-lg-nexus4-mako.dts
+index 5dd779b803d0..29e52ce56b42 100644
+--- a/arch/arm/boot/dts/qcom/qcom-apq8064-lg-nexus4-mako.dts
++++ b/arch/arm/boot/dts/qcom/qcom-apq8064-lg-nexus4-mako.dts
+@@ -429,3 +429,14 @@ &sdcc1 {
+ 
+ 	status = "okay";
+ };
++
++&usb_hs1_phy {
++	v3p3-supply = <&pm8921_l3>;
++	v1p8-supply = <&pm8921_l4>;
++};
++
++/* No ID/VBUS extcon is described yet, so run as a peripheral only. */
++&usb1 {
++	dr_mode = "peripheral";
++	status = "okay";
++};
