@@ -1,0 +1,8 @@
+# Android services stubbed in the container on the TouchPad (tenderloin-halium, 16.0 GSI); see
+# meta-android's 50-stub-services.
+#
+# lmkd aborts before main(), in the static constructor of libmemevents.so (the eBPF memory-event
+# library), on this 3.4 kernel, and init treats it as critical: "critical process 'lmkd' exited 4 times
+# before boot completed", InitFatalReboot, and the container is gone 30 s after it starts (7 Oct 2026).
+# LuneOS does not use Android's low-memory killer; the host manages memory.
+/system/bin/lmkd

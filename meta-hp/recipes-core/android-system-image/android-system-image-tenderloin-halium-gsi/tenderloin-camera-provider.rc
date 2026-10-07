@@ -1,0 +1,14 @@
+# Camera provider as a service, for the TouchPad's legacy camera HAL (camera.msm8660.so). There is
+# no camera daemon to wait for, unlike camera-provider-wait.sh of the shared set, so the provider is
+# started directly, through camera-provider-start.sh (memory layout and preloads for liboemcamera.so).
+# The file has its own name: android.hardware.camera.provider@2.4-service.rc of the shared set comes first on
+# FILESPATH. The preloaded shim does what it does there (PermissionCache, and the target SDK that lets the
+# Android 16 linker load the HAL's text-relocation blobs).
+service vendor.camera-provider-2-4 /vendor/bin/camera-provider-start.sh
+    interface android.hardware.camera.provider@2.4::ICameraProvider legacy/0
+    class hal
+    user cameraserver
+    group audio camera input drmrpc
+    ioprio rt 4
+    capabilities SYS_NICE
+    writepid /dev/cpuset/camera-daemon/tasks /dev/stune/top-app/tasks
