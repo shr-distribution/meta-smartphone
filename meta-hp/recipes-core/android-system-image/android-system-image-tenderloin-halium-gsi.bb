@@ -47,9 +47,11 @@ SRC_URI += " \
     file://camera-provider-start.sh \
     file://ueventd-msm-camera.rc \
     file://android.hardware.camera.provider@2.4.xml \
+    file://tenderloin-no-installd.rc \
 "
 TENDERLOIN_CAMERA = "camera/tenderloin-camera"
 HALIUM_LEGACY_EXTRA_FILES += " \
+    tenderloin-no-installd.rc:/etc/init/tenderloin-no-installd.rc:644 \
     ${TENDERLOIN_CAMERA}/bin/hw/android.hardware.camera.provider@2.4-service:/bin/hw/android.hardware.camera.provider@2.4-service:755 \
     tenderloin-camera-provider.rc:/etc/init/android.hardware.camera.provider@2.4-service.rc:644 \
     camera-provider-start.sh:/bin/camera-provider-start.sh:755 \
