@@ -1,0 +1,9 @@
+# Container services stubbed out on the Zinwa Q25 (vendor codename "Q25"), replaced by a stub that sleeps
+# (see lxc's pre-start.d/50-stub-services), so init sees them running.
+#
+# The combo-chip firmware dump collector (service stp_dump in init_connectivity.rc runs
+# /vendor/bin/stp_dump3), started by persist.vendor.connsys.coredump.mode 1 or 2. With nothing to hand a
+# dump to it busy-loops on pselect6() for /dev/stpwmt without ever reading it: about 11,500 calls a
+# second, 65,756 s of CPU time in a 3.9 day uptime (2026-10-06). Diagnostics only; nothing in LuneOS
+# consumes them. Same treatment as the MP01 and the mindphone.
+vendor/bin/stp_dump3
