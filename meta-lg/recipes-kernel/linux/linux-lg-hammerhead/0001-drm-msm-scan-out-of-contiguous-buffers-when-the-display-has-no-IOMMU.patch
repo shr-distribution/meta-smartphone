@@ -1,0 +1,334 @@
+From: Herman van Hazendonk <github.com@herrie.org>
+Subject: [PATCH] drm/msm: scan out of contiguous buffers when the display has no IOMMU
+
+"drm/msm: Remove vram carveout support" (eab7766c79fd) took away the only way
+the MSM8974 display ever worked: the display controller's IOMMU is not
+something the kernel can make translate on that SoC (the stream-to-context
+mapping is owned by TrustZone and the context banks the display could be
+routed to cannot be programmed from the non-secure side), so msm_kms_init_vm()
+fails with "no IOMMU, bailing out" and, if the IOMMU is described anyway, the
+controller bypasses it and scans out physical memory at the address the driver
+believes is an IOMMU address. On a Nexus 5 that showed the start of the kernel
+image as noise on the panel.
+
+Run the display without an address space instead, like the carveout did, but
+with memory from the DMA API (CMA) rather than a module-parameter sized
+carveout:
+
+ - mdp5 accepts "no IOMMU" and leaves kms->vm NULL
+ - with no kms->vm, scanout buffers (and the DSI command buffer) are created
+   MSM_BO_CONTIGUOUS: private GEM objects whose pages come from
+   dma_alloc_pages(), so they are physically contiguous and have no shmem
+   backing
+ - msm_gem_get_and_pin_iova_range() and msm_gem_unpin_iova() accept a NULL
+   vm and then hand out / release the bus address of such a buffer
+ - the shrinker never evicts or purges them: freeing their pages would lose
+   the contents
+
+Only mdp5 SoCs whose DT describes no usable display IOMMU are affected.
+
+Not tested on hardware yet.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Pending
+
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
+index 3934cd060b27..30b7439c50c0 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
+@@ -538,7 +538,14 @@ static int mdp5_kms_init(struct drm_device *dev)
+ 	mdelay(16);
+ 
+ 	vm = msm_kms_init_vm(mdp5_kms->dev, pdev->dev.parent);
+-	if (IS_ERR(vm)) {
++	if (vm == ERR_PTR(-ENODEV)) {
++		/*
++		 * No (usable) IOMMU for the display, as on the MSM8974: scan
++		 * out of physically contiguous buffers by bus address.
++		 */
++		DRM_DEV_INFO(&pdev->dev, "no IOMMU, using contiguous scanout buffers\n");
++		vm = NULL;
++	} else if (IS_ERR(vm)) {
+ 		ret = PTR_ERR(vm);
+ 		return ret;
+ 	}
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
+index b292dfd266d1..019e0e74bf28 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_host.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
+@@ -1246,7 +1246,8 @@ int dsi_tx_buf_alloc_6g(struct msm_dsi_host *msm_host, int size)
+ 	uint64_t iova;
+ 	u8 *data;
+ 
+-	msm_host->vm = drm_gpuvm_get(priv->kms->vm);
++	/* No display address space: the buffer is contiguous, by bus address */
++	msm_host->vm = priv->kms->vm ? drm_gpuvm_get(priv->kms->vm) : NULL;
+ 
+ 	data = msm_gem_kernel_new(dev, size, MSM_BO_WC,
+ 					msm_host->vm,
+diff --git a/drivers/gpu/drm/msm/msm_gem.c b/drivers/gpu/drm/msm/msm_gem.c
+index c4cff3d53d81..7e7a65e4ee2b 100644
+--- a/drivers/gpu/drm/msm/msm_gem.c
++++ b/drivers/gpu/drm/msm/msm_gem.c
+@@ -105,6 +105,12 @@ void msm_gem_vma_put(struct drm_gem_object *obj)
+ 	if (!priv->kms)
+ 		return;
+ 
++#ifdef CONFIG_DRM_MSM_KMS
++	/* no address space, nothing was mapped */
++	if (!priv->kms->vm)
++		return;
++#endif
++
+ #ifdef CONFIG_DRM_MSM_KMS
+ 	struct drm_exec exec;
+ 
+@@ -196,12 +202,39 @@ static struct page **get_pages(struct drm_gem_object *obj)
+ 		struct page **p;
+ 		size_t npages = obj->size >> PAGE_SHIFT;
+ 
+-		p = drm_gem_get_pages(obj);
++		if (msm_obj->flags & MSM_BO_CONTIGUOUS) {
++			struct page *page;
++			size_t i;
++
++			page = dma_alloc_pages(dev->dev, obj->size,
++					       &msm_obj->dma_addr,
++					       DMA_BIDIRECTIONAL,
++					       GFP_KERNEL | __GFP_ZERO);
++			if (!page) {
++				DRM_DEV_ERROR(dev->dev,
++					      "could not allocate %zu contiguous bytes\n",
++					      obj->size);
++				return ERR_PTR(-ENOMEM);
++			}
++
++			p = kvmalloc_array(npages, sizeof(*p), GFP_KERNEL);
++			if (!p) {
++				dma_free_pages(dev->dev, obj->size, page,
++					       msm_obj->dma_addr,
++					       DMA_BIDIRECTIONAL);
++				return ERR_PTR(-ENOMEM);
++			}
++
++			for (i = 0; i < npages; i++)
++				p[i] = page + i;
++		} else {
++			p = drm_gem_get_pages(obj);
+ 
+-		if (IS_ERR(p)) {
+-			DRM_DEV_ERROR(dev->dev, "could not get pages: %ld\n",
+-					PTR_ERR(p));
+-			return p;
++			if (IS_ERR(p)) {
++				DRM_DEV_ERROR(dev->dev, "could not get pages: %ld\n",
++						PTR_ERR(p));
++				return p;
++			}
+ 		}
+ 
+ 		update_device_mem(dev->dev_private, obj->size);
+@@ -256,7 +289,13 @@ static void put_pages(struct drm_gem_object *obj)
+ 
+ 		update_device_mem(obj->dev->dev_private, -obj->size);
+ 
+-		drm_gem_put_pages(obj, msm_obj->pages, true, false);
++		if (msm_obj->flags & MSM_BO_CONTIGUOUS) {
++			dma_free_pages(obj->dev->dev, obj->size, msm_obj->pages[0],
++				       msm_obj->dma_addr, DMA_BIDIRECTIONAL);
++			kvfree(msm_obj->pages);
++		} else {
++			drm_gem_put_pages(obj, msm_obj->pages, true, false);
++		}
+ 
+ 		msm_obj->pages = NULL;
+ 		update_lru(obj);
+@@ -549,6 +588,32 @@ static int get_and_pin_iova_range_locked(struct drm_gem_object *obj,
+ 	return ret;
+ }
+ 
++/*
++ * With no address space (the display has no usable IOMMU, as on the MSM8974)
++ * the display controller reads from bus addresses, so the "iova" is the bus
++ * address of a physically contiguous buffer, and pinning is just pinning the
++ * pages.
++ */
++static int get_and_pin_phys(struct drm_gem_object *obj, uint64_t *iova)
++{
++	struct msm_gem_object *msm_obj = to_msm_bo(obj);
++	struct page **pages;
++	int ret = 0;
++
++	if (!(msm_obj->flags & MSM_BO_CONTIGUOUS))
++		return -EINVAL;
++
++	msm_gem_lock(obj);
++	pages = msm_gem_pin_pages_locked(obj);
++	if (IS_ERR(pages))
++		ret = PTR_ERR(pages);
++	else
++		*iova = msm_obj->dma_addr;
++	msm_gem_unlock(obj);
++
++	return ret;
++}
++
+ /*
+  * get iova and pin it. Should have a matching put
+  * limits iova to specified range (in pages)
+@@ -560,6 +625,9 @@ int msm_gem_get_and_pin_iova_range(struct drm_gem_object *obj,
+ 	struct drm_exec exec;
+ 	int ret;
+ 
++	if (!vm)
++		return get_and_pin_phys(obj, iova);
++
+ 	msm_gem_lock_vm_and_obj(&exec, obj, vm);
+ 	ret = get_and_pin_iova_range_locked(obj, vm, iova, range_start, range_end);
+ 	drm_exec_fini(&exec);     /* drop locks */
+@@ -663,6 +731,15 @@ void msm_gem_unpin_iova(struct drm_gem_object *obj, struct drm_gpuvm *vm)
+ 	struct drm_gpuva *vma;
+ 	struct drm_exec exec;
+ 
++	if (!vm) {
++		if (to_msm_bo(obj)->flags & MSM_BO_CONTIGUOUS) {
++			msm_gem_lock(obj);
++			msm_gem_unpin_pages_locked(obj);
++			msm_gem_unlock(obj);
++		}
++		return;
++	}
++
+ 	msm_gem_lock_vm_and_obj(&exec, obj, vm);
+ 	vma = lookup_vma(obj, vm);
+ 	if (vma) {
+@@ -1254,6 +1331,18 @@ static int msm_gem_init_bookkeeping(struct drm_gem_object *obj)
+ 	return drm_gem_create_mmap_offset(obj);
+ }
+ 
++/* True when the display has no address space and so needs contiguous buffers */
++static bool msm_gem_no_kms_vm(struct drm_device *dev)
++{
++#ifdef CONFIG_DRM_MSM_KMS
++	struct msm_drm_private *priv = dev->dev_private;
++
++	return priv->kms && !priv->kms->vm;
++#else
++	return false;
++#endif
++}
++
+ struct drm_gem_object *
+ msm_gem_new(struct drm_device *dev, size_t size, uint32_t flags,
+ 	    struct drm_gem_object *r_obj)
+@@ -1269,6 +1358,13 @@ msm_gem_new(struct drm_device *dev, size_t size, uint32_t flags,
+ 	if (size == 0)
+ 		return ERR_PTR(-EINVAL);
+ 
++	/*
++	 * No display address space: whatever the display controller scans out
++	 * has to be physically contiguous.
++	 */
++	if ((flags & MSM_BO_SCANOUT) && msm_gem_no_kms_vm(dev))
++		flags |= MSM_BO_CONTIGUOUS;
++
+ 	ret = msm_gem_new_impl(dev, flags, &obj);
+ 	if (ret)
+ 		return ERR_PTR(ret);
+@@ -1278,16 +1374,21 @@ msm_gem_new(struct drm_device *dev, size_t size, uint32_t flags,
+ 		obj->resv = r_obj->resv;
+ 	}
+ 
+-	ret = drm_gem_object_init(dev, obj, size);
+-	if (ret)
+-		goto fail;
+-	/*
+-	 * Our buffers are kept pinned, so allocating them from the
+-	 * MOVABLE zone is a really bad idea, and conflicts with CMA.
+-	 * See comments above new_inode() why this is required _and_
+-	 * expected if you're going to pin these pages.
+-	 */
+-	mapping_set_gfp_mask(obj->filp->f_mapping, GFP_HIGHUSER);
++	if (flags & MSM_BO_CONTIGUOUS) {
++		/* no shmem backing, the pages come from the DMA API */
++		drm_gem_private_object_init(dev, obj, size);
++	} else {
++		ret = drm_gem_object_init(dev, obj, size);
++		if (ret)
++			goto fail;
++		/*
++		 * Our buffers are kept pinned, so allocating them from the
++		 * MOVABLE zone is a really bad idea, and conflicts with CMA.
++		 * See comments above new_inode() why this is required _and_
++		 * expected if you're going to pin these pages.
++		 */
++		mapping_set_gfp_mask(obj->filp->f_mapping, GFP_HIGHUSER);
++	}
+ 
+ 	ret = msm_gem_init_bookkeeping(obj);
+ 	if (ret)
+@@ -1357,9 +1458,15 @@ void *msm_gem_kernel_new(struct drm_device *dev, size_t size, uint32_t flags,
+ 			 uint64_t *iova)
+ {
+ 	void *vaddr;
+-	struct drm_gem_object *obj = msm_gem_new(dev, size, flags, NULL);
++	struct drm_gem_object *obj;
+ 	int ret;
+ 
++	/* A buffer for the display, with no address space to map it into */
++	if (!vm && msm_gem_no_kms_vm(dev))
++		flags |= MSM_BO_CONTIGUOUS;
++
++	obj = msm_gem_new(dev, size, flags, NULL);
++
+ 	if (IS_ERR(obj))
+ 		return ERR_CAST(obj);
+ 
+diff --git a/drivers/gpu/drm/msm/msm_gem.h b/drivers/gpu/drm/msm/msm_gem.h
+index 7c6a8c01f910..afb58cbcf6cf 100644
+--- a/drivers/gpu/drm/msm/msm_gem.h
++++ b/drivers/gpu/drm/msm/msm_gem.h
+@@ -23,6 +23,7 @@
+ /* Additional internal-use only BO flags: */
+ #define MSM_BO_STOLEN        0x10000000    /* try to use stolen/splash memory */
+ #define MSM_BO_MAP_PRIV      0x20000000    /* use IOMMU_PRIV when mapping */
++#define MSM_BO_CONTIGUOUS    0x40000000    /* physically contiguous (CMA), no shmem */
+ 
+ /**
+  * struct msm_gem_vm_log_entry - An entry in the VM log
+@@ -222,6 +223,12 @@ struct msm_gem_object {
+ 	struct sg_table *sgt;
+ 	void *vaddr;
+ 
++	/**
++	 * Bus address of a MSM_BO_CONTIGUOUS buffer; used as the "iova" when
++	 * the display has no address space (see msm_gem_get_and_pin_iova_range())
++	 */
++	dma_addr_t dma_addr;
++
+ 	char name[32]; /* Identifier to print for the debugfs files */
+ 
+ 	/* userspace metadata backchannel */
+@@ -407,8 +414,10 @@ static inline bool is_unpurgeable(struct msm_gem_object *msm_obj)
+ 
+ static inline bool is_purgeable(struct msm_gem_object *msm_obj)
+ {
++	/* contiguous buffers have no shmem backing to truncate */
+ 	return (msm_obj->madv == MSM_MADV_DONTNEED) && msm_obj->sgt &&
+-			!is_unpurgeable(msm_obj);
++			!is_unpurgeable(msm_obj) &&
++			!(msm_obj->flags & MSM_BO_CONTIGUOUS);
+ }
+ 
+ static inline bool is_vunmapable(struct msm_gem_object *msm_obj)
+@@ -419,7 +428,9 @@ static inline bool is_vunmapable(struct msm_gem_object *msm_obj)
+ 
+ static inline bool is_unevictable(struct msm_gem_object *msm_obj)
+ {
+-	return is_unpurgeable(msm_obj) || msm_obj->vaddr;
++	/* freeing the pages of a contiguous buffer would lose its contents */
++	return is_unpurgeable(msm_obj) || msm_obj->vaddr ||
++		(msm_obj->flags & MSM_BO_CONTIGUOUS);
+ }
+ 
+ void msm_gem_purge(struct drm_gem_object *obj);
