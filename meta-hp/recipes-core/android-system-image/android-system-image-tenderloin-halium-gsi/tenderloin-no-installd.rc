@@ -1,0 +1,5 @@
+# Android's /data on the TouchPad is a directory on the webOS media partition, which is FAT. installd
+# cannot chown its directories there ("Failed to setup misc for user 0") and exits, and init restarted
+# it every few seconds. Nothing in Halium installs packages, so leave it stopped once it has failed.
+on property:init.svc.installd=restarting
+    stop installd
