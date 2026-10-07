@@ -135,7 +135,7 @@ deviceinfo_bluebinder_ext_features_page_2_mask="0x0400000000000000"
 # MEASURED on this device, from the driver's own trace:
 #
 #     Answer (green)    scancode 0x06 -> keycode 231  KEY_SEND       -> Qt::Key_Call
-#     BlackBerry logo   scancode 0x11 -> keycode 580  KEY_APPSELECT  -> Qt::Key_Menu
+#     BlackBerry logo   scancode 0x11 -> keycode 29   KEY_LEFTCTRL   -> a modifier
 #     Back              scancode 0x07 -> keycode 158  KEY_BACK       -> Qt::Key_Back
 #     Hangup (red)      scancode 0x12 -> keycode 172  KEY_HOMEPAGE   -> Qt::Key_HomePage
 #     Mute (mtk-kpd)    keycode 113   KEY_MUTE                       -> Qt::Key_VolumeMute
@@ -143,10 +143,24 @@ deviceinfo_bluebinder_ext_features_page_2_mask="0x0400000000000000"
 # Only the red key needs saying. bbqX0kbd's keycode table came from a Solder
 # Party BBQ20 Pmod, so on this phone the *hangup* key announces itself as
 # KEY_HOMEPAGE - and the shell's default, reading that at face value, would open
-# the launcher with the key that should end a call. The other four already land
-# on the right action by default: Key_Call answers, Key_Menu opens the launcher
-# (the BlackBerry logo key is the menu key), Key_Back is left to the focused
+# the launcher with the key that should end a call. The other three land on the
+# right action by default: Key_Call answers, Key_Back is left to the focused
 # application, and Key_VolumeMute mutes.
+#
+# The BlackBerry logo key is no longer one of them. It measured as KEY_APPSELECT
+# (580 -> Qt::Key_Menu, the shell's launcher key) until
+# 0003-bbqX0kbd-blackberry-key-as-ctrl.patch gave it to KEY_LEFTCTRL, because
+# this keyboard advertises no Ctrl at all and Alt and Sym are both spent on the
+# printed symbol layers - so without it no Ctrl+C can be typed on the device.
+#
+# That leaves this phone with no launcher key, and it is worth being explicit
+# about why rather than looking like an oversight. The patch reasoned the key
+# could be given up because the shell maps Key_Menu and Key_HomePage to the same
+# action, which is true of HardwareKeys.qml's defaults - but not here, where the
+# override below spends Key_HomePage on hangup. The launcher is a tap away, and
+# Ctrl is not obtainable any other way, so this is the better trade; if the key
+# is ever wanted back, _onKey() already receives nativeModifiers, so a
+# modifier-qualified entry in this list would be the place for it.
 #
 # call.hangup ends a call when there is one and otherwise sleeps and locks the
 # phone, which is what the End key did on BlackBerry OS.
