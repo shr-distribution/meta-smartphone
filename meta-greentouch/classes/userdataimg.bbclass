@@ -19,6 +19,14 @@ do_image_userdataimg[depends] += "e2fsprogs-native:do_populate_sysroot"
 
 USERDATA_IMAGE_SLACK ?= "128"
 
+# Extra ext4 features for mke2fs to clear (or set), comma separated and merged into
+# the one -O argument, e.g. "^64bit,^metadata_csum,^metadata_csum_seed,^orphan_file".
+# The default mke2fs.conf of a current e2fsprogs turns those four on, and a kernel
+# older than 3.18 (the SM-T520's 3.4) cannot mount them: the initramfs finds the
+# partition and then fails to read it. Empty by default, so machines on newer
+# kernels are unchanged.
+USERDATA_IMAGE_FEATURES ?= ""
+
 IMAGE_CMD:userdataimg () {
     staging="${WORKDIR}/userdata-staging"
     target="${IMGDEPLOYDIR}/${IMAGE_NAME}.userdataimg"
@@ -43,7 +51,11 @@ IMAGE_CMD:userdataimg () {
     size_mb=`expr $rootfs_mb + ${USERDATA_IMAGE_SLACK}`
 
     rm -f $target
-    mke2fs -q -t ext4 -L userdata -b 4096 -O ^has_journal \
+    features="^has_journal"
+    if [ -n "${USERDATA_IMAGE_FEATURES}" ] ; then
+        features="$features,${USERDATA_IMAGE_FEATURES}"
+    fi
+    mke2fs -q -t ext4 -L userdata -b 4096 -O "$features" \
         -d $staging $target "$size_mb"M
 
     # mke2fs -d keeps the build user's ownership; root is the only user the
