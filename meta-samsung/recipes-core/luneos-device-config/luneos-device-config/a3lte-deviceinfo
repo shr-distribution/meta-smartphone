@@ -1,0 +1,30 @@
+# Tier 1 adaptation for the Samsung Galaxy A3 (2015) on Halium (machine a3-2015-halium: the
+# LineageOS 18.1 vendor of vlw's a3lte trees with the 16.0 GSI). Nothing here has been run on
+# hardware.
+#
+# The directory name is the codename luneos-device-config reads from ro.product.vendor.device. The
+# vendor build.prop of that build says a3lte (and SM-A300F) on every model: LineageOS sets the
+# per-model values (a3ulte, SM-A300FU, ...) from ro.bootloader in libinit_a3, which is linked into
+# its own /system/bin/init and so does not run under the GSI.
+#
+# The mainline machine a3-2015 has its own adaptation (a3u-eur, from the device tree compatible);
+# this one is only for the Halium build.
+
+# Physical density of the 4.5" 540x960 panel, as in a3-2015.conf (MACHINE_DISPLAY_PPI).
+deviceinfo_display_dpi="245"
+
+# The GPU is an Adreno 306; the vendor build.prop sets ro.hardware.egl=adreno, and this is the
+# host-side setting.
+deviceinfo_hardware_egl="adreno"
+
+# Do not let the compositor open the hwcomposer HAL a second time; the Android composer service in the
+# container (android.hardware.graphics.composer@2.1-service, over the MSM8916 HWC 1.x module) already
+# has it. The SM-T520, whose Android 11 vendor has the same arrangement, aborted in surface-manager
+# without this.
+# UNVERIFIED on this phone.
+deviceinfo_force_hwc2="1"
+
+# The container's Android Wi-Fi HAL (vendor.wifi_hal_legacy, android.hardware.wifi@1.0-service.legacy
+# in this vendor) starts the vendor wpa_supplicant, which takes wlan0 away from the host's
+# wpa_supplicant that connman talks to (found on the SM-T520). LuneOS drives Wi-Fi from the host.
+deviceinfo_android_skip_services="vendor.wifi_hal_legacy"
