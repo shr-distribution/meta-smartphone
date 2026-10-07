@@ -1,0 +1,31 @@
+From: Herman van Hazendonk <github.com@herrie.org>
+Date: Mon, 5 Oct 2026 14:40:00 +0200
+Subject: [PATCH] PreferencesModel: the SM-T520 cameras are mounted upright
+
+The fallback mounting rotation for a board whose device tree declares none is 270 on any tablet UI, a value
+measured on the PineTab 2. The Galaxy Tab Pro 10.1 (SM-T520, Exynos 5420) has no device tree for its
+cameras (they sit behind Samsung's HAL1 camera driver), so it takes the fallback, and with 270 the back
+camera's viewfinder is a quarter turn off and the front one a quarter turn off the other way. Measured on
+the tablet in landscape: 0 for the back camera is upright, 180 for the front camera is upside down, so the
+front is 0 as well.
+
+This is a device-specific value, applied only to the SM-T520 build of the app (meta-samsung bbappend).
+Reading the mounting angle from the Android camera info (droidmedia's CameraInfo orientation) would make
+it unnecessary.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Inappropriate [device specific]
+---
+--- a/qml/PreferencesModel.qml	2026-10-05 14:13:10.405974244 +0200
++++ b/qml/PreferencesModel.qml	2026-10-05 14:13:10.408823697 +0200
+@@ -38,8 +38,8 @@
+     // along the long edge for landscape use, a quarter turn away, hence 270
+     // (90 showed the image upside down). Once measured and added to the PT2 DT
+     // these fallbacks can go.
+-    property int backSensorRotation: Settings.tabletUi ? 270 : 0
+-    property int frontSensorRotation: Settings.tabletUi ? 270 : 0
++    property int backSensorRotation: 0
++    property int frontSensorRotation: 0
+ 
+     property ResolutionsListModel photoResolutionOptionsModel: ResolutionsListModel {}
+     property ResolutionsListModel videoResolutionOptionsModel: ResolutionsListModel {}

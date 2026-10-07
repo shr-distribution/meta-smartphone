@@ -1,0 +1,13 @@
+[Unit]
+Description=Drop the boot-time CPU frequency floor once the UI is up
+After=lsm-ready.target
+Wants=lsm-ready.target
+ConditionPathExists=/sys/power/cpufreq_min_limit
+
+[Service]
+Type=oneshot
+# Anything at or below the slowest frequency releases the request.
+ExecStart=/bin/sh -c 'echo -1 > /sys/power/cpufreq_min_limit'
+
+[Install]
+WantedBy=lsm-ready.target

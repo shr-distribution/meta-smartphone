@@ -18,10 +18,13 @@
 # so "gta7litewifi" is the first property it reads and resolves directly.
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SRC_URI += "file://gta7litewifi-deviceinfo"
+SRC_URI += "file://gta7litewifi-deviceinfo file://n2awifi-deviceinfo"
 
 do_install:append() {
     install -d ${D}${datadir}/luneos/adaptations/gta7litewifi
     install -m 0644 ${UNPACKDIR}/gta7litewifi-deviceinfo \
         ${D}${datadir}/luneos/adaptations/gta7litewifi/deviceinfo
+    install -d ${D}${datadir}/luneos/adaptations/n2awifi
+    install -m 0644 ${UNPACKDIR}/n2awifi-deviceinfo \
+        ${D}${datadir}/luneos/adaptations/n2awifi/deviceinfo
 }

@@ -1,0 +1,4 @@
+# SM-T520: when the Bluetooth controller is powered on through rfkill, attach it again (see
+# bcm-hciattach.sh: the chip loses its firmware and UART speed whenever it is powered off). "start", not
+# "restart": one unblock sends several events, and a restart would kill the attach that is running.
+ACTION=="change", SUBSYSTEM=="rfkill", ATTR{type}=="bluetooth", ATTR{name}=="bcm4339 Bluetooth", ATTR{state}=="1", RUN+="/usr/bin/systemctl --no-block start bcm-hciattach-resume.service"

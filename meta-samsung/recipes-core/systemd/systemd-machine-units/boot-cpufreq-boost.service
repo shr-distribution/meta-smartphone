@@ -1,0 +1,16 @@
+[Unit]
+Description=Hold the CPUs at their top frequency while the system boots
+DefaultDependencies=no
+Before=sysinit.target
+Conflicts=shutdown.target
+ConditionPathExists=/sys/power/cpufreq_min_limit
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# The Exynos cpufreq driver's own boost interface: a PM QoS minimum-frequency request,
+# clamped to the fastest cluster's top speed. The governor keeps running.
+ExecStart=/bin/sh -c 'echo 1900000 > /sys/power/cpufreq_min_limit'
+
+[Install]
+WantedBy=sysinit.target

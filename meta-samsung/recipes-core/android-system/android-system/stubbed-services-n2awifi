@@ -1,0 +1,20 @@
+# Vendor services of the SM-T520 (n2awifi) that only crash-loop here and keep the container's init busy.
+# Replaced by a stub that sleeps (see lxc's pre-start.d/50-stub-services), so init sees them running.
+#
+# gpsd: the Wi-Fi tablet has no GPS, and the binary cannot even link on the 16.0 GSI (it needs
+# android::Singleton<SensorManager>::sLock from the Android 11 libsensor; LineageOS adds a
+# libshim_dmitry_gps.so for that).
+/vendor/bin/gpsd
+# The livedisplay HAL: its interface is in no VINTF manifest, so it exits at start-up and init restarts it
+# every five seconds.
+/vendor/bin/hw/vendor.lineage.livedisplay@2.0-service.samsung-exynos
+# The touch HAL (Lineage's key disabler): its interface is not in the VINTF manifest either, so it logs
+# "must be in VINTF manifest in order to register" and exits.
+/vendor/bin/hw/vendor.lineage.touch@1.0-service.samsung
+# The Android Wi-Fi HAL and the vendor wpa_supplicant it starts. LuneOS drives Wi-Fi from the host (connman and
+# the host's wpa_supplicant); the vendor supplicant takes wlan0 away from it, so networks are listed but never
+# joined. deviceinfo_android_skip_services only keeps start-android-hals.sh from starting them: the container's
+# own init starts both anyway. A bring-up unit used to stop them with lxc-attach every five seconds for the first
+# 400 s of every boot, which kept the one online CPU busy; stubbing them stops that.
+/vendor/bin/hw/android.hardware.wifi@1.0-service.legacy
+/vendor/bin/hw/wpa_supplicant
