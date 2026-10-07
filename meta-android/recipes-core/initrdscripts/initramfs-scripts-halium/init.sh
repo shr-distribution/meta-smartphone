@@ -365,6 +365,39 @@ mknod_partname() {
     return 1
 }
 
+# Where the two dumpers write: "<node> <offset in MiB>".
+#
+# By default each gets a partition of its own, init_boot_a for the failure dump
+# and init_boot_b for the progress log, which is what the MT6789 has spare.
+# A device without init_boot names one spare partition on the command line
+# instead, initrd_log_part=<partname>, and the two share it: progress at 0 MiB,
+# the failure dump at 64 MiB, so they still never overwrite each other. The
+# partition's previous contents are destroyed, so name one nothing boots from
+# (on the Titan Pocket: cache, which LuneOS bind-mounts over from userdata).
+#
+# Usage: log_target fail|progress
+log_target() {
+    _lt_part=$(sed -n 's/.*initrd_log_part=\([^ ]*\).*/\1/p' /proc/cmdline 2>/dev/null)
+    if [ -n "$_lt_part" ]; then
+        _lt_node=$(mknod_partname "$_lt_part" /dev/log-$1) || return 1
+        case "$1" in fail) echo "$_lt_node 64" ;; *) echo "$_lt_node 0" ;; esac
+        return 0
+    fi
+    case "$1" in
+        fail) _lt_node=$(mknod_partname init_boot_a /dev/faillog) \
+                  || _lt_node=$(mknod_partname init_boot_b /dev/faillog) ;;
+        *)    _lt_node=$(mknod_partname init_boot_b /dev/progresslog) ;;
+    esac
+    [ -n "$_lt_node" ] && echo "$_lt_node 0"
+}
+
+# Write stdin to $1 at offset $2 MiB without truncating the rest. A shorter
+# record leaves the tail of a longer earlier one behind it; "=== END ===" marks
+# where the current one stops.
+write_log_at() {
+    dd of="$1" bs=1M seek="$2" conv=notrunc 2>/dev/null
+}
+
 # Dump the kernel log to a spare partition PERIODICALLY, in the background.
 #
 # dump_fail_to_part() below only fires from panic(), so it records a failure and
@@ -383,12 +416,27 @@ mknod_partname() {
 # the two writers can never interleave, and a panic still gets the richer record.
 start_progress_dumper() {
     grep -q initrd_log_fail /proc/cmdline 2>/dev/null || return 0
+    # Called twice: early for a device that names initrd_log_part (built-in
+    # storage, present before any module loads) and again after mdev. Once
+    # running, the second call has nothing to do.
+    [ -e /dev/.progress-dumper ] && return 0
 
-    _pd_node=$(mknod_partname init_boot_b /dev/progresslog) || {
-        tell_kmsg "PROGRESS: no init_boot_b to write to"
-        return 1
-    }
-    tell_kmsg "PROGRESS: dumping every 3s to $_pd_node"
+    # Built-in storage can still be finishing its probe this early; give the
+    # partition up to 10 s to appear before giving up.
+    _pd_i=0
+    until _pd_target=$(log_target progress); do
+        _pd_i=$((_pd_i + 1))
+        [ $_pd_i -lt 50 ] || {
+            tell_kmsg "PROGRESS: no partition to write to"
+            return 1
+        }
+        usleep 200000
+    done
+    : > /dev/.progress-dumper
+    set -- $_pd_target
+    _pd_node=$1
+    _pd_off=$2
+    tell_kmsg "PROGRESS: dumping every 3s to $_pd_node at ${_pd_off} MiB"
     (
         _pd_n=0
         while [ $_pd_n -lt 200 ] && [ ! -e /run/initrd-stage-done ]; do
@@ -402,7 +450,7 @@ start_progress_dumper() {
                 echo "--- dmesg ---"
                 dmesg 2>/dev/null
                 echo "=== END ==="
-            } > "$_pd_node" 2>/dev/null
+            } 2>/dev/null | write_log_at "$_pd_node" "$_pd_off"
             sync
             _pd_n=$((_pd_n + 1))
             sleep 3
@@ -423,13 +471,15 @@ stage() {
 dump_fail_to_part() {
     grep -q initrd_log_fail /proc/cmdline 2>/dev/null || return 0
 
-    dump_target=$(mknod_partname init_boot_a /dev/faillog) \
-        || dump_target=$(mknod_partname init_boot_b /dev/faillog)
-    if [ -z "$dump_target" ]; then
-        tell_kmsg "FAILLOG: no init_boot partition to write to"
+    _df_target=$(log_target fail)
+    if [ -z "$_df_target" ]; then
+        tell_kmsg "FAILLOG: no partition to write to"
         return 1
     fi
-    tell_kmsg "FAILLOG: writing to $dump_target"
+    set -- "$1" $_df_target
+    dump_target=$2
+    dump_off=$3
+    tell_kmsg "FAILLOG: writing to $dump_target at ${dump_off} MiB"
 
     {
         echo "=== LUNEOS INITRAMFS FAILURE LOG ==="
@@ -463,7 +513,7 @@ dump_fail_to_part() {
         echo "--- dmesg ---"
         dmesg 2>/dev/null
         echo "=== END ==="
-    } > "$dump_target" 2>/dev/null
+    } 2>/dev/null | write_log_at "$dump_target" "$dump_off"
     sync
     tell_kmsg "FAILLOG: written to $dump_target"
 }
@@ -549,6 +599,17 @@ panic() {
     start_debug_network
 
     /bin/sh
+
+    # With no console attached the shell above reads EOF and returns at once.
+    # Halium's callers then carry on, init eventually exits, the kernel panics
+    # and the device reboots - a loop that throws away the gadget and keeps
+    # overwriting the records just written. When the boot is being recorded,
+    # stay up instead: adb/telnet remain reachable and the failure dump stays
+    # the last thing written.
+    if grep -q initrd_log_fail /proc/cmdline 2>/dev/null; then
+        tell_kmsg "initrd: holding after failure (initrd_log_fail)"
+        while :; do sleep 3600; done
+    fi
 }
 
 mount_kernel_modules() {
@@ -920,6 +981,11 @@ mount -t sysfs sys /sys
 mkdir -p /dev
 
 setup_devtmpfs ""
+
+# A device that names its log partition (initrd_log_part=) has its storage
+# built into the kernel, so recording can start here, before anything below
+# gets a chance to hang or panic. The usual call after mdev covers the rest.
+grep -q initrd_log_part= /proc/cmdline 2>/dev/null && start_progress_dumper
 
 probe_mount early
 

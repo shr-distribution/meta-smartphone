@@ -1,0 +1,66 @@
+From: Herman van Hazendonk <github.com@herrie.org>
+Subject: [PATCH] halium: bind /cache when the mountpoint exists but is unmounted
+
+The cache bind-mount was guarded by "[ ! -e ${mount_root}/cache ]", which is
+false on every GSI, because a GSI ships /cache as an empty directory. So the
+bind never happened on any system-as-root port and /android/cache was left
+unmounted.
+
+That is harmless until the device's vendor fstab has a cache entry the Android
+container cannot satisfy. On the Unihertz Titan Pocket it cannot, init treats
+it as fatal, and the phone bootloops:
+
+  libfs_mgr: mke2fs returned 256
+  libfs_mgr: failed to format cache
+  libfs_mgr: failed to mount cache: invalid argument
+
+Also note pre-start.sh only strips mount_all from the container's init rc on the
+LEGACY layout - the sed sits in the "else" branch of "if [ -e /android/init ]" -
+so on a GSI the container really does run fs_mgr itself. Fixing that is a
+separate question; providing /cache is correct regardless, and is what UBports
+do in their own Titan Pocket/Slim adaptation.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Pending
+---
+--- a/scripts/halium
++++ b/scripts/halium
+@@ -198,13 +198,35 @@
+ 		mount $path ${mount_root}/$2 -t $3 -o $mount_option_cleaned
+ 	done
+ 
+-	# Provide a bind mount from /cache to /userdata/cache on systems without a dedicated cache partition
+-	if [ ! -e ${mount_root}/cache ]; then
++	# Provide a bind mount from /cache to /userdata/cache on systems without a
++	# dedicated cache partition - and also when the mountpoint exists but
++	# nothing is mounted on it, which is the case on EVERY GSI. A GSI ships
++	# /cache as an empty directory (inode 17, mode 0770 system:cache in
++	# halium-luneos-16.0-20260910-1-halium_arm64), so "! -e" is false, the bind
++	# was skipped, and /android/cache was left unmounted.
++	#
++	# The Android container's init then runs mount_all over the vendor fstab and
++	# tries to mount the real cache partition itself. On the Unihertz Titan
++	# Pocket that cannot be satisfied and init treats it as fatal, so the phone
++	# reboots in a loop with
++	#
++	#   libfs_mgr: mke2fs returned 256
++	#   libfs_mgr: failed to format cache
++	#   libfs_mgr: failed to mount cache: invalid argument
++	#
++	# UBports carry exactly this extra test in their Titan Pocket/Slim port.
++	# Note the surrounding spaces in the /proc/mounts match: the field is a
++	# whole mountpoint, and without them this also matches e.g. /android/cachefs.
++	#
++	# mkdir needs -p now: in the GSI case the directory already exists, and a
++	# plain mkdir would fail and leave the bind undone.
++	if [ ! -e ${mount_root}/cache ] || ! grep -q " ${mount_root}/cache " /proc/mounts; then
+ 		if [ ! -d ${real_userdata}/cache ]; then
+ 			mkdir ${real_userdata}/cache
+ 		fi
+-		mkdir ${mount_root}/cache
++		mkdir -p ${mount_root}/cache
+ 		mount -o bind ${real_userdata}/cache ${mount_root}/cache
++		tell_kmsg "bound ${real_userdata}/cache to ${mount_root}/cache"
+ 	fi
+ 
+ 	# Create an appropriate symlink for vendor files
