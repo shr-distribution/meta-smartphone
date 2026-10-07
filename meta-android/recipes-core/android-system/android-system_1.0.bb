@@ -194,6 +194,9 @@ USERADD_PARAM:${PN} = " \
                        -u 9998 -M misc; \
                        -u 9999 -M nobody; "
 
+# Namespaces the container does not unshare, see lxc-config. "net" gives it the host's interfaces.
+ANDROID_LXC_KEEP_NS ?= "ipc user"
+
 do_install() {
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${UNPACKDIR}/android-system.service ${D}${systemd_unitdir}/system
@@ -207,6 +210,7 @@ do_install() {
     install -d ${D}${localstatedir}/lib/lxc/android
     install -m 0644 ${UNPACKDIR}/lxc-config ${D}${localstatedir}/lib/lxc/android/config
     sed -i -e "s|@LXC_ARCH@|${LXC_ARCH}|" ${D}${localstatedir}/lib/lxc/android/config
+    sed -i -e "s|@LXC_KEEP_NS@|${ANDROID_LXC_KEEP_NS}|" ${D}${localstatedir}/lib/lxc/android/config
     install -m 0755 ${UNPACKDIR}/pre-start.sh ${D}${localstatedir}/lib/lxc/android/
     install -m 0755 ${UNPACKDIR}/post-stop.sh ${D}${localstatedir}/lib/lxc/android/
 

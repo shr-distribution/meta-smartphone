@@ -42,6 +42,10 @@ lxc.mount.entry = sysfs sys sysfs nodev,noexec,nosuid 0 0
 #lxc.mount.entry = tmpfs tmp tmpfs nodev,noexec,nosuid 0 0
 lxc.mount.entry = /android/data data bind bind 0 0
 lxc.mount.entry = /mnt mnt bind rbind 0 0
+# A pre-Treble vendor wants a real /persist, not the Treble /persist -> /mnt/vendor/persist
+# symlink (its sensor daemon rejects the resolved path). The 32-bit halium_arm GSI has an empty
+# /persist directory for it; everywhere else /persist is that symlink and this is a no-op.
+lxc.mount.entry = /mnt/vendor/persist persist none bind,optional 0 0
 # rbind, so the individual APEX mounts inside /apex come along - a plain bind
 # would give the container an empty tmpfs. optional, because Android 9 images
 # have no APEX at all and there is nothing to bind.
@@ -55,6 +59,13 @@ lxc.mount.entry = /apex apex bind rbind,optional 0 0
 # Android 10/11+ devices have them.
 lxc.mount.entry = /odm odm bind bind,optional 0 0
 lxc.mount.entry = /vendor_dlkm vendor_dlkm bind bind,optional 0 0
+# Per-device Android property overrides. The GSI ships /system/etc/prop.halium as
+# an empty file meant as a bind-mount target ("to override property values set in
+# any other property files"), and init loads it with the other property files, so
+# the values are in place before any service or trigger reads them. A machine
+# installs its own file at /usr/lib/droid-system-overlay/etc/prop.halium (the
+# path FuriOS' adaptations use); optional, so devices without one are unaffected.
+lxc.mount.entry = /usr/lib/droid-system-overlay/etc/prop.halium system/etc/prop.halium none bind,optional,create=file 0 0
 
 # Do not unshare the IPC or USER namespaces.
 #
@@ -81,4 +92,11 @@ lxc.mount.entry = /vendor_dlkm vendor_dlkm bind bind,optional 0 0
 # shares the host's, which for a single-container Halium system is what happens
 # in practice anyway (the net namespace is already shared, just above, so the
 # RIL can see the interfaces).
-lxc.namespace.keep = ipc user
+#
+# Namespaces the container must NOT unshare. LXC 4.0 clones a new network namespace even for
+# `lxc.net.0.type = none`, so unless "net" is listed here the container has only loopback. That is
+# harmless for most devices, but a pre-Treble Qualcomm vendor needs the real interfaces: netmgrd
+# configures rmnet0.. itself (RMNET_IOCTL_OPEN/CLOSE) and fails every one with ENODEV in an empty
+# namespace, so qcril logs "unable to get dsi hndl" for every data call. Machines that need the
+# host's network set ANDROID_LXC_KEEP_NS to "ipc user net".
+lxc.namespace.keep = @LXC_KEEP_NS@

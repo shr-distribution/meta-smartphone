@@ -496,7 +496,15 @@ done
 # rather than off a directory that now always exists on the host.
 if [ -d "$ANDROID_ROOT/system/apex" ] && command -v mount-apexes.py >/dev/null 2>&1; then
     log "mounting APEX modules"
+    # A device may list more modules, one pattern per line, in /etc/android-host-apexes: the
+    # media ones, say, when a host library (libdroidmedia) links the codec libraries in them.
+    # They have to be mounted here, before the container's apexd attaches its own loop device
+    # to the same file, or the host can no longer loop-mount it.
+    EXTRA_APEXES=""
+    [ -r /etc/android-host-apexes ] && EXTRA_APEXES=$(grep -v '^#' /etc/android-host-apexes)
+    # shellcheck disable=SC2086
     mount-apexes.py "com.android.runtime" "com.android.art" "com.android.i18n" "com.android.vndk.*" \
+        $EXTRA_APEXES \
         || log "WARNING: APEX mounting reported errors"
 fi
 
@@ -790,5 +798,17 @@ link_cgroup_descriptions() {
 }
 
 link_cgroup_descriptions
+
+# A pre-Treble vendor wants a real /persist. The halium_arm GSI has an empty /persist
+# directory where a Treble image has a /persist -> /mnt/vendor/persist symlink,
+# because the vendor's sensor daemon resolves /persist/sensors and rejects the
+# /mnt/vendor/persist/sensors it gets back. The container config bind-mounts persist onto
+# that directory; the host's /persist is /android/persist, so give the host the same view
+# or everything on the host that reads /persist (the Bluetooth address, Wi-Fi) finds nothing.
+if [ -d "$ANDROID_ROOT/persist" ] && [ ! -L "$ANDROID_ROOT/persist" ] &&
+        mountpoint -q /mnt/vendor/persist && ! mountpoint -q "$ANDROID_ROOT/persist"; then
+    mount --bind /mnt/vendor/persist "$ANDROID_ROOT/persist" &&
+        log "bound /mnt/vendor/persist to $ANDROID_ROOT/persist for the host"
+fi
 
 exit 0
