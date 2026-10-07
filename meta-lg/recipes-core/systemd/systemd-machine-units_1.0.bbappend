@@ -68,6 +68,10 @@ SYSTEMD_SERVICE:${PN}:hammerhead = " \
 
 
 SRC_URI:append:hammerhead-halium = " \
+    file://android-host-apexes \
+    file://ofono-lte-cap.service \
+    file://ofono-lte-cap.sh \
+    file://ofono-settle.conf \
     file://wifi-macaddr-persister.service \
     file://wifi-module-load.service \
     file://persist-wifi-mac-addr.sh \
@@ -77,20 +81,29 @@ SRC_URI:append:hammerhead-halium = " \
 "
 
 do_install:append:hammerhead-halium() {
+    install -d ${D}${sysconfdir}
+    install -m 0644 ${UNPACKDIR}/android-host-apexes ${D}${sysconfdir}/android-host-apexes
+
+    install -d ${D}${systemd_unitdir}/system/ofono.service.d
+    install -m 0644 ${UNPACKDIR}/ofono-settle.conf ${D}${systemd_unitdir}/system/ofono.service.d/ofono-settle.conf
+
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${UNPACKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
     install -m 0644 ${UNPACKDIR}/hciattach.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/ofono-lte-cap.service ${D}${systemd_unitdir}/system
     install -m 0644 ${UNPACKDIR}/dev-ttyHS99.device ${D}${systemd_unitdir}/system
     install -m 0644 ${UNPACKDIR}/wifi-module-load.service ${D}${systemd_unitdir}/system
 
     install -d ${D}${bindir}
     install -m 0755 ${UNPACKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
     install -m 0755 ${UNPACKDIR}/hciattach.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/ofono-lte-cap.sh ${D}${bindir}
 }
 
 SYSTEMD_SERVICE:${PN}:hammerhead-halium = " \
     wifi-macaddr-persister.service \
     wifi-module-load.service \
     hciattach.service \
+    ofono-lte-cap.service \
     dev-ttyHS99.device \
 "
