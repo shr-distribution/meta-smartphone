@@ -186,14 +186,14 @@ luneos-device-config's 35-torch-app no longer hides the app where rear_flash exi
 
 Preview, autofocus and still pictures work in the camera app.
 
-### Releases needed
+### Releases
 
-Not published, all local in ~/claude-scratch/a3-2015-halium/:
-- device tarball out/halium-luneos-11.0-20261008-1-a3-2015-halium.tar.bz2 (sha256 a95d0f7d...), still a
-  file:// URL in the image recipe;
-- GSI release/halium-luneos-16.0-20261008-3-halium_arm.tar.bz2 (system.img sha256 76791e9f...), with the
-  linkerconfig VNDK 30 change and the minimediaservice thread pool; HALIUM_LUNEOS_GSI16_* still point at
-  the older release.
+Both published in the halium-luneos-20261005 release of webOS-ports/halium-images and fetched from
+there by android-system-image-a3-2015-halium:
+- device tarball halium-luneos-11.0-20261008-1-a3-2015-halium.tar.bz2 (sha256 a95d0f7d...);
+- GSI halium-luneos-16.0-20261008-3-halium_arm.tar.bz2 (sha256 7795e2d7..., system.img 76791e9f...), with
+  the linkerconfig VNDK 30 change and the minimediaservice thread pool. The A3 recipe pins it itself; the
+  shared android-system-image-legacy-gsi.inc still names 20261007-1 for the other legacy devices.
 
 ### Still open
 

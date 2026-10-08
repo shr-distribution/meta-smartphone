@@ -1,8 +1,16 @@
 require recipes-core/android-system-image/android-system-image-legacy-gsi.inc
 
+# A newer 32-bit GSI than android-system-image-legacy-gsi.inc's, as the TouchPad has its own: 20261008-3 lets
+# the sphal namespace link libbinder.so and libui.so for a VNDK 30 vendor too (gralloc.msm8916.so, else no
+# UI), and gives minimediaservice five HIDL threads (else a camera picture deadlocks). Published in the
+# halium-luneos-20261005 release, which the version's date does not name.
+HALIUM_LUNEOS_GSI16_PV = "20261008-3"
+HALIUM_LUNEOS_GSI16_SHA256 = "7795e2d7756707ea28a4dfc3d4f00406afe47339abe306168bc0035d2e6712c3"
+HALIUM_LUNEOS_GSI16_RELEASE = "halium-luneos-20261005"
+
 COMPATIBLE_MACHINE = "^a3-2015-halium$"
 
-# The 32-bit 16.0 GSI (HALIUM_LUNEOS_GSI16_* in android-system-image-legacy-gsi.inc), as it is
+# The 32-bit 16.0 GSI (pinned above, newer than android-system-image-legacy-gsi.inc's), as it is
 # published, on a vendor that comes from vlw's LineageOS 18.1 trees for the Galaxy A3 (2015)
 # (github.com/vlw: android_device_samsung_a3lte, android_device_samsung_msm8916-common,
 # proprietary_vendor_samsung, branch lineage-18.1).
@@ -23,9 +31,10 @@ HALIUM_LEGACY_VNDK = "30"
 # libstatspull and libstatssocket (statsd apex) in place of the links into /apex, which the framework
 # copies under the camera HAL (libandroid_runtime, libhwui, libharfbuzz_ng) need, and the HIDL
 # interface libraries of /system/system_ext/lib (vendor.lineage.livedisplay@2.0, touch, trust, power),
-# which the vendor's services link. Not published anywhere yet, so it is a local file.
-# TODO: publish to webOS-ports/halium-images and use an https URL.
-A3_2015_HALIUM_DEVICE_TARBALL ?= "file:///home/herrie/claude-scratch/a3-2015-halium/out/halium-luneos-11.0-20261008-1-a3-2015-halium.tar.bz2"
+# which the vendor's services link. 20261008-1 adds the camera provider service
+# (android.hardware.camera.provider@2.4-service, built in the same tree). Published in the
+# halium-luneos-20261005 release of webOS-ports/halium-images.
+A3_2015_HALIUM_DEVICE_TARBALL ?= "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-20261005/halium-luneos-11.0-20261008-1-a3-2015-halium.tar.bz2"
 HALIUM_LEGACY_DEVICE_URL = "${A3_2015_HALIUM_DEVICE_TARBALL}"
 HALIUM_LEGACY_DEVICE_SHA256 = "a95d0f7d5dfde84e3a020f9b2651df6591cdba60ea4f2d8e6b2b7ed7545be181"
 
