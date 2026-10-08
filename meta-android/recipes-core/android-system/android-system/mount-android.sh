@@ -479,6 +479,33 @@ cat "$fstab" | while read -r src dst fstype flags _rest; do
 done
 done
 
+# Mount the APEX modules recorded by the last mount-apexes.py run, if that run
+# was for the same request and every module file is still the same size and
+# age. Fails without mounting anything when the cache does not apply, and
+# leaves whatever it did mount when a mount fails: mount-apexes.py skips
+# modules that are already mounted.
+APEX_CACHE=/var/lib/android-system/host-apexes
+apex_mount_cached() {
+    [ -r "$APEX_CACHE" ] || return 1
+    [ "$(sed -n 1p "$APEX_CACHE")" = "# args: $*" ] || return 1
+    sed 1d "$APEX_CACHE" | while read -r _name _path _size _mtime _off _fs; do
+        [ "$(stat -c '%s %Y' "$_path" 2>/dev/null)" = "$_size $_mtime" ] || exit 1
+    done || return 1
+    mkdir -p /apex
+    grep -q ' /apex ' /proc/mounts || mount -t tmpfs android_apex /apex || return 1
+    sed 1d "$APEX_CACHE" | while read -r _name _path _size _mtime _off _fs; do
+        grep -q " /apex/$_name " /proc/mounts && continue
+        mkdir -p "/apex/$_name"
+        if [ "$_off" = bind ]; then
+            mount -o bind,ro "$_path" "/apex/$_name" || exit 1
+        elif [ "$_fs" = - ]; then
+            mount -o "loop,offset=$_off,ro" "$_path" "/apex/$_name" || exit 1
+        else
+            mount -t "$_fs" -o "loop,offset=$_off,ro" "$_path" "/apex/$_name" || exit 1
+        fi
+    done
+}
+
 # --- APEX (Android 10+) -----------------------------------------------------
 # The GSI's linker needs /apex/com.android.runtime for bionic, and linkerconfig
 # aborts if the VNDK apex is missing or mounted under the wrong name, so these
@@ -518,9 +545,18 @@ if [ -d "$ANDROID_ROOT/system/apex" ] && command -v mount-apexes.py >/dev/null 2
     fi
     log "VNDK APEX: $VNDK_APEX"
     # shellcheck disable=SC2086
-    mount-apexes.py "com.android.runtime" "com.android.art" "com.android.i18n" "$VNDK_APEX" \
-        $EXTRA_APEXES \
-        || log "WARNING: APEX mounting reported errors"
+    set -- "com.android.runtime" "com.android.art" "com.android.i18n" "$VNDK_APEX" $EXTRA_APEXES
+    # mount-apexes.py has to open the archives to find each module's name and where its
+    # filesystem starts, and Python alone - interpreter and imports - took over six seconds of
+    # the seven this step took during boot on the TouchPad, with everything else starting at
+    # once. The answer only changes with the GSI, so it caches it, and a boot whose request
+    # and files match the cache mounts straight from it.
+    if apex_mount_cached "$@"; then
+        log "mounted APEX modules from $APEX_CACHE"
+    else
+        MOUNT_APEXES_CACHE="$APEX_CACHE" mount-apexes.py "$@" \
+            || log "WARNING: APEX mounting reported errors"
+    fi
 fi
 
 # --- vendor_dlkm kernel modules ---------------------------------------------
