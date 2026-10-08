@@ -1,0 +1,27 @@
+# Three vendor libraries of the camera chain have text relocations (libmmcamera_faceproc.so, which the camera
+# daemon dlopen()s for its faceproc module, and the ArcSoft libarccamera.so and
+# libarcsoft_selfie_camera_lite.so the HAL can load), and the GSI's Android 16 linker refuses those for a
+# process whose target SDK is 23 or later. Without faceproc the daemon cannot link the preview stream
+# ("mct_stream_start_link ... Null", "QCameraStream: Failed to config stream") and no preview starts
+# (8 Oct 2026). libpermissioncache_shim.so, the shared legacy shim of the Android 9 services, lowers the
+# target SDK to 22 from a constructor; preloaded, it does so before either process loads them.
+# Same definitions as the vendor's (init.qcom.rc's qcamerasvr, the provider's own rc) plus the preload;
+# "zz-" sorts this after both.
+service qcamerasvr /system/vendor/bin/mm-qcamera-daemon
+    override
+    class late_start
+    user camera
+    group camera system inet input graphics
+    writepid /dev/cpuset/camera-daemon/tasks
+    setenv LD_PRELOAD /vendor/lib/libpermissioncache_shim.so
+
+service vendor.camera-provider-2-4 /vendor/bin/hw/android.hardware.camera.provider@2.4-service
+    override
+    interface android.hardware.camera.provider@2.4::ICameraProvider legacy/0
+    class hal
+    user cameraserver
+    group audio camera input drmrpc
+    ioprio rt 4
+    capabilities SYS_NICE
+    task_profiles CameraServiceCapacity MaxPerformance
+    setenv LD_PRELOAD /vendor/lib/libpermissioncache_shim.so

@@ -1,0 +1,4 @@
+# Samsung's EFS partition (Bluetooth address, Wi-Fi MAC, calibration). LineageOS has /efs as a root
+# folder but no fstab line for it; mount-android.sh reads every /vendor/etc/fstab* and mounts this one
+# at /android/efs, which the container sees as /efs. Read-only: nothing here may change it.
+/dev/block/bootdevice/by-name/efs   /efs   ext4   ro,nosuid,nodev,noatime   wait

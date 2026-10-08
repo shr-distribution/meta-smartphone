@@ -25,9 +25,9 @@ HALIUM_LEGACY_VNDK = "30"
 # interface libraries of /system/system_ext/lib (vendor.lineage.livedisplay@2.0, touch, trust, power),
 # which the vendor's services link. Not published anywhere yet, so it is a local file.
 # TODO: publish to webOS-ports/halium-images and use an https URL.
-A3_2015_HALIUM_DEVICE_TARBALL ?= "file:///home/herrie/claude-scratch/a3-2015-halium/out/halium-luneos-11.0-20261006-2-a3-2015-halium.tar.bz2"
+A3_2015_HALIUM_DEVICE_TARBALL ?= "file:///home/herrie/claude-scratch/a3-2015-halium/out/halium-luneos-11.0-20261008-1-a3-2015-halium.tar.bz2"
 HALIUM_LEGACY_DEVICE_URL = "${A3_2015_HALIUM_DEVICE_TARBALL}"
-HALIUM_LEGACY_DEVICE_SHA256 = "a74afdf6edcf894ce937a799042429957c2cf6d31d37bc22cc3f72760fd8ae32"
+HALIUM_LEGACY_DEVICE_SHA256 = "a95d0f7d5dfde84e3a020f9b2651df6591cdba60ea4f2d8e6b2b7ed7545be181"
 
 # No device init scripts to move (see above).
 HALIUM_LEGACY_INIT_FILES = ""
@@ -47,6 +47,44 @@ HALIUM_LEGACY_GSI_AUTODETECT = "0"
 # replaces.)
 HALIUM_LEGACY_LD_SHIMS = "camera.vendor.msm8916.so|libshim_camera.so libperipheral_client.so|libshim_binder.so"
 
-# This vendor already declares the composer and allocator hwbinder, so there is nothing to rewrite
-# in its manifest.
-HALIUM_LEGACY_BINDERIZED_HALS = ""
+# This vendor already declares the composer and allocator hwbinder. The camera provider it declares
+# passthrough (legacy/0), for LineageOS' cameraserver to load in-process, which the GSI's cannot; the
+# device tarball since 20261008-1 carries the provider service (android.hardware.camera.provider@2.4-
+# service, built in the same Halium 11 tree as this vendor), and the manifest has to call it hwbinder.
+HALIUM_LEGACY_BINDERIZED_HALS = "android.hardware.camera.provider"
+
+# The composer HAL (hwcomposer.msm8916.so) links libhwui.so and libmedia.so directly, and the converter
+# puts their Android 11 framework copies in /vendor/lib. libhwui.so needs libft2.so, which the GSI's
+# LLNDK list names, so the converter counts it as provided; the vendor linker of the container does not
+# hand it to this vendor, though ("library libft2.so not found: needed by /vendor/lib/libhwui.so"), the
+# composer exits at once, and init restarts it for ever (8 Oct 2026). A private copy from the old image,
+# as for sm-t520 and tenderloin-halium.
+HALIUM_LEGACY_EXTRA_LIBS = "libft2.so"
+
+# Those framework copies (libmedia and the rest the composer and camera HALs pull in) want symbols of the
+# full libbinder and libmedia that the VNDK 30 snapshot of the GSI does not have: with libft2.so in place
+# the composer stops at "cannot locate symbol _ZN7android12MetaDataBase13writeToParcelERNS_6ParcelE"
+# (8 Oct 2026). halium-legacy-shim provides them; the converter adds it as a dependency of these
+# libraries, the same list as sm-t520's.
+HALIUM_LEGACY_SHIM_TARGETS = "libgui.so libmedia.so libmediautils.so libsensor.so libandroid_runtime.so libmedia_codeclist.so"
+
+# Bluetooth: the HAL (android.hardware.bluetooth@1.0-impl) aborts in initialize() with "Open: No Bluetooth
+# Address!": it reads the address from the file ro.bt.bdaddr_path names, which LineageOS sets in
+# msm8916-common's system.prop (/efs/bluetooth/bt_addr), and nothing mounted /efs (8 Oct 2026). Carry the
+# Bluetooth properties of that system.prop into the vendor build.prop and mount EFS, read-only, through an
+# fstab of its own (the vendor's fstab.qcom has no /efs line). EFS also holds the Wi-Fi MAC that
+# wcnss_service hands the firmware (/efs/wifi/.mac.info).
+HALIUM_LEGACY_SYSTEM_PROP_PREFIXES += "ro.bt. ro.bluetooth. ro.qualcomm.bt. vendor.bluetooth. vendor.qcom.bluetooth."
+SRC_URI += "file://fstab.efs file://zz-a3-bluetooth-efs.rc"
+HALIUM_LEGACY_EXTRA_FILES += "fstab.efs:/etc/fstab.efs:644"
+# The address file is radio:net_bt_stack 0640, which the HAL (user and group bluetooth) cannot read; the
+# rc overrides the vendor's service definition with group net_bt_stack added.
+HALIUM_LEGACY_EXTRA_FILES += "zz-a3-bluetooth-efs.rc:/etc/init/zz-a3-bluetooth-efs.rc:644"
+
+# The camera daemon and the camera provider need a target SDK below 23 to load the vendor's camera libraries
+# that have text relocations; see zz-a3-camera-textrel.rc. The shim that does it is the shared one of the
+# Android 9 services (android-system-image-legacy-a9-services.inc), which the TouchPad's and the Nexus 5's
+# camera providers already load; only that file is taken from the set.
+require recipes-core/android-system-image/android-system-image-legacy-a9-shim.inc
+SRC_URI += "file://zz-a3-camera-textrel.rc"
+HALIUM_LEGACY_EXTRA_FILES += "zz-a3-camera-textrel.rc:/etc/init/zz-a3-camera-textrel.rc:644"

@@ -92,3 +92,18 @@ SYSTEMD_SERVICE:${PN}:append:sm-t520 = " boot-cpufreq-boost.service boot-cpufreq
 # address settle first. (5 Oct 2026)
 FILES:${PN}:append:sm-t520 = " ${systemd_unitdir}/system/wlan0-mac-settle.service"
 SYSTEMD_SERVICE:${PN}:append:sm-t520 = " wlan0-mac-settle.service"
+
+# Galaxy A3 (2015): the prima WLAN driver is built into the kernel (CONFIG_PRONTO_WLAN=y) and only starts when
+# "sta" is written to /sys/module/wlan/parameters/fwpath, which on Android the Wi-Fi HAL does; without it the
+# WCNSS firmware is up but there is no wlan0 (8 Oct 2026). mako-halium does the same with modprobe wlan.
+S:a3-2015-halium = "${UNPACKDIR}"
+
+SRC_URI:append:a3-2015-halium = " file://a3-prima-wlan.service"
+
+do_install:append:a3-2015-halium() {
+    install -d ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/a3-prima-wlan.service ${D}${systemd_unitdir}/system
+}
+
+FILES:${PN}:append:a3-2015-halium = " ${systemd_unitdir}/system/a3-prima-wlan.service"
+SYSTEMD_SERVICE:${PN}:append:a3-2015-halium = " a3-prima-wlan.service"
