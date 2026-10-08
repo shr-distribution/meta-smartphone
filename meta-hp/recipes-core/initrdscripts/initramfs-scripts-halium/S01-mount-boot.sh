@@ -13,11 +13,21 @@ if [ -e /mnt/boot/usr/sbin/lvm.static ]
     tell_kmsg "[initramfs] Activating LVM..."
     export LVM_SYSTEM_DIR=/mnt/boot/etc/lvm 
     tell_kmsg "LVM_SYSTEM_DIR: $LVM_SYSTEM_DIR"
-    sleep 3
-    /mnt/boot/usr/sbin/lvm.static vgchange -ay
-    sleep 3
-    /mnt/boot/usr/sbin/lvm.static vgchange -ay 2>&1 > /media/internal/lvm.txt
-    sleep 3
+    # Activate until the root volume is there rather than sleeping 3 seconds
+    # before, between and after two activations (9 seconds on every boot).
+    # Without udev the static lvm makes the /dev/store nodes itself, so they
+    # exist when vgchange returns; the retries are only for an eMMC whose
+    # partitions are not all there yet.
+    i=0
+    while [ $i -lt 50 ]; do
+        /mnt/boot/usr/sbin/lvm.static vgchange -ay
+        if [ -e /dev/store/${distro_name}-root ] || [ -e /dev/store/ext3fs ]; then
+            break
+        fi
+        usleep 200000
+        i=$((i + 1))
+    done
+    tell_kmsg "[initramfs] LVM active after $i retries"
     else
         tell_kmsg "/mnt/boot/usr/sbin/lvm.static not found: skipping LVM2 volume group activation!"
     fi
