@@ -34,8 +34,20 @@ pkg_postinst_ontarget:${PN} () {
         exit 1
     fi
 
-    echo "Flashing the new kernel /boot/boot.img to $path"
-    dd if=/boot/boot.img of=$path
+    # lk2nd, where a device boots through it, is itself a boot image at the start of the boot
+    # partition and boots the real one from 512 KiB in. Writing there instead of over it: a plain
+    # dd to the start replaced lk2nd on a Galaxy A3 (2015) with the kernel image, which then booted
+    # without it, and the phone could only be recovered over Samsung's Download mode (8 Oct 2026).
+    # The header's command line (offset 64) is "lk2nd" for lk2nd.
+    if [ "$(dd if=$path bs=1 count=8 2>/dev/null)" = "ANDROID!" ] && \
+       [ "$(dd if=$path bs=1 skip=64 count=5 2>/dev/null)" = "lk2nd" ]; then
+        echo "Flashing the new kernel /boot/boot.img to $path behind lk2nd (512 KiB in)"
+        dd if=/boot/boot.img of=$path bs=4096 seek=128
+    else
+        echo "Flashing the new kernel /boot/boot.img to $path"
+        dd if=/boot/boot.img of=$path
+    fi
+    sync
 }
 
 FILES:${PN} += "/${KERNEL_IMAGEDEST}/boot.img"
