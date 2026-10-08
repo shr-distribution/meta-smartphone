@@ -96,12 +96,6 @@ LATE_SERVICES="vendor.qcrild vendor.qcrild2 vendor.qcrild3 vendor.ril-daemon ven
 # "running" before they are started.
 LATE_PREREQS="vendor.rmt_storage vendor.per_mgr vendor.qseecomd"
 
-for _di in /usr/share/luneos/adaptations/*/deviceinfo; do
-    [ -f "$_di" ] && . "$_di" 2>/dev/null
-done
-[ -n "$deviceinfo_android_skip_services" ] &&
-    SKIP_SERVICES="$SKIP_SERVICES $deviceinfo_android_skip_services"
-
 # Services that must not run at all, because they fight the host compositor for
 # the display. These are NOT started by us - init reaches "on late-fs" long
 # before it halts, and QTI's init.<board>.rc starts surfaceflinger, bootanim and
@@ -311,6 +305,19 @@ if [ -n "$gates" ]; then
     done
     [ -n "$pending" ] && sleep 3
 fi
+
+# This device's own adaptation only. The rootfs carries every device's, and
+# sourcing them all let the one that sorts last win (n2awifi's skip list replaced
+# the Galaxy A3's). luneos-adaptation (luneos-device-config) resolves it the same
+# way luneos-device-config does. Not before this point: it reads the vendor's
+# properties, and when this script starts the container's property service does
+# not answer yet (the codename came back as the device tree's "msm8916-mtp").
+_di=$(luneos-adaptation 2>/dev/null)
+echo "adaptation: ${_di:-none} (codename $(luneos-adaptation --codename 2>/dev/null))"
+# shellcheck disable=SC1090
+[ -n "$_di" ] && . "$_di" 2>/dev/null
+[ -n "${deviceinfo_android_skip_services:-}" ] &&
+    SKIP_SERVICES="$SKIP_SERVICES $deviceinfo_android_skip_services"
 
 # Resolve the display-conflict matches to service names up front, so the start
 # loop below can skip them instead of starting them only for us to stop them
