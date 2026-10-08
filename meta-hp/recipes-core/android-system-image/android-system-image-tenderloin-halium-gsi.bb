@@ -3,9 +3,16 @@ require recipes-core/android-system-image/android-system-image-legacy-a9-service
 
 COMPATIBLE_MACHINE = "tenderloin-halium"
 
+# The TouchPad runs a newer 32-bit GSI than the other legacy devices, which stay on the one
+# android-system-image-legacy-gsi.inc names until their vendor images are published again: 20261008-1 gives
+# the restored HAL1 CameraClient VIDEO_BUFFER_MODE_BUFFER_QUEUE, the only video mode Android's CameraSource
+# uses, so its camera can record through the hardware encoder.
+HALIUM_LUNEOS_GSI16_PV = "20261008-1"
+HALIUM_LUNEOS_GSI16_SHA256 = "59901bf1c1a8c362d92b9495d88c0508d516e0a22d890ca60c48b780ae86acf7"
+
 # The vendor image published with the GSI (tenderloin-halium-vendor.img in its release), made by the settings below
 # against that GSI. See android-system-image-legacy-gsi.inc for how to make a new one.
-HALIUM_LEGACY_VENDOR_SHA256 = "90ab610d60bdffb8a15d3c61a2c939dea1a1ea9b4d62cc4df77ff70984606453"
+HALIUM_LEGACY_VENDOR_SHA256 = "3b82533d01a9fc79a3af55cb427692e5db46c3a241694d00eced5813acff3f1c"
 
 HALIUM_LEGACY_DEVICE_URL = "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-9.0-20210506-2-tenderloin.tar.bz2/halium-luneos-9.0-20210506-2-tenderloin.tar.bz2"
 HALIUM_LEGACY_DEVICE_SHA256 = "800855aa74f752c774312c48143cc158d8d5e32a281f7f978851a0679350fe9b"
@@ -32,7 +39,7 @@ HALIUM_LEGACY_COPY_FILES += "/system/etc/audio_policy.conf:/etc/audio_policy.con
 
 # The TouchPad is a Wi-Fi tablet with no camera HAL, no modem and no vendor OMX codecs in its Halium 9 build,
 # so of the shared services (android-system-image-legacy-a9-services.inc) it takes the graphics ones, the
-# crash_dump stand-in and the shim, not the RIL set, and the OMX set only for gst-droid (below). Its Bluetooth (a CSR BlueCore
+# crash_dump stand-in and the shim, not the RIL set, and the OMX set for gst-droid and the codecs (below). Its Bluetooth (a CSR BlueCore
 # on a UART, spoken in BCSP) has no Android HAL; the host's tenderloin-bluetooth-utilities attaches it.
 
 # The front camera (Aptina MT9M113 on the 3.4 kernel's legacy msm_camera driver) comes from
@@ -72,14 +79,37 @@ HALIUM_LEGACY_EXTRA_FILES += " \
 "
 HALIUM_LEGACY_UEVENTD_EXTRA = "ueventd-msm-camera.rc"
 
-# The OMX service, although the Halium 9 build has no hardware codecs (no libstagefrighthw.so): the camera app
-# reaches the camera through gst-droid, whose plugin gst-droid-gate.sh only puts on the GStreamer path once
-# android.hardware.media.omx@1.0::IOmxStore answers. With no codec plugin the service serves only the software
-# codecs, and the old manifest already declares it hwbinder. libdroidmedia then also needs the Codec2 software
+# The OMX service, which the Halium 9 build has no hardware codecs for (they come from tenderloin-media below):
+# the camera app reaches the camera through gst-droid, whose plugin gst-droid-gate.sh only puts on the
+# GStreamer path once android.hardware.media.omx@1.0::IOmxStore answers, and the old manifest already declares
+# the service hwbinder. libdroidmedia then also needs the Codec2 software
 # store (media.swcodec), which loads gralloc.msm8660.so in the sphal namespace; that needs libbinder.so and
 # libui.so from the VNDK, which only a GSI whose linkerconfig hands them to sphal for VNDK 28 vendors does.
 # Without it media.swcodec aborts, and gst-plugin-scanner, with it surface-manager, hangs on boot.
 HALIUM_LEGACY_EXTRA_FILES += "${HALIUM_LEGACY_A9_OMX}"
+
+# The hardware video encoders and decoders (Qualcomm legacy vidc, /dev/msm_vidc_enc and /dev/msm_vidc_dec) for
+# the OMX service above, built for ARMv7 in the Android 9 tree (see BUILD.md in the tarball), and the
+# media_codecs.xml that declares them.
+SRC_URI += "file://tenderloin-media.tar.xz;subdir=media"
+TENDERLOIN_MEDIA = "media/tenderloin-media"
+HALIUM_LEGACY_EXTRA_FILES += " \
+    ${TENDERLOIN_MEDIA}/lib/libOmxCore.so:/lib/libOmxCore.so:644 \
+    ${TENDERLOIN_MEDIA}/lib/libOmxVenc.so:/lib/libOmxVenc.so:644 \
+    ${TENDERLOIN_MEDIA}/lib/libOmxVdec.so:/lib/libOmxVdec.so:644 \
+    ${TENDERLOIN_MEDIA}/lib/libdivxdrmdecrypt.so:/lib/libdivxdrmdecrypt.so:644 \
+    ${TENDERLOIN_MEDIA}/lib/libstagefrighthw.so:/lib/libstagefrighthw.so:644 \
+    ${TENDERLOIN_MEDIA}/lib/libc2dcolorconvert.so:/lib/libc2dcolorconvert.so:644 \
+    ${TENDERLOIN_MEDIA}/etc/media_codecs.xml:/etc/media_codecs.xml:644 \
+"
+
+# Hardware (OMX) video recording works on this device, so the camera app uses it: the plugin looks for this
+# file. It needs the encoders above and the GSI's buffer-queue video mode.
+do_install:append() {
+    install -d ${D}${sysconfdir}/luneos
+    touch ${D}${sysconfdir}/luneos/camera-hw-recording
+}
+FILES:${PN} += "${sysconfdir}/luneos/camera-hw-recording"
 
 # What the TouchPad's init script does that the host has already done, or must keep to itself: it
 # activates the LVM volume groups (the host's initramfs has), mounts the webOS /boot partition and
