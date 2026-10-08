@@ -13,13 +13,11 @@
 # v__` where `_` represent digits. Mounting this APEX incorrectly will lead to
 # `linkerconfig` crashes with `SIGABRT` later on.
 
-import argparse
 import fnmatch
 import os
 import subprocess
 import sys
 import zipfile
-import json
 
 # The host's own /apex, not /android/apex.
 #
@@ -34,6 +32,10 @@ import json
 # for bionic at a literal /apex/com.android.runtime/lib64, so with this layout
 # host and container are served by the same mounts and no symlink is involved.
 APEX_ROOT = "/apex"
+
+# What was mounted, for the cache mount-android.sh mounts from on the next boot
+# (see write_cache).
+MOUNTED_RECORDS = []
 APEX_PREINSTALLED_DIRS = [
     "/android/system/apex",
     "/android/system_ext/apex",
@@ -73,6 +75,9 @@ class Apex:
     def is_mounted(self) -> bool:
         return os.path.ismount(self.get_mountpoint())
 
+    def record(self) -> None:
+        raise NotImplementedError()
+
 
 class FlattenedApex(Apex):
     def __init__(self, module_path: str):
@@ -86,6 +91,8 @@ class FlattenedApex(Apex):
 
             self.name = parse_apex_manifest_for_name(manifest_bytes)
         elif os.path.isfile(json_manifest):
+            import json
+
             with open(json_manifest, "r") as f:
                 self.name = json.load(f)["name"]
 
@@ -97,6 +104,10 @@ class FlattenedApex(Apex):
         subprocess.run(
             ["mount", "-o", "bind,ro", self.module_path, target_path], check=True
         )
+        self.record()
+
+    def record(self) -> None:
+        MOUNTED_RECORDS.append((self.name, self.module_path, "bind", "-"))
 
 
 class ArchivedApex(Apex):
@@ -109,20 +120,35 @@ class ArchivedApex(Apex):
 
         self.name = parse_apex_manifest_for_name(manifest_bytes)
 
+    def payload(self):
+        # Where the filesystem image starts inside the archive, and its type
+        # when it is ext4: left to guess, mount tries ext3 and ext2 first and
+        # each attempt fails on the loop device.
+        with zipfile.ZipFile(self.module_path, "r") as zf:
+            with zf.open("apex_payload.img", "r") as f:
+                offset = f._orig_compress_start
+        with open(self.module_path, "rb") as f:
+            f.seek(offset + 1024 + 56)
+            fstype = "ext4" if f.read(2) == b"\x53\xef" else "-"
+        return offset, fstype
+
     def mount(self) -> None:
         target_path = self.get_mountpoint()
         os.makedirs(target_path, mode=0o755, exist_ok=True)
 
-        with zipfile.ZipFile(self.module_path, "r") as zf:
-            with zf.open("apex_payload.img", "r") as f:
-                offset = f._orig_compress_start
+        offset, fstype = self.payload()
+        cmd = ["mount", "-o", f"loop,offset={offset},ro"]
+        if fstype != "-":
+            cmd += ["-t", fstype]
 
         print(f"Mounting APEX file {self.module_path} at {target_path}")
 
-        subprocess.run(
-            ["mount", "-o", f"loop,offset={offset},ro", self.module_path, target_path],
-            check=True,
-        )
+        subprocess.run(cmd + [self.module_path, target_path], check=True)
+        MOUNTED_RECORDS.append((self.name, self.module_path, str(offset), fstype))
+
+    def record(self) -> None:
+        offset, fstype = self.payload()
+        MOUNTED_RECORDS.append((self.name, self.module_path, str(offset), fstype))
 
 
 def open_apex(module_path: str) -> Apex:
@@ -149,23 +175,52 @@ def should_mount_apex(apex_name: str, apex_globs: list):
     return False
 
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(
-        prog="mount-apexes.py",
-        description="Mount APEXes as specified on command line",
-    )
-    parser.add_argument(
-        "apex_globs",
-        nargs="*",
-        help="APEX name/glob to mount. If not specified, will mount all APEXes.",
-    )
+def name_hint(entry: str) -> str:
+    # The name a module's file or directory suggests. Usually the APEX's own
+    # name, but not always (see the top of this file), so it only decides
+    # which manifests are worth reading first.
+    return entry[: -len(".apex")] if entry.endswith(".apex") else entry
 
-    return parser.parse_args()
+
+def mount_one(path: str, apex_globs: list, mounted: set) -> None:
+    try:
+        apex = open_apex(path)
+
+        if not should_mount_apex(apex.name, apex_globs):
+            return
+
+        if apex.is_mounted():
+            print(f"WARNING: APEX named {apex.name} is already mounted.")
+            apex.record()
+            mounted.add(apex.name)
+            return
+
+        apex.mount()
+        mounted.add(apex.name)
+    except Exception as e:
+        print(f"WARNING: failed to mount APEX {path}: {e}")
+
+
+def write_cache(path: str, apex_globs: list) -> None:
+    # One line per mounted module: name, file, its size and mtime (so a changed
+    # GSI invalidates the entry), and how to mount it. The first line records
+    # the arguments, since a different request needs a different set.
+    lines = ["# args: " + " ".join(apex_globs)]
+    for name, module_path, offset, fstype in MOUNTED_RECORDS:
+        st = os.stat(module_path)
+        lines.append(f"{name} {module_path} {st.st_size} {int(st.st_mtime)} {offset} {fstype}")
+    tmp = path + ".tmp"
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(tmp, "w") as f:
+        f.write("\n".join(lines) + "\n")
+    os.chmod(tmp, 0o644)
+    os.replace(tmp, path)
 
 
 def main() -> int:
-    args = parse_arguments()
-    apex_globs: list = args.apex_globs
+    # No argparse: on the slower devices its import alone is a noticeable part
+    # of this step, and all there is to parse is a list of names.
+    apex_globs: list = sys.argv[1:]
 
     os.makedirs(APEX_ROOT, exist_ok=True)
     if not os.path.ismount(APEX_ROOT):
@@ -173,26 +228,40 @@ def main() -> int:
             ["mount", "-t", "tmpfs", "android_apex", APEX_ROOT], check=True
         )
 
+    paths = []
     for dir in APEX_PREINSTALLED_DIRS:
         try:
-            entries = os.listdir(dir)
+            entries = sorted(os.listdir(dir))
         except:
             continue
+        paths += [f"{dir}/{entry}" for entry in entries]
 
-        for entry in entries:
-            try:
-                apex = open_apex(f"{dir}/{entry}")
+    # Opening every archive to read its manifest was most of the time this took:
+    # the GSI carries twenty-odd and only a handful are wanted. Read the ones
+    # whose file name already matches first, and only read the rest for a name
+    # or glob that is still unmatched after that - a module whose file is named
+    # differently from the APEX inside it is still found, it just costs the
+    # full scan it always did.
+    mounted: set = set()
+    hinted = [p for p in paths if should_mount_apex(name_hint(os.path.basename(p)), apex_globs)]
+    for path in hinted:
+        mount_one(path, apex_globs, mounted)
 
-                if not should_mount_apex(apex.name, apex_globs):
-                    continue
+    unmatched = [g for g in apex_globs if not any(fnmatch.fnmatch(n, g) for n in mounted)]
+    if apex_globs and not unmatched:
+        paths = []
 
-                if apex.is_mounted():
-                    print(f"WARNING: APEX named {apex.name} is already mounted.")
-                    continue
+    for path in paths:
+        if path in hinted:
+            continue
+        mount_one(path, unmatched if apex_globs else [], mounted)
 
-                apex.mount()
-            except Exception as e:
-                print(f"WARNING: failed to mount APEX {dir}/{entry}: {e}")
+    cache = os.environ.get("MOUNT_APEXES_CACHE")
+    if cache and MOUNTED_RECORDS:
+        try:
+            write_cache(cache, apex_globs)
+        except OSError as e:
+            print(f"WARNING: could not write {cache}: {e}")
 
     return 0
 
