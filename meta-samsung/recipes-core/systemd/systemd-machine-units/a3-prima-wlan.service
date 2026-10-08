@@ -1,0 +1,21 @@
+[Unit]
+Description=Start the built-in prima WLAN driver
+After=android-system.service
+Before=network.target connman.service
+Conflicts=shutdown.target actdead.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+TimeoutStartSec=150
+# Opening /dev/wcnss_wlan has the WCNSS driver download the firmware's NV data; the WLAN host driver,
+# built in (CONFIG_PRONTO_WLAN=y), then starts when "sta" is written to its fwpath parameter, which on
+# Android the Wi-Fi HAL does when Wi-Fi is switched on. wlan0 and p2p0 appear a moment later.
+ExecStartPre=/bin/sh -c 'n=0; while [ ! -e /dev/wcnss_wlan ] && [ $n -lt 60 ]; do sleep 1; n=$((n+1)); done; touch /dev/wcnss_wlan'
+# The driver can only attach once the WCNSS control channel is up (its NV download follows); until then
+# the write fails with ENODEV after about 12 s, and repeating it does not help. wcnss_version reads
+# INVALID until that channel has exchanged versions, so wait for it, then write once and wait for wlan0.
+ExecStart=/bin/sh -c 'v=/sys/devices/soc.0/a000000.qcom,wcnss-wlan/wcnss_version; n=0; while [ "$(cat $v 2>/dev/null)" = INVALID ] && [ $n -lt 90 ]; do sleep 1; n=$((n+1)); done; [ "$(cat $v 2>/dev/null)" != INVALID ] || { echo "WCNSS control channel never came up"; exit 1; }; echo sta > /sys/module/wlan/parameters/fwpath; n=0; while [ ! -e /sys/class/net/wlan0 ] && [ $n -lt 20 ]; do sleep 1; n=$((n+1)); done; [ -e /sys/class/net/wlan0 ]'
+
+[Install]
+WantedBy=basic.target

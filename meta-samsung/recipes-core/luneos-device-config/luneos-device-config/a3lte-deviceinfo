@@ -27,4 +27,18 @@ deviceinfo_force_hwc2="1"
 # The container's Android Wi-Fi HAL (vendor.wifi_hal_legacy, android.hardware.wifi@1.0-service.legacy
 # in this vendor) starts the vendor wpa_supplicant, which takes wlan0 away from the host's
 # wpa_supplicant that connman talks to (found on the SM-T520). LuneOS drives Wi-Fi from the host.
-deviceinfo_android_skip_services="vendor.wifi_hal_legacy"
+# hciattach is the vendor's init.qcom.bt.sh, which Android runs only when Bluetooth is switched on. Force-
+# started at boot, it powers the WCNSS chip up through the Bluetooth path before wcnss_service has
+# triggered it: the regulator lookup then fails ("regulator get of riva_vddmx failed (-19)", "Failed to
+# execute wcnss_wlan_power"), the WCNSS control channel never comes up, and neither the WLAN driver
+# (ENODEV on every start) nor Bluetooth work (8 Oct 2026). Bluetooth goes through the HAL and bluebinder,
+# which do not need it.
+deviceinfo_android_skip_services="vendor.wifi_hal_legacy hciattach"
+
+# The rt5033 fuel gauge reports a percentage and a voltage but no capacity (charge_now 1, no
+# charge_full), so batteryd showed 0.001 mAh of -1. The pack's rating, from LineageOS' a3lte
+# power_profile.xml (battery.capacity). nyx takes the design figure only together with a full one,
+# and this gauge cannot measure the pack's actual full charge, so the rating stands for both; nyx
+# then derives the charge in mAh from the percentage.
+deviceinfo_battery_full_capacity_mah="1900"
+deviceinfo_battery_design_capacity_mah="1900"

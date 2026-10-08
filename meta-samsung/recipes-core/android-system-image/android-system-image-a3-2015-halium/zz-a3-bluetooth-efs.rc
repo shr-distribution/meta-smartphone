@@ -1,0 +1,13 @@
+# The Bluetooth HAL reads the controller's address from /efs/bluetooth/bt_addr (ro.bt.bdaddr_path), which
+# Samsung's EFS keeps as radio:net_bt_stack 0640; as user and group bluetooth the HAL cannot read it and
+# aborts in initialize() ("Open: No Bluetooth Address!"). Same definition as the vendor's
+# android.hardware.bluetooth@1.0-service.rc plus that group, by number: the GSI's init no longer knows the
+# name net_bt_stack ("Unable to decode GID"). "zz-" sorts it after the vendor's file.
+service vendor.bluetooth-1-0 /vendor/bin/hw/android.hardware.bluetooth@1.0-service
+    override
+    interface android.hardware.bluetooth@1.0::IBluetoothHci default
+    class hal
+    capabilities BLOCK_SUSPEND NET_ADMIN SYS_NICE
+    user bluetooth
+    group bluetooth 3008
+    task_profiles HighPerformance
