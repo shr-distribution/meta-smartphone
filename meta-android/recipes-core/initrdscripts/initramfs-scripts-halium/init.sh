@@ -1604,5 +1604,7 @@ tell_kmsg "Switching to root filesystem"
 # further write would only overwrite the record of how we got here.
 stage "switching root"
 : > /run/initrd-stage-done 2>/dev/null
-sleep 4
+# Only when there is a dumper to stop: unconditionally this was 4 seconds on
+# every boot of every device, with initrd_log_fail or without.
+[ -e /dev/.progress-dumper ] && sleep 4
 exec switch_root ${rootmnt} /sbin/init
