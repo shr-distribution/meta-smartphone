@@ -502,8 +502,23 @@ if [ -d "$ANDROID_ROOT/system/apex" ] && command -v mount-apexes.py >/dev/null 2
     # to the same file, or the host can no longer loop-mount it.
     EXTRA_APEXES=""
     [ -r /etc/android-host-apexes ] && EXTRA_APEXES=$(grep -v '^#' /etc/android-host-apexes)
+    # Only the VNDK the vendor was built against: linkerconfig uses the one named by the vendor's
+    # ro.vndk.version and nothing reads the others. The GSI carries one per release from v27 up,
+    # and mounting all eight was most of the ten seconds this step took on the TouchPad. Fall
+    # back to all of them when the vendor does not say or the GSI has no matching one.
+    VNDK_APEX="com.android.vndk.*"
+    _vndk=$(sed -n 's/^ro\.vndk\.version=//p' "$ANDROID_ROOT/vendor/build.prop" 2>/dev/null | head -n 1)
+    if [ -n "$_vndk" ]; then
+        for _d in "$ANDROID_ROOT/system_ext/apex" "$ANDROID_ROOT/system/system_ext/apex" "$ANDROID_ROOT/system/apex"; do
+            if [ -e "$_d/com.android.vndk.v$_vndk.apex" ] || [ -d "$_d/com.android.vndk.v$_vndk" ]; then
+                VNDK_APEX="com.android.vndk.v$_vndk"
+                break
+            fi
+        done
+    fi
+    log "VNDK APEX: $VNDK_APEX"
     # shellcheck disable=SC2086
-    mount-apexes.py "com.android.runtime" "com.android.art" "com.android.i18n" "com.android.vndk.*" \
+    mount-apexes.py "com.android.runtime" "com.android.art" "com.android.i18n" "$VNDK_APEX" \
         $EXTRA_APEXES \
         || log "WARNING: APEX mounting reported errors"
 fi
