@@ -18,7 +18,7 @@
 # so "gta7litewifi" is the first property it reads and resolves directly.
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SRC_URI += "file://gta7litewifi-deviceinfo file://n2awifi-deviceinfo file://a3lte-deviceinfo"
+SRC_URI += "file://gta7litewifi-deviceinfo file://n2awifi-deviceinfo file://a3lte-deviceinfo file://goyavewifi-deviceinfo"
 
 do_install:append() {
     install -d ${D}${datadir}/luneos/adaptations/gta7litewifi
@@ -31,4 +31,8 @@ do_install:append() {
     install -d ${D}${datadir}/luneos/adaptations/a3lte
     install -m 0644 ${UNPACKDIR}/a3lte-deviceinfo \
         ${D}${datadir}/luneos/adaptations/a3lte/deviceinfo
+    # goyavewifi: the LineageOS vendor reports goyavewifi (ro.vendor.product.device); see the file.
+    install -d ${D}${datadir}/luneos/adaptations/goyavewifi
+    install -m 0644 ${UNPACKDIR}/goyavewifi-deviceinfo \
+        ${D}${datadir}/luneos/adaptations/goyavewifi/deviceinfo
 }
