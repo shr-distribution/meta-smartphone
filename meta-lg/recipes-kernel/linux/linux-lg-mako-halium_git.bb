@@ -28,7 +28,7 @@ do_configure:prepend() {
     cp -v -f ${S}/arch/arm/configs/lineageos_mako_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "1dfbaec0c8cced49539b6a80b5818b13f3bef003"
+SRCREV = "2a7e64ed12770eba1283385bd8090f8f38fcd399"
 
 # The 64-bit time clock calls (see halium-kernel-3.4.inc).
 KERNEL_ADD_CLOCK_TIME64 = "1"
