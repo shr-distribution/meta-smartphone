@@ -26,7 +26,7 @@ do_configure:prepend() {
     cp -v -f ${S}/arch/arm/configs/lineageos_onyx_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "6895e8cc24276b4f80783b73e4c256bb63273010"
+SRCREV = "1faf3707d052b117d5bafad7275205f5b0b2a512"
 
 LINUX_VERSION = "3.4.0"
 PV = "${LINUX_VERSION}+git"
