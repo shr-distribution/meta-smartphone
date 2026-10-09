@@ -17,7 +17,7 @@ HALIUM_LUNEOS_GSI16_RELEASE = "halium-luneos-20261005"
 
 # The vendor image published with the GSI (tenderloin-halium-vendor.img in its release), made by the settings below
 # against that GSI. See android-system-image-legacy-gsi.inc for how to make a new one.
-HALIUM_LEGACY_VENDOR_SHA256 = "3b82533d01a9fc79a3af55cb427692e5db46c3a241694d00eced5813acff3f1c"
+HALIUM_LEGACY_VENDOR_SHA256 = "ccba3f33b52064838ccdc1159fecb0abecd04852aed73dcb6f2a8c6fe84a6017"
 
 HALIUM_LEGACY_DEVICE_URL = "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-9.0-20210506-2-tenderloin.tar.bz2/halium-luneos-9.0-20210506-2-tenderloin.tar.bz2"
 HALIUM_LEGACY_DEVICE_SHA256 = "800855aa74f752c774312c48143cc158d8d5e32a281f7f978851a0679350fe9b"
@@ -39,8 +39,16 @@ HALIUM_LEGACY_EXTRA_LIBS += "libft2.so"
 # only audio policy is the legacy audio_policy.conf, which pulseaudio-modules-droid reads from /vendor/etc
 # (pulseaudio-distro-conf's droid-audio-config-gen hands it over when there is no XML). Without them there is
 # no droid card, no pcm_output sink, and pulseaudio aborts and restarts for ever (7 Oct 2026).
-HALIUM_LEGACY_COPY_FILES += "/system/etc/audio_policy.conf:/etc/audio_policy.conf \
-    /system/etc/mixer_paths.xml:/etc/mixer_paths.xml"
+HALIUM_LEGACY_COPY_FILES += "/system/etc/audio_policy.conf:/etc/audio_policy.conf"
+
+# mixer_paths.xml is the old image's (android_device_hp_tenderloin-common, halium-9.0) without the six
+# ignore="1" lines for controls the 3.4 kernel does not have (phone_rx, phone_tx, Force Route Switch, VocPath,
+# LINEOUT2 Mixer IN2R/IN2L Switch). The HAL's audio_route_init() sets the ignore flag one entry past its mixer
+# state table for each control it cannot find, on the heap behind it: on the first PulseAudio of every boot
+# that hit a chunk header, and stopping PulseAudio aborted in mixer_close() with "free(): invalid pointer"
+# (9 Oct 2026).
+SRC_URI += "file://mixer_paths.xml"
+HALIUM_LEGACY_EXTRA_FILES += "mixer_paths.xml:/etc/mixer_paths.xml:644"
 
 # The TouchPad is a Wi-Fi tablet with no camera HAL, no modem and no vendor OMX codecs in its Halium 9 build,
 # so of the shared services (android-system-image-legacy-a9-services.inc) it takes the graphics ones, the
