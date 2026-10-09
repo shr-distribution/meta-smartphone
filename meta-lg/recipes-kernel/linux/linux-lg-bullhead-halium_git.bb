@@ -6,6 +6,12 @@ SECTION = "kernel"
 # Mark archs/machines that this kernel supports
 COMPATIBLE_MACHINE = "^bullhead-halium$"
 
+# The arm64 Makefile of 3.10 links libgcc.a (LIBGCC := $(CC) -print-libgcc-file-name), which a
+# kernel recipe's sysroot does not have: "ld.bfd: cannot find libgcc.a". As linux-huawei-angler.
+DEPENDS:append:aarch64 = " libgcc"
+KERNEL_CC:append:aarch64 = " ${TOOLCHAIN_OPTIONS}"
+KERNEL_LD:append:aarch64 = " ${TOOLCHAIN_OPTIONS}"
+
 DESCRIPTION = "Linux kernel for the LG Bullhead (Nexus 5X) device, from the LineageOS 21 \
 tree of github.com/nexus5x-dev"
 
@@ -36,7 +42,7 @@ inherit kernel_android
 S = "${UNPACKDIR}/${BP}"
 
 # github.com/shr-distribution/linux, branch bullhead/3.10/lineage-21.0: lineage-21.0 of
-# github.com/nexus5x-dev/kernel_lge_bullhead (3.10.108) at 995f521bafa3 with three LuneOS
+# github.com/nexus5x-dev/kernel_lge_bullhead (3.10.108) at 995f521bafa3 with these LuneOS
 # commits on top:
 #
 #  - arm64 proc.S: a section flag spelling the OE GNU as rejects
@@ -44,16 +50,39 @@ S = "${UNPACKDIR}/${BP}"
 #  - halium_bullhead_defconfig: lineageos_bullhead_defconfig plus SysV IPC, the IPC/UTS/PID
 #    namespaces, devtmpfs, fhandle, autofs, device cgroup, devpts instances, vndbinder,
 #    no paranoid network (the commit message has the reasons)
+#  - MemAvailable in /proc/meminfo (the tenderloin commit): memorymanager refuses every app
+#    launch without it
+#  - ipc_router: group net_raw may bind without paranoid networking, as on the Galaxy A3
+#    (2015): pm-service runs as system:net_raw and rmt_storage drops its capabilities, and
+#    the router refused both
+#  - halium_bullhead_defconfig: BT_HCIVHCI for bluebinder
+#  - renameat2 wired into both syscall tables: the tree had the 3.15 backport, but its slots
+#    returned ENOSYS, and Android 16's bionic renames through renameat2 with no fallback
+#  - execveat() through /proc/self/fd: the LuneOS arm64 glibc is built for kernels from 4.9
+#    on and has no fexecve() fallback without it (lxc-attach re-executes itself that way)
 #
 # The tree already has what the Android 16 GSI needs from a kernel that the 3.4 kernels
-# had to be patched for: renameat2, getrandom, memfd_create, seccomp filters, ambient
+# had to be patched for: getrandom, memfd_create, seccomp filters, ambient
 # capabilities (PR_CAP_AMBIENT), PR_SET_VMA, the five loop driver fixes, and a NULL-safe
-# msm_cpp firmware load. Built with the OE aarch64 GCC 15.3 outside bitbake; not booted.
+# msm_cpp firmware load. Not booted.
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=bullhead/3.10/lineage-21.0;protocol=https"
-SRCREV = "4b471fb74c9af3779f70edb7cd663d762b0d0c25"
+SRCREV = "9d6307cbda69fb46daf05c9152a7ef1fb75ebc94"
 
 do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/halium_bullhead_defconfig ${WORKDIR}/defconfig
+}
+
+# The initramfs debug shell (init.sh stops in its adbd shell when /proc/cmdline has
+# enable_adb). Built into CONFIG_CMDLINE rather than added to the boot image's command
+# line, as on sargo and goyavewifi, so it does not depend on what the bootloader passes
+# on. For a `fastboot boot` test image:
+#   CONF=$(mktemp --suffix=.conf); echo 'LUNEOS_ENABLE_ADB = "1"' > $CONF
+#   MACHINE=bullhead-halium bitbake -R $CONF linux-lg-bullhead-halium
+LUNEOS_ENABLE_ADB ??= "0"
+do_configure:append() {
+    if [ "${LUNEOS_ENABLE_ADB}" = "1" ]; then
+        halium_kernel_add_cmdline "enable_adb"
+    fi
 }
 
 LINUX_VERSION = "3.10.108"
@@ -67,6 +96,9 @@ do_install:append() {
     # Those files record absolute command lines, which wrynose rejects as
     # "contains reference to TMPDIR [buildpaths]".
     find ${D}${exec_prefix}/src -name '..install.cmd' -delete 2>/dev/null || true
+    # headers_install also leaves the Android staging uapi headers (ion.h, msm_ion.h) under
+    # /usr/src/usr, which no package ships; as sargo, fajita and athena.
+    rm -rf ${D}/usr/src/usr
 }
 
 # The host tools of a 3.10 tree predate C23, which the host GCC 15 defaults to; the test
