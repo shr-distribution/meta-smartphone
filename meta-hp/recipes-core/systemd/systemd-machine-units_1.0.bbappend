@@ -28,10 +28,12 @@ SRC_URI:append:tenderloin-halium = " \
     file://tenderloin-ath6kl-module.service \
     file://tenderloin-swap.service \
     file://tenderloin-boot-completed.service \
+    file://20-tenderloin-journal-size.conf \
     file://android-host-apexes \
 "
 
 RDEPENDS:${PN}:tenderloin-halium += "tenderloin-bluetooth-utilities"
+FILES:${PN}:append:tenderloin-halium = " ${systemd_unitdir}/journald.conf.d"
 
 do_install:append:tenderloin-halium() {
     # The media APEXes on the host, for gst-droid (the camera app's camera source); see the file.
@@ -42,6 +44,9 @@ do_install:append:tenderloin-halium() {
     install -m 0644 ${UNPACKDIR}/tenderloin-ath6kl-module.service ${D}${systemd_unitdir}/system
     install -m 0644 ${UNPACKDIR}/tenderloin-swap.service ${D}${systemd_unitdir}/system
     install -m 0644 ${UNPACKDIR}/tenderloin-boot-completed.service ${D}${systemd_unitdir}/system
+
+    install -d ${D}${systemd_unitdir}/journald.conf.d
+    install -m 0644 ${UNPACKDIR}/20-tenderloin-journal-size.conf ${D}${systemd_unitdir}/journald.conf.d/
 }
 
 SYSTEMD_SERVICE:${PN}:tenderloin-halium = "tenderloin-ath6kl-module.service tenderloin-swap.service tenderloin-boot-completed.service"
