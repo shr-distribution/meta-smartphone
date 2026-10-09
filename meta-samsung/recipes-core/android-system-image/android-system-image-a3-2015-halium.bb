@@ -10,6 +10,11 @@ HALIUM_LUNEOS_GSI16_RELEASE = "halium-luneos-20261005"
 
 COMPATIBLE_MACHINE = "^a3-2015-halium$"
 
+# The vendor image published with the GSI (a3-2015-halium-vendor.img in its release), made by the settings
+# below against that GSI. See android-system-image-legacy-gsi.inc for how to make a new one; that needs the
+# device tarball below.
+HALIUM_LEGACY_VENDOR_SHA256 = "197ce2bcb1093ab5e1fdf99f6be509748fab721cd8a5e7bbbc797caa00e85636"
+
 # The 32-bit 16.0 GSI (pinned above, newer than android-system-image-legacy-gsi.inc's), as it is
 # published, on a vendor that comes from vlw's LineageOS 18.1 trees for the Galaxy A3 (2015)
 # (github.com/vlw: android_device_samsung_a3lte, android_device_samsung_msm8916-common,
