@@ -55,7 +55,7 @@ do_deploy[depends] += "initramfs-android-image:do_image_complete"
 DEPENDS += "u-boot-mkimage-native"
 KERNEL_OUTPUT ?= "${KERNEL_OUTPUT_DIR}/${KERNEL_IMAGETYPE}"
 
-SRCREV = "a3916a8fb3c30a2b5764be1b31b7262bcdf0b9ff"
+SRCREV = "921421707a1409f0de27e47f20fb6972e9c75661"
 
 LINUX_VERSION = "3.4.113"
 PV = "${LINUX_VERSION}+git"
