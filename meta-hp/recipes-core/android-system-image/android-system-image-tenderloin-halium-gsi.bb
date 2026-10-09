@@ -6,9 +6,14 @@ COMPATIBLE_MACHINE = "tenderloin-halium"
 # The TouchPad runs a newer 32-bit GSI than the other legacy devices, which stay on the one
 # android-system-image-legacy-gsi.inc names until their vendor images are published again: 20261008-1 gives
 # the restored HAL1 CameraClient VIDEO_BUFFER_MODE_BUFFER_QUEUE, the only video mode Android's CameraSource
-# uses, so its camera can record through the hardware encoder.
-HALIUM_LUNEOS_GSI16_PV = "20261008-1"
-HALIUM_LUNEOS_GSI16_SHA256 = "59901bf1c1a8c362d92b9495d88c0508d516e0a22d890ca60c48b780ae86acf7"
+# uses, so its camera can record through the hardware encoder. 20261008-3, the published build, has that and
+# adds the sphal libbinder/libui link for VNDK 30 vendors and five HIDL threads in minimediaservice (a HAL1
+# takePicture() deadlocked without them); 20261008-1 was never published. The vendor image below re-derives
+# with identical contents against it. Both are in the halium-luneos-20261005 release, which the date of the
+# version does not name.
+HALIUM_LUNEOS_GSI16_PV = "20261008-3"
+HALIUM_LUNEOS_GSI16_SHA256 = "7795e2d7756707ea28a4dfc3d4f00406afe47339abe306168bc0035d2e6712c3"
+HALIUM_LUNEOS_GSI16_RELEASE = "halium-luneos-20261005"
 
 # The vendor image published with the GSI (tenderloin-halium-vendor.img in its release), made by the settings below
 # against that GSI. See android-system-image-legacy-gsi.inc for how to make a new one.
