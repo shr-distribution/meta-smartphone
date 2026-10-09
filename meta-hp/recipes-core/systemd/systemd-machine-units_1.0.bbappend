@@ -27,6 +27,7 @@ SYSTEMD_SERVICE:${PN}:tenderloin = "tenderloin-ath6kl-module.service tenderloin-
 SRC_URI:append:tenderloin-halium = " \
     file://tenderloin-ath6kl-module.service \
     file://tenderloin-swap.service \
+    file://tenderloin-boot-completed.service \
     file://android-host-apexes \
 "
 
@@ -40,6 +41,7 @@ do_install:append:tenderloin-halium() {
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${UNPACKDIR}/tenderloin-ath6kl-module.service ${D}${systemd_unitdir}/system
     install -m 0644 ${UNPACKDIR}/tenderloin-swap.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/tenderloin-boot-completed.service ${D}${systemd_unitdir}/system
 }
 
-SYSTEMD_SERVICE:${PN}:tenderloin-halium = "tenderloin-ath6kl-module.service tenderloin-swap.service"
+SYSTEMD_SERVICE:${PN}:tenderloin-halium = "tenderloin-ath6kl-module.service tenderloin-swap.service tenderloin-boot-completed.service"
