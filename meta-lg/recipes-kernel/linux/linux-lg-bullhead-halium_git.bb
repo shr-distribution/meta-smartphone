@@ -21,7 +21,16 @@ tree of github.com/nexus5x-dev"
 # from halium-kernel.inc through CONFIG_CMDLINE_EXTEND, which this kernel honours on
 # the device tree path too (drivers/of/fdt.c, unlike the 3.4 kernels of hammerhead
 # and mako).
-ANDROID_BOOTIMG_CMDLINE = "console=ttyHSL0,115200,n8 androidboot.hardware=bullhead boot_cpus=0-5 msm_poweroff.download_mode=0 loop.max_part=7 androidboot.boot_devices=soc.0/f9824900.sdhci androidboot.selinux=permissive"
+#
+# boot_cpus=0-3 maxcpus=4 nr_cpus=4 instead of LineageOS' boot_cpus=0-5: only the four
+# Cortex-A53 cores, as the official TWRP for this phone boots. nr_cpus=4 (honoured since
+# "arm64: smp: honour nr_cpus=") also keeps the A57s out of later hotplug, which the
+# vendor's init.bullhead.power.sh does for cpu4 at boot. The first test phone (bootloader
+# BHZ11h) panicked 0.3 s into boot with "failed to lock a57_pll1 PLL" (clock-pll.c) when the
+# kernel brought up the A57 cluster, and hung in "Reboot failed -- System halted"; TWRP ran
+# on the same phone. A57 PLL failures are what the Nexus 5X's big-core hardware fault looks
+# like; whether that phone has it, or its old firmware is the cause, is not known yet.
+ANDROID_BOOTIMG_CMDLINE = "console=ttyHSL0,115200,n8 androidboot.hardware=bullhead boot_cpus=0-3 maxcpus=4 nr_cpus=4 msm_poweroff.download_mode=0 loop.max_part=7 androidboot.boot_devices=soc.0/f9824900.sdhci androidboot.selinux=permissive"
 
 # The header of the LineageOS 21 boot.img (lineage-21.0-20240911-UNOFFICIAL-bullhead.zip):
 # page size 4096, kernel at 0x8000, ramdisk at 0x2000000, tags at 0x1e00000, no
@@ -60,13 +69,14 @@ S = "${UNPACKDIR}/${BP}"
 #    returned ENOSYS, and Android 16's bionic renames through renameat2 with no fallback
 #  - execveat() through /proc/self/fd: the LuneOS arm64 glibc is built for kernels from 4.9
 #    on and has no fexecve() fallback without it (lxc-attach re-executes itself that way)
+#  - arm64 smp: nr_cpus= limits the possible CPUs (see the command line above)
 #
 # The tree already has what the Android 16 GSI needs from a kernel that the 3.4 kernels
 # had to be patched for: getrandom, memfd_create, seccomp filters, ambient
 # capabilities (PR_CAP_AMBIENT), PR_SET_VMA, the five loop driver fixes, and a NULL-safe
 # msm_cpp firmware load. Not booted.
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=bullhead/3.10/lineage-21.0;protocol=https"
-SRCREV = "9d6307cbda69fb46daf05c9152a7ef1fb75ebc94"
+SRCREV = "7d4ed57026ace558e4a58a2a3de3a8879fa0efd2"
 
 do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/halium_bullhead_defconfig ${WORKDIR}/defconfig
