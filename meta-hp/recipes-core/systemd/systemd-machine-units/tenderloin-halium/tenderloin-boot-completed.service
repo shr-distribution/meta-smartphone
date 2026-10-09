@@ -1,0 +1,22 @@
+[Unit]
+Description=Tell the Android container the boot has completed
+# The vendor's init.tenderloin.power.rc keeps its final power settings for
+#
+#     on property:sys.boot_completed=1
+#         scaling_governor interactive, the entropy wakeup thresholds,
+#         rq_affinity 0 and the bfq I/O scheduler on mmcblk0
+#
+# and that property is set by Android's SystemServer, which Halium does not
+# run, so the block never ran. Set it once the LuneOS UI is up, which is the
+# point SystemServer would have reached.
+After=default-webos.target android-system.service
+Requires=android-system.service
+ConditionPathExists=/usr/bin/setprop
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/setprop sys.boot_completed 1
+
+[Install]
+WantedBy=default-webos.target
