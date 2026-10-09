@@ -27,7 +27,16 @@ ExecStart=/usr/bin/lxc-start -n android -l DEBUG -o /var/log/lxc-android.log -- 
 # device coming up on the placeholder input config (no touch, no power key).
 ExecStartPost=-/usr/bin/start-android-hals.sh
 ExecStartPost=-/usr/bin/wait-for-android.sh
-ExecStop=/usr/bin/lxc-stop -n android -t 5
+# Kill the container outright. "-t 5" sent init LXC's halt signal and waited
+# five seconds for it to exit; Android's init does not treat that signal as a
+# shutdown request, so every shutdown waited the full five seconds and then
+# killed it anyway (8.4 s to stop the container on the HP TouchPad, 3.7 s
+# with -k). Asking init to shut down properly instead (sys.powerctl) was
+# measured too and was slower still: an Android 16 GSI did not finish within
+# several seconds. -k kills the container's init, which takes every process
+# in its pid namespace down with it, so nothing is left behind as there was
+# when only lxc-start was killed.
+ExecStop=-/usr/bin/lxc-stop -n android -k
 RemainAfterExit=yes
 # Both post scripts are internally bounded (the graphics-HAL wait ~30s, the
 # getprop wait 120s), so give the whole start comfortably more than their sum.
