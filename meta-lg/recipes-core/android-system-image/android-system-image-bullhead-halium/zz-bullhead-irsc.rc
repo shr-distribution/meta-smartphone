@@ -1,0 +1,8 @@
+# irsc_util loads the IPC router's security rules, which say which groups may reach which QMI
+# service. init.bullhead.rc passes it /etc/sec_config, the GSI's /system/etc, which does not have
+# the file: the vendor image does. Same definition otherwise. "zz-" sorts it after the vendor's.
+service irsc_util /vendor/bin/irsc_util "/vendor/etc/sec_config"
+    override
+    class main
+    user root
+    oneshot
