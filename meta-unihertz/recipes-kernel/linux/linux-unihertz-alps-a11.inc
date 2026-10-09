@@ -32,12 +32,16 @@ require recipes-kernel/linux/linux-unihertz-mt6771.inc
 #    camera sensors, the ov16880 EEPROM entry and the Pocket's rear-camera
 #    supply routing;
 #  - the Titan Pocket's own aw9523 key matrix, and its Fn key as a Ctrl key.
+#  - TrustKernel SPI clock handles created on demand, as the stock kernel's
+#    tee_clkmgr_handle() does (the fingerprint trusted app needs SPI0's clock).
+#  - the ISP's virtual-CQ-count SOF check applied only once userspace has set
+#    the count; the stock camera HAL never does, so every frame was dropped.
 #
 # NOTE: unlike the Titan's halium-10.0 branch, nothing here has been shown to
 # boot - the Ubuntu Touch port for these two devices still packs the *stock*
 # prebuilt kernel and builds only loadable modules out of this tree. We are
 # ahead of upstream in asking it to be a whole kernel.
-SRCREV = "8d83bc9a15759440ccdef8b6c47961d38a1fff31"
+SRCREV = "e156c2a65e1849373a39b1a055b50d29c69498af"
 
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=unihertz-mt6771/4.14/halium-11.0;protocol=https \
            file://luneos.cfg \
