@@ -7,6 +7,11 @@ HALIUM_LUNEOS_GSI16_PV = "20261008-3"
 HALIUM_LUNEOS_GSI16_SHA256 = "7795e2d7756707ea28a4dfc3d4f00406afe47339abe306168bc0035d2e6712c3"
 HALIUM_LUNEOS_GSI16_RELEASE = "halium-luneos-20261005"
 
+# The vendor image published with the GSI (goyavewifi-vendor.img in the halium-luneos-20261005 release),
+# derived by the settings below from the device tarball against GSI 20261008-3. See
+# android-system-image-legacy-gsi.inc for how to make a new one.
+HALIUM_LEGACY_VENDOR_SHA256 = "e0730f2e0da7dbe0f316b20092ba4da4d1b2b74106203c5c91cc968ff28d48a8"
+
 COMPATIBLE_MACHINE = "^goyavewifi$"
 
 # The 32-bit 16.0 GSI, on a vendor built from the LineageOS 16.0 (Android 9, VNDK 28) trees of the tablet
