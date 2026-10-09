@@ -6,9 +6,10 @@ Approach: Halium with the 16.0 GSI, as hammerhead/mako/tenderloin. The vendor
 is built from the exynos5420 community's LineageOS 18.1 (Android 11) trees and
 made Treble-shaped by `halium-legacy-vendor`.
 
-State: it boots LuneOS on the tablet and shows the UI (4 Oct 2026). See "State after the
-first day on hardware" at the end for what works, what does not and what was learnt; the
-sections in between were written before the first boot.
+State: everything works on the tablet (maintainer, 8 Oct 2026). It first booted LuneOS and
+showed the UI on 4 Oct 2026. See "State after the first day on hardware" at the end for what
+was learnt; the sections in between were written before the first boot, and the "Not working
+yet" list there is what was open on 4 Oct, since resolved.
 
 ## Why Halium and not mainline
 
@@ -139,7 +140,7 @@ must not wait for firmware (CONFIG_VT's kbd handler opened the touchscreen from 
 0013 bcmdhd multiple AKM, 0014 MFC sysmmu fault before the MFC is set up. The old 0012
 (s3c-fb debug print) is left out of SRC_URI; the file stays in the directory.
 
-## Not working yet
+## Not working yet (as of 4 Oct 2026; all of it works now, see the update below)
 - **Sound after the first minutes / "not always"**: see PENDING-TESTS.md in the scratch
   directory; a mixer-file experiment made it worse and was backed out, untested.
 - **Camera**: the camera HAL needs libnativehelper.so, which the GSI does not provide, and
@@ -160,3 +161,13 @@ must not wait for firmware (CONFIG_VT's kbd handler opened the touchscreen from 
 bind, stop the Android Wi-Fi HAL), `/etc/sysctl.d/90-sm-t520-nopanic.conf` (the dev image
 now ships its own), `libgstvideo4linux2.so` and `libgstv4l2codecs.so` renamed to
 `*.disabled`, `/usr/bin/strace-dbg` and `gdbserver-dbg`, Testr installed by `opkg`.
+
+---
+
+# Update (8 Oct 2026)
+
+Everything works on the SM-T520, as reported by the maintainer after testing the tablet:
+the items listed under "Not working yet" above no longer apply. This update records only
+that outcome. The individual fixes for those items are not written down here, so check the
+git history of this layer and of the kernel recipe for what changed, and move anything
+worth keeping into the sections above.
