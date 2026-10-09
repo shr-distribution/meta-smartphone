@@ -1,0 +1,43 @@
+# Tier 1 adaptation for the Samsung Galaxy Tab 3 Lite 7.0 / Tab E Lite Wi-Fi (SM-T113, goyavewifi,
+# Spreadtrum SC7730S). Nothing here has been run on hardware.
+#
+# Only what cannot be derived belongs here. The directory name is the codename luneos-device-config reads
+# from ro.vendor.product.device, which the LineageOS 15.1 vendor build.prop sets to goyavewifi (stock says
+# goyavewifi as well, ro.product.device in T113XXS0AQC2).
+
+# Physical density of the 7" 1024x600 panel: 1024 / (154 mm / 25.4) = 169 ppi, from the panel's
+# gen-panel-width in sprd-dsi-panel-vx5b3d-WSVGA_video.dtsi. Not Android's density bucket
+# (ro.sf.lcd_density=160).
+deviceinfo_display_dpi="169"
+
+# The panel is 1024x600, native landscape (gen-panel-xres 1024, gen-panel-yres 600). Android runs it as a
+# 600x1024 portrait screen with ro.sf.hwrotation=270. Geometry format as the SM-T520.
+# TODO(verify): the rotation the compositor and the touch need on the tablet.
+deviceinfo_compositor_geometry="1024x600+0+0r0s1"
+
+# The GPU is an ARM Mali-400 behind one file, /vendor/lib/egl/libGLES_mali.so, which the EGL loader finds as
+# libGLES_<name>.so for ro.hardware.egl=mali (the image recipe's vendor build.prop sets it).
+# UNVERIFIED on hardware.
+deviceinfo_hardware_egl="mali"
+
+# A 7" tablet: the tablet shell and keyboard layouts (defaults to false, a phone).
+deviceinfo_tablet_ui="true"
+
+# Display scaling for web apps: a tablet should get a viewport about 1024 CSS px wide. Here that is a ratio
+# of 1.0 (1024 / 1024).
+# TODO(verify): tune by eye on the panel.
+deviceinfo_device_pixel_ratio="1.0"
+
+# Do not let the compositor open the hwcomposer HAL a second time; the Android composer service in the
+# container already has it (the SM-T520, A3 (2015) and SM-T220 need the same).
+# UNVERIFIED on this tablet.
+deviceinfo_force_hwc2="1"
+
+# The container's Android Wi-Fi HAL starts the vendor wpa_supplicant, which takes wlan0 away from the host's
+# wpa_supplicant that connman talks to (found on the SM-T520 and the A3). LuneOS drives Wi-Fi from the host.
+# vendor.bluetooth-1-0 is skipped too: the Bluetooth route here is not decided yet, and the HAL opening the
+# UART would fight a host hciattach for it.
+deviceinfo_android_skip_services="vendor.wifi_hal_legacy vendor.bluetooth-1-0"
+
+# A Wi-Fi-only tablet: no modem, so no IRadio slot. Skips the ofono generator's wait for one.
+deviceinfo_modem="false"
