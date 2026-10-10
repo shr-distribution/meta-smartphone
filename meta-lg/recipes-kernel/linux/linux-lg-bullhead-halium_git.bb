@@ -74,13 +74,17 @@ S = "${UNPACKDIR}/${BP}"
 #    lpm_probe on the error path)
 #  - android_usb: "ffs" taken as the first f_ffs alias; android-gadget-setup writes "ffs",
 #    and this android.c oopsed enabling the alias-less template
+#  - cpuset: the root's cpus_requested limited to the possible CPUs; with nr_cpus=4 it listed
+#    0-5 and LXC could not create its cgroups (EINVAL), so the container never started
+#  - arm64: no register dump for an unimplemented syscall (statx, rseq, clone3, ... are probed
+#    on every boot and filled nine tenths of the journal)
 #
 # The tree already has what the Android 16 GSI needs from a kernel that the 3.4 kernels
 # had to be patched for: getrandom, memfd_create, seccomp filters, ambient
 # capabilities (PR_CAP_AMBIENT), PR_SET_VMA, the five loop driver fixes, and a NULL-safe
 # msm_cpp firmware load. Not booted.
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=bullhead/3.10/lineage-21.0;protocol=https"
-SRCREV = "228df6603b21586f13aa52c5b1a71ebd805eb2c2"
+SRCREV = "9cd99212b9a5f8e7b8f42c7382dcc16c9960b097"
 
 do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/halium_bullhead_defconfig ${WORKDIR}/defconfig
