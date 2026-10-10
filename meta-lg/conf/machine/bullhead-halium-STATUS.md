@@ -5,7 +5,19 @@ panel, launched on Android 6 without a vendor partition. Approach: the 3.10 kern
 LineageOS 21 tree and the plain arm64 16.0 GSI over a vendor converted by `halium-legacy-vendor` from
 that LineageOS 21 build, as the A3 (2015) and the SM-T520.
 
-State: **round 4 (10 Oct 2026) booted LuneOS again, USB oops gone, container still down.** lxc-android.log:
+State: **round 6 (10 Oct 2026) stalled in early systemd, the container never started.** PID 1 logged nothing
+for 300.0 s after "Starting Create Static Device Nodes in /dev" (11.8 s -> 311.8 s; that unit and "Coldplug All
+udev Devices" finished together), then again after systemd-tmpfiles-setup started (311.9 s) until the journal
+ends at 611 s; the kernel kept logging (nanohub) throughout. Only android-system changed since round 5, and its
+hook runs at container start, which was never reached; round 5's first boot passed the same units in 0.1 s.
+Cause not known; 5 minutes is systemd-userwork's RUNTIME_MAX_USEC (nsswitch has `systemd` for passwd/group, and
+userdbd started just before), not confirmed. ramoops held only the TWRP install session.
+Round 5 (10 Oct 2026): udevd/logind fine with systemd 0009, **the Android container started** (init, lshal), lmkd
+exited 4 times before boot completed, Android init shut the container down, and the teardown hit the 3.10 BUG()
+in shrink_dcache_for_umount_subtree ("dentry ... still in use (1) [unmount of tmpfs tmpfs]", from lxc-start's
+mntns_put) -> panic. No earlier fix for it in the 3.4/3.10 LuneOS kernels. Round 6 kit (bullhead_20261010-6.zip):
+init.svc_debug.no_fatal.lmkd and logcatd persistence through the new 65-extra-init hook (meta-android).
+Round 4 (10 Oct 2026) booted LuneOS again, USB oops gone, container still down. lxc-android.log:
 every LXC cgroup failed on cpuset.cpus (EINVAL): the root cpuset listed CPUs 0-5 (cpus_requested set to all of
 NR_CPUS) with nr_cpus=4, and update_cpumask() refuses CPUs that are not present; kernel 8261bf75 trims it. The
 journal was nine tenths register dumps for unimplemented syscalls (statx, rseq, pidfd_open, clone3, faccessat2),
