@@ -11,3 +11,16 @@ on early-init
 on post-fs-data
     setprop persist.logd.logpersistd.buffer all
     setprop persist.logd.logpersistd logcatd
+
+# The vendor's init.bullhead.sensorhub.rc declares flash-nanohub-fw without a user, which the
+# Android 16 init rejects ("No user specified for service 'flash-nanohub-fw', so it would have
+# been root"), so "start flash-nanohub-fw" on post-fs failed with "service not found" and the
+# sensor hub was never brought to the firmware in /vendor/firmware/nanohub.full.bin. The hub
+# then answered no reads (nanohub_kthread err_cnt every second from boot on), the sensors HAL
+# listed nothing and sensorfwd restarted every few seconds (10 Oct 2026). The same service,
+# with the user Android 6 ran it as; nanoapp_cmd only flashes when the version differs.
+service flash-nanohub-fw /vendor/bin/nanoapp_cmd download
+    user root
+    group system
+    oneshot
+    disabled

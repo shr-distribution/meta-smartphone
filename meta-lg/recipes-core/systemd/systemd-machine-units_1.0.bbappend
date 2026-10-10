@@ -137,3 +137,22 @@ SYSTEMD_SERVICE:${PN}:mako-halium = " \
     hciattach.service \
     dev-ttyHS99.device \
 "
+
+
+# Nexus 5X: see bullhead-halium/sensorfwd-restart.conf and wam-maps-capture.service (found
+# through the machine override).
+S:bullhead-halium = "${UNPACKDIR}"
+
+SRC_URI:append:bullhead-halium = " file://sensorfwd-restart.conf file://wam-maps-capture.service file://wam-maps-capture.sh"
+
+do_install:append:bullhead-halium() {
+    install -d ${D}${systemd_unitdir}/system/sensorfwd.service.d
+    install -m 0644 ${UNPACKDIR}/sensorfwd-restart.conf \
+        ${D}${systemd_unitdir}/system/sensorfwd.service.d/sensorfwd-restart.conf
+    install -m 0644 ${UNPACKDIR}/wam-maps-capture.service ${D}${systemd_unitdir}/system
+    install -d ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/wam-maps-capture.sh ${D}${bindir}
+}
+
+FILES:${PN}:append:bullhead-halium = " ${systemd_unitdir}/system/sensorfwd.service.d ${systemd_unitdir}/system/wam-maps-capture.service ${bindir}/wam-maps-capture.sh"
+SYSTEMD_SERVICE:${PN}:append:bullhead-halium = " wam-maps-capture.service"
