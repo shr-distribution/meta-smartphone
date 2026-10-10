@@ -5,13 +5,16 @@ panel, launched on Android 6 without a vendor partition. Approach: the 3.10 kern
 LineageOS 21 tree and the plain arm64 16.0 GSI over a vendor converted by `halium-legacy-vendor` from
 that LineageOS 21 build, as the A3 (2015) and the SM-T520.
 
-State: **first remote test (9 Oct 2026, LGH790, bootloader BHZ11h): kernel panic 0.3 s into boot.** The
-install from TWRP worked; the six-core kernel stopped with "failed to lock a57_pll1 PLL" (clock-pll.c) when
-the CPU clock driver enabled the clocks of the online A57 cores, then hung in "Reboot failed -- System
-halted". The ramoops console survived the reset and TWRP read it. The kernel now runs on the four A53s only
-(`boot_cpus=0-3 maxcpus=4 nr_cpus=4`, the last made effective by a kernel commit), as TWRP does on the same
-phone; the tester is asked to move to bootloader BHZ32c / radio 2.6.42.5.03 too. Whether the phone has the
-5X's big-core fault or the old firmware was the cause is open. Test kit:
+State: **two remote tests (9 Oct 2026, LGH790, bootloader BHZ11h), both kernel panics; round 3 kit out.**
+Round 1: the install from TWRP worked; the six-core kernel stopped 0.3 s into boot with "failed to lock
+a57_pll1 PLL" (clock-pll.c) when the CPU clock driver enabled the clocks of the online A57 cores, then hung in
+"Reboot failed -- System halted". The ramoops console survived the reset and TWRP read it. The kernel now runs
+on the four A53s only (`boot_cpus=0-3 maxcpus=4 nr_cpus=4`, the last made effective by a kernel commit), as TWRP
+does on the same phone. Round 2 (A53s only, same BHZ11h firmware) reached 2.86 s and died in lpm_probe: with
+nr_cpus=4 the A57 cluster's CPUs match no possible CPU, and parse_cluster()'s error path list_del()ed a cluster
+never put on a list. Fixed by skipping clusters without possible CPUs (9cdee0c1). The old firmware is not what
+stopped the boot; BHZ32c / radio 2.6.42.5.03 only matter if modem, audio or Wi-Fi fail. Whether the phone has
+the 5X's big-core fault is open. Test kit:
 `~/webos/LuneOS/staging/bullhead-staging` on the build host.
 
 | Part | State |
@@ -93,8 +96,9 @@ TWRP's 3.10 kernel; `webos_deploy.sh` falls back to TWRP's busybox.
 - GPS: gps.conf, izat.conf, sap.conf, flp.conf, lowi.conf are opened as `/etc/<file>` and are not in place.
 - Camera: 32-bit HAL with LineageOS linker shims (`TARGET_LD_SHIM_LIBS`) not reproduced.
 - An Android 14 vendor on the Android 16 GSI has not run anywhere.
-- Four cores only: the vendor's cpuset writes for CPUs 4-5 (`0-2,4-5`, `0-5`) fail; drivers that map DT CPU
-  nodes to logical CPUs were checked in msm-core only.
+- Four cores only: the vendor's cpuset writes for CPUs 4-5 (`0-2,4-5`, `0-5`) and lpm_levels/system/a57 fail.
+  Checked for CPUs missing from the possible mask: msm-core, BCL, msm_thermal, jtagv8, coresight (not built),
+  lpm-levels (fixed); the drivers before lpm-levels in the initcall order got through on the phone.
 - On LuneOS' first start android-kernel-bootimg writes the rootfs' /boot/boot.img to the boot partition:
   a new kernel needs a reinstall of the package, not only `fastboot flash boot`.
 - umediaserver needs `waitid(P_PIDFD)`, which no 3.x kernel has (as on the other legacy ports).
