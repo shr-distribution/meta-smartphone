@@ -5,7 +5,14 @@ panel, launched on Android 6 without a vendor partition. Approach: the 3.10 kern
 LineageOS 21 tree and the plain arm64 16.0 GSI over a vendor converted by `halium-legacy-vendor` from
 that LineageOS 21 build, as the A3 (2015) and the SM-T520.
 
-State: **round 3 (10 Oct 2026) booted into LuneOS** (systemd, webOS services, compositor at 556 s) **without the
+State: **round 4 (10 Oct 2026) booted LuneOS again, USB oops gone, container still down.** lxc-android.log:
+every LXC cgroup failed on cpuset.cpus (EINVAL): the root cpuset listed CPUs 0-5 (cpus_requested set to all of
+NR_CPUS) with nr_cpus=4, and update_cpumask() refuses CPUs that are not present; kernel 8261bf75 trims it. The
+journal was nine tenths register dumps for unimplemented syscalls (statx, rseq, pidfd_open, clone3, faccessat2),
+silenced by 9cd99212. systemd-udevd/logind/userdbd/connman-vpn still 226/NAMESPACE with 0008 in place: most
+likely pivot_root + umount2(".") on a pre-3.15 umount lookup; 0009 is now applied on all Halium machines when
+the kernel is older than 3.15. Round 5 kit (bullhead_20261010-5.zip) carries these.
+Before: **round 3 (10 Oct 2026) booted into LuneOS** (systemd, webOS services, compositor at 556 s) **without the
 Android container** (lxc-start "ABORTING"; its log, /var/log/lxc-android.log, was not collected). Also seen:
 226/NAMESPACE for systemd-udevd/logind/userdbd and connman-vpn (hidepid=invisible on 3.10: systemd 0007/0008
 now applied on all Halium machines in meta-webos-ports), an oops in ffs_function_enable from android-gadget-setup's
