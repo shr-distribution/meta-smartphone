@@ -70,13 +70,15 @@ S = "${UNPACKDIR}/${BP}"
 #  - execveat() through /proc/self/fd: the LuneOS arm64 glibc is built for kernels from 4.9
 #    on and has no fexecve() fallback without it (lxc-attach re-executes itself that way)
 #  - arm64 smp: nr_cpus= limits the possible CPUs (see the command line above)
+#  - lpm-levels: skip the A57 cluster when nr_cpus= leaves its CPUs out (it crashed in
+#    lpm_probe on the error path)
 #
 # The tree already has what the Android 16 GSI needs from a kernel that the 3.4 kernels
 # had to be patched for: getrandom, memfd_create, seccomp filters, ambient
 # capabilities (PR_CAP_AMBIENT), PR_SET_VMA, the five loop driver fixes, and a NULL-safe
 # msm_cpp firmware load. Not booted.
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=bullhead/3.10/lineage-21.0;protocol=https"
-SRCREV = "7d4ed57026ace558e4a58a2a3de3a8879fa0efd2"
+SRCREV = "9cdee0c151b3d647868528a3459f66e134759035"
 
 do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/halium_bullhead_defconfig ${WORKDIR}/defconfig
