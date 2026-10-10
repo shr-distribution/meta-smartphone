@@ -12,6 +12,9 @@ ends at 611 s; the kernel kept logging (nanohub) throughout. Only android-system
 hook runs at container start, which was never reached; round 5's first boot passed the same units in 0.1 s.
 Cause not known; 5 minutes is systemd-userwork's RUNTIME_MAX_USEC (nsswitch has `systemd` for passwd/group, and
 userdbd started just before), not confirmed. ramoops held only the TWRP install session.
+Round 7 kit (bullhead_20261010-7.zip): kernel efc28ad3 with Halium's SECURITY_ANDROID_GID_CAPABILITIES and the
+config options Halium's halium-7.1 and the Ubuntu Touch port's halium-9.0 bullhead kernels set (CHECKPOINT_RESTORE,
+FANOTIFY, CGROUP_PERF, BLK_CGROUP, NET_CLS_CGROUP); the tester starts it twice to see whether the stall repeats.
 Round 5 (10 Oct 2026): udevd/logind fine with systemd 0009, **the Android container started** (init, lshal), lmkd
 exited 4 times before boot completed, Android init shut the container down, and the teardown hit the 3.10 BUG()
 in shrink_dcache_for_umount_subtree ("dentry ... still in use (1) [unmount of tmpfs tmpfs]", from lxc-start's
@@ -81,6 +84,10 @@ the 5X's big-core fault is open. Test kit:
   (built with `ENFORCE_MEMFD_REXEC`) re-executes itself through it. The same glibc assumes `mlock2` (4.4),
   which this kernel lacks; nothing in the rootfs imports it. statx, close_range, clone3 and faccessat2 keep
   their glibc fallbacks. This is the oldest kernel the arm64 rootfs has been built for.
+- `SECURITY_ANDROID_GID_CAPABILITIES` (Halium's commits from its halium-7.1 branch of this kernel): with paranoid
+  networking off, net_raw/net_admin members got no CAP_NET_RAW/CAP_NET_ADMIN (rmt_storage, pm-service).
+- `halium_bullhead_defconfig`: that option, CHECKPOINT_RESTORE (kcmp), FANOTIFY, CGROUP_PERF, BLK_CGROUP,
+  NET_CLS_CGROUP. MEMCG_KMEM, which both other ports set, stays off (experimental in 3.10).
 
 ## Build findings (bitbake)
 
