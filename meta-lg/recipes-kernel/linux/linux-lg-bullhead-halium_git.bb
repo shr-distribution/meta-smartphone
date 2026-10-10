@@ -78,13 +78,18 @@ S = "${UNPACKDIR}/${BP}"
 #    0-5 and LXC could not create its cgroups (EINVAL), so the container never started
 #  - arm64: no register dump for an unimplemented syscall (statx, rseq, clone3, ... are probed
 #    on every boot and filled nine tenths of the journal)
+#  - SECURITY_ANDROID_GID_CAPABILITIES (Halium's two commits from its halium-7.1 branch of this
+#    kernel): net_raw/net_admin members get CAP_NET_RAW/CAP_NET_ADMIN again with paranoid
+#    networking off, as rmt_storage and pm-service expect
+#  - halium_bullhead_defconfig: that option, CHECKPOINT_RESTORE (kcmp), FANOTIFY and the
+#    optional systemd cgroup controllers, as Halium's and the Ubuntu Touch port's configs
 #
 # The tree already has what the Android 16 GSI needs from a kernel that the 3.4 kernels
 # had to be patched for: getrandom, memfd_create, seccomp filters, ambient
 # capabilities (PR_CAP_AMBIENT), PR_SET_VMA, the five loop driver fixes, and a NULL-safe
 # msm_cpp firmware load. Not booted.
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=bullhead/3.10/lineage-21.0;protocol=https"
-SRCREV = "9cd99212b9a5f8e7b8f42c7382dcc16c9960b097"
+SRCREV = "efc28ad3a082bfd7e1377ec2252943977d637cb6"
 
 do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/halium_bullhead_defconfig ${WORKDIR}/defconfig
