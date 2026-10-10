@@ -5,7 +5,21 @@ panel, launched on Android 6 without a vendor partition. Approach: the 3.10 kern
 LineageOS 21 tree and the plain arm64 16.0 GSI over a vendor converted by `halium-legacy-vendor` from
 that LineageOS 21 build, as the A3 (2015) and the SM-T520.
 
-State: **round 6 (10 Oct 2026) stalled in early systemd, the container never started.** PID 1 logged nothing
+State: **round 7 (10 Oct 2026) reached the LuneOS UI**: container up, surface-manager on hwcomposer, bootd
+done, no kernel BUG in three boots (the tester ended each with the power key). The tester saw very slow touch,
+no Wi-Fi and repeating sound. WebAppMgr's in-process GPU thread crashed (NULL) about 1 s after every start, 58
+times in one boot: kgsl_get_unmapped_area failed with -ENOMEM for its first SVM buffer, so EGL never
+initialised. The Adreno 418's SVM range is the CPU range below 3 GB - 16 MB; surface-manager maps there fine,
+so something in the 64-bit WebAppMgr fills it (unknown). sensorfwd restarted every ~6 s (no sensors: the
+vendor's flash-nanohub-fw has no `user`, Android 16 init rejected it, and nanohub logged err_cnt every second).
+pulseaudio and audiod never crashed; the repeating sound is most likely CPU starvation (not proven). Wi-Fi:
+qcacld-2.0 waits for "sta" in /sys/module/wlan/parameters/fwpath and nothing wrote it. First boot spent 178 s
+in ldconfig (Rebuild Dynamic Linker Cache); the round-6 stall did not recur. lmkd still aborts in a
+libmemevents static constructor (no_fatal holds). No kgsl SVM change in the Halium or UT bullhead kernels.
+Round 8 kit (bullhead_20261010-8.zip): kernel 255dcede (kgsl prints the mmap layout below 3 GB on that
+-ENOMEM), wam-maps-capture (WebAppMgr maps to /var/log/wam-maps), wlan-dynamic-start writes fwpath behind CNSS
+(meta-webos-ports), flash-nanohub-fw with a user, sensorfwd RestartSec=30.
+Round 6 (10 Oct 2026) stalled in early systemd, the container never started. PID 1 logged nothing
 for 300.0 s after "Starting Create Static Device Nodes in /dev" (11.8 s -> 311.8 s; that unit and "Coldplug All
 udev Devices" finished together), then again after systemd-tmpfiles-setup started (311.9 s) until the journal
 ends at 611 s; the kernel kept logging (nanohub) throughout. Only android-system changed since round 5, and its
@@ -121,8 +135,7 @@ TWRP's 3.10 kernel; `webos_deploy.sh` falls back to TWRP's busybox.
 
 ## Open, expected next problems
 
-- Nothing has booted: whether the kernel brings up LuneOS, the display and the container at all.
-- Wi-Fi: qcacld-2.0 is built in and asks for its firmware at init, before the container's ueventd runs.
+- Wi-Fi: qcacld-2.0 is built in and starts only when "sta" is written to its fwpath parameter (round 8).
 - Bluetooth, sensors, vibrator: passthrough-only in this vendor (`-impl`, no service binaries); bluebinder and
   sensorfw want hwbinder services.
 - GPS: gps.conf, izat.conf, sap.conf, flp.conf, lowi.conf are opened as `/etc/<file>` and are not in place.
