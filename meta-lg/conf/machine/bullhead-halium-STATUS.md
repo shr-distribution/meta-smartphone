@@ -5,7 +5,13 @@ panel, launched on Android 6 without a vendor partition. Approach: the 3.10 kern
 LineageOS 21 tree and the plain arm64 16.0 GSI over a vendor converted by `halium-legacy-vendor` from
 that LineageOS 21 build, as the A3 (2015) and the SM-T520.
 
-State: **two remote tests (9 Oct 2026, LGH790, bootloader BHZ11h), both kernel panics; round 3 kit out.**
+State: **round 3 (10 Oct 2026) booted into LuneOS** (systemd, webOS services, compositor at 556 s) **without the
+Android container** (lxc-start "ABORTING"; its log, /var/log/lxc-android.log, was not collected). Also seen:
+226/NAMESPACE for systemd-udevd/logind/userdbd and connman-vpn (hidepid=invisible on 3.10: systemd 0007/0008
+now applied on all Halium machines in meta-webos-ports), an oops in ffs_function_enable from android-gadget-setup's
+"functions ffs" (kernel 228df660), a journald watchdog kill at 191 s (cause unknown), nanohub errors (no
+container to set it up). Round 4 kit (bullhead_20261010-4.zip) carries those fixes.
+Earlier: **two remote tests (9 Oct 2026, LGH790, bootloader BHZ11h), both kernel panics.**
 Round 1: the install from TWRP worked; the six-core kernel stopped 0.3 s into boot with "failed to lock
 a57_pll1 PLL" (clock-pll.c) when the CPU clock driver enabled the clocks of the online A57 cores, then hung in
 "Reboot failed -- System halted". The ramoops console survived the reset and TWRP read it. The kernel now runs
