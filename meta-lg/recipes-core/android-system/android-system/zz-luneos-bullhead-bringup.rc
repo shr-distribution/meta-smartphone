@@ -1,0 +1,13 @@
+# Bring-up of the Nexus 5X (bullhead-halium) on the 16.0 GSI, added by 65-extra-init.
+#
+# lmkd crashed four times before boot completed, and as a critical service that made init
+# reboot, which in the container means stopping it. Let it fail instead, so the rest can
+# come up and be looked at (init honours this on a debuggable build, which the GSI is).
+on early-init
+    setprop init.svc_debug.no_fatal.lmkd true
+
+# Keep Android's own log on disk (/data/misc/logd in the container,
+# /data/android-data/misc/logd on the phone): the container dies with it otherwise.
+on post-fs-data
+    setprop persist.logd.logpersistd.buffer all
+    setprop persist.logd.logpersistd logcatd
