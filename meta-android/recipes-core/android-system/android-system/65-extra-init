@@ -1,0 +1,51 @@
+#!/bin/sh
+
+# Init scripts LuneOS adds to the container for one device, without rebuilding
+# its vendor image: settings Android's init has to see before it starts the
+# services (properties for debugging a port, overrides of a service definition).
+# A device layer installs them as extra-init.d/<codename>/*.rc; the codename is
+# found the way 50-stub-services finds it, from the vendor build.prop, because
+# there is no property service yet.
+#
+# The vendor image is read-only, so its /vendor/etc/init is copied to /run,
+# the files are added there, and the copy is bind-mounted over the original.
+# post-stop.sh takes the bind mount down with the other sub-mounts of the rootfs.
+
+DIR=/var/lib/lxc/android/extra-init.d
+
+prop() {
+    for f in "$LXC_ROOTFS_PATH/vendor/build.prop" /vendor/build.prop \
+             "$LXC_ROOTFS_PATH/system/build.prop"; do
+        [ -r "$f" ] || continue
+        v=$(sed -n "s/^$1=//p" "$f" 2>/dev/null | head -n1)
+        [ -n "$v" ] && { echo "$v"; return 0; }
+    done
+    return 1
+}
+
+codename=$(prop ro.product.vendor.device) \
+    || codename=$(prop ro.vendor.product.device) \
+    || codename=$(prop ro.product.device) \
+    || codename=
+
+[ -n "$codename" ] && [ -d "$DIR/$codename" ] || exit 0
+set -- "$DIR/$codename"/*.rc
+[ -e "$1" ] || exit 0
+
+target="$LXC_ROOTFS_PATH/vendor/etc/init"
+[ -d "$target" ] || { echo "$(basename "$0"): no $target, skipping"; exit 0; }
+
+copy=/run/lxc-android/vendor-etc-init
+rm -rf "$copy"
+mkdir -p "$copy"
+cp -a "$target"/. "$copy"/
+for rc in "$@"; do
+    cp "$rc" "$copy"/
+    chmod 0644 "$copy/$(basename "$rc")"
+    echo "$(basename "$0"): adding $(basename "$rc") for '$codename'"
+done
+if mount --bind "$copy" "$target"; then
+    echo "$(basename "$0"): /vendor/etc/init now has the extra init scripts"
+else
+    echo "$(basename "$0"): failed to bind-mount $copy over $target"
+fi
