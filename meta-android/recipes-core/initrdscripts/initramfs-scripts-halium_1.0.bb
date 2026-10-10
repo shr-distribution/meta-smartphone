@@ -5,7 +5,9 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 PACKAGES = "${PN}"
 
-RDEPENDS:${PN} = "busybox-mdev e2fsprogs-e2fsck e2fsprogs-resize2fs"
+# luneos-charger: init.sh asks it whether this is a charger-mode boot and runs
+# it if so (and boots normally without it).
+RDEPENDS:${PN} = "busybox-mdev e2fsprogs-e2fsck e2fsprogs-resize2fs luneos-charger"
 
 SRC_URI += " \
   file://init.sh \
@@ -16,6 +18,7 @@ SRC_URI += " \
   file://0002-halium-size-userdata-from-sysfs-not-proc-partitions.patch \
   file://0003-halium-fail-loudly-when-the-rootfs-mount-fails.patch \
   file://0004-halium-bind-cache-when-the-mountpoint-exists-unmounted.patch \
+  file://0005-halium-leave-charger-mode-boots-to-the-distro.patch \
   file://functions \
   file://pkvm-modprobe \
 "

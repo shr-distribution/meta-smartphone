@@ -1,0 +1,57 @@
+From: Herman van Hazendonk <github.com@herrie.org>
+Subject: [PATCH] halium: leave charger-mode boots to the distro
+
+identify_boot_mode() turns androidboot.mode=charger, and MediaTek's
+boot_mode 8 and 9, into BOOT_MODE=android, and mountroot() then switches
+root to the Android image's own init for its charger UI.
+
+A distro image cannot run that. On LuneOS the BlackBerry KEY2 sat on the
+bootloader logo for as long as it was plugged in, and on a device whose
+Android image does start the charger, it takes DRM master and keeps the
+compositor from ever getting it. Upstream Halium dropped this for Android
+8+ in 2021 for the same reason ("Charging is to be handled by rootfs",
+halium_no_avoid_android_mode).
+
+LuneOS's init.sh now decides what a charger boot shows before it calls
+mountroot (luneos-charger, run from the initramfs), so by the time this
+runs the answer is always "boot LuneOS". Keep only the factory and meta
+modes (boot_mode 1 and 4) going to Android.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Inappropriate [LuneOS-specific: init.sh handles charger boots before mountroot]
+---
+ scripts/halium | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/scripts/halium b/scripts/halium
+index f75f344..15c88d7 100644
+--- a/scripts/halium
++++ b/scripts/halium
+@@ -39,8 +39,14 @@ identify_boot_mode() {
+ 		esac
+ 	done
+ 
+-	if echo "$android_bootmode" | grep charger; then
+-		BOOT_MODE="android"
++	# A charger-mode boot is NOT handed to Android's init here. The distro's
++	# init decides what a charger boot shows before mountroot is called (on
++	# LuneOS: luneos-charger, from the initramfs), and by the time it gets
++	# this far the answer is "boot the distro". Android's own charger UI
++	# cannot run from a distro image, and upstream Halium stopped doing this
++	# for Android 8+ too ("Charging is to be handled by rootfs").
++	if echo "$android_bootmode" | grep -q charger; then
++		tell_kmsg "charger-mode boot: left to the distro, booting it"
+ 	fi
+ 
+ 	## Some devices may be using 'bootreason', others 'boot_reason'
+@@ -52,8 +58,8 @@ identify_boot_mode() {
+ 		case "${boot_reason}" in
+ 		1) BOOT_MODE="android" ;; # Meta
+ 		4) BOOT_MODE="android" ;; # Factory
+-		8) BOOT_MODE="android" ;; # Power off charging
+-		9) BOOT_MODE="android" ;; # Low power charging
++		# 8 (power-off charging) and 9 (low-power charging) are charger
++		# boots, left to the distro as above.
+ 		esac
+ 	fi
+ 

@@ -1410,6 +1410,113 @@ create_partition_links
 start_progress_dumper
 stage "storage up, entering pre-mountroot setup"
 
+# Off-mode charging: a charger plugged into a powered-off device.
+#
+# The bootloader then starts the kernel in charger mode (androidboot.mode=
+# charger on the cmdline or in /proc/bootconfig, or a vendor variant - the
+# list is in luneos-charger's detect.c). Halium's script used to answer that by
+# switching root to the Android image's own init for its charger UI, which a
+# LuneOS image cannot run: athena (BlackBerry KEY2) sat on the bootloader logo
+# for as long as it was plugged in. 0005-halium-leave-charger-mode-boots-to-
+# the-distro.patch stops that, and the decision is made here instead.
+#
+# machine.conf can set:
+#   charger_mode     "screen" (default)  luneos-charger: logo, battery, level;
+#                                        the power key wakes it, holding it
+#                                        boots, unplugging powers off
+#                    "boot"              boot LuneOS as on any other boot -
+#                                        for the MP01, which never really
+#                                        powers off, so every boot with a
+#                                        cable attached is a charger boot
+#                    "reboot"            reboot straight away (Droidian's
+#                                        answer); the warm reboot is a normal
+#                                        boot where the bootloader only picks
+#                                        charger mode on a cold power-on
+#   charger_on_hold  "reboot" (default)  what holding the power key does: a
+#                                        warm reboot into a clean normal boot
+#                    "continue"          boot LuneOS from here, for a
+#                                        bootloader that would pick charger
+#                                        mode again on the reboot
+#   charger_args     extra luneos-charger options: "--rotate 90" for a panel
+#                    mounted sideways, "--static" for E Ink, ...
+# and "no_charger_mode" on the cmdline makes any boot a normal one.
+#
+# This runs before wait_if_battery_flat on purpose: a flat battery on a charger
+# is exactly this case, and here it gets a screen. Holding the power key to
+# boot is refused below the same threshold.
+charger_poweroff() {
+    tell_kmsg "charger: powering off"
+    sync
+    poweroff -f
+    echo 1 > /proc/sys/kernel/sysrq 2>/dev/null
+    echo o > /proc/sysrq-trigger
+    while :; do sleep 60; done
+}
+
+charger_reboot() {
+    tell_kmsg "charger: rebooting into a normal boot"
+    sync
+    reboot -f
+    echo 1 > /proc/sys/kernel/sysrq 2>/dev/null
+    echo b > /proc/sysrq-trigger
+    while :; do sleep 60; done
+}
+
+# mdev names nodes after the kernel's device name alone (/dev/event3,
+# /dev/card0); luneos-charger looks in /dev/input and /dev/dri, as udev and
+# Android lay them out.
+charger_make_nodes() {
+    mkdir -p /dev/input /dev/dri
+    for _c in /sys/class/graphics/fb[0-9]* /sys/class/input/event[0-9]* \
+              /sys/class/drm/card[0-9]*; do
+        [ -r "$_c/dev" ] || continue
+        case $_c in
+        */graphics/*) _n=/dev/${_c##*/} ;;
+        */input/*)    _n=/dev/input/${_c##*/} ;;
+        *)            _n=/dev/dri/${_c##*/} ;;
+        esac
+        [ -e "$_n" ] && continue
+        _d=$(cat "$_c/dev")
+        mknod "$_n" c "${_d%%:*}" "${_d##*:}"
+    done
+}
+
+handle_charger_boot() {
+    [ -x /usr/sbin/luneos-charger ] || return 0
+    _why=$(/usr/sbin/luneos-charger --detect) || return 0
+    tell_kmsg "charger: $_why"
+
+    case "${charger_mode:-screen}" in
+    boot)
+        tell_kmsg "charger: charger_mode=boot, booting LuneOS"
+        return 0 ;;
+    reboot)
+        charger_reboot ;;
+    esac
+
+    charger_make_nodes
+    # shellcheck disable=SC2086 # charger_args is a list of options
+    /usr/sbin/luneos-charger \
+        --min-capacity $((${LOW_BATTERY_THRESHOLD:-5} + 1)) \
+        ${boot_backlight_node:+--backlight "$boot_backlight_node"} \
+        ${boot_backlight_level:+--brightness "$boot_backlight_level"} \
+        $charger_args > /dev/kmsg 2>&1
+    case $? in
+    10) if [ "${charger_on_hold:-reboot}" = continue ]; then
+            tell_kmsg "charger: power key held, booting LuneOS"
+        else
+            charger_reboot
+        fi ;;
+    20) charger_poweroff ;;
+    *)  # No power key, a crash, a bad option: never leave the device stuck
+        # here - boot LuneOS, which charges as well.
+        tell_kmsg "charger: luneos-charger could not run, booting LuneOS" ;;
+    esac
+}
+
+handle_charger_boot
+stage "charger-mode check done"
+
 # Refuse to boot on a battery too flat to survive it, and charge instead.
 #
 # Learned the hard way on the MP01 (15 Sep 2026). That device never powers off -
