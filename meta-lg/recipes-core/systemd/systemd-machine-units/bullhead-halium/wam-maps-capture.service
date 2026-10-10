@@ -1,0 +1,14 @@
+# Bring-up diagnostic for the Nexus 5X: WebAppMgr's GPU thread found no room for its GPU
+# buffers below 3 GB (kgsl SVM, -ENOMEM) and crashed about a second after every start, so its
+# memory map was gone before anyone could read it. wam-maps-capture.sh keeps a copy of each
+# one in /var/log/wam-maps/. The kernel prints the part below 3 GB itself; this has the rest.
+[Unit]
+Description=Capture WebAppMgr memory maps (bring-up diagnostic)
+After=local-fs.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/wam-maps-capture.sh
+
+[Install]
+WantedBy=multi-user.target

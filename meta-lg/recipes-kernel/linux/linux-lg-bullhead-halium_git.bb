@@ -83,13 +83,15 @@ S = "${UNPACKDIR}/${BP}"
 #    networking off, as rmt_storage and pm-service expect
 #  - halium_bullhead_defconfig: that option, CHECKPOINT_RESTORE (kcmp), FANOTIFY and the
 #    optional systemd cgroup controllers, as Halium's and the Ubuntu Touch port's configs
+#  - kgsl: when a CPU-mapped (SVM) buffer finds no room below 3 GB, print the process's mmap
+#    layout there once; WebAppMgr's GPU thread failed exactly so (-ENOMEM) and never got EGL
 #
 # The tree already has what the Android 16 GSI needs from a kernel that the 3.4 kernels
 # had to be patched for: getrandom, memfd_create, seccomp filters, ambient
 # capabilities (PR_CAP_AMBIENT), PR_SET_VMA, the five loop driver fixes, and a NULL-safe
 # msm_cpp firmware load. Not booted.
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=bullhead/3.10/lineage-21.0;protocol=https"
-SRCREV = "efc28ad3a082bfd7e1377ec2252943977d637cb6"
+SRCREV = "255dcede79554cd21733dea7d630013993b6a491"
 
 do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/halium_bullhead_defconfig ${WORKDIR}/defconfig
