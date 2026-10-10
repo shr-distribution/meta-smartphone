@@ -72,13 +72,15 @@ S = "${UNPACKDIR}/${BP}"
 #  - arm64 smp: nr_cpus= limits the possible CPUs (see the command line above)
 #  - lpm-levels: skip the A57 cluster when nr_cpus= leaves its CPUs out (it crashed in
 #    lpm_probe on the error path)
+#  - android_usb: "ffs" taken as the first f_ffs alias; android-gadget-setup writes "ffs",
+#    and this android.c oopsed enabling the alias-less template
 #
 # The tree already has what the Android 16 GSI needs from a kernel that the 3.4 kernels
 # had to be patched for: getrandom, memfd_create, seccomp filters, ambient
 # capabilities (PR_CAP_AMBIENT), PR_SET_VMA, the five loop driver fixes, and a NULL-safe
 # msm_cpp firmware load. Not booted.
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=bullhead/3.10/lineage-21.0;protocol=https"
-SRCREV = "9cdee0c151b3d647868528a3459f66e134759035"
+SRCREV = "228df6603b21586f13aa52c5b1a71ebd805eb2c2"
 
 do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/halium_bullhead_defconfig ${WORKDIR}/defconfig
