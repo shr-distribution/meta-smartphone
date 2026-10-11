@@ -85,13 +85,16 @@ S = "${UNPACKDIR}/${BP}"
 #    optional systemd cgroup controllers, as Halium's and the Ubuntu Touch port's configs
 #  - kgsl: when a CPU-mapped (SVM) buffer finds no room below 3 GB, print the process's mmap
 #    layout there once; WebAppMgr's GPU thread failed exactly so (-ENOMEM) and never got EGL
+#  - qcacld-2.0: no WIPHY_FLAG_SUPPORTS_FW_ROAM, so wpa_supplicant requires MFP for an AP that
+#    advertises MFPC instead of leaving connman's "optional"; the driver rejected every such
+#    AP (eCSR_ROAM_RESULT_SCAN_FOR_SSID_FAILURE) and Wi-Fi scanned but never connected
 #
 # The tree already has what the Android 16 GSI needs from a kernel that the 3.4 kernels
 # had to be patched for: getrandom, memfd_create, seccomp filters, ambient
 # capabilities (PR_CAP_AMBIENT), PR_SET_VMA, the five loop driver fixes, and a NULL-safe
 # msm_cpp firmware load. Not booted.
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=bullhead/3.10/lineage-21.0;protocol=https"
-SRCREV = "255dcede79554cd21733dea7d630013993b6a491"
+SRCREV = "8a0dbaaa7c0448e4f116256a607024871dd27a90"
 
 do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/halium_bullhead_defconfig ${WORKDIR}/defconfig
