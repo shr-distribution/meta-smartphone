@@ -160,3 +160,43 @@ do_halium_legacy_vendor[prefuncs] += "bullhead_vendor_etc_paths"
 HALIUM_LEGACY_SYSTEM_PROP_PREFIXES += "ro.board. ro.hardware. ro.opengles. ro.sf. ro.qc. qcom. ro.bt. \
     bluetooth.enable_timeout_ms persist.camera. ro.camera. persist.qcril. persist.dbg. vendor. vidc. \
     audio_hal. ro.min_freq_ ro.vendor. ro.frp. ril. ro.audio. persist.speaker."
+
+# What the published vendor image lacks, added under the host's /odm, which the container gets as
+# its /odm (lxc-config; there is no odm partition) and whose etc/init Android's init reads after
+# /vendor/etc/init. Nothing here changes the vendor image or its sha256.
+#  - bullhead-sensors.rc, bullhead-bluetooth.rc: services for the two HALs the vendor only offers
+#    passthrough; sensorfw and bluebinder need them on hwbinder
+#  - bullhead-camera.rc: the camera daemon and provider with LineageOS 21's own system libraries
+#    and shims
+#  - bullhead-shims.rc: LineageOS's linker shims for the RIL, ATFWD-daemon and cnd, and lmkd kept
+#    from restarting every 5 s
+# bullhead-odm-blobs.tar.xz (bullhead-odm-blobs.SHA256SUMS lists every file):
+#  - bin/hw/android.hardware.sensors@1.0-service: AOSP hardware/interfaces/sensors/1.0/default,
+#    32-bit, the Android 9 build hammerhead-halium-vendor.img carries (byte for byte)
+#  - bin/hw/android.hardware.bluetooth@1.0-service: AOSP hardware/interfaces/bluetooth/1.0/default,
+#    32-bit, from the LineageOS 18.1 a3lte build (vendor/bin/hw)
+#  - lib64/libaudioclient_shim.so: /system/lib64 of the LineageOS 21 build named above
+#  - lib/bullhead-camera/: libbinder, libstagefright_foundation, libprocessgroup, libsqlite and
+#    libshim_sensor from /system/lib of that build, libicu, libicuuc, libicui18n and
+#    libandroidicu from its com.android.i18n APEX, libdl_android from the GSI's runtime APEX
+SRC_URI += " \
+    file://bullhead-odm-blobs.tar.xz;unpack=0 \
+    file://bullhead-odm-blobs.SHA256SUMS \
+    file://bullhead-sensors.rc \
+    file://bullhead-bluetooth.rc \
+    file://bullhead-camera.rc \
+    file://bullhead-shims.rc \
+"
+
+do_install:append() {
+    install -d ${D}/odm ${D}/odm/etc/init
+    tar -xJf ${UNPACKDIR}/bullhead-odm-blobs.tar.xz -C ${D}/odm --no-same-owner
+    (cd ${D}/odm && sha256sum -c --quiet ${UNPACKDIR}/bullhead-odm-blobs.SHA256SUMS) \
+        || bbfatal "bullhead-odm-blobs.tar.xz does not match bullhead-odm-blobs.SHA256SUMS"
+    for rc in bullhead-sensors.rc bullhead-bluetooth.rc bullhead-camera.rc bullhead-shims.rc; do
+        install -m 0644 ${UNPACKDIR}/$rc ${D}/odm/etc/init/$rc
+    done
+}
+FILES:${PN} += "/odm"
+# Prebuilt Android ELF files, 32-bit ones among them in an arm64 package.
+INSANE_SKIP:${PN} += "arch already-stripped ldflags textrel dev-so file-rdeps"
