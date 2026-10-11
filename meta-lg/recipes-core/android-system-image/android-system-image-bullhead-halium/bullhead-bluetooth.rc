@@ -10,3 +10,16 @@ service vendor.bluetooth-1-0 /odm/bin/hw/android.hardware.bluetooth@1.0-service
     user bluetooth
     group bluetooth net_bt
     task_profiles HighPerformance
+
+# wcnss_filter is "disabled" and meant to run only when libbt-vendor asks for it
+# (wc_transport.start_hci=true, the vendor's triggers in init.bullhead.rc stay). Here libbt-vendor
+# opens /dev/ttyHS0 itself, but start-android-hals.sh force-starts every disabled late_start
+# service, so the filter read the same UART and ate the controller's answer (round 10:
+# "WCNSS_FILTER: handle_soc_events: Unexpected data format", bt_vendor waiting for the vendor
+# event forever, initialize failing). A class that script does not start keeps it off.
+service start_hci_filter /vendor/bin/wcnss_filter
+    override
+    class luneos_off
+    user bluetooth
+    group bluetooth system
+    disabled
