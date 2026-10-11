@@ -1,0 +1,19 @@
+# The vendor declares the sensors HAL passthrough only (android.hardware.sensors@1.0::ISensors in
+# its manifest, the impl in /vendor/lib/hw) and ships no service, so nothing registers it on
+# hwbinder and sensorfw, which only talks hwbinder, finds no sensors. This is the AOSP default
+# service around that passthrough impl (32-bit, the binary hammerhead uses with the same GSI).
+#
+# Not "class hal": start-android-hals.sh force-starts every hal/core/main/late_start service, and
+# the HAL gives up for good if it starts while flash-nanohub-fw still has the sensor hub busy
+# with its download (50 s in round 8). No "interface" line for the same reason, so a lookup
+# cannot start it early either; sensorfwd retries every 30 s and finds it once it runs.
+service vendor.sensors-hal-1-0 /odm/bin/hw/android.hardware.sensors@1.0-service
+    class luneos_sensors
+    user system
+    group system wakelock
+    capabilities BLOCK_SUSPEND
+    rlimit rtprio 10 10
+    disabled
+
+on property:init.svc.flash-nanohub-fw=stopped
+    start vendor.sensors-hal-1-0

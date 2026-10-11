@@ -1,0 +1,43 @@
+# The shims LineageOS 21's linker loaded for these vendor blobs (TARGET_LD_SHIM_LIBS, read from
+# its linker64); the GSI's linker has no such list, so they failed to link and restarted every
+# 5 s: ATFWD-daemon and libcne.so want strdup8to16 (libshim_dpmframework.so, in the vendor),
+# libril-qc-qmi-1.so wants AudioSystem::setErrorCallback (libaudioclient_shim.so, from LineageOS
+# 21's /system/lib64). A preloaded library is in the global group, so rild's dlopen of the RIL
+# finds the symbol. The bodies are the vendor's own (rild.rc, init.bullhead.rc).
+service vendor.ril-daemon /vendor/bin/hw/rild
+    override
+    class main
+    user radio
+    group radio cache inet misc audio log readproc wakelock
+    capabilities BLOCK_SUSPEND NET_ADMIN NET_RAW
+    setenv LD_PRELOAD /odm/lib64/libaudioclient_shim.so
+
+service atfwd /vendor/bin/ATFWD-daemon
+    override
+    class late_start
+    user system
+    group system radio
+    setenv LD_PRELOAD /vendor/lib64/libshim_dpmframework.so
+
+service cnd /vendor/bin/cnd
+    override
+    class late_start
+    socket cnd stream 660 root inet
+    group root wakelock
+    disabled
+    setenv LD_PRELOAD /vendor/lib64/libshim_dpmframework.so
+
+# lmkd aborts in a static constructor of libmemevents (BPF memory events; a 3.10 kernel has no
+# BPF) before main, every time, and init restarted it every 5 s (306 tombstones in round 8).
+# LuneOS runs no Android framework for it to serve. Keep the definition, never start it; not
+# class core, which start-android-hals.sh force-starts from /odm/etc/init like the vendor's.
+service lmkd /system/bin/lmkd
+    override
+    class luneos_off
+    user lmkd
+    group lmkd system readproc
+    capabilities DAC_OVERRIDE KILL IPC_LOCK SYS_NICE SYS_RESOURCE
+    socket lmkd seqpacket+passcred 0660 system system
+    task_profiles ServiceCapacityLow
+    oneshot
+    disabled

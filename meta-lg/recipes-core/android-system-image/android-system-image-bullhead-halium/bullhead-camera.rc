@@ -1,0 +1,26 @@
+# The camera blobs predate the GSI. The vendor gets the LLNDK of the Android 16 system only, and
+# the daemon's libharfbuzz_ng.so needs libicu.so ("library "libicu.so" not found") while the
+# HAL's libgui.so needs the system variant of libbinder (PermissionCache). Both services get a
+# private directory of LineageOS 21's own system libraries for that (/odm/lib/bullhead-camera),
+# not /odm/lib, which every vendor process searches before /vendor/lib. The daemon also gets the
+# shims LineageOS's linker loaded for it (TARGET_LD_SHIM_LIBS: liboemcamera.so|libshim_sensor.so,
+# mm-qcamera-daemon|libc_mutexdestroy_shim.so). The bodies are the vendor's own, without the
+# writepid to a cpuset that does not exist here.
+service qcamerasvr /vendor/bin/mm-qcamera-daemon
+    override
+    class main
+    user camera
+    group camera system inet input graphics
+    setenv LD_LIBRARY_PATH /odm/lib/bullhead-camera
+    setenv LD_PRELOAD /odm/lib/bullhead-camera/libshim_sensor.so:/vendor/lib/libc_mutexdestroy_shim.so
+
+service vendor.camera-provider-2-4 /vendor/bin/hw/android.hardware.camera.provider@2.4-service
+    override
+    interface android.hardware.camera.provider@2.4::ICameraProvider legacy/0
+    class hal
+    user cameraserver
+    group audio camera input drmrpc
+    ioprio rt 4
+    capabilities SYS_NICE
+    task_profiles CameraServiceCapacity MaxPerformance
+    setenv LD_LIBRARY_PATH /odm/lib/bullhead-camera
