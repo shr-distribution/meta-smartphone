@@ -152,7 +152,12 @@ do_install:append:bullhead-halium() {
     install -m 0644 ${UNPACKDIR}/wam-maps-capture.service ${D}${systemd_unitdir}/system
     install -d ${D}${bindir}
     install -m 0755 ${UNPACKDIR}/wam-maps-capture.sh ${D}${bindir}
+    # The Adreno 418's 3.10 kgsl can only map GPU buffers below 0xc0000000, and
+    # webruntime reserves the whole low 4GB unless this file exists (meta-luneos
+    # 0002-Halium-let-a-device-opt-out-of-the-low-4GB-reservation.patch).
+    install -d ${D}${sysconfdir}/webruntime
+    touch ${D}${sysconfdir}/webruntime/no-low-4gb-reservation
 }
 
-FILES:${PN}:append:bullhead-halium = " ${systemd_unitdir}/system/sensorfwd.service.d ${systemd_unitdir}/system/wam-maps-capture.service ${bindir}/wam-maps-capture.sh"
+FILES:${PN}:append:bullhead-halium = " ${systemd_unitdir}/system/sensorfwd.service.d ${systemd_unitdir}/system/wam-maps-capture.service ${bindir}/wam-maps-capture.sh ${sysconfdir}/webruntime/no-low-4gb-reservation"
 SYSTEMD_SERVICE:${PN}:append:bullhead-halium = " wam-maps-capture.service"
