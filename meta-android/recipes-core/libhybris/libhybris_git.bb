@@ -12,7 +12,7 @@ LIC_FILES_CHKSUM = "file://../LICENSE.Apache2;md5=3b83ef96387f14655fc854ddc3c6bd
 # CHECK(mod.static_offset == SIZE_MAX) aborts, which on a 16 GSI killed every
 # getprop/setprop and with them start-android-hals.sh. Our own fixes for
 # vendor blobs from Android 9 to 16 sit on top of it, in the same branch.
-SRCREV = "d853df6989cf1ccc3102ff3ec3a032662392ed54"
+SRCREV = "92b4e618cef0b26f38226d1ed00f8a18f853fa03"
 PV = "0.1.0+git"
 PR = "r9"
 PE = "1"
