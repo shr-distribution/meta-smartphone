@@ -1,0 +1,12 @@
+# The vendor declares the Bluetooth HAL passthrough only and ships no service (LineageOS loaded
+# the HAL inside its Bluetooth app). bluebinder wants IBluetoothHci on hwbinder and a running
+# init.svc.*bluetooth*. This is the AOSP default service (32-bit; the vendor has the 32-bit impl
+# and libbt-vendor), with the a3lte rc plus net_bt, the group init.bullhead.rc gives ttyHS0 and
+# rfkill.
+service vendor.bluetooth-1-0 /odm/bin/hw/android.hardware.bluetooth@1.0-service
+    interface android.hardware.bluetooth@1.0::IBluetoothHci default
+    class hal
+    capabilities BLOCK_SUSPEND NET_ADMIN SYS_NICE
+    user bluetooth
+    group bluetooth net_bt
+    task_profiles HighPerformance
