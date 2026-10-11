@@ -15,6 +15,10 @@ SRC_URI = " \
     https://github.com/Tofee/mainline-kernel-firmware/raw/main/hammerhead-firmware.tar.gz;name=adspmodem;subdir=hammerhead-firmware \
     file://brcmfmac4339-sdio.txt \
 "
+
+# The downloads land directly in UNPACKDIR; there is no ${BP} subdirectory.
+S = "${UNPACKDIR}"
+
 SRC_URI[a330pfp.sha256sum] = "e4ee76b287961f56e6a606ed5baf7127d9fd9a0d421b516af32fa655f1fdb5de"
 SRC_URI[a330pm4.sha256sum] = "2057bff39ad2ab0b4d4ad755c52bf9d0c139293aa823bde992094ce27304b000"
 SRC_URI[bcrm.sha256sum] = "191ac3c79a1ad81ff664202d9f028d01e13673449b206423a75d5c226d343be5"
