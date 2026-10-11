@@ -10,7 +10,10 @@
 service vendor.sensors-hal-1-0 /odm/bin/hw/android.hardware.sensors@1.0-service
     class luneos_sensors
     user system
-    group system wakelock
+    # uhid and bluetooth for /dev/uinput, which the nanohub HAL opens (round 9: "could not open
+    # uinput node: Permission denied"); the GSI's ueventd gives it to uhid, the host's udev to
+    # bluetooth
+    group system wakelock uhid bluetooth
     capabilities BLOCK_SUSPEND
     rlimit rtprio 10 10
     disabled

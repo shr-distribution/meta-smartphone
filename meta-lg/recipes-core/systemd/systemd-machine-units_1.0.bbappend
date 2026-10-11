@@ -143,7 +143,7 @@ SYSTEMD_SERVICE:${PN}:mako-halium = " \
 # through the machine override).
 S:bullhead-halium = "${UNPACKDIR}"
 
-SRC_URI:append:bullhead-halium = " file://sensorfwd-restart.conf file://wam-maps-capture.service file://wam-maps-capture.sh"
+SRC_URI:append:bullhead-halium = " file://sensorfwd-restart.conf file://wam-maps-capture.service file://wam-maps-capture.sh file://android-host-apexes"
 
 do_install:append:bullhead-halium() {
     install -d ${D}${systemd_unitdir}/system/sensorfwd.service.d
@@ -157,7 +157,10 @@ do_install:append:bullhead-halium() {
     # 0002-Halium-let-a-device-opt-out-of-the-low-4GB-reservation.patch).
     install -d ${D}${sysconfdir}/webruntime
     touch ${D}${sysconfdir}/webruntime/no-low-4gb-reservation
+    # As on hammerhead: libdroidmedia (gst-droid, on the host) links the media APEXes' codec
+    # libraries; round 9 logged "libcom.android.media.swcodec.apexcodecs.so" not found.
+    install -m 0644 ${UNPACKDIR}/android-host-apexes ${D}${sysconfdir}/android-host-apexes
 }
 
-FILES:${PN}:append:bullhead-halium = " ${systemd_unitdir}/system/sensorfwd.service.d ${systemd_unitdir}/system/wam-maps-capture.service ${bindir}/wam-maps-capture.sh ${sysconfdir}/webruntime/no-low-4gb-reservation"
+FILES:${PN}:append:bullhead-halium = " ${systemd_unitdir}/system/sensorfwd.service.d ${systemd_unitdir}/system/wam-maps-capture.service ${bindir}/wam-maps-capture.sh ${sysconfdir}/webruntime/no-low-4gb-reservation ${sysconfdir}/android-host-apexes"
 SYSTEMD_SERVICE:${PN}:append:bullhead-halium = " wam-maps-capture.service"

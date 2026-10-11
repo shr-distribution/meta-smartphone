@@ -165,7 +165,9 @@ HALIUM_LEGACY_SYSTEM_PROP_PREFIXES += "ro.board. ro.hardware. ro.opengles. ro.sf
 # its /odm (lxc-config; there is no odm partition) and whose etc/init Android's init reads after
 # /vendor/etc/init. Nothing here changes the vendor image or its sha256.
 #  - bullhead-sensors.rc, bullhead-bluetooth.rc: services for the two HALs the vendor only offers
-#    passthrough; sensorfw and bluebinder need them on hwbinder
+#    passthrough; sensorfw and bluebinder need them on hwbinder. bullhead-binderized-hals.xml, an
+#    ODM manifest fragment, declares them hwbinder (override="true" over the vendor's passthrough
+#    entries); without it hwservicemanager refused to register them (round 9)
 #  - bullhead-camera.rc: the camera daemon and provider with LineageOS 21's own system libraries
 #    and shims
 #  - bullhead-shims.rc: LineageOS's linker shims for the RIL, ATFWD-daemon and cnd, and lmkd kept
@@ -176,6 +178,8 @@ HALIUM_LEGACY_SYSTEM_PROP_PREFIXES += "ro.board. ro.hardware. ro.opengles. ro.sf
 #  - bin/hw/android.hardware.bluetooth@1.0-service: AOSP hardware/interfaces/bluetooth/1.0/default,
 #    32-bit, from the LineageOS 18.1 a3lte build (vendor/bin/hw)
 #  - lib64/libaudioclient_shim.so: /system/lib64 of the LineageOS 21 build named above
+#  - lib64/bullhead-rild/libbinder.so: the same build's /system/lib64/libbinder.so, the system
+#    variant (checkCallingPermission, PermissionCache) the vendor's libmediautils wants under rild
 #  - lib/bullhead-camera/: libbinder, libstagefright_foundation, libprocessgroup, libsqlite and
 #    libshim_sensor from /system/lib of that build, libicu, libicuuc, libicui18n and
 #    libandroidicu from its com.android.i18n APEX, libdl_android from the GSI's runtime APEX
@@ -186,6 +190,7 @@ SRC_URI += " \
     file://bullhead-bluetooth.rc \
     file://bullhead-camera.rc \
     file://bullhead-shims.rc \
+    file://bullhead-binderized-hals.xml \
 "
 
 do_install:append() {
@@ -196,7 +201,18 @@ do_install:append() {
     for rc in bullhead-sensors.rc bullhead-bluetooth.rc bullhead-camera.rc bullhead-shims.rc; do
         install -m 0644 ${UNPACKDIR}/$rc ${D}/odm/etc/init/$rc
     done
+    install -d ${D}/odm/etc/vintf/manifest
+    install -m 0644 ${UNPACKDIR}/bullhead-binderized-hals.xml ${D}/odm/etc/vintf/manifest/
+    # libdroidmedia links libstagefright and through it this library of the media.swcodec APEX,
+    # which hybris looks for in the system, vendor and odm directories only; the APEX is mounted
+    # on the host through /etc/android-host-apexes (systemd-machine-units). The host is arm64.
+    ln -sf /apex/com.android.media.swcodec/lib64/libcom.android.media.swcodec.apexcodecs.so \
+        ${D}/odm/lib64/libcom.android.media.swcodec.apexcodecs.so
 }
 FILES:${PN} += "/odm"
 # Prebuilt Android ELF files, 32-bit ones among them in an arm64 package.
 INSANE_SKIP:${PN} += "arch already-stripped ldflags textrel dev-so file-rdeps"
+# They are loaded inside the container only and nothing on the host links them; the camera and
+# rild directories each carry a libbinder.so, which package_do_shlibs would otherwise reject as
+# two providers of one library.
+EXCLUDE_FROM_SHLIBS = "1"

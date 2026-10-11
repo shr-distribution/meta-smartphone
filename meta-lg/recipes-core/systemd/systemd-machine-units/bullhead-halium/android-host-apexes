@@ -1,0 +1,8 @@
+# Android modules the host mounts next to the runtime, art, i18n and vndk ones.
+#
+# libdroidmedia.so, which gst-droid loads on the host, links libstagefright and through it the
+# codec libraries in these two (libcom.android.media.swcodec.apexcodecs.so, ...). They are
+# read by mount-android.sh before the container starts; mounted later the host can no longer
+# loop-mount them, because the container's apexd has attached its own loop device to the file.
+com.android.media
+com.android.media.swcodec
