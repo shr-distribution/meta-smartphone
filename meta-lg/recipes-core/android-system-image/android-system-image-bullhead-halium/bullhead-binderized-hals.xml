@@ -1,0 +1,18 @@
+<!--
+    The vendor manifest declares these two HALs passthrough, so hwservicemanager
+    refused the services in /odm/bin/hw ("must be in VINTF manifest in order to
+    register/get"). Declare them hwbinder instead; override="true" replaces the
+    vendor's entries of the same name.
+-->
+<manifest version="8.0" type="device">
+    <hal format="hidl" override="true">
+        <name>android.hardware.bluetooth</name>
+        <transport>hwbinder</transport>
+        <fqname>@1.0::IBluetoothHci/default</fqname>
+    </hal>
+    <hal format="hidl" override="true">
+        <name>android.hardware.sensors</name>
+        <transport>hwbinder</transport>
+        <fqname>@1.0::ISensors/default</fqname>
+    </hal>
+</manifest>
