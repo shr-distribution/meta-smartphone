@@ -17,7 +17,7 @@ HALIUM_LUNEOS_GSI16_RELEASE = "halium-luneos-20261005"
 
 # The vendor image published with the GSI (tenderloin-halium-vendor.img in its release), made by the settings below
 # against that GSI. See android-system-image-legacy-gsi.inc for how to make a new one.
-HALIUM_LEGACY_VENDOR_SHA256 = "ccba3f33b52064838ccdc1159fecb0abecd04852aed73dcb6f2a8c6fe84a6017"
+HALIUM_LEGACY_VENDOR_SHA256 = "f524b0f2a833b454919a0f8ce8f35676ba7ab37c70019a4840224fa12330e9d2"
 
 HALIUM_LEGACY_DEVICE_URL = "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-9.0-20210506-2-tenderloin.tar.bz2/halium-luneos-9.0-20210506-2-tenderloin.tar.bz2"
 HALIUM_LEGACY_DEVICE_SHA256 = "800855aa74f752c774312c48143cc158d8d5e32a281f7f978851a0679350fe9b"
@@ -134,4 +134,11 @@ HALIUM_LEGACY_SKIP_COMMANDS = " \
     start\s+lvm \
     mount\s+ext3\s+/dev/block/mmcblk0p13 \
     moboot\.next \
+    write\s+/proc/sys/vm/dirty_ \
 "
+# The last one: init.tenderloin.rc's "Swap Settings" set the host kernel's writeback, which the container
+# shares, to dirty_writeback_centisecs and dirty_expire_centisecs 60000 (ten minutes), dirty_background_ratio
+# 80 and dirty_ratio 90 - Android tuning that keeps up to ten minutes of the host's writes (journal, DB8, the
+# root filesystem) in RAM until shutdown, where the sync then has to write them, and that loses them on a crash
+# or a drained battery. Dropping the writes leaves the kernel defaults (500, 3000, 10, 20), which is what the
+# host had before the container started. Only the six dirty_* writes go; the rest of the block stays.
