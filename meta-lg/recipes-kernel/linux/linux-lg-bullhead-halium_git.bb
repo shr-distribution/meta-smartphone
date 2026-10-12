@@ -88,13 +88,15 @@ S = "${UNPACKDIR}/${BP}"
 #  - qcacld-2.0: no WIPHY_FLAG_SUPPORTS_FW_ROAM, so wpa_supplicant requires MFP for an AP that
 #    advertises MFPC instead of leaving connman's "optional"; the driver rejected every such
 #    AP (eCSR_ROAM_RESULT_SCAN_FOR_SSID_FAILURE) and Wi-Fi scanned but never connected
+#  - halium_bullhead_defconfig: BT_RFCOMM, BNEP and HIDP; bluetoothd's RFCOMM profiles (headset,
+#    hands-free, file transfer) failed with "Protocol not supported"
 #
 # The tree already has what the Android 16 GSI needs from a kernel that the 3.4 kernels
 # had to be patched for: getrandom, memfd_create, seccomp filters, ambient
 # capabilities (PR_CAP_AMBIENT), PR_SET_VMA, the five loop driver fixes, and a NULL-safe
 # msm_cpp firmware load. Not booted.
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=bullhead/3.10/lineage-21.0;protocol=https"
-SRCREV = "269506517f275a23974540269df79cc26afea134"
+SRCREV = "cb2af939c6402cb7cba0542d928690398c69ce5b"
 
 do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/halium_bullhead_defconfig ${WORKDIR}/defconfig
