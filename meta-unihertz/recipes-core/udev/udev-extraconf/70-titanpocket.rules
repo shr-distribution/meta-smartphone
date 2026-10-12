@@ -1,0 +1,11 @@
+# Unihertz Titan Pocket device-node permissions that are not in
+# 65-android.rules.
+#
+# Shipped by the generic rootfs (see the bbappend). Keyed on node names only.
+
+# The FourSemi loudspeaker amplifier. The vendor audio HAL runs inside
+# pulseaudio, which drops to the pulse user (a member of audio), and its
+# libfs1860.so opens this node to initialise the amplifier. Created by the
+# kernel's CONFIG_SND_SOC_MTK_FS16XX_I2C; root-only by default, and then the
+# speaker stays silent.
+ACTION=="add", KERNEL=="smartpa_i2c", OWNER="system", GROUP="audio", MODE="0660"
