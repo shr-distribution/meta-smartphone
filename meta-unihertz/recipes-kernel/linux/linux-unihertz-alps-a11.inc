@@ -39,12 +39,16 @@ require recipes-kernel/linux/linux-unihertz-mt6771.inc
 #  - /dev/smartpa_i2c for a FourSemi FS16xx amplifier on the speaker_amp
 #    node, through which the vendor HAL programs the Pocket's loudspeaker
 #    amplifier from user space (CONFIG_SND_SOC_MTK_FS16XX_I2C).
+#  - from github.com/Chrs2021/TitanPocket-OpenLinux: the keyboard touchpad
+#    glue (mainline RMI4 at 6-0020, CONFIG_INPUT_TITANPOCKET_TOUCHPAD), the
+#    MT6370 LDO offered to the IR transmitter as "irtx_ldo", and u_ether no
+#    longer rescheduling rx_fill() forever on mtu3's full ring.
 #
 # NOTE: unlike the Titan's halium-10.0 branch, nothing here has been shown to
 # boot - the Ubuntu Touch port for these two devices still packs the *stock*
 # prebuilt kernel and builds only loadable modules out of this tree. We are
 # ahead of upstream in asking it to be a whole kernel.
-SRCREV = "c7b3b7c4bed6417e6bef2e27c84882859b27778c"
+SRCREV = "dafb02eb71e63c906f0d5bce23e3169ed07293a3"
 
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=unihertz-mt6771/4.14/halium-11.0;protocol=https \
            file://luneos.cfg \
