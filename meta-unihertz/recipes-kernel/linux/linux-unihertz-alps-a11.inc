@@ -46,12 +46,14 @@ require recipes-kernel/linux/linux-unihertz-mt6771.inc
 #  - the OZ8806 fuel gauge driver from the same project, and MediaTek's
 #    "battery" supply reporting capacity and charge from it
 #    (CONFIG_BATTERY_OZ8806, CONFIG_BATTERY_OZ8806_MTK_FEED).
+#  - usb_boost off by default (it pinned both CPU clusters at the top OPP
+#    while a USB cable carried data), its switches writable by root.
 #
 # NOTE: unlike the Titan's halium-10.0 branch, nothing here has been shown to
 # boot - the Ubuntu Touch port for these two devices still packs the *stock*
 # prebuilt kernel and builds only loadable modules out of this tree. We are
 # ahead of upstream in asking it to be a whole kernel.
-SRCREV = "3ec4a673b5b84b06687c9147535847499ad8f8eb"
+SRCREV = "eb0c5fec2fc916d41608c238022161ddfb0c21d8"
 
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=unihertz-mt6771/4.14/halium-11.0;protocol=https \
            file://luneos.cfg \
