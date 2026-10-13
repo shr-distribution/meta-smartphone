@@ -12,5 +12,6 @@ UNIHERTZ_DEFCONFIG = "titanpocket_defconfig"
 
 # No camera sensor driver for this device exists in the tree; see the fragment.
 SRC_URI += "file://titanpocket-imgsensor.cfg file://titanpocket-fingerprint.cfg \
-            file://titanpocket-smartpa.cfg file://titanpocket-touchpad.cfg"
-UNIHERTZ_EXTRA_CFG = "titanpocket-imgsensor.cfg titanpocket-fingerprint.cfg titanpocket-smartpa.cfg titanpocket-touchpad.cfg"
+            file://titanpocket-smartpa.cfg file://titanpocket-touchpad.cfg \
+            file://titanpocket-gauge.cfg"
+UNIHERTZ_EXTRA_CFG = "titanpocket-imgsensor.cfg titanpocket-fingerprint.cfg titanpocket-smartpa.cfg titanpocket-touchpad.cfg titanpocket-gauge.cfg"
