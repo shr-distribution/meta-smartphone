@@ -29,7 +29,9 @@ SRC_URI = "git://github.com/msm8916-mainline/lk2nd.git;protocol=https;branch=${B
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
-COMPATIBLE_MACHINE = "(a3-2015)"
+# a3-2015-halium is the same phone on the downstream kernel; it boots through the
+# same lk2nd, so its install ZIP has to carry it too.
+COMPATIBLE_MACHINE = "(a3-2015|a3-2015-halium)"
 
 # Let the Makefile handle setting up the CFLAGS and LDFLAGS as it is a standalone application
 CFLAGS[unexport] = "1"
