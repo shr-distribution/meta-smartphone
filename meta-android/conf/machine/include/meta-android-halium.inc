@@ -51,3 +51,17 @@ SKIP_RECIPE[mx-1.0] ?= "Depends on blacklisted clutter-1.0"
 SKIP_RECIPE[clutter-gtk-1.0] ?= "Depends on blacklisted clutter-1.0"
 SKIP_RECIPE[clutter-gst-3.0] ?= "Depends on blacklisted clutter-1.0"
 SKIP_RECIPE[packagegroup-core-clutter] ?= "Depends on blacklisted clutter-1.0"
+
+# A GKI machine (GKI_BOOTIMG = "1") gets its boot images from luneos-bootimg-gki,
+# not from the kernel recipe, so building the image builds those too: one
+# "bitbake luneos-dev-image" leaves everything a device needs in deploy. The
+# fastboot package takes its boot images from there as well. Lazily evaluated,
+# because the machine conf sets GKI_BOOTIMG after requiring this file. Only on the
+# LuneOS images: luneos-bootimg-gki packs initramfs-android-image, so giving every
+# image this dependency would make the initramfs depend on itself.
+LUNEOS_GKI_IMAGEDEPENDS = "${@' luneos-bootimg-gki:do_deploy' if d.getVar('GKI_BOOTIMG') == '1' else ''}"
+EXTRA_IMAGEDEPENDS:append:pn-luneos-dev-image = "${LUNEOS_GKI_IMAGEDEPENDS}"
+EXTRA_IMAGEDEPENDS:append:pn-luneos-image = "${LUNEOS_GKI_IMAGEDEPENDS}"
+FASTBOOT_BOOT_IMAGE ?= "${@'boot-${MACHINE}-luneos.img' if d.getVar('GKI_BOOTIMG') == '1' else '${KERNEL_IMAGETYPE}.fastboot'}"
+FASTBOOT_DEBUG_BOOT_IMAGE ?= "${@'boot-${MACHINE}-luneos-debug.img' if d.getVar('GKI_BOOTIMG') == '1' else ''}"
+FASTBOOT_BOOT_DEPENDS ?= "${@'luneos-bootimg-gki:do_deploy' if d.getVar('GKI_BOOTIMG') == '1' else 'virtual/kernel:do_deploy'}"
