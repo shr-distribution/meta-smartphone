@@ -113,6 +113,10 @@ SRC_URI[qcdt.sha256sum] = "fc862a966d586cb651f62e78e9c167411b6153004afc6a3e9f9b8
 
 do_deploy[postfuncs] += "a3_qcdt_bootimg"
 
+# lk2nd has to be in the deploy directory by the time luneos-package packs the boot image
+# behind it (LK2ND_BOOT_IMAGE_OFFSET in the machine conf); a3-2015 does the same.
+do_deploy[depends] += " lk2nd-msm8916:do_deploy"
+
 python a3_qcdt_bootimg() {
     import hashlib, os, struct
 
