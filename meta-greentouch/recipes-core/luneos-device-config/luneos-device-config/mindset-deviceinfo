@@ -32,6 +32,11 @@ deviceinfo_device_pixel_ratio="1.0"
 # for the same reason.
 deviceinfo_video_call="false"
 
+# For the same reason, tell the rest of the system there is no camera to use:
+# 37-camera-available publishes it to configd, and Settings then leaves out
+# camera features such as Geotag Photos in Location Services.
+deviceinfo_has_camera="false"
+
 # The MT6739 vendor blobs are VNDK 30 but the GSI is Android 16, whose
 # /system/lib no longer carries the symbols they were built against:
 # audio.primary.mt6739.so wants
