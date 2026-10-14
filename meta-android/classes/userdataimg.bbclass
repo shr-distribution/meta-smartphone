@@ -19,6 +19,15 @@ do_image_userdataimg[depends] += "e2fsprogs-native:do_populate_sysroot"
 
 USERDATA_IMAGE_SLACK ?= "128"
 
+# The Android system image the initramfs mounts. A machine whose rootfs carries it
+# (VIRTUAL-RUNTIME_android-system-image names a recipe) needs nothing here. A
+# machine that sets that variable empty - the GSI is not in the rootfs, as on q25 -
+# gets the pinned GSI next to rootfs.img as android-rootfs.img, the halium
+# "file_layout" name halium-boot.sh looks for. Without it the container has no
+# /android/system and the phone boots to nothing.
+USERDATA_IMAGE_ANDROID_ROOTFS ?= "${@'halium-gsi-${MACHINE}.img' if d.getVar('VIRTUAL-RUNTIME_android-system-image') == '' else ''}"
+do_image_userdataimg[depends] += "${@'halium-gsi-image:do_deploy' if d.getVar('USERDATA_IMAGE_ANDROID_ROOTFS') else ''}"
+
 # Extra ext4 features for mke2fs to clear (or set), comma separated and merged into
 # the one -O argument, e.g. "^64bit,^metadata_csum,^metadata_csum_seed,^orphan_file".
 # The default mke2fs.conf of a current e2fsprogs turns those four on, and a kernel
@@ -46,9 +55,17 @@ IMAGE_CMD:userdataimg () {
 
     cp "$rootfs_img" $staging/rootfs.img
 
-    rootfs_bytes=`stat -c%s $staging/rootfs.img`
-    rootfs_mb=`expr $rootfs_bytes / 1024 / 1024`
-    size_mb=`expr $rootfs_mb + ${USERDATA_IMAGE_SLACK}`
+    if [ -n "${USERDATA_IMAGE_ANDROID_ROOTFS}" ] ; then
+        android_img="${DEPLOY_DIR_IMAGE}/${USERDATA_IMAGE_ANDROID_ROOTFS}"
+        if [ ! -e "$android_img" ] ; then
+            bbfatal "userdataimg: no Android system image at $android_img"
+        fi
+        cp -L "$android_img" $staging/android-rootfs.img
+    fi
+
+    content_bytes=`du -sb --apparent-size $staging | cut -f1`
+    content_mb=`expr $content_bytes / 1024 / 1024`
+    size_mb=`expr $content_mb + ${USERDATA_IMAGE_SLACK}`
 
     rm -f $target
     features="^has_journal"
@@ -62,6 +79,10 @@ IMAGE_CMD:userdataimg () {
     # initramfs runs as.
     debugfs -w -R "sif /rootfs.img uid 0" $target > /dev/null 2>&1
     debugfs -w -R "sif /rootfs.img gid 0" $target > /dev/null 2>&1
+    if [ -e $staging/android-rootfs.img ] ; then
+        debugfs -w -R "sif /android-rootfs.img uid 0" $target > /dev/null 2>&1
+        debugfs -w -R "sif /android-rootfs.img gid 0" $target > /dev/null 2>&1
+    fi
 
     rm -rf $staging
 }
