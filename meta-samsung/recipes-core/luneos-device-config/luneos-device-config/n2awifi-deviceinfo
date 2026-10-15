@@ -95,3 +95,9 @@ deviceinfo_modem="false"
 # the charge in mAh from the percentage.
 deviceinfo_battery_full_capacity_mah="8220"
 deviceinfo_battery_design_capacity_mah="8220"
+
+# The same driver reports current_now and current_avg in milliamps, not the microamps the
+# power_supply ABI defines: it asks the gauge for SEC_BATTEY_CURRENT_MA and exports the answer
+# unscaled (current_now = 271 while drawing 271 mA, read on the tablet, 15 Oct 2026), so nyx
+# showed 0 mA. Needs nyx-modules with current_unit support.
+deviceinfo_battery_current_unit="mA"
