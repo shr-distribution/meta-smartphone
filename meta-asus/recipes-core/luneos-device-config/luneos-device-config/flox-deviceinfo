@@ -1,0 +1,70 @@
+# Tier 1 adaptation for the Nexus 7 (2013) Wi-Fi (flo-halium: flo, product razor,
+# APQ8064). Nothing here has been run on the tablet.
+#
+# Only what cannot be derived belongs here. The codename is the directory name;
+# luneos-device-config reads ro.product.vendor.device first, which the LineageOS
+# 18.1 vendor this machine runs sets to flox (read from its vendor build.prop).
+
+# A 7.02" 1200x1920 panel: sqrt(1200^2 + 1920^2) / 7.02 = 322.5 ppi, from the
+# nominal diagonal. Not Lineage's 320 / ro.sf.lcd_density, Android's bucket.
+deviceinfo_display_dpi="323"
+
+# A 7" tablet: the tablet shell and keyboard layouts. This defaults to false (a
+# phone).
+deviceinfo_tablet_ui="true"
+
+# Display scaling for web apps. Left undeclared, the generator derives a ratio that
+# gives a phone sized viewport of 450 CSS px. Android lays this tablet out at
+# 600 dp across in portrait (1200 px at its 320 dpi bucket), so give web apps the
+# same 600 CSS px: 1200 / 600 = 2.0.
+# TODO(verify): tune by eye on the panel.
+deviceinfo_device_pixel_ratio="2.0"
+
+# The GPU is an Adreno 320 behind /vendor/lib/egl/lib{EGL,GLESv1_CM,GLESv2}_adreno.so,
+# which the EGL loader finds for ro.hardware.egl=adreno (the vendor build.prop
+# carries that property).
+deviceinfo_hardware_egl="adreno"
+
+# The vendor runs its own composer service (vendor.hwcomposer-2-1), which has the
+# hwcomposer HAL open. Without this the compositor takes the libhybris v11 route
+# and opens the hwc1 module (hwcomposer.msm8960.so) a second time itself, which
+# aborted the compositor on the SM-T520, mp01 and radon, whose vendors are built
+# the same way.
+deviceinfo_force_hwc2="1"
+
+# vendor.wifi_hal_legacy starts the vendor wpa_supplicant, which takes wlan0 away
+# from the host's wpa_supplicant that connman talks to (found on the SM-T520, whose
+# Android 11 vendor ships the same legacy Wi-Fi HAL). LuneOS drives Wi-Fi from the host.
+#
+# vendor_flash_recovery is the vendor's install-recovery.sh, which writes its own
+# recovery.img over the recovery partition when persist.vendor.recovery_update is
+# true. Off by default; skipped so that nothing in the container can ever replace
+# the recovery the user installed LuneOS with.
+deviceinfo_android_skip_services="vendor.wifi_hal_legacy vendor_flash_recovery"
+
+# The Wi-Fi model has no modem: no IRadio slot, and no wait for one by the ofono
+# generator (about 35 seconds of every boot on the SM-T520).
+deviceinfo_modem="false"
+
+# The fuel gauge driver (bq27541_battery.c, "battery") reports a percentage, a
+# voltage and a current but no capacity: there is no charge_full or
+# charge_full_design. The pack's rating is LineageOS flox's power_profile.xml
+# battery.capacity, 3448 mAh. The gauge's own full-charge capacity is not exported,
+# so the rating stands for both; nyx then derives the charge in mAh from the percentage.
+deviceinfo_battery_full_capacity_mah="3448"
+deviceinfo_battery_design_capacity_mah="3448"
+
+# current_now is the gauge's AverageCurrent register (0x14), read as a signed
+# 16-bit value and exported unscaled; the driver logs it as "current = %d mA". The
+# power_supply ABI says microamps, so nyx would show a thousandth of it. Needs
+# nyx-modules with current_unit support.
+deviceinfo_battery_current_unit="mA"
+
+# Deliberately absent, because no value could be read yet:
+#
+#   deviceinfo_compositor_geometry, deviceinfo_touch_rotate
+#       the panel is native portrait like the Android UI on it; to be checked on
+#       the tablet.
+#
+#   deviceinfo_camera_back_rotation, deviceinfo_camera_front_rotation
+#       to be measured with the Camera app.

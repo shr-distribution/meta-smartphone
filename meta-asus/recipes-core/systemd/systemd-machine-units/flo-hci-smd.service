@@ -1,0 +1,20 @@
+[Unit]
+Description=Register the WCNSS Bluetooth controller (HCI over SMD)
+After=android-system.service flo-prima-wlan.service
+Before=bluetooth.service
+Conflicts=shutdown.target actdead.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+TimeoutStartSec=120
+# The Bluetooth half of the WCNSS (Riva) core speaks HCI over the shared-memory channels
+# APPS_RIVA_BT_CMD and APPS_RIVA_BT_ACL. The kernel's hci_smd driver (the backports port on
+# flo/3.4/lineage-18.1) opens them and registers hci0 when 1 is written to its hcismd_set parameter,
+# which on Android the Bluetooth HAL does. The channels only exist once the Riva core is up, so wait
+# for its control channel as flo-prima-wlan.service does.
+ExecStart=/bin/sh -c 'n=0; v=; while [ $n -lt 90 ]; do v=$(ls /sys/devices/platform/wcnss_wlan*/wcnss_version 2>/dev/null | head -n 1); [ -n "$v" ] && [ "$(cat $v)" != INVALID ] && break; sleep 1; n=$((n+1)); done; echo 1 > /sys/module/hci_smd/parameters/hcismd_set; n=0; while [ ! -e /sys/class/bluetooth/hci0 ] && [ $n -lt 20 ]; do sleep 1; n=$((n+1)); done; [ -e /sys/class/bluetooth/hci0 ]'
+ExecStartPost=-/usr/sbin/rfkill unblock bluetooth
+
+[Install]
+WantedBy=bluetooth.service
