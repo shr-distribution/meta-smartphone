@@ -23,8 +23,12 @@ NO_GENERIC_LICENSE[Open-webOS-Font-License] = "assets/Prelude_Font_LICENSE.txt"
 DEPENDS = "libpng"
 
 PV = "2.0.0+git"
-SRC_URI = "git://github.com/webOS-ports/luneos-charger.git;protocol=https;branch=main"
-SRCREV = "37f7352a5ec6407063cfaf7f0ad976f0d8f93ac6"
+# TEMPORARY: herrie/logo-display-size (webOS-ports/luneos-charger PR #1), which
+# ships the logo at 448 pixels instead of 800 (89 KB instead of 192 KB in every
+# Halium initramfs) - the SM-T520's boot image was 68 KB over its 8 MiB
+# partition. Back to branch=main once the PR is merged.
+SRC_URI = "git://github.com/webOS-ports/luneos-charger.git;protocol=https;branch=herrie/logo-display-size"
+SRCREV = "1db16dfe6a3b06b1973a5365f3b35523efc1803b"
 
 inherit meson pkgconfig
 
