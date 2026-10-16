@@ -10,6 +10,11 @@ S:hammerhead = "${UNPACKDIR}"
 S:hammerhead-halium = "${UNPACKDIR}"
 S:mako-halium = "${UNPACKDIR}"
 
+# ofono drop-ins (hammerhead-halium's ofono-settle.conf, mako-halium's ofono-wait-rild.conf). The base
+# recipe packages only the units themselves, so without this do_package failed with "installed but not
+# shipped". Nothing is installed there for the other machines.
+FILES:${PN} += "${systemd_unitdir}/system/ofono.service.d"
+
 SRC_URI:append:mako = " \
     file://wifi-macaddr-persister.service \
     file://wifi-module-load.service \
