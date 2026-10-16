@@ -1,0 +1,6 @@
+# init.mako.rc's qcamerasvr (HALIUM_LEGACY_SKIP_SERVICES drops that one), started through
+# mm-qcamera-daemon-launcher instead of the blob. See qcamsvr_launcher.c.
+service qcamerasvr /vendor/bin/mm-qcamera-daemon-launcher
+    class late_start
+    user camera
+    group camera system inet input

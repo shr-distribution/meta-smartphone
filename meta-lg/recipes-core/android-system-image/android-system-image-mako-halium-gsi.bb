@@ -28,3 +28,22 @@ HALIUM_LEGACY_EXTRA_FILES += " \
 "
 HALIUM_LEGACY_BINDERIZED_HALS = "android.hardware.graphics.composer android.hardware.graphics.allocator \
     android.hardware.camera.provider"
+
+# The camera daemon. The blob, mm-qcamera-daemon, cannot be linked by the Android 16 linker: liboemcamera.so
+# needs libmmjpeg.so, which has text relocations, and an executable targets API 23 or newer, so the linker
+# refuses it and init restarts qcamerasvr every 5 s for ever (468 times in one boot). The blob's main() does
+# nothing but call qcamsvr_start() from liboemcamera.so; mm-qcamera-daemon-launcher (qcamsvr_launcher.c,
+# built by build-qcamsvr-launcher.sh) lowers the target SDK to 22 first and then does the same through
+# dlopen(). mako-qcamerasvr.rc is init.mako.rc's service with the launcher. ueventd-msm-camera.rc puts the
+# camera's config nodes where the daemon opens them.
+SRC_URI += " \
+    file://mm-qcamera-daemon-launcher \
+    file://mako-qcamerasvr.rc \
+    file://ueventd-msm-camera.rc \
+"
+HALIUM_LEGACY_SKIP_SERVICES += "qcamerasvr"
+HALIUM_LEGACY_EXTRA_FILES += " \
+    mm-qcamera-daemon-launcher:/bin/mm-qcamera-daemon-launcher:755 \
+    mako-qcamerasvr.rc:/etc/init/mako-qcamerasvr.rc:644 \
+"
+HALIUM_LEGACY_UEVENTD_EXTRA = "ueventd-msm-camera.rc"
