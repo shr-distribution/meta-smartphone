@@ -124,6 +124,8 @@ SRC_URI:append:mako-halium = " \
     file://dev-ttyHS99.device \
     file://mako-rmnet-init.service \
     file://ofono-wait-rild.conf \
+    file://mako-bt-address.service \
+    file://mako-bt-address.sh \
 "
 
 do_install:append:mako-halium() {
@@ -132,6 +134,7 @@ do_install:append:mako-halium() {
 
     install -d ${D}${systemd_unitdir}/system
     install -m 0644 ${UNPACKDIR}/mako-rmnet-init.service ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/mako-bt-address.service ${D}${systemd_unitdir}/system
     install -m 0644 ${UNPACKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
     install -m 0644 ${UNPACKDIR}/hciattach.service ${D}${systemd_unitdir}/system
     install -m 0644 ${UNPACKDIR}/dev-ttyHS99.device ${D}${systemd_unitdir}/system
@@ -140,9 +143,11 @@ do_install:append:mako-halium() {
     install -d ${D}${bindir}
     install -m 0755 ${UNPACKDIR}/persist-wifi-mac-addr.sh ${D}${bindir}
     install -m 0755 ${UNPACKDIR}/hciattach.sh ${D}${bindir}
+    install -m 0755 ${UNPACKDIR}/mako-bt-address.sh ${D}${bindir}
 }
 
 SYSTEMD_SERVICE:${PN}:mako-halium = " \
+    mako-bt-address.service \
     mako-rmnet-init.service \
     wifi-macaddr-persister.service \
     wifi-module-load.service \
