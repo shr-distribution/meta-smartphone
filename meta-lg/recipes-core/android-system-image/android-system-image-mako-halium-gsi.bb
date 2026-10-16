@@ -4,8 +4,11 @@ require recipes-core/android-system-image/android-system-image-legacy-a9-service
 COMPATIBLE_MACHINE = "mako-halium"
 
 # The vendor image published with the GSI (mako-halium-vendor.img in its release), made by the settings below
-# against that GSI. See android-system-image-legacy-gsi.inc for how to make a new one.
-HALIUM_LEGACY_VENDOR_SHA256 = "64644b6cdcfa9956b2005ff9c4cdf2302c18d1297a293a4bed1bb7338f321aff"
+# against that GSI. See android-system-image-legacy-gsi.inc for how to make a new one. This one (16 Oct 2026:
+# libft2.so for the composer, the camera daemon launcher and nodes, the HSIC modem check in rild-wait.sh) is
+# published under its own name, next to the earlier mako-halium-vendor.img.
+HALIUM_LEGACY_VENDOR_URL = "https://github.com/webOS-ports/halium-images/releases/download/${HALIUM_LUNEOS_GSI16_RELEASE}/mako-halium-vendor-20261016b.img"
+HALIUM_LEGACY_VENDOR_SHA256 = "0a92bd8253eada6b46349e5cc5ef927790bd988843f6605120d17d77ee331f57"
 
 HALIUM_LEGACY_DEVICE_URL = "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-9.0-20240313-1-mako.tar.bz2/halium-luneos-9.0-20240313-1-mako.tar.bz2"
 HALIUM_LEGACY_DEVICE_SHA256 = "9f258461ba71306231400a45fce45539800ad8823e4d50f7c5f9f17d4427d467"
