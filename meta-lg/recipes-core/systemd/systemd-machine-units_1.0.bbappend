@@ -117,10 +117,16 @@ SRC_URI:append:mako-halium = " \
     file://hciattach.service \
     file://hciattach.sh \
     file://dev-ttyHS99.device \
+    file://mako-rmnet-init.service \
+    file://ofono-wait-rild.conf \
 "
 
 do_install:append:mako-halium() {
+    install -d ${D}${systemd_unitdir}/system/ofono.service.d
+    install -m 0644 ${UNPACKDIR}/ofono-wait-rild.conf ${D}${systemd_unitdir}/system/ofono.service.d/ofono-wait-rild.conf
+
     install -d ${D}${systemd_unitdir}/system
+    install -m 0644 ${UNPACKDIR}/mako-rmnet-init.service ${D}${systemd_unitdir}/system
     install -m 0644 ${UNPACKDIR}/wifi-macaddr-persister.service ${D}${systemd_unitdir}/system
     install -m 0644 ${UNPACKDIR}/hciattach.service ${D}${systemd_unitdir}/system
     install -m 0644 ${UNPACKDIR}/dev-ttyHS99.device ${D}${systemd_unitdir}/system
@@ -132,6 +138,7 @@ do_install:append:mako-halium() {
 }
 
 SYSTEMD_SERVICE:${PN}:mako-halium = " \
+    mako-rmnet-init.service \
     wifi-macaddr-persister.service \
     wifi-module-load.service \
     hciattach.service \
