@@ -1,0 +1,15 @@
+[Unit]
+Description=mako: Bluetooth address for the Android HAL and bluebinder
+# The HAL reads the address when bluebinder opens it, so it has to be set before bluebinder starts.
+After=android-system.service
+Wants=android-system.service
+Before=bluebinder.service
+ConditionPathExists=/persist/bluetooth/.bdaddr
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/mako-bt-address.sh
+
+[Install]
+WantedBy=bluebinder.service
