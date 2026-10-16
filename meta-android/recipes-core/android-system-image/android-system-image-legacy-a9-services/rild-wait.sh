@@ -11,12 +11,18 @@ n=0
 ready=""
 while [ -z "$ready" ] && [ $n -lt 120 ]; do
     for d in /sys/bus/msm_subsys/devices/*; do
-        # "modem" is the SoC's own baseband (hammerhead); a device with an external one over HSIC
-        # (mako) has it as "external_modem".
+        # "modem" is the SoC's own baseband (hammerhead); a kernel with an external one over HSIC
+        # may name it "external_modem".
         name=$(cat $d/name 2>/dev/null)
         if { [ "$name" = modem ] || [ "$name" = external_modem ]; } && [ "$(cat $d/state 2>/dev/null)" = ONLINE ]; then
             ready=1
         fi
+    done
+    # A 3.4 kernel without msm_subsys (mako) has no such node, and rild then started only after the
+    # whole 120 s. There the modem is an MDM9215 on HSIC: once it has booted it enumerates on USB and
+    # rmnet_usb binds its QMI interfaces (1-1:1.5 and on), which is what qmuxd and qcril talk through.
+    for b in /sys/bus/usb/drivers/rmnet_usb/*:*; do
+        [ -e "$b" ] && ready=1
     done
     [ -z "$ready" ] && sleep 1
     n=$((n + 1))
