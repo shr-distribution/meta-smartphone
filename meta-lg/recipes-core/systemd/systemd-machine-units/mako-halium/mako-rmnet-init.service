@@ -1,0 +1,18 @@
+[Unit]
+Description=mako: start rmnet_usb, the QMI link to the MDM9215 modem
+# The kernel's rmnet_usb driver (CONFIG_MSM_RMNET_USB) registers with USB only when userspace writes
+# its rmnet_data_init parameter; the stock init.mako.usb.rc does that "on boot", in a file that is
+# otherwise the Android USB gadget setup and is not in the container. Without it the modem's QMI
+# interfaces (1-1:1.5 and on) stay unbound: qmuxd finds no services, qcril never comes up, ofono has
+# no modem, and audio's CSD client waits for the modem for ever, which hangs pulseaudio. Written
+# before the container starts: writing it 40 minutes into a boot once reset the phone.
+DefaultDependencies=no
+Before=android-system.service
+ConditionPathExists=/sys/module/rmnet_usb/parameters/rmnet_data_init
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'echo 1 > /sys/module/rmnet_usb/parameters/rmnet_data_init'
+
+[Install]
+WantedBy=android-system.service

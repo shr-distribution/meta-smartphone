@@ -1,0 +1,7 @@
+# Appended to the vendor's ueventd.rc (HALIUM_LEGACY_UEVENTD_EXTRA). The 3.4 kernel's msm_camera driver
+# names its nodes config0 and config1; the camera daemon opens them under /dev/msm_camera/ ("mctl_init: open
+# config0 failed"), where Android's own ueventd.rc puts the subsystem. ueventd.mako.rc already gives
+# /dev/msm_camera/* to system:camera.
+subsystem msm_camera
+    devname uevent_devname
+    dirname /dev/msm_camera
