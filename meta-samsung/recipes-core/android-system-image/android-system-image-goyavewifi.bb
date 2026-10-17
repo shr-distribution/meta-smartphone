@@ -7,11 +7,14 @@ HALIUM_LUNEOS_GSI16_PV = "20261008-3"
 HALIUM_LUNEOS_GSI16_SHA256 = "7795e2d7756707ea28a4dfc3d4f00406afe47339abe306168bc0035d2e6712c3"
 HALIUM_LUNEOS_GSI16_RELEASE = "halium-luneos-20261005"
 
-# Derived locally from the device tarball below: the vendor image published with the GSI
-# (goyavewifi-vendor.img of halium-luneos-20261005, sha256 e0730f2e0da7dbe0f316b20092ba4da4d1b2b74106203c5c91cc968ff28d48a8)
-# was made from the 20261008-2 tarball and does not have the fstab and init.sc8830.rc fixes of the 20261011-1 one.
-# Publish UNPACKDIR/vendor.img of a build and set the SHA-256 again to use a published image.
-HALIUM_LEGACY_VENDOR_SHA256 = ""
+# The vendor image published with the GSI: goyavewifi-vendor-20261017.img in the halium-luneos-20261005
+# release, the UNPACKDIR/vendor.img of a build of this recipe from the 20261017-1 device tarball below against
+# GSI 20261008-3. Over the tester kit v15 it has the sensors HAL and /vendor/etc/audio_policy.conf. Dated, so it
+# does not replace the release's older goyavewifi-vendor.img (20261008-2 tarball, without the fstab and
+# init.sc8830.rc fixes). The settings below stay as the record of how it was made; see
+# android-system-image-legacy-gsi.inc for how to make a new one.
+HALIUM_LEGACY_VENDOR_URL = "https://github.com/webOS-ports/halium-images/releases/download/${HALIUM_LUNEOS_GSI16_RELEASE}/goyavewifi-vendor-20261017.img"
+HALIUM_LEGACY_VENDOR_SHA256 = "7ded73a56adda77eca4f0bf67158ba2c2f0c7c4910ddd27b407d257fc204aa36"
 
 COMPATIBLE_MACHINE = "^goyavewifi$"
 
