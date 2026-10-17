@@ -29,7 +29,7 @@ on Halium, built from vlw's LineageOS 18.1 branch"
 # Built from a3-2015/3.10/lineage-18.1 in shr-distribution/linux: vlw's lineage-18.1 head of
 # 22 Nov 2025 (64f7a77a0f7c4c73b1c8b97df96fabccb552279b) with LuneOS' patches committed on top, as
 # for sm-t520/3.4/lineage-18.1. The patches live there as commits, not as .patch files here.
-SRCREV = "de8620fca8f4a32daf4abd6cfa98c40872e73788"
+SRCREV = "946e4c8fa03cfd27bccf9e3f905cdf59aba39904"
 
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=a3-2015/3.10/lineage-18.1;protocol=https \
            file://luneos.cfg \
@@ -81,6 +81,26 @@ do_configure:prepend() {
     cat ${S}/arch/arm/configs/lineageos_a3_defconfig \
         ${UNPACKDIR}/luneos.cfg > ${WORKDIR}/defconfig
 }
+
+# lineageos_a3_defconfig is monolithic (no CONFIG_MODULES): kconfig silently
+# builds every tristate - whether written =m or merely defaulting to m - into
+# vmlinux, and its USB gadget / crypto / netfilter "choice" groups are resolved
+# on that basis. LuneOS needs CONFIG_MODULES for the out-of-tree v4l2loopback
+# module, but adding it up front makes kconfig re-resolve everything as modules,
+# which both demotes the defaulted-in built-ins (ipv6, msm fips, ...) and breaks
+# the single-choice gadget selection (dropping USB_G_ANDROID and with it
+# libcomposite). So let do_configure resolve the config monolithically first,
+# then turn on module *loading* only and re-run olddefconfig, which keeps every
+# already-set =y and never demotes it. The kernel stays byte-for-byte the
+# working monolithic build, plus the ability to load an external module.
+do_configure:append() {
+    echo "CONFIG_MODULES=y"       >> ${B}/.config
+    echo "CONFIG_MODULE_UNLOAD=y" >> ${B}/.config
+    yes '' | oe_runmake_call -C ${S} O=${B} olddefconfig > /dev/null
+    grep -q '^CONFIG_MODULES=y' ${B}/.config || bbfatal "a3-2015: CONFIG_MODULES did not stick"
+    grep -q '^CONFIG_USB_G_ANDROID=y' ${B}/.config || bbfatal "a3-2015: the gadget choice was lost"
+}
+
 
 do_install:append() {
     # make headers_install leaves kbuild's ..install.cmd bookkeeping behind, and

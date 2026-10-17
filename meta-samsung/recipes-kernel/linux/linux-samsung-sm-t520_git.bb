@@ -34,7 +34,7 @@ n2awifi, Exynos 5420), built from the exynos5420 community's LineageOS 18.1 bran
 # own stack speaks mgmt 1.0 and never answers StartDiscovery. 83bb8b8 makes the Wi-Fi driver drop, while
 # suspended, multicast IP that an access point turned into unicast (an IGMP query every 20 s woke the tablet).
 # fe70beff402f adds clock_gettime64 and clock_getres_time64 (see halium-kernel-3.4.inc for why).
-SRCREV = "8dc2985f5fab5670fccb661681c13015812fcc0c"
+SRCREV = "b770e3f7a49ef658ba128a4de9fb6abb7a40f41d"
 
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=sm-t520/3.4/lineage-18.1;protocol=https \
            file://luneos.cfg \

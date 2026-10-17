@@ -65,11 +65,12 @@ S = "${UNPACKDIR}/${BP}"
 #
 # renameat2, getrandom, memfd_create and seccomp are already present in 3.18.
 #
-# NOTE: SRCREV below is the last two commits above (defconfig + proc.S). They are
-# on the branch locally but NOT yet pushed to shr-distribution - push them before
-# building, or the github fetch will stop at the previous HEAD without them.
+# NOTE: SRCREV covers the defconfig + proc.S commits plus the scripts/dtc YYLOC
+# fix (810faf41, upstream e33a814e772c) that lets the host dtc link under GCC's
+# -fno-common default, so `make scripts` / make-mod-scripts and out-of-tree
+# modules build. All are on zs571kl/3.18/gsi and pushed to shr-distribution.
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=zs571kl/3.18/gsi;protocol=https"
-SRCREV = "91e447edd1fdfb8bda409c978fc00a98ca714d39"
+SRCREV = "02ebde907782bfdd33bed7232d3c8986852c6f42"
 
 do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/halium_A002_defconfig ${WORKDIR}/defconfig
@@ -89,6 +90,22 @@ do_install:append() {
     # headers_install also leaves the Android staging uapi headers under
     # /usr/src/usr, which no package ships; as bullhead, sargo, fajita.
     rm -rf ${D}/usr/src/usr
+}
+
+# Kbuild writes the absolute path of the tool or input into the banner of a few
+# generated files, and linux.inc ships the build tree as the -src package, so
+# wrynose rejects it with "contains reference to TMPDIR [buildpaths]". Rewrite
+# the banners to name the files the way an in-tree build would; they are
+# comments, and the generated data below them is unchanged. Same treatment as
+# radon, athena and sm-t220.
+do_compile:append() {
+    for f in drivers/tty/vt/consolemap_deftbl.c \
+             drivers/video/logo/logo_linux_clut224.c \
+             lib/oid_registry_data.c; do
+        if [ -f ${B}/$f ]; then
+            sed -i -e "s|${STAGING_KERNEL_DIR}/||g" -e "s|${B}/||g" ${B}/$f
+        fi
+    done
 }
 
 # The initramfs debug shell, built into CONFIG_CMDLINE rather than added to the
