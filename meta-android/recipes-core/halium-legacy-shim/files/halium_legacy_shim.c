@@ -68,5 +68,42 @@ EXPORT int qtaguid_untagSocket(void) { return 0; }
 EXPORT int qtaguid_setCounterSet(void) { return 0; }
 EXPORT int qtaguid_deleteTagData(void) { return 0; }
 EXPORT int register_android_functions(void) { return 0; }
+
+/*
+ * Android 9's libc exported this flag of its malloc-leak debugging, libandroid_runtime.so reads it in
+ * the zygote-child path ("cannot locate symbol gMallocLeakZygoteChild referenced by libandroid_runtime.so",
+ * which stopped gralloc.sc8830.so from loading on the SM-T113). Android 16's libc no longer has it.
+ */
+EXPORT int gMallocLeakZygoteChild = 0;
 EXPORT int register_localized_collators(void) { return 0; }
 EXPORT void __scudo_set_rss_limit(void) { }
+
+/*
+ * libdl_android.so entry points of Android 9 that a vendor linker namespace cannot see on the 16.0 GSI (libdl_android
+ * is not in the vendor's namespace; libc/libm/libdl are). libandroid_runtime.so wants android_dlwarning and
+ * libnativeloader.so / libgraphicsenv.so (pulled in with it) the namespace calls. Only the zygote and the
+ * Java framework call them, never a HAL, but RTLD_NOW has to resolve every one of them or the whole chain
+ * (gralloc.sc8830.so -> libdither.so -> libandroid_runtime.so) fails to load; seen on the SM-T113.
+ */
+EXPORT void android_dlwarning(void) { }
+EXPORT void *android_create_namespace(void) { return NULLPTR; }
+EXPORT void *android_get_exported_namespace(void) { return NULLPTR; }
+EXPORT int android_init_anonymous_namespace(void) { return 0; }
+EXPORT int android_link_namespaces(void) { return 0; }
+EXPORT void android_set_application_target_sdk_version(void) { }
+
+/*
+ * Symbols Android 9's libc exported under LIBC_PRIVATE / LIBC_PLATFORM (or as LIBC_DEPRECATED, which is not the
+ * version the importer asks for). Android 16's linker does not give them to a vendor library. libandroid_runtime
+ * and libmediautils import the malloc-leak helpers (seen on the SM-T113: "cannot locate symbol get_malloc_leak_info"),
+ * libmemunreachable the malloc iteration calls, libandroid_runtime/libpdx_default_transport the properties init.
+ * None runs in a HAL.
+ */
+EXPORT void get_malloc_leak_info(void) { }
+EXPORT void free_malloc_leak_info(void) { }
+EXPORT int __system_properties_init(void) { return 0; }
+EXPORT int malloc_backtrace(void) { return 0; }
+EXPORT int malloc_disable(void) { return 0; }
+EXPORT int malloc_enable(void) { return 0; }
+EXPORT int malloc_iterate(void) { return 0; }
+
