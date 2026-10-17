@@ -70,12 +70,30 @@ TISSOT_GSI_RELEASE ?= "${HALIUM_LUNEOS_GSI16_RELEASE}"
 TISSOT_GSI_TARBALL ?= "${HALIUM_LUNEOS_GSI16_TARBALL}"
 TISSOT_GSI_SHA256 ?= "${HALIUM_LUNEOS_GSI16_SHA256}"
 
+# Front-camera (s5k5e8_ofilm) chromatix XML. The device system.img this recipe
+# fetches was built without it, so the /system/etc/camera copy in
+# tissot_patch_gsi_for_legacy_vendor never carries it and the front sensor fails
+# to probe ("sensor_xml_util_parse_chromatix_config: Cannot read file from
+# /system/etc/camera/s5k5e8_ofilm_chromatix.xml. read failed"); the camera HIDL
+# provider then never registers and getCameraList returns an empty deviceList.
+# It is a device-specific proprietary blob (Qualcomm chromatix tuning) that the
+# daemon reads only from /system/etc/camera (the path is compiled into
+# libmmcamera2_sensor_modules.so; there is no /vendor/etc/camera fallback and the
+# vendor.img carries only the libchromatix_s5k5e8_ofilm_*.so, not this XML), so
+# it has to land in the GSI alongside the rest of the camera set. Pinned to an
+# immutable the-muppets commit (the LineageOS proprietary-blob mirror); the file
+# has not changed since the 2018 "tissot: Initial blobs" commit.
+TISSOT_FRONT_CHROMATIX_COMMIT ?= "ff96935193dc7f364a3600791ff6b1129a7fbbaf"
+TISSOT_FRONT_CHROMATIX_URI ?= "https://gitlab.com/the-muppets/proprietary_vendor_xiaomi/-/raw/${TISSOT_FRONT_CHROMATIX_COMMIT}/tissot/proprietary/etc/camera/s5k5e8_ofilm_chromatix.xml"
+
 SRC_URI = "\
     https://github.com/webOS-ports/halium-images/releases/download/${TISSOT_GSI_RELEASE}/${TISSOT_GSI_TARBALL};name=gsi;subdir=gsi \
     https://github.com/webOS-ports/halium-images/releases/download/${TISSOT_DEVICE_RELEASE}/${TISSOT_DEVICE_TARBALL};name=device;subdir=device \
+    ${TISSOT_FRONT_CHROMATIX_URI};name=s5k5e8chromatix;subdir=camera-extra \
 "
 SRC_URI[gsi.sha256sum] = "${TISSOT_GSI_SHA256}"
 SRC_URI[device.sha256sum] = "53ff8c6ed8fc46f50be001f3eefb20990b4e1004a8d5d95ac14001724f686026"
+SRC_URI[s5k5e8chromatix.sha256sum] = "da723a9479263e528bf4f1762afebff283c6e48c0795c4388e02d1705526338b"
 
 ANDROID_SYSTEM_IMAGE_DESTNAME = "android-rootfs.img"
 
@@ -90,7 +108,7 @@ ANDROID_SYSTEM_IMAGE_DESTNAME = "android-rootfs.img"
 do_install:prepend() {
     cp ${UNPACKDIR}/${TISSOT_ANDROID_SYSTEM}/system.img ${UNPACKDIR}/system.img
     if [ "${TISSOT_ANDROID_SYSTEM}" = "gsi" ]; then
-        tissot_patch_gsi_for_legacy_vendor ${UNPACKDIR}/system.img ${UNPACKDIR}/device/system.img
+        tissot_patch_gsi_for_legacy_vendor ${UNPACKDIR}/system.img ${UNPACKDIR}/device/system.img ${UNPACKDIR}/camera-extra/s5k5e8_ofilm_chromatix.xml
     fi
     # Remove first so a re-run cannot leave a stale vendor.img behind.
     rm -f ${UNPACKDIR}/vendor.img
@@ -132,7 +150,7 @@ tissot_patch_vendor_for_treble() {
     workdir=`mktemp -d`
 
     printf '28.0\n' > $workdir/plat_sepolicy_vers.txt
-    debugfs -w -R "write $workdir/plat_sepolicy_vers.txt /etc/selinux/plat_sepolicy_vers.txt" $img
+    android_image_write "$workdir/plat_sepolicy_vers.txt" "$img" "/etc/selinux/plat_sepolicy_vers.txt"
 
     debugfs -R "dump /build.prop $workdir/build.prop" $img
     changed=0
@@ -152,8 +170,7 @@ tissot_patch_vendor_for_treble() {
         changed=1
     fi
     if [ $changed = 1 ]; then
-        debugfs -w -R "rm /build.prop" $img
-        debugfs -w -R "write $workdir/build.prop /build.prop" $img
+        android_image_write "$workdir/build.prop" "$img" "/build.prop"
     fi
 
     # 3b. Extend the configstore seccomp policy so Waydroid can boot.
@@ -184,8 +201,7 @@ tissot_patch_vendor_for_treble() {
                   sched_yield ppoll dup; do
             echo "$sc: 1" >> $workdir/configstore.policy
         done
-        debugfs -w -R "rm $seccomp" $img
-        debugfs -w -R "write $workdir/configstore.policy $seccomp" $img
+        android_image_write "$workdir/configstore.policy" "$img" "$seccomp"
     fi
 
     # 4. Libraries the vendor needs that live on the old device system.img.
@@ -238,8 +254,7 @@ tissot_patch_vendor_for_treble() {
         if [ ! -s $staged ]; then
             bbfatal "could not extract /system/$l from the device system.img"
         fi
-        debugfs -w -R "rm /$l" $img 2>/dev/null || true
-        debugfs -w -R "write $staged /$l" $img
+        android_image_write "$staged" "$img" "/$l"
     done
 
     # gf_fingerprint.default.so's own dependencies, needed on Goodix units for it
@@ -254,8 +269,7 @@ tissot_patch_vendor_for_treble() {
             bbwarn "no /system/$l in the device system.img; Goodix fingerprint units will not work until it is provided"
             continue
         fi
-        debugfs -w -R "rm /$l" $img 2>/dev/null || true
-        debugfs -w -R "write $staged /$l" $img
+        android_image_write "$staged" "$img" "/$l"
     done
 
     set +e
@@ -293,11 +307,20 @@ tissot_patch_vendor_for_treble() {
 #      and gst-droid "cannot find camera 0". With them: 3 devices and a live
 #      preview. ~108 KB.
 #
-# Both are taken from the device tarball this recipe already fetches, so the
+#      One of those XMLs - s5k5e8_ofilm_chromatix.xml, the front sensor's - was
+#      never built into the device system.img, so the copy below does not carry
+#      it: the front then fails to probe ("Cannot read file from
+#      /system/etc/camera/s5k5e8_ofilm_chromatix.xml. read failed"), the camera
+#      provider never registers, and getCameraList returns []. It is supplied
+#      separately through SRC_URI (see TISSOT_FRONT_CHROMATIX_URI) and written in
+#      below, after the device-image copy, as $3.
+#
+# The rest are taken from the device tarball this recipe already fetches, so the
 # files are the ones this vendor was built alongside.
 tissot_patch_gsi_for_legacy_vendor() {
     gsi="$1"
     devimg="$2"
+    chromatix="$3"
     workdir=`mktemp -d`
 
     debugfs -w -R "symlink /firmware /vendor/firmware_mnt" $gsi
@@ -311,8 +334,16 @@ tissot_patch_gsi_for_legacy_vendor() {
     fi
     debugfs -w -R "mkdir /system/etc/camera" $gsi
     for f in $workdir/camera/*; do
-        debugfs -w -R "write $f /system/etc/camera/`basename $f`" $gsi
+        android_image_write "$f" "$gsi" "/system/etc/camera/`basename $f`"
     done
+
+    # Front-sensor chromatix the device system.img lacks (see header note 2 and
+    # TISSOT_FRONT_CHROMATIX_URI). android_image_write is authoritative even if a
+    # future device image does start shipping the file.
+    if [ ! -s "$chromatix" ]; then
+        bbfatal "front camera chromatix not fetched (expected at $chromatix)"
+    fi
+    android_image_write "$chromatix" "$gsi" "/system/etc/camera/s5k5e8_ofilm_chromatix.xml"
 
     set +e
     e2fsck -fy $gsi > $workdir/fsck.log 2>&1
