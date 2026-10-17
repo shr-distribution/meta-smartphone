@@ -38,6 +38,8 @@ import zipfile
 # a hand-written list was wrong (it claimed libstdc++.so, which a vendor of this
 # generation does not get, so qseecomd and vss_init failed to link).
 LLNDK_LIST = "/system/etc/llndk.libraries.txt"
+# Listed in the LLNDK but not visible to the vendor's namespace in the container; see the closure in build().
+NOT_HANDED_TO_VENDOR = frozenset({"libft2.so"})
 
 # Android 9 vendors keep these mount points at the root; a Treble vendor and
 # mount-android.sh use the right-hand side. The GSI gets a symlink from the
@@ -777,6 +779,12 @@ def build(old_system, gsi_system, out_vendor, *, vndk, init_files,
     # Per ELF class: a 64-bit library is satisfied only by a 64-bit one (/lib64), a 32-bit one
     # by /lib. A 32-bit build has no /lib64, and this is then the single set it always was.
     available = {d: set(vndk_names) | llndk for d in LIBDIRS}
+    # Names the LLNDK list carries that the vendor's linker namespace in the container does not hand to a
+    # vendor library (libft2.so: the framework copies a legacy vendor brings, libhwui.so and libpdfium.so,
+    # need it, and gralloc then fails to load: SM-T520, A3 (2015), TouchPad, SM-T113). They count as provided
+    # only when the vendor image holds a copy itself; otherwise the walk below pulls the old /system one.
+    for d in LIBDIRS:
+        available[d] -= NOT_HANDED_TO_VENDOR
     for path in plan.paths:
         if path.endswith(".so"):
             available["lib64" if "/lib64/" in path else "lib"].add(os.path.basename(path))

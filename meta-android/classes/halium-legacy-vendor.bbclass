@@ -90,7 +90,7 @@ HALIUM_LEGACY_GSI_PRUNE ?= ""
 
 # Revision of lib/halium/legacy_vendor.py. Bitbake does not track imported
 # modules, so a change there would reuse the old task output; bump this with it.
-HALIUM_LEGACY_REV ?= "31"
+HALIUM_LEGACY_REV ?= "32"
 
 # Shims for the Android 9/11 framework copies a legacy vendor brings along.
 #
