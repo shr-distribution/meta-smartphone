@@ -93,8 +93,7 @@ a002_patch_vendor_build_prop() {
         changed=1
     fi
     if [ $changed = 1 ]; then
-        debugfs -w -R "rm /build.prop" $img
-        debugfs -w -R "write $workdir/build.prop /build.prop" $img
+        android_image_write "$workdir/build.prop" "$img" "/build.prop"
     fi
 
     set +e

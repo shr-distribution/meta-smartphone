@@ -6,7 +6,7 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 DEPENDS = "android-tools-native e2fsprogs-native"
 
-INC_PR = "r7"
+INC_PR = "r8"
 
 ANDROID_SYSTEM_IMAGE_DESTNAME ?= "system.img"
 
@@ -89,3 +89,32 @@ FILES:${PN} = "${localstatedir}/lib/lxc/android \
 # a bionic binary that never runs against anything this recipe's toolchain
 # produced, so the usual ELF checks have nothing useful to say about it.
 INSANE_SKIP:${PN} += "already-stripped ldflags"
+
+# Write a host file into an ext image with debugfs, then prove it landed.
+#
+# Plain `debugfs -w -R "write ..."` returns 0 even when it could not allocate an
+# inode (or blocks), so a file silently vanishes and the build still succeeds.
+# This bit tissot: an AOSP system.img is sized with almost no spare inodes, the
+# per-device GSI patching adds a dozen /system/etc/camera files, the last writes
+# hit "Could not allocate inode", e2fsck still passed, and the image shipped
+# without the front-camera chromatix XML - the camera then enumerated zero
+# devices. The headroom itself is fixed in the image build (build_image.py keeps
+# >=512 spare inodes), but every recipe that injects with debugfs must also
+# verify the write, so a future tight image fails the build loudly rather than
+# shipping broken. This rm's any existing file first (overwrites stay
+# idempotent), writes, and aborts unless the on-image size matches the source.
+android_image_write() {
+    _aiw_src="$1"
+    _aiw_img="$2"
+    _aiw_dst="$3"
+    if [ ! -f "${_aiw_src}" ]; then
+        bbfatal "android_image_write: source ${_aiw_src} does not exist"
+    fi
+    debugfs -w -R "rm ${_aiw_dst}" "${_aiw_img}" >/dev/null 2>&1 || true
+    debugfs -w -R "write ${_aiw_src} ${_aiw_dst}" "${_aiw_img}"
+    _aiw_want=`stat -c %s "${_aiw_src}"`
+    _aiw_got=`debugfs -R "stat ${_aiw_dst}" "${_aiw_img}" 2>/dev/null | grep -oE 'Size: [0-9]+' | head -1 | awk '{print $2}'`
+    if [ "${_aiw_got}" != "${_aiw_want}" ]; then
+        bbfatal "android_image_write: ${_aiw_dst} did not land in `basename ${_aiw_img}` (on-image size '${_aiw_got}', expected ${_aiw_want} bytes) - the image is out of inodes or space"
+    fi
+}
