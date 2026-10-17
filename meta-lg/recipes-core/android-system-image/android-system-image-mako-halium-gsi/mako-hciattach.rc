@@ -1,0 +1,10 @@
+# init.mako.rc's hciattach (HALIUM_LEGACY_SKIP_SERVICES drops that one) with mako-bt-init.sh, which finds the
+# phone's Bluetooth address without the vendor's bdAddrLoader. The HAL starts it through
+# vendor.bluetooth.hciattach and waits for vendor.bluetooth.status, as before.
+service hciattach /vendor/bin/mako-bt-init.sh
+    class late_start
+    user bluetooth
+    group bluetooth system
+    seclabel u:r:bluetooth_loader:s0
+    disabled
+    oneshot
