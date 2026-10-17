@@ -49,6 +49,15 @@ deviceinfo_tablet_ui="true"
 # TODO(verify): tune by eye on the panel, as sargo's 2.4 was (it ends at 450 px there).
 deviceinfo_device_pixel_ratio="2.5"
 
+# Both cameras are mounted upright for landscape use. Their HAL1 driver gives the
+# Camera app no mounting, so it falls back to its tablet default of 270 (measured on
+# the PineTab 2), and the viewfinders came out a quarter turn off, the back one way
+# and the front the other. Measured on the tablet in landscape (5 Oct 2026): 0 is
+# upright for the back camera, and 180 left the front one upside down, so it is 0 as
+# well. 36-camera-app hands this to the Camera app.
+deviceinfo_camera_back_rotation="0"
+deviceinfo_camera_front_rotation="0"
+
 # Do not let the compositor open the hwcomposer HAL a second time; the Android
 # composer service in the container already has it (the SM-T220, mp01 and radon
 # need the same). Without it the compositor takes the libhybris v11 route and
