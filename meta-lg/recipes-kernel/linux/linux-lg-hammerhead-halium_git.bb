@@ -53,7 +53,7 @@ do_configure:prepend() {
     cp -v -f ${S}/arch/arm/configs/lineageos_hammerhead_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "71bd9fee439b1491488ef5c83c61790b4400bb31"
+SRCREV = "f47fedf574e72b897d88450f9add5aa5568cbe5d"
 
 LINUX_VERSION = "3.4.0"
 PV = "${LINUX_VERSION}+git"

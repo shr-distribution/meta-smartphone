@@ -96,7 +96,7 @@ S = "${UNPACKDIR}/${BP}"
 # capabilities (PR_CAP_AMBIENT), PR_SET_VMA, the five loop driver fixes, and a NULL-safe
 # msm_cpp firmware load. Not booted.
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=bullhead/3.10/lineage-21.0;protocol=https"
-SRCREV = "cb2af939c6402cb7cba0542d928690398c69ce5b"
+SRCREV = "b55fb429ca26573fa9db1057db4410bf1fa86f41"
 
 do_configure:prepend() {
     cp -v -f ${S}/arch/arm64/configs/halium_bullhead_defconfig ${WORKDIR}/defconfig
