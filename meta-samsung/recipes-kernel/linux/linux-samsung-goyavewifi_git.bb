@@ -33,12 +33,17 @@ Spreadtrum SC7730S) on Halium, built from the community sc8830 hybris-14.1 tree"
 # as for a3-2015/3.10/lineage-18.1 and sm-t520/3.4/lineage-18.1. The commits are not .patch files here. They are:
 # compiler-gcc15.h; ARM 8933/1 (upstream 790756c7e022); put_user() keeps its value in r2; MemAvailable;
 # the goyavewifi board header; the Mali Kconfig loop; COMMAND_LINE_SIZE 2048; renameat2 (flags 0); and the
-# multi-device binder of the LineageOS 15.1 tree. goyavewifi-STATUS.md says what each one fixes.
-SRCREV = "732e698ac7dff55cf08626f37f14066aaafb34b2"
+# multi-device binder of the LineageOS 15.1 tree. Added by the tester rounds (11 Oct 2026): seccomp and getrandom,
+# a selectable 32-bit binder ABI and get_user() of 8 byte types, ambient capabilities, O_TMPFILE with ext3/ext4
+# ->tmpfile(), and memfd_create() with sealing; the Bluetooth L2CAP shutdown fixes come from the l2cap-ports work.
+# goyavewifi-STATUS.md says what each one fixes.
+SRCREV = "d7862e407535cca2a1af4981d99848f87d4984eb"
 
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=goyavewifi/3.10/hybris-14.1;protocol=https \
            file://lineage_goyavewifi_defconfig \
            file://luneos.cfg \
+           file://0001-android-binder-debug-report-failed-user-accesses.patch \
+           file://0002-epoll-debug-report-failing-epoll-calls.patch \
            file://mksprdboot.py \
            "
 
@@ -54,6 +59,11 @@ inherit machine_kernel_pr
 # kernel 0x8000, ramdisk 0x01000000, second 0x00f00000, tags 0x100. The stock command line is just the
 # console; androidboot.hardware=sc8830 is in the kernel's own CONFIG_CMDLINE. The boot partition, named
 # KERNEL, is 16 MiB (BOARD_BOOTIMAGE_PARTITION_SIZE in the LineageOS device tree).
+# Measured on a tablet (10 Oct 2026, /proc/cmdline in the LineageOS recovery): Samsung's sboot builds its own
+# command line and does not pass on the boot image's one. The recovery's header says buildvariant=userdebug and
+# /proc/cmdline does not contain it; sboot supplies console=null loglevel=0 mem=1024M and the rest itself. So the
+# header string below is not seen by the kernel, and everything that has to reach it (androidboot.hardware,
+# enable_adb, the cgroup switches) is in CONFIG_CMDLINE above.
 ANDROID_BOOTIMG_CMDLINE = "console=ttyS1,115200n8 androidboot.selinux=permissive"
 ANDROID_BOOTIMG_KERNEL_RAM_BASE = "0x00008000"
 ANDROID_BOOTIMG_RAMDISK_RAM_BASE = "0x01000000"
@@ -71,7 +81,14 @@ S = "${UNPACKDIR}/${BP}"
 # container's init takes ro.hardware from it, and picks /vendor/etc/init/hw/init.sc8830.rc and ueventd.sc8830.rc
 # by that name. The LineageOS boot image carries nothing else of the kind, the config is the only place.
 # halium-kernel.inc then appends the systemd cgroup switches (and enable_adb for a debug build).
-CMDLINE = "androidboot.hardware=sc8830"
+#
+# androidboot.selinux=permissive belongs here as well, for the same reason: the header string above never
+# reaches the kernel, so the container's init sees no such argument and runs SELinux enforcing. First tablet
+# run (10 Oct 2026, journal): the container's /init exited with status 127 about 100 ms after exec and wrote
+# nothing to the kernel log, so no HAL, property store or compositor came up. That the missing argument is
+# the reason is the working hypothesis, not a measurement. The SM-T520 has the argument in its
+# CONFIG_CMDLINE, the A3 in its boot image header (which its boot loader passes on).
+CMDLINE = "androidboot.hardware=sc8830 androidboot.selinux=permissive"
 
 # Optional initramfs debug shell, off by default. init.sh greps /proc/cmdline for enable_adb and then stops in
 # its adbd shell instead of continuing the boot. The flag is put into the kernel's own CONFIG_CMDLINE, which

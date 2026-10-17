@@ -1,0 +1,105 @@
+From: Herman van Hazendonk <github.com@herrie.org>
+Subject: [PATCH] android: binder: debug: report why a user access failed
+
+DEBUGGING AID, not for the branch. With the v5 boot image the Android 16
+container gets as far as vold, which then aborts: binder_ioctl() returns
+-EFAULT (-14) for BINDER_WRITE_READ on three of its threads, libbinder
+calls abort() on it and init shuts the container down (reboot_on_failure).
+The log does not say which access failed or why.
+
+Print, for every failing get_user/put_user/copy_to_user/copy_from_user in
+binder.c: the pid and tid, the calling function (%pS), the address and
+length, the VMA that contains the address (or none) with its flags, and
+the preempt count and irqs_disabled() as the page fault handler saw them.
+That tells a bad pointer (no VMA, or a read-only one) from a fault that the
+handler refused to resolve (preempt count or irqs_off set).
+
+Remove this once the cause is known.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Inappropriate [debugging aid for the goyavewifi bring-up]
+---
+diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+index 5621aabc..2753bfc9 100644
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -734,12 +734,50 @@ static inline void *kzalloc_preempt_disabled(size_t size)
+ 	return ptr;
+ }
+ 
++/*
++ * Debugging aid: say why a user access failed. The caller has already dropped
++ * the preempt count that binder_lock() took, so preempt_count() here is what
++ * the page fault handler saw.
++ */
++static noinline void binder_dbg_uaccess_fault(const char *what,
++					      const void __user *addr,
++					      unsigned long len)
++{
++	struct mm_struct *mm = current->mm;
++	struct vm_area_struct *vma;
++	unsigned long a = (unsigned long)addr;
++
++	if (mm && down_read_trylock(&mm->mmap_sem)) {
++		vma = find_vma(mm, a);
++		if (vma && vma->vm_start <= a)
++			pr_err("binder-dbg: %d:%d %s %pS addr=%08lx len=%lu in vma %08lx-%08lx flags=%lx preempt=%x irqs_off=%d\n",
++			       current->tgid, current->pid, what,
++			       __builtin_return_address(0), a, len,
++			       vma->vm_start, vma->vm_end, vma->vm_flags,
++			       preempt_count(), irqs_disabled());
++		else
++			pr_err("binder-dbg: %d:%d %s %pS addr=%08lx len=%lu NO vma (next %08lx) preempt=%x irqs_off=%d\n",
++			       current->tgid, current->pid, what,
++			       __builtin_return_address(0), a, len,
++			       vma ? vma->vm_start : 0UL,
++			       preempt_count(), irqs_disabled());
++		up_read(&mm->mmap_sem);
++	} else {
++		pr_err("binder-dbg: %d:%d %s %pS addr=%08lx len=%lu mm=%p (mmap_sem busy or no mm) preempt=%x irqs_off=%d\n",
++		       current->tgid, current->pid, what,
++		       __builtin_return_address(0), a, len, mm,
++		       preempt_count(), irqs_disabled());
++	}
++}
++
+ static inline long copy_to_user_preempt_disabled(void __user *to, const void *from, long n)
+ {
+ 	long ret;
+ 
+ 	preempt_enable_no_resched();
+ 	ret = copy_to_user(to, from, n);
++	if (ret)
++		binder_dbg_uaccess_fault("copy_to_user", to, n);
+ 	preempt_disable();
+ 	return ret;
+ }
+@@ -750,6 +788,8 @@ static inline long copy_from_user_preempt_disabled(void *to, const void __user *
+ 
+ 	preempt_enable_no_resched();
+ 	ret = copy_from_user(to, from, n);
++	if (ret)
++		binder_dbg_uaccess_fault("copy_from_user", from, n);
+ 	preempt_disable();
+ 	return ret;
+ }
+@@ -759,6 +799,9 @@ static inline long copy_from_user_preempt_disabled(void *to, const void __user *
+ 	int __ret;				\
+ 	preempt_enable_no_resched();		\
+ 	__ret = get_user(x, ptr);		\
++	if (__ret)				\
++		binder_dbg_uaccess_fault("get_user", \
++			(const void __user *)(ptr), sizeof(*(ptr))); \
+ 	preempt_disable();			\
+ 	__ret;					\
+ })
+@@ -768,6 +811,9 @@ static inline long copy_from_user_preempt_disabled(void *to, const void __user *
+ 	int __ret;				\
+ 	preempt_enable_no_resched();		\
+ 	__ret = put_user(x, ptr);		\
++	if (__ret)				\
++		binder_dbg_uaccess_fault("put_user", \
++			(const void __user *)(ptr), sizeof(*(ptr))); \
+ 	preempt_disable();			\
+ 	__ret;					\
+ })
