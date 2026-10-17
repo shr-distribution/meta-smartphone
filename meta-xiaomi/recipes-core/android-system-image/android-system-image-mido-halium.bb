@@ -151,7 +151,7 @@ mido_patch_vendor_for_treble() {
     if [ ! -s $workdir/psv.txt ]; then
         bbwarn "vendor.img has no plat_sepolicy_vers.txt; writing 28.0"
         printf '28.0\n' > $workdir/plat_sepolicy_vers.txt
-        debugfs -w -R "write $workdir/plat_sepolicy_vers.txt /etc/selinux/plat_sepolicy_vers.txt" $img
+        android_image_write "$workdir/plat_sepolicy_vers.txt" "$img" "/etc/selinux/plat_sepolicy_vers.txt"
     fi
 
     debugfs -R "dump /build.prop $workdir/build.prop" $img
@@ -184,8 +184,7 @@ mido_patch_vendor_for_treble() {
     fi
 
     if [ $changed = 1 ]; then
-        debugfs -w -R "rm /build.prop" $img
-        debugfs -w -R "write $workdir/build.prop /build.prop" $img
+        android_image_write "$workdir/build.prop" "$img" "/build.prop"
     fi
 
     # 3b. Extend the configstore seccomp policy so Waydroid can boot.
@@ -217,8 +216,7 @@ mido_patch_vendor_for_treble() {
                   sched_yield ppoll dup; do
             echo "$sc: 1" >> $workdir/configstore.policy
         done
-        debugfs -w -R "rm $seccomp" $img
-        debugfs -w -R "write $workdir/configstore.policy $seccomp" $img
+        android_image_write "$workdir/configstore.policy" "$img" "$seccomp"
     fi
 
     # 4. Libraries the vendor needs that live on the old device system.img.
@@ -272,8 +270,7 @@ mido_patch_vendor_for_treble() {
             if [ ! -s $staged ]; then
                 bbfatal "could not extract /system/$l from the device system.img"
             fi
-            debugfs -w -R "rm /$l" $img 2>/dev/null || true
-            debugfs -w -R "write $staged /$l" $img
+            android_image_write "$staged" "$img" "/$l"
         done
     fi
 
