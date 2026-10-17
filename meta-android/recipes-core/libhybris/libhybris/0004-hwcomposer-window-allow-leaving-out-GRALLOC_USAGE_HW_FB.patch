@@ -1,0 +1,68 @@
+From: Herman van Hazendonk <github.com@herrie.org>
+Subject: [PATCH] hwcomposer window: allow leaving out GRALLOC_USAGE_HW_FB
+
+On legacy gralloc0 vendors the framebuffer-backed buffers that
+GRALLOC_USAGE_HW_FB selects have no dma-buf fd, so they cannot be passed to a
+HIDL composer over hwbinder (executeCommands fails with FAILED_TRANSACTION).
+The Mali Utgard EGL of the Spreadtrum SC7730 also takes its buffer count for an
+HW_FB window from the framebuffer side, gets 0, allocates its per-buffer
+records with malloc(0) and overruns that chunk on the first dequeue, which
+corrupts the next heap object (libEGL's egl_surface_t), so every eglSwapBuffers
+fails with EGL_BAD_SURFACE.
+
+HYBRIS_HWC_NO_HW_FB=1 leaves the flag out of the window's default usage and of
+setUsage(), and so also out of NATIVE_WINDOW_CONSUMER_USAGE_BITS. Default
+behaviour is unchanged.
+
+Found and tested on the Samsung SM-T113 (goyavewifi) with a diagnostic
+LD_PRELOAD shim; this patch itself is rebased onto our libhybris branch.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Inappropriate [opt-in workaround for legacy gralloc0 vendors, driven by deviceinfo]
+---
+--- a/egl/platforms/hwcomposer/hwcomposer_window.cpp
++++ b/egl/platforms/hwcomposer/hwcomposer_window.cpp
+@@ -143,6 +143,25 @@
+ }
+ 
+ 
++
++/*
++ * GRALLOC_USAGE_HW_FB asks gralloc for buffers carved out of the framebuffer. On
++ * legacy gralloc0 vendors (e.g. Spreadtrum SC7730 / Mali-400) those buffers have no
++ * dma-buf fd, so they cannot be sent to a HIDL composer over hwbinder, and the
++ * Utgard EGL then sizes its per-buffer state from the framebuffer count (0) and
++ * overruns a malloc(0). HYBRIS_HWC_NO_HW_FB=1 leaves the flag out.
++ */
++static uint64_t hwc_window_fb_usage()
++{
++    static int no_hw_fb = -1;
++
++    if (no_hw_fb < 0) {
++        const char *env = getenv("HYBRIS_HWC_NO_HW_FB");
++        no_hw_fb = env && atoi(env) != 0;
++    }
++    return no_hw_fb ? 0 : GRALLOC_USAGE_HW_FB;
++}
++
+ ////////////////////////////////////////////////////////////////////////////////
+ HWComposerNativeWindow::HWComposerNativeWindow(unsigned int width, unsigned int height, unsigned int format)
+ {
+@@ -150,7 +169,7 @@
+     m_width = width;
+     m_height = height;
+     m_bufFormat = format;
+-    m_usage = GRALLOC_USAGE_HW_COMPOSER|GRALLOC_USAGE_HW_FB;
++    m_usage = GRALLOC_USAGE_HW_COMPOSER|hwc_window_fb_usage();
+     m_bufferCount = 2;
+     m_nextBuffer = 0;
+     m_transformHint = 0;
+@@ -459,7 +478,7 @@
+  */
+ int HWComposerNativeWindow::setUsage(uint64_t usage)
+ {
+-    usage |= GRALLOC_USAGE_HW_COMPOSER|GRALLOC_USAGE_HW_FB;
++    usage |= GRALLOC_USAGE_HW_COMPOSER|hwc_window_fb_usage();
+     int need_realloc = (m_usage != usage);
+     TRACE("usage=x%" PRIx64 " realloc=%d", usage, need_realloc);
+     m_usage = usage;

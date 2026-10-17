@@ -1,0 +1,36 @@
+From: Herman van Hazendonk <github.com@herrie.org>
+Subject: [PATCH] hwcomposer window: retry a failed allocation without HW_FB
+
+On the SM-T113 (Spreadtrum SC7730S) the gralloc HAL backs buffers that carry
+GRALLOC_USAGE_HW_FB with a 5 MiB carveout heap, and the composer HAL already
+fills it with its own two 1024x600 RGBA framebuffer targets. The window's own
+buffers (usage x1e02, set by libGLES_mali.so) then fail with EIO.
+
+Retry once without the framebuffer bit, so the buffer can come from the
+regular heap, and print both results.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Inappropriate [SC7730S-specific workaround; a proper fix is to size the carveout]
+---
+--- a/egl/platforms/hwcomposer/hwcomposer_window.cpp
++++ b/egl/platforms/hwcomposer/hwcomposer_window.cpp
+@@ -113,6 +113,19 @@
+         fprintf(stderr, "hybris-hwcomposer: gralloc allocate %ux%u format x%x usage x%" PRIx64 " failed: %d (%s)\n",
+                 width, height, format, usage, status, strerror(status < 0 ? -status : status));
+         handle = NULL;
++
++        // Some gralloc implementations back GRALLOC_USAGE_HW_FB buffers with a small dedicated
++        // carveout (5 MiB on the SC7730S, which the composer HAL already fills with its own two
++        // framebuffer targets). Try again without the framebuffer bit before giving up.
++        if (usage & GRALLOC_USAGE_HW_FB) {
++            uint64_t retry = usage & ~(uint64_t)GRALLOC_USAGE_HW_FB;
++            stride = 0;
++            status = hybris_gralloc_allocate(width, height, format, (uint32_t)retry, &handle, (uint32_t*)&stride);
++            fprintf(stderr, "hybris-hwcomposer: retry without HW_FB, usage x%" PRIx64 ": %d (%s)\n",
++                    retry, status, strerror(status < 0 ? -status : status));
++            if (status)
++                handle = NULL;
++        }
+     }
+ 
+     TRACE("width=%d height=%d stride=%d format=x%x usage=x%" PRIx64 "status=%s this=%p",
