@@ -11,14 +11,20 @@ COMPATIBLE_MACHINE = "^titan$"
 # imx219 and ov16880 camera drivers in C and merged the two storage variants.
 # It is also the only one of the three whose source-built kernel is known to
 # boot a glibc/systemd userland, because the Ubuntu Touch port ships it.
-SRC_URI = "git://gitlab.com/ubports/porting/community-ports/android10/unihertz-titan/kernel-alps-mt6771.git;branch=halium-10.0;protocol=https \
+SRC_URI = "git://github.com/shr-distribution/linux.git;branch=unihertz-titan/4.14/halium-10.0;protocol=https \
            file://luneos.cfg \
            file://unihertz-titan.dtb \
 "
 
-# halium-10.0 @ "imgsensor: ov16880: rewrite the disassembled driver in C",
-# 14 Sep 2026, the branch head.
-SRCREV = "fc94895e6dccf5f8f2cc34abc0255e2a3e4edebe"
+# github.com/shr-distribution/linux, branch unihertz-titan/4.14/halium-10.0:
+# UBports' halium-10.0 at fc94895e6dcc ("imgsensor: ov16880: rewrite the
+# disassembled driver in C", 14 Sep 2026, that branch's head) with the LuneOS
+# commits on top - so far only what OE's GCC 15 needs to build a tree written
+# for clang: the benign newer-GCC warning classes demoted back to warnings
+# (as on the Pocket's tree) and 4.14-stable's -Wzero-length-bounds,
+# -Warray-bounds and -Wstringop-overflow disables, which this 4.14.141 base
+# predates.
+SRCREV = "a4131ae47809bf4c5aab02c78fd29267069d8cca"
 
 LINUX_VERSION = "4.14"
 KV = "4.14.141"
