@@ -10,10 +10,21 @@
 # (ro.sf.lcd_density=160).
 deviceinfo_display_dpi="169"
 
-# The panel is 1024x600, native landscape (gen-panel-xres 1024, gen-panel-yres 600). Android runs it as a
-# 600x1024 portrait screen with ro.sf.hwrotation=270. Geometry format as the SM-T520.
-# TODO(verify): the rotation the compositor and the touch need on the tablet.
-deviceinfo_compositor_geometry="1024x600+0+0r0s1"
+# The panel is 1024x600, native landscape (gen-panel-xres 1024, gen-panel-yres 600), but the tablet is held
+# in portrait: Android runs it as 600x1024 with ro.sf.hwrotation=270. Reported by the porting tester on
+# 2026-10-16: r270 draws the UI upright in portrait (r90 is upside down). The MELFAS MMS449 touchscreen
+# reports portrait coordinates (ABS_MT_POSITION_X 0..600, Y 0..1024); the rotate=270 that
+# 20-surface-manager-env derives from this geometry put taps where they were drawn, so no
+# deviceinfo_touch_rotate is set. Not re-run on our own build yet.
+deviceinfo_compositor_geometry="1024x600+0+0r270s1"
+
+# libhybris' hwcomposer window must not ask for GRALLOC_USAGE_HW_FB here (see 20-surface-manager-env):
+# with it the Mali-400 EGL corrupts its window surface and the composer HAL cannot receive the buffers.
+deviceinfo_hwc_no_hw_fb="1"
+
+# sprdfb keeps scanning out the boot logo until the first pan, and the SPRD composer HAL never pans
+# (see luneos-fb-kick). Without this the panel stays on the Samsung logo although the compositor draws.
+deviceinfo_fb_kick="1"
 
 # The GPU is an ARM Mali-400 behind one file, /vendor/lib/egl/libGLES_mali.so, which the EGL loader finds as
 # libGLES_<name>.so for ro.hardware.egl=mali (the image recipe's vendor build.prop sets it).

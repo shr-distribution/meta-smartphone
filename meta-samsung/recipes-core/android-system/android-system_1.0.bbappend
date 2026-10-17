@@ -28,3 +28,15 @@ do_install:append:sm-t520() {
 }
 
 FILES:${PN}:append:sm-t520 = " ${localstatedir}/lib/lxc/android/stubbed-services.d/n2awifi"
+
+# SM-T113: the list of Android services to stub out (see the file for why). 50-stub-services picks it by the
+# codename in the vendor build.prop, goyavewifi, from stubbed-services.d.
+SRC_URI:append:goyavewifi = " file://stubbed-services-goyavewifi"
+
+do_install:append:goyavewifi() {
+    install -d ${D}${localstatedir}/lib/lxc/android/stubbed-services.d
+    install -m 0644 ${UNPACKDIR}/stubbed-services-goyavewifi \
+        ${D}${localstatedir}/lib/lxc/android/stubbed-services.d/goyavewifi
+}
+
+FILES:${PN}:append:goyavewifi = " ${localstatedir}/lib/lxc/android/stubbed-services.d/goyavewifi"

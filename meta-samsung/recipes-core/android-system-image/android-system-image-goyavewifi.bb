@@ -7,10 +7,11 @@ HALIUM_LUNEOS_GSI16_PV = "20261008-3"
 HALIUM_LUNEOS_GSI16_SHA256 = "7795e2d7756707ea28a4dfc3d4f00406afe47339abe306168bc0035d2e6712c3"
 HALIUM_LUNEOS_GSI16_RELEASE = "halium-luneos-20261005"
 
-# The vendor image published with the GSI (goyavewifi-vendor.img in the halium-luneos-20261005 release),
-# derived by the settings below from the device tarball against GSI 20261008-3. See
-# android-system-image-legacy-gsi.inc for how to make a new one.
-HALIUM_LEGACY_VENDOR_SHA256 = "e0730f2e0da7dbe0f316b20092ba4da4d1b2b74106203c5c91cc968ff28d48a8"
+# Derived locally from the device tarball below: the vendor image published with the GSI
+# (goyavewifi-vendor.img of halium-luneos-20261005, sha256 e0730f2e0da7dbe0f316b20092ba4da4d1b2b74106203c5c91cc968ff28d48a8)
+# was made from the 20261008-2 tarball and does not have the fstab and init.sc8830.rc fixes of the 20261011-1 one.
+# Publish UNPACKDIR/vendor.img of a build and set the SHA-256 again to use a published image.
+HALIUM_LEGACY_VENDOR_SHA256 = ""
 
 COMPATIBLE_MACHINE = "^goyavewifi$"
 
@@ -34,14 +35,38 @@ HALIUM_LEGACY_VNDK = "28"
 # goyavewifi-STATUS.md. tools/assemble-device.py of the port's working directory lays it out, with the build's
 # own ownership and modes. Not published anywhere yet, so it is a local file.
 # TODO: publish to webOS-ports/halium-images and use an https URL.
-GOYAVEWIFI_DEVICE_TARBALL ?= "file:///home/herrie/webos/LuneOS/samsung/sm-t113/out-device-16/halium-luneos-9.0-20261008-2-goyavewifi.tar.bz2"
+GOYAVEWIFI_DEVICE_TARBALL ?= "file:///home/herrie/webos/LuneOS/samsung/sm-t113/out-device-16/halium-luneos-9.0-20261017-1-goyavewifi.tar.bz2"
 HALIUM_LEGACY_DEVICE_URL = "${GOYAVEWIFI_DEVICE_TARBALL}"
-HALIUM_LEGACY_DEVICE_SHA256 = "c90ae61df88d71eed5d29f2ba84d942c10024fc3447cffe5293ac19c71978096"
+HALIUM_LEGACY_DEVICE_SHA256 = "2fe3eeb0b28d33affba7f4ff352c527f6c9d484fa9c79be50910576fbd7e1066"
 
 # The board scripts of the boot ramdisk, which move to /vendor/etc/init/hw. init.sc8830.usb.rc is left out on
 # purpose: the container's init must not write the USB gadget the host's adbd owns. The ueventd rules become
 # /vendor/etc/ueventd.rc.
 HALIUM_LEGACY_INIT_FILES = "init.sc8830.rc init.board.rc init.wifi.rc ueventd.sc8830.rc"
+# The audio policy of the Lineage 16 build is the legacy audio_policy.conf in its /system/etc, which the plain GSI
+# replaces. pulseaudio-distro-conf's droid-audio-config-gen looks for it in /android/vendor/etc and, finding nothing,
+# loads module-droid-card with no config: "droid-config.c: Failed to parse any configuration", so no droid card, no
+# pcm_output sink and no sound (boot journal of 14 Oct 2026, the audio HAL service itself was running). The HP TouchPad
+# (tenderloin) needs the same copy.
+HALIUM_LEGACY_COPY_FILES += "/system/etc/audio_policy.conf:/etc/audio_policy.conf"
 
 # The plain GSI: nothing of the old image goes into it.
 HALIUM_LEGACY_GSI_AUTODETECT = "0"
+
+# The gralloc module (gralloc.sc8830.so -> libdither.so -> libandroid_runtime.so -> libpdfium.so -> libft2.so) is
+# what both graphics HAL services open. The ninth-round logcat (12 Oct 2026):
+#
+#   vndksupport: Could not load /vendor/lib/hw/gralloc.sc8830.so from default namespace: dlopen failed:
+#   library "libft2.so" not found: needed by /vendor/lib/libpdfium.so
+#   AllocatorHal: failed to get gralloc module / ComposerHal: failed to open hwcomposer device
+#
+# so allocator and composer exit with status 1 at every start. The GSI's LLNDK list names libft2.so, so the
+# converter used to count it as provided, but the vendor's linker namespace does not hand it to this vendor. Same
+# finding as the SM-T520 and the A3 (2015) (and the TouchPad): a private copy from the old image is needed.
+# (halium-legacy-vendor revision 32 pulls libft2.so by itself when something in the vendor needs it; nothing to set.)
+
+# The framework copies the vendor brings along (libgui, libmedia, libmediautils, libsensor, libandroid_runtime)
+# want the permission, AppOps and process-info helpers of the full libbinder that the VNDK 28 snapshot leaves out
+# (PermissionCache, AppOpsManager, IPermissionController, IProcessInfoService, IBatteryStats: undefined in every
+# library of vendor, VNDK 28 and bionic). halium-legacy-shim provides them, as for the two siblings.
+HALIUM_LEGACY_SHIM_TARGETS = "libgui.so libmedia.so libmediautils.so libsensor.so libandroid_runtime.so libnativeloader.so libgraphicsenv.so libC.so libmemunreachable.so libpdx_default_transport.so"

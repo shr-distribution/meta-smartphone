@@ -1,0 +1,18 @@
+# Android services of the SM-T113 (goyavewifi) that cannot run here and are replaced by a stub that sleeps (see
+# lxc's pre-start.d/50-stub-services; the list is picked by ro.product.vendor.device in the vendor build.prop).
+#
+# lmkd: the Android 16 lmkd links libmemevents, whose static constructor loads BPF programs from /sys/fs/bpf and
+# aborts when it cannot (this kernel is 3.10 and has no BPF). The service is marked "critical" and init restarts
+# it every five seconds for ever (37 aborts, each with a crash dump, in the first 200 s of the sixth-round log).
+# Init's rule for critical services is to reboot after four crashes in four minutes; that did not happen in that
+# log, but nothing says why, so do not count on it. Halium's init.disabled.rc
+# tries to disable lmkd, but it is parsed before lmkd.rc and the definition from lmkd.rc wins. Nothing here
+# needs a low memory killer: there is no Android framework to keep apps alive.
+/system/bin/lmkd
+#
+# gpsd: the Wi-Fi tablet has no GPS and the binary exits at once with status 1 every time init starts it (36
+# times in 200 s in the sixth-round log); init restarts it every five seconds.
+/vendor/bin/gpsd
+# The memtrack HAL exits with status 1 at every start for a reason that is not known (36 restarts in 200 s; no message).
+# Its numbers are the GPU memory figures of dumpsys, which nothing here runs.
+/vendor/bin/hw/android.hardware.memtrack@1.0-service
