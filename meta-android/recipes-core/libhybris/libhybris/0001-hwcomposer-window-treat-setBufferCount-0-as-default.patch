@@ -1,0 +1,31 @@
+From: Herman van Hazendonk <github.com@herrie.org>
+Subject: [PATCH] hwcomposer window: treat setBufferCount(0) as "use the default"
+
+Mali's libGLES_mali.so on the Spreadtrum SC7730S (goyavewifi) calls
+native_window_set_buffer_count(window, 0) while it creates the window surface.
+In Android's BufferQueue a count of 0 means "go back to the default count".
+HWComposerNativeWindow took it literally: it destroyed its buffers, set
+m_bufferCount to 0, and the next dequeueBuffer() allocated no buffers at all,
+so `assert(!m_bufList.empty())` aborted the compositor (surface-manager).
+
+Keep the default of two buffers when the caller asks for none.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Pending
+---
+ egl/platforms/hwcomposer/hwcomposer_window.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+--- a/egl/platforms/hwcomposer/hwcomposer_window.cpp
++++ b/egl/platforms/hwcomposer/hwcomposer_window.cpp
+@@ -473,6 +473,10 @@
+  */
+ int HWComposerNativeWindow::setBufferCount(int count)
+ {
++    // 0 means "default count" in BufferQueue, not "no buffers".
++    if (count <= 0)
++        count = 2;
++
+     int need_realloc = (unsigned int) count != m_bufferCount;
+     TRACE("count=%d realloc=%d", count, need_realloc);
+     m_bufferCount = count;

@@ -14,10 +14,15 @@ LIC_FILES_CHKSUM = "file://../LICENSE.Apache2;md5=3b83ef96387f14655fc854ddc3c6bd
 # vendor blobs from Android 9 to 16 sit on top of it, in the same branch.
 SRCREV = "92b4e618cef0b26f38226d1ed00f8a18f853fa03"
 PV = "0.1.0+git"
-PR = "r9"
+PR = "r13"
 PE = "1"
 
-SRC_URI = "git://github.com/webOS-ports/libhybris;branch=herrie/android16-tls;protocol=https"
+SRC_URI = "git://github.com/webOS-ports/libhybris;branch=herrie/android16-tls;protocol=https \
+    file://0001-hwcomposer-window-treat-setBufferCount-0-as-default.patch \
+    file://0002-hwcomposer-window-report-gralloc-allocation-failure.patch \
+    file://0003-hwcomposer-window-retry-gralloc-allocation-without-HW_FB.patch \
+    file://0004-hwcomposer-window-allow-leaving-out-GRALLOC_USAGE_HW_FB.patch \
+"
 
 S = "${UNPACKDIR}/${BB_GIT_DEFAULT_DESTSUFFIX}/hybris"
 

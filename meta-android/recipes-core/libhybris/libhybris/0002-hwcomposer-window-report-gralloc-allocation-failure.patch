@@ -1,0 +1,38 @@
+From: Herman van Hazendonk <github.com@herrie.org>
+Subject: [PATCH] hwcomposer window: report a failed gralloc allocation
+
+HWComposerNativeWindowBuffer's constructor discarded the return value of
+hybris_gralloc_allocate(). When the gralloc HAL refuses the allocation (no
+memory in the framebuffer heap, a usage or format it does not support) the
+buffer is still queued with a NULL handle and the EGL driver then
+dereferences the handle: libGLES_mali.so crashed in its render thread on a
+SM-T113 (Spreadtrum SC7730S) at handle->format.
+
+Keep the return value as the buffer status, so allocateBuffers() sees the
+failure and does not queue the buffer, and print what was asked for and the
+error, which is the only place that says why.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Pending
+---
+ egl/platforms/hwcomposer/hwcomposer_window.cpp | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+--- a/egl/platforms/hwcomposer/hwcomposer_window.cpp
++++ b/egl/platforms/hwcomposer/hwcomposer_window.cpp
+@@ -106,7 +106,14 @@
+     busy = 0;
+     status = 0;
+ 
+-    hybris_gralloc_allocate(width, height, format, (uint32_t)usage, &handle, (uint32_t*)&stride);
++    handle = NULL;
++    stride = 0;
++    status = hybris_gralloc_allocate(width, height, format, (uint32_t)usage, &handle, (uint32_t*)&stride);
++    if (status) {
++        fprintf(stderr, "hybris-hwcomposer: gralloc allocate %ux%u format x%x usage x%" PRIx64 " failed: %d (%s)\n",
++                width, height, format, usage, status, strerror(status < 0 ? -status : status));
++        handle = NULL;
++    }
+ 
+     TRACE("width=%d height=%d stride=%d format=x%x usage=x%" PRIx64 "status=%s this=%p",
+         width, height, stride, format, usage, strerror(-status), this);
