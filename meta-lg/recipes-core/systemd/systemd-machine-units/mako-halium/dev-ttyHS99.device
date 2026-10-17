@@ -1,4 +1,0 @@
-[Unit]
-Description=HCI UART device
-Requires=hciattach.service
-Before=hciattach.service
