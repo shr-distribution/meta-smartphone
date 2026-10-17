@@ -6,6 +6,7 @@
 # Address!" unless ro.bt.bdaddr_path, ro.boot.btmacaddr or persist.service.bdroid.bdaddr gives it one, and
 # none is set in the container; bluebinder then only logs "Remote has died". bluebinder_post.sh in turn
 # fails the unit unless it finds an address, and it looks in /var/lib/bluetooth/board-address first.
+# The controller itself is given the address in the container, by the vendor image's mako-bt-init.sh.
 SRC=/persist/bluetooth/.bdaddr
 OUT=/var/lib/bluetooth/board-address
 
