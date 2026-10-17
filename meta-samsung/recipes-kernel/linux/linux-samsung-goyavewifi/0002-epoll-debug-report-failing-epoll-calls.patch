@@ -1,0 +1,85 @@
+From: Herman van Hazendonk <github.com@herrie.org>
+Subject: [PATCH] epoll: debug: report failing epoll_wait and epoll_ctl calls
+
+DEBUGGING AID, not for the branch. In the sixth-round log of the SM-T113
+Android 16 container, tombstoned (user space libevent on epoll) exits with
+status 1 every time it is started, 0.2 to 2.6 seconds later, without a
+message; its main() returns 1 where libevent's event_base_dispatch() has
+failed. Nothing says which epoll call failed.
+
+Print a line for every epoll_wait() that fails other than with EINTR and for
+every epoll_ctl() that fails other than with EEXIST or ENOENT (libevent
+retries on those), with the process, the arguments and the error.
+
+Remove this once the cause is known.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Inappropriate [debugging aid for the goyavewifi bring-up]
+---
+diff --git a/fs/eventpoll.c b/fs/eventpoll.c
+index 0cff4434..c1676df2 100644
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -1907,6 +1907,9 @@ error_tgt_fput:
+ error_fput:
+ 	fput(file);
+ error_return:
++	if (error < 0 && error != -EEXIST && error != -ENOENT)
++		pr_err("epoll-dbg: %d:%d %s epoll_ctl(%d, op %d, fd %d) = %d\n",
++		       current->tgid, current->pid, current->comm, epfd, op, fd, error);
+ 
+ 	return error;
+ }
+@@ -1923,25 +1926,37 @@ SYSCALL_DEFINE4(epoll_wait, int, epfd, struct epoll_event __user *, events,
+ 	struct eventpoll *ep;
+ 
+ 	/* The maximum number of event must be greater than zero */
+-	if (maxevents <= 0 || maxevents > EP_MAX_EVENTS)
++	if (maxevents <= 0 || maxevents > EP_MAX_EVENTS) {
++		pr_err("epoll-dbg: %d:%d %s EINVAL maxevents=%d\n",
++		       current->tgid, current->pid, current->comm, maxevents);
+ 		return -EINVAL;
++	}
+ 
+ 	/* Verify that the area passed by the user is writeable */
+-	if (!access_ok(VERIFY_WRITE, events, maxevents * sizeof(struct epoll_event)))
++	if (!access_ok(VERIFY_WRITE, events, maxevents * sizeof(struct epoll_event))) {
++		pr_err("epoll-dbg: %d:%d %s EFAULT access_ok events=%p maxevents=%d\n",
++		       current->tgid, current->pid, current->comm, events, maxevents);
+ 		return -EFAULT;
++	}
+ 
+ 	/* Get the "struct file *" for the eventpoll file */
+ 	f = fdget(epfd);
+-	if (!f.file)
++	if (!f.file) {
++		pr_err("epoll-dbg: %d:%d %s epoll_wait(%d) EBADF\n",
++		       current->tgid, current->pid, current->comm, epfd);
+ 		return -EBADF;
++	}
+ 
+ 	/*
+ 	 * We have to check that the file structure underneath the fd
+ 	 * the user passed to us _is_ an eventpoll file.
+ 	 */
+ 	error = -EINVAL;
+-	if (!is_file_epoll(f.file))
++	if (!is_file_epoll(f.file)) {
++		pr_err("epoll-dbg: %d:%d %s epoll_wait(%d) not an epoll fd\n",
++		       current->tgid, current->pid, current->comm, epfd);
+ 		goto error_fput;
++	}
+ 
+ 	/*
+ 	 * At this point it is safe to assume that the "private_data" contains
+@@ -1951,6 +1966,10 @@ SYSCALL_DEFINE4(epoll_wait, int, epfd, struct epoll_event __user *, events,
+ 
+ 	/* Time to fish for events ... */
+ 	error = ep_poll(ep, events, maxevents, timeout);
++	if (error < 0 && error != -EINTR)
++		pr_err("epoll-dbg: %d:%d %s ep_poll() = %d events=%p maxevents=%d timeout=%d\n",
++		       current->tgid, current->pid, current->comm, error,
++		       events, maxevents, timeout);
+ 
+ error_fput:
+ 	fdput(f);
