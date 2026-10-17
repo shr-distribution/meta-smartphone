@@ -4,8 +4,11 @@ require recipes-core/android-system-image/android-system-image-legacy-gsi.inc
 # the sphal namespace link libbinder.so and libui.so for a VNDK 30 vendor too (gralloc.msm8916.so, else no
 # UI), and gives minimediaservice five HIDL threads (else a camera picture deadlocks). Published in the
 # halium-luneos-20261005 release, which the version's date does not name.
-HALIUM_LUNEOS_GSI16_PV = "20261008-3"
-HALIUM_LUNEOS_GSI16_SHA256 = "7795e2d7756707ea28a4dfc3d4f00406afe47339abe306168bc0035d2e6712c3"
+# 20261017-1 is 20261008-3 with droidmedia's buffer and codec fixes (the only file that differs) and 512 free
+# inodes instead of 64. The vendor image below, made against 20261008-3, stays: a vendor image derived against
+# either GSI has the same contents (checked on the TouchPad).
+HALIUM_LUNEOS_GSI16_PV = "20261017-1"
+HALIUM_LUNEOS_GSI16_SHA256 = "0984f47ea33ca7e058a4db7e9e5145760d5b433b19e14e8ba22a38d12648a871"
 HALIUM_LUNEOS_GSI16_RELEASE = "halium-luneos-20261005"
 
 COMPATIBLE_MACHINE = "^a3-2015-halium$"

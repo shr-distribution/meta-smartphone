@@ -8,9 +8,13 @@ COMPATIBLE_MACHINE = "mindphone"
 # Everything else comes from halium-luneos-gsi-16.inc, so the URL is still
 # assembled in exactly one place. The same build as the legacy 32-bit devices
 # (android-system-image-legacy-gsi.inc); it carries com.android.vndk.v27 to v34.
+# 20261017-1 adds droidmedia's guard against releasing a codec that was never
+# created: with no media.resource_manager under Halium on Android 16, MediaCodec
+# refuses every codec, and every AAC file then crashed the player in
+# MediaCodec::release().
 HALIUM_LUNEOS_GSI16_ARCH = "halium_arm"
-HALIUM_LUNEOS_GSI16_PV = "20261007-1"
-HALIUM_LUNEOS_GSI16_SHA256 = "3f62631989cc03148725e22be84d3c60ed68f16cc8f5aef56157ee612fae5ae4"
+HALIUM_LUNEOS_GSI16_PV = "20261017-1"
+HALIUM_LUNEOS_GSI16_SHA256 = "0984f47ea33ca7e058a4db7e9e5145760d5b433b19e14e8ba22a38d12648a871"
 
 PV = "${HALIUM_LUNEOS_GSI16_PV}"
 

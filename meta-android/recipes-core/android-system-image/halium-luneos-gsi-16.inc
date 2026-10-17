@@ -37,6 +37,9 @@
 #
 # (they live in /system_ext/apex, not /system/apex).
 
+# 20261017-1 carries droidmedia's buffer and codec fixes (herrie/video-playback:
+# the consumer may hold 8 buffers, not 4, which a decoder with a long output delay
+# needs to keep up; a codec that was never created is not released).
 # 20261014-1 keeps >=512 free inodes in system.img (build_image.py). The stock
 # AOSP image is sized with almost no spare inodes, so the per-device debugfs
 # patching (tissot's /system/etc/camera chromatix XMLs, the /firmware symlinks,
@@ -45,8 +48,8 @@
 # built and fsck'd clean. Same content as 20261007-1 otherwise.
 # 20261007-1 added the /persist and /efs directories and the /firmware link that
 # halium_arm got on 5 Oct 2026, for pre-Treble arm64 vendors (bullhead).
-HALIUM_LUNEOS_GSI16_PV ?= "20261014-1"
-HALIUM_LUNEOS_GSI16_SHA256 ?= "de2081b3beed212df5134683660a315d0075eb16483f1d4705162e3c2430692c"
+HALIUM_LUNEOS_GSI16_PV ?= "20261017-1"
+HALIUM_LUNEOS_GSI16_SHA256 ?= "dc789b56a4709ae3081473fc5e897aa3bf9d919b73e12ad7c64288386104dd45"
 
 # 32-bit ports (mindphone) set this to halium_arm and bring their own PV/SHA -
 # the arm GSI is a separate build and is not published on the same cadence.
@@ -55,10 +58,10 @@ HALIUM_LUNEOS_GSI16_ARCH ?= "halium_arm64"
 # The release TAG drops the -N suffix that PV carries: PV 20260910-1 lives under
 # the tag halium-luneos-20260910. Derived rather than written out again, because
 # a second place to edit is how this file came to be needed.
-# Exception: the 20261007 and 20261014 builds (halium_arm and halium_arm64) were
+# Exception: the 20261007, 20261014 and 20261017 builds (halium_arm and halium_arm64) were
 # published in the halium-luneos-20261005 release, next to the vendor images made
 # for them.
-HALIUM_LUNEOS_GSI16_RELEASE ?= "halium-luneos-${@{'20261007': '20261005', '20261014': '20261005'}.get(d.getVar('HALIUM_LUNEOS_GSI16_PV').split('-')[0], d.getVar('HALIUM_LUNEOS_GSI16_PV').split('-')[0])}"
+HALIUM_LUNEOS_GSI16_RELEASE ?= "halium-luneos-${@{'20261007': '20261005', '20261014': '20261005', '20261017': '20261005'}.get(d.getVar('HALIUM_LUNEOS_GSI16_PV').split('-')[0], d.getVar('HALIUM_LUNEOS_GSI16_PV').split('-')[0])}"
 
 HALIUM_LUNEOS_GSI16_TARBALL ?= "halium-luneos-16.0-${HALIUM_LUNEOS_GSI16_PV}-${HALIUM_LUNEOS_GSI16_ARCH}.tar.bz2"
 HALIUM_LUNEOS_GSI16_URL ?= "https://github.com/webOS-ports/halium-images/releases/download/${HALIUM_LUNEOS_GSI16_RELEASE}/${HALIUM_LUNEOS_GSI16_TARBALL}"

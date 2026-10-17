@@ -11,8 +11,11 @@ COMPATIBLE_MACHINE = "tenderloin-halium"
 # takePicture() deadlocked without them); 20261008-1 was never published. The vendor image below re-derives
 # with identical contents against it. Both are in the halium-luneos-20261005 release, which the date of the
 # version does not name.
-HALIUM_LUNEOS_GSI16_PV = "20261008-3"
-HALIUM_LUNEOS_GSI16_SHA256 = "7795e2d7756707ea28a4dfc3d4f00406afe47339abe306168bc0035d2e6712c3"
+# 20261017-1 is 20261008-3 with droidmedia's buffer and codec fixes (the only file that differs) and 512 free
+# inodes instead of 64. The vendor image below, made against 20261008-3, stays: a vendor image derived against
+# either GSI has the same contents (checked on the TouchPad).
+HALIUM_LUNEOS_GSI16_PV = "20261017-1"
+HALIUM_LUNEOS_GSI16_SHA256 = "0984f47ea33ca7e058a4db7e9e5145760d5b433b19e14e8ba22a38d12648a871"
 HALIUM_LUNEOS_GSI16_RELEASE = "halium-luneos-20261005"
 
 # The vendor image published with the GSI (tenderloin-halium-vendor.img in its release), made by the settings below
