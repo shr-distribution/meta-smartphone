@@ -47,6 +47,7 @@ SRC_URI = "\
     file://0001-bbqX0kbd-Q20-symbol-layers.patch \
     file://0002-bbqX0kbd-sym-tap-emoji-key.patch \
     file://0003-bbqX0kbd-blackberry-key-as-ctrl.patch \
+    file://0004-mali-r32p1-find-the-context-s-task-without-a-pid-nam.patch \
     file://luneos.cfg;subdir=frag \
 "
 SRCREV_kernel = "2a873a3511ee0eeead1442e60145093192a4535d"
@@ -267,9 +268,28 @@ do_install() {
     # environment.
     ${@gki_clang_bin(d).split(':')[0]}/llvm-strip --strip-debug \
         ${D}${nonarch_base_libdir}/modules/bbqX0kbd.ko
+
+    # The Mali driver, patched (0004) so that a GPU context can be created from
+    # inside a pid namespace - without it Android in Waydroid never boots. It
+    # is a vendor_dlkm module, not a vendor_boot one, so the initramfs
+    # substitution above cannot reach it: it goes in the rootfs, where
+    # mount-android.sh loads everything in vendor_dlkm-override/ ahead of the
+    # container, and the vendor's own modprobe then finds it already loaded.
+    # Its interface is the stock one - all 386 imported and 132 exported
+    # symbol CRCs match the vendor's mali_kbase_mt6789.ko.
+    install -d ${D}${nonarch_base_libdir}/modules/vendor_dlkm-override
+    install -m 0644 ${B}/drivers/gpu/mediatek/gpu_mali/mali_valhall/mali-r32p1/drivers/gpu/arm/midgard/mali_kbase_mt6789.ko \
+        ${D}${nonarch_base_libdir}/modules/vendor_dlkm-override/mali_kbase_mt6789.ko
+    ${@gki_clang_bin(d).split(':')[0]}/llvm-strip --strip-debug \
+        ${D}${nonarch_base_libdir}/modules/vendor_dlkm-override/mali_kbase_mt6789.ko
 }
 
+# Two packages because they go to two places: ${PN} into the initramfs
+# (ANDROID_EXTRA_INITRAMFS_IMAGE_INSTALL), the override into the rootfs
+# (MACHINE_EXTRA_RRECOMMENDS), both set in q25.conf.
+PACKAGES =+ "${PN}-vendor-dlkm-override"
 FILES:${PN} = "${nonarch_base_libdir}/modules/bbqX0kbd.ko"
+FILES:${PN}-vendor-dlkm-override = "${nonarch_base_libdir}/modules/vendor_dlkm-override"
 
 # We strip it ourselves, above; OE's strip and debug-split cannot.
 INHIBIT_PACKAGE_STRIP = "1"
