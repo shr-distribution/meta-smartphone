@@ -710,9 +710,43 @@ load_vendor_dlkm_modules() {
     # VENDOR_DLKM_MODULES=all or an explicit list still loads from the host,
     # for bring-up or a vendor without such a loader.
     VENDOR_DLKM_MODULES="${VENDOR_DLKM_MODULES:-none}"
+
+    # Our own builds of vendor_dlkm modules, which must win over the vendor's.
+    #
+    # A machine's kernel recipe ships them here, under the vendor's file name,
+    # when a vendor module needs a fix - the Q25's Mali driver, which cannot
+    # create a GPU context from inside a pid namespace. They are loaded here,
+    # with their vendor dependencies, before the container starts: the vendor's
+    # init then finds them already loaded, and its "modprobe -a" skips a loaded
+    # module rather than replacing it. Swapping the file in place is not an
+    # option - the partition is read-only, and the container binds vendor_dlkm
+    # without its submounts.
+    #
+    # One that does not load stays unloaded here, and the vendor's init loads
+    # its own copy later exactly as before: a bad override costs the fix, not
+    # the driver.
+    VENDOR_DLKM_OVERRIDE_DIR="${VENDOR_DLKM_OVERRIDE_DIR:-/usr/lib/modules/vendor_dlkm-override}"
+    _overrides=""
+    for _o in "$VENDOR_DLKM_OVERRIDE_DIR"/*.ko; do
+        [ -f "$_o" ] || continue
+        _o=${_o##*/}
+        if [ -f "$_d/$_o" ]; then
+            _overrides="$_overrides $_o"
+        else
+            log "vendor_dlkm: override $_o is not a vendor module, ignored"
+        fi
+    done
+    [ -n "$_overrides" ] && log "vendor_dlkm: our own build of$_overrides"
+
     if [ "$VENDOR_DLKM_MODULES" = "none" ]; then
-        log "vendor_dlkm: leaving module loading to the vendor's init"
-        return 0
+        if [ -z "$_overrides" ]; then
+            log "vendor_dlkm: leaving module loading to the vendor's init"
+            return 0
+        fi
+        log "vendor_dlkm: leaving the rest to the vendor's init"
+        VENDOR_DLKM_MODULES="$_overrides"
+    elif [ "$VENDOR_DLKM_MODULES" != "all" ]; then
+        VENDOR_DLKM_MODULES="$VENDOR_DLKM_MODULES$_overrides"
     fi
 
     if [ "$VENDOR_DLKM_MODULES" = "all" ]; then
@@ -751,7 +785,11 @@ load_vendor_dlkm_modules() {
         _loaded=0
         for _m in $_todo; do
             [ -f "$_d/$_m" ] || continue
-            if insmod "$_d/$_m" 2>/dev/null; then
+            _ko="$_d/$_m"
+            case " $_overrides " in
+                *" $_m "*) _ko="$VENDOR_DLKM_OVERRIDE_DIR/$_m" ;;
+            esac
+            if insmod "$_ko" 2>/dev/null; then
                 _loaded=$((_loaded + 1))
             else
                 # Already loaded counts as success; anything else waits for a
