@@ -1,0 +1,99 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Herman van Hazendonk <github.com@herrie.org>
+Date: Sun, 18 Oct 2026 09:37:00 +0200
+Subject: [PATCH] mali-r32p1: find the context's task without a pid-namespace
+ lookup
+
+kbase_context_common_init() records current->tgid - the global id - in
+kctx->tgid, then looks the task up again with find_get_pid(kctx->tgid).
+find_get_pid() resolves a number in the caller's own pid namespace, not the
+global one. So for any process inside a container with a pid namespace of
+its own the lookup fails, and creating a GPU context returns -ESRCH:
+
+  mali 13000000.mali: Failed to get pid pointer for surfaceflinger/12594
+  mali 13000000.mali: Common context initialization failed error = -3
+
+(or, worse, finds an unrelated task that happens to have that number
+inside the namespace). On LuneOS this is Waydroid: Android runs in an LXC
+container, its EGL cannot initialise ("Failed creating base context during
+initializing of kernel context flags"), SurfaceFlinger aborts with "no
+suitable EGLConfig found" every five seconds, and Android never finishes
+booting. Processes outside a namespace - the LuneOS compositor - were never
+affected.
+
+The task wanted is the caller's thread group leader, which is what the pid
+lookup on the tgid returned. Take current->group_leader directly: the same
+task, no lookup, no namespace. kctx->tgid itself is left alone; everywhere
+else it is only compared against other global ids or logged.
+
+Tested on a Zinwa Q25 (MT6789, Mali-G57): Android in Waydroid reaches
+sys.boot_completed with SurfaceFlinger up, and the module's interface is
+unchanged - all 386 imported and 132 exported symbol CRCs match the stock
+mali_kbase_mt6789.ko.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Pending
+---
+ .../arm/midgard/context/mali_kbase_context.c  | 46 ++++++-------------
+ 1 file changed, 15 insertions(+), 31 deletions(-)
+
+diff --git a/drivers/gpu/mediatek/gpu_mali/mali_valhall/mali-r32p1/drivers/gpu/arm/midgard/context/mali_kbase_context.c b/drivers/gpu/mediatek/gpu_mali/mali_valhall/mali-r32p1/drivers/gpu/arm/midgard/context/mali_kbase_context.c
+index 4f299e5507da..e1df16259636 100644
+--- a/drivers/gpu/mediatek/gpu_mali/mali_valhall/mali-r32p1/drivers/gpu/arm/midgard/context/mali_kbase_context.c
++++ b/drivers/gpu/mediatek/gpu_mali/mali_valhall/mali-r32p1/drivers/gpu/arm/midgard/context/mali_kbase_context.c
+@@ -145,37 +145,21 @@ int kbase_context_common_init(struct kbase_context *kctx)
+ 
+ 	/* Check if this is a Userspace created context */
+ 	if (likely(kctx->filp)) {
+-		struct pid *pid_struct;
+-
+-		rcu_read_lock();
+-		pid_struct = find_get_pid(kctx->tgid);
+-		if (likely(pid_struct)) {
+-			struct task_struct *task = pid_task(pid_struct, PIDTYPE_PID);
+-
+-			if (likely(task)) {
+-				/* Take a reference on the task to avoid slow lookup
+-				 * later on from the page allocation loop.
+-				 */
+-				get_task_struct(task);
+-				kctx->task = task;
+-			} else {
+-				dev_err(kctx->kbdev->dev,
+-					"Failed to get task pointer for %s/%d",
+-					current->comm, current->pid);
+-				err = -ESRCH;
+-			}
+-
+-			put_pid(pid_struct);
+-		} else {
+-			dev_err(kctx->kbdev->dev,
+-				"Failed to get pid pointer for %s/%d",
+-				current->comm, current->pid);
+-			err = -ESRCH;
+-		}
+-		rcu_read_unlock();
+-
+-		if (unlikely(err))
+-			return err;
++		/* Take a reference on the task to avoid slow lookup later on
++		 * from the page allocation loop.
++		 *
++		 * The task wanted is the caller's thread group leader. It used
++		 * to be found with find_get_pid(kctx->tgid), but kctx->tgid is
++		 * the global id while find_get_pid() resolves a number in the
++		 * caller's own pid namespace - so from any process in a
++		 * container with a pid namespace of its own the lookup failed
++		 * with -ESRCH ("Failed to get pid pointer"), or found an
++		 * unrelated task that happened to have that number there. No
++		 * GPU context could be created in a container at all.
++		 * group_leader is the same task, reached without a lookup.
++		 */
++		get_task_struct(current->group_leader);
++		kctx->task = current->group_leader;
+ 	}
+ 
+ 	/* Check if this is a Userspace created context */
+-- 
+2.53.0
+
