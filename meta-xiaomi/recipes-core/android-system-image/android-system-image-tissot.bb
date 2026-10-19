@@ -272,6 +272,52 @@ tissot_patch_vendor_for_treble() {
         android_image_write "$staged" "$img" "/$l"
     done
 
+    # 5. Front-camera (s5k5e8) eeprom lens-shading NULL-deref fix.
+    #
+    #    With the camera files in place (tissot_patch_gsi_for_legacy_vendor) all
+    #    three sensors probe and both rear eeproms read fine, but mm-qcamera-daemon
+    #    then SIGSEGVs and the HIDL camera provider never registers, so
+    #    getCameraList returns [] again. Traced (OE arm objdump on this blob,
+    #    BuildId 0ca90f7f06d9abb63675dbf45b30ccfa) to module_sensor_init_eeprom:
+    #    it memcpy's the sensor's lens-shading (LSC) OTP data into a per-sensor
+    #    buffer chosen by a selector, handling only the values 1/2/3. The front
+    #    s5k5e8's OTP carries ONLY module-id + AWB data and no LSC (unlike the rear
+    #    ov12a10/ov13880, which report is_lsc:1), so for it the selector is none of
+    #    those and the blob's defensive `movne r6,#0` forces the memcpy DESTINATION
+    #    to NULL, then copies into it anyway -> segfault in format_lensshading. The
+    #    fault is intermittent (the selector is read from uninitialised memory, so
+    #    a warm `ctl.restart qcamerasvr` occasionally lands a valid value while a
+    #    cold boot does not), which is why the camera "worked earlier but is now
+    #    random".
+    #
+    #    Fix: neutralise that one Thumb instruction - `movne r6,#0` (encoding
+    #    00 26) at file offset 0x1a578 becomes `nopne` (00 bf) - so r6 keeps the
+    #    valid LSC buffer (the same one the selector==2 path uses) instead of NULL.
+    #    Proven on device: crashes 23->0, dumpsys media.camera 3, openCamera id
+    #    0/1/2 all rc:0, ICameraProvider/legacy/0 registration complete. (The
+    #    front's empty LSC lands in that buffer, so its lens-shading tuning may be
+    #    imperfect - not a crash, and all three cameras open.) This modifies a
+    #    proprietary Qualcomm blob, so it is done as a single guarded in-place byte
+    #    poke rather than by shipping a patched binary: the 6-byte window at 0x1a576
+    #    (`it ne; movne r6,#0; ldr r0,[r5,#0]` = 18 bf 00 26 28 68) is checked
+    #    exactly, so a different build of this blob fails the build instead of being
+    #    mis-patched, and an already-patched image is left untouched (idempotent).
+    camlib=lib/libmmcamera2_sensor_modules.so
+    debugfs -R "dump /$camlib $workdir/camlib.so" $img 2>/dev/null || true
+    if [ ! -s $workdir/camlib.so ]; then
+        bbfatal "could not extract /$camlib from the tissot vendor.img for the camera eeprom fix"
+    fi
+    win=`dd if=$workdir/camlib.so bs=1 skip=107894 count=6 2>/dev/null | od -An -tx1 | tr -d ' \n'`
+    if [ "$win" = "18bf00262868" ]; then
+        printf '\277' | dd of=$workdir/camlib.so bs=1 seek=107897 count=1 conv=notrunc 2>/dev/null
+        android_image_write "$workdir/camlib.so" "$img" "/$camlib"
+        bbnote "patched /$camlib: neutralised movne r6,#0 (s5k5e8 lens-shading NULL deref)"
+    elif [ "$win" = "18bf00bf2868" ]; then
+        bbnote "/$camlib already carries the s5k5e8 lens-shading fix; leaving as-is"
+    else
+        bbfatal "unexpected bytes ($win) at the camera eeprom patch site in /$camlib; refusing to patch a vendor blob this recipe does not recognise"
+    fi
+
     set +e
     e2fsck -fy $img > $workdir/fsck.log 2>&1
     rc=$?
