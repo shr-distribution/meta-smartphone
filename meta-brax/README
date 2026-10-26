@@ -1,0 +1,22 @@
+meta-brax
+=========
+
+Machines for Brax Technologies handsets.
+
+  brax3        BraX3 running BaseOS 1.0
+  brax3-iode   BraX3 running iodeOS (what the phone ships with)
+
+  MediaTek Dimensity 6300 (MT6835), 6.56" 720x1612 panel, GKI android13-5.15
+  (MediaTek mgk), boot + init_boot (header v4). The two machines differ only
+  in the kernel release string their stock vendor modules require; the
+  shared settings are in conf/machine/include/brax3.inc.
+
+Like meta-zinwa's q25 and meta-google's bluejay and panther, this layer builds
+only the *boot images*. The rootfs is the generic halium-arm64 one and the GSI
+is chosen at install time, so there is no brax3 image recipe and no brax3
+package feed - anything that would need one is a porting bug. See
+conf/machine/include/brax3.inc.
+
+Kernel and device sources: https://git.os-source.co (Brax3_BaseOs).
+
+Layer dependencies: core, openembedded-layer, android-layer (meta-android).

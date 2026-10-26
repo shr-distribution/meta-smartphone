@@ -1,0 +1,11 @@
+# Container services stubbed out on the BraX3 (see meta-android's
+# pre-start.d/50-stub-services; picked by the vendor codename, "brax3" on
+# iodeOS 7.x and "BraX3" on 6.x).
+#
+# The vendor's AIDL USB gadget HAL (service vendor.usb-gadget-hal). LuneOS owns
+# the gadget host-side, so the HAL never finds its configfs setup ("configfs
+# setup not done yet") and aborts in UsbGadget::UsbGadget(); init restarts it
+# every ~5 s. Measured on the first LuneOS boot (11 Nov 2026): 348 SIGABRT
+# coredumps, about 19 MB in /var/lib/systemd/coredump, within half an hour.
+# Same treatment as sunfish (hal-userspace.md, Stubbing a service).
+vendor/bin/hw/android.hardware.usb.gadget-service.mediatek
