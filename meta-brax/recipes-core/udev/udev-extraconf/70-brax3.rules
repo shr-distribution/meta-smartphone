@@ -1,0 +1,13 @@
+# BraX3 device-node permissions that are not in 65-android.rules.
+
+# --- Trustonic TEE ---------------------------------------------------------
+# The vendor's ueventd.rc (iodeOS 7.9) asks for:
+#   /dev/mobicore        0600 system system
+#   /dev/mobicore-user   0666 system system
+# Without a rule here both nodes were root:root 0660 on the running system.
+# mcDriverDaemon and KeyMint open them early in boot and kept working, but the
+# Gatekeeper HAL (uid system, no capabilities) opens /dev/mobicore-user only
+# when it is called, so every call failed before reaching the TEE (measured
+# 11 Nov 2026). The Volla and FuriLabs MediaTek Trustonic ports set the same.
+ACTION=="add|change", KERNEL=="mobicore", OWNER="system", GROUP="system", MODE="0600"
+ACTION=="add|change", KERNEL=="mobicore-user", OWNER="system", GROUP="system", MODE="0666"

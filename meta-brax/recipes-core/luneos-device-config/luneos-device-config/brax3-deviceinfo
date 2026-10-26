@@ -1,0 +1,78 @@
+# Tier 1 adaptation for the BraX3 (MT6835 / Dimensity 6300, 6.56" 720x1612).
+#
+# Only what cannot be derived belongs here. Vendor API level, panel geometry,
+# density (ro.sf.lcd_density) and the touchscreen node derive on a Treble
+# device. None of this has been run on hardware yet.
+
+# The power key and the volume rocker, pinned by name: "mtk-pmic-keys"
+# (drivers/input/keyboard/mtk-pmic-keys.c) and "mtk-kpd" (KPD_NAME in mtk-kpd.c),
+# both in the stock vendor_boot module set.
+deviceinfo_key_devices_by_name="mtk-pmic-keys;mtk-kpd"
+
+# Qt's hwcomposer QPA backend rather than letting it pick, as on every MediaTek
+# port so far (mp01, q25, radon). The UBports port forces the same
+# (MIR_ANDROID_FORCE_HWC2=1 in lsc-wrapper.d/10-force-hwc2.conf).
+deviceinfo_force_hwc2="1"
+
+# MediaTek's audio HAL runs at 48 kHz; the UBports port loads module-droid-card
+# with rate=48000 (droid_card_custom.pa), as mp01 and q25 do.
+deviceinfo_audio_sample_rate="48000"
+
+# The light sensor (ls98xx_als) is reachable only through the vendor's sensors
+# HAL (android.hardware.sensors@2.0 multihal, 19 sensors), which sensorfw reads
+# through its hybris adaptors. 50-luna-platform probes only sysfs/IIO nodes and
+# finds none here (the two IIO devices are auxadc), so it wrote EnableALS=false
+# and LunaDisplayManager logged "ALS is not enabled". Same case as the Q25.
+# Measured on the first LuneOS boot (11 Nov 2026). No deviceinfo_als_calibration
+# until the lux readings are checked against a reference.
+deviceinfo_has_als="true"
+
+# The connac1x Bluetooth controller (ro.vendor.bt.platform=connac1x, as on the
+# MT6789 in mp01 and q25) advertises Synchronization Train support in extended
+# features page 2 and then rejects the command. Measured on the first LuneOS
+# boot (11 Nov 2026), btmon during "hciconfig hci0 up":
+#
+#   < HCI Command: Read Synchronization Train Parameters (0x03|0x0077)
+#   > HCI Event: Command Status ... Status: Unknown HCI Command (0x01)
+#   Can't init device hci0: Invalid request code (56)
+#
+# so hci0 never finished setup and bluetoothd saw no controller. The same mask
+# as mp01 and q25 clears that bit in what bluebinder reports to the kernel.
+deviceinfo_bluebinder_ext_features_page_2_mask="0x0400000000000000"
+
+# The modem is 5G: ro.vendor.mtk_ps1_rat is "N/Lf/Lt/W/G" (NR first) and the
+# modem firmware is MOLY.NR17. The generator's default leaves nr out for LTE-only
+# modems, so it is stated here.
+deviceinfo_binder_technologies="gsm,umts,lte,nr"
+
+# --- panel shape -----------------------------------------------------------
+# 720x1612 with a centred teardrop notch, as on radon.
+#
+# Read from the vendor on the phone (iodeOS 7.3, `dumpsys display`), not guessed:
+#
+#   cutoutSpec={M 0,0 L -46, 0 L -10, 26 L 10, 26 L 46, 0 Z @dp}, density 1.75
+#   boundingRect Rect(280, 0 - 441, 46)
+#
+# Android's spec is in dp from the centre top: +-46 dp * 1.75 = +-80.5 px around
+# x=360, 26 dp * 1.75 = 45.5 px deep. Android's own bounding box of that,
+# 280..441 x 0..46, is the rectangle below ("x y w h", panel scanout pixels).
+# A box around a teardrop is generous at the bottom corners; these are
+# avoidance areas, not the outline of the glass.
+deviceinfo_display_cutouts="280 0 161 46"
+
+# Rounded corners as on radon (75 px, all four). The vendor declares none
+# (RoundedCorners radius=0 in `dumpsys window`), so this is radon's value,
+# taken at the owner's direction for the same 720-wide glass, not measured on
+# the BraX3 itself.
+deviceinfo_display_corner_radii="75"
+
+# Deliberately absent until measured on the device:
+#
+#   deviceinfo_hybris_prefer_vndk
+#       Needed on the MT6789 A12 vendors because a vendor library imported a
+#       libbase symbol the 16 GSI dropped. This is an Android 16 vendor built
+#       against the same platform, so the reason may not exist. Add it if
+#       pulseaudio crashes on an unresolved android::base symbol.
+#
+#   deviceinfo_display_dpi
+#       269 ppi physically; ro.sf.lcd_density is 280. Let derivation run first.
