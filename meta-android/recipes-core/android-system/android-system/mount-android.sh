@@ -357,6 +357,69 @@ if [ "$want_vendor_libcxx" = 1 ]; then
     done
 fi
 
+# --- a vendor newer than the GSI: libraries that became LLNDK after it ----------
+# A vendor links an LLNDK library from /system and does not ship a copy. When a
+# later Android moves a library into LLNDK, a vendor built for that release
+# leaves it out of /vendor, but the older GSI's linkerconfig still does not
+# export it to the vendor namespace, so every vendor binary that needs it fails
+# to link. Measured on pioneer (Android 17 vendor, 16.0 GSI):
+#
+#   CANNOT LINK EXECUTABLE ".../android.hardware.camera.provider-service_32.lineage":
+#     library "libcamera_metadata.so" not found
+#
+# in a restart loop: no camera provider, so minimediaservice saw no provider and
+# the webOS camera service announced "0 droid camera(s)". The vendor's references
+# are versioned @LIBCAMERA_METADATA, i.e. it was linked against an LLNDK stub; the
+# GSI's /system/lib{,64}/libcamera_metadata.so exports every symbol it uses.
+#
+# The container's linkerconfig (run at every container start) links a library
+# from vendor to system only if it is both in /system/etc/llndk.libraries.txt
+# and in the provideLibs of /system/etc/linker.config.pb: tested with
+# "linkerconfig --target", either file alone changes nothing. So add it to
+# copies of both and bind them over the GSI's. provideLibs is field 3 of the
+# LinkerConfig protobuf, a repeated string, so appending one record
+# (0x1a, length, name) to the file is a valid edit.
+#
+# Each candidate is checked: the GSI has it, the vendor and odm do not, the
+# GSI's list lacks it, and some vendor file names it. A scan of every pioneer
+# vendor ELF's DT_NEEDED found libcamera_metadata.so the only such library.
+# Add others with LUNEOS_VENDOR_LLNDK_EXTRA="libfoo.so ..."; LUNEOS_VENDOR_LLNDK=0
+# turns this off.
+if [ "${LUNEOS_VENDOR_LLNDK:-1}" = 1 ]; then
+    llndk=$ANDROID_ROOT/system/etc/llndk.libraries.txt
+    lcpb=$ANDROID_ROOT/system/etc/linker.config.pb
+    llndk_add=""
+    if [ -f "$llndk" ] && [ -f "$lcpb" ] && ! grep -qs " $llndk " /proc/mounts; then
+        for so in libcamera_metadata.so ${LUNEOS_VENDOR_LLNDK_EXTRA:-}; do
+            grep -qx "$so" "$llndk" && continue
+            [ "${#so}" -lt 128 ] || continue  # one-byte protobuf length below
+            [ -e "$ANDROID_ROOT/system/lib64/$so" ] || [ -e "$ANDROID_ROOT/system/lib/$so" ] || continue
+            in_vendor=0
+            for d in vendor/lib64 vendor/lib odm/lib64 odm/lib; do
+                [ -e "$ANDROID_ROOT/$d/$so" ] && in_vendor=1
+            done
+            [ "$in_vendor" = 0 ] || continue
+            grep -qrsF "$so" "$ANDROID_ROOT/vendor/bin/hw" "$ANDROID_ROOT/vendor/lib/hw" \
+                "$ANDROID_ROOT/vendor/lib64/hw" "$ANDROID_ROOT/vendor/lib" "$ANDROID_ROOT/vendor/lib64" || continue
+            llndk_add="$llndk_add $so"
+        done
+    fi
+    if [ -n "$llndk_add" ]; then
+        run=/run/luneos-vendor-llndk
+        mkdir -p "$run"
+        cp "$llndk" "$run/llndk.libraries.txt"
+        cp "$lcpb" "$run/linker.config.pb"
+        for so in $llndk_add; do
+            echo "$so" >> "$run/llndk.libraries.txt"
+            grep -qsF "$so" "$lcpb" || \
+                printf "\\032\\$(printf '%03o' "${#so}")%s" "$so" >> "$run/linker.config.pb"
+        done
+        mount --bind "$run/llndk.libraries.txt" "$llndk" && \
+            mount --bind "$run/linker.config.pb" "$lcpb" && \
+            log "vendor needs LLNDK libraries the GSI does not export, added:$llndk_add"
+    fi
+fi
+
 # --- QMI over QRTR needs the host's network namespace --------------------------
 # QRTR sockets exist only in the kernel's initial network namespace, and LXC 4.0
 # clones a new one even with lxc.net.0.type = none unless "net" is in
