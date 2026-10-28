@@ -1,0 +1,28 @@
+From: LuneOS <luneos@webos-ports.org>
+Subject: [PATCH] fanotify: declare old_memcg in fanotify_alloc_event()
+
+The backport of "mm: memcg/slab: fix remote charging" (set_active_memcg())
+into this tree uses old_memcg in fanotify_alloc_event() without declaring
+it. LineageOS never enables CONFIG_FANOTIFY for this device, so the build
+error only shows once a distro does:
+
+  fs/notify/fanotify/fanotify.c:163:2: error: use of undeclared identifier 'old_memcg'
+
+Upstream-Status: Pending
+
+---
+ fs/notify/fanotify/fanotify.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/fs/notify/fanotify/fanotify.c b/fs/notify/fanotify/fanotify.c
+index 139e5a363..4e1a827eb 100644
+--- a/fs/notify/fanotify/fanotify.c
++++ b/fs/notify/fanotify/fanotify.c
+@@ -147,6 +147,7 @@ struct fanotify_event_info *fanotify_alloc_event(struct fsnotify_group *group,
+ {
+ 	struct fanotify_event_info *event = NULL;
+ 	gfp_t gfp = GFP_KERNEL_ACCOUNT;
++	struct mem_cgroup *old_memcg;
+ 
+ 	/*
+ 	 * For queues with unlimited length lost events are not expected and
