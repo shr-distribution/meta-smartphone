@@ -312,6 +312,87 @@ if [ -x "$halium_vndservicemanager" ] && [ -e "$vendor_vndservicemanager" ]; the
     mount --bind "$halium_vndservicemanager" "$vendor_vndservicemanager"
 fi
 
+# --- a vendor newer than the GSI: its libc++ -----------------------------------
+# From Android 15 a vendor carries its own libc++ in /vendor/lib64 instead of
+# taking a VNDK copy, and on Android its libraries reach it through the vendor
+# linker namespace. libhybris has no namespaces: it loads every soname once, and
+# the GSI's own libraries pull in /system/lib64/libc++.so first. When the vendor
+# was built with a newer toolchain than the GSI, that copy is too old for it.
+# Measured on pioneer (LineageOS 24.0, Android 17 vendor, SDK 37, under the 16.0
+# GSI, SDK 36): surface-manager aborted on
+#
+#   cannot locate symbol "_ZNSt3__113__hash_memoryEPKvm"
+#     referenced by "/android/vendor/lib64/libgralloccore.so"
+#
+# then "Cannot find EGLConfig" / EGL error 0x3001, and no UI. The vendor's own
+# libc++.so exports that symbol and the GSI's does not. libc++ keeps one ABI
+# (std::__1) and only adds symbols, so the GSI's code runs on the newer copy:
+# bind it over the GSI's, here, before the container starts, so host (libhybris)
+# and container processes see the same file.
+#
+# Only when the vendor's SDK is newer than the GSI's: an Android 15 or 16 vendor
+# under the 16.0 GSI (athena, sunfish, bramble) worked with the GSI's copy and
+# keeps it. LUNEOS_VENDOR_LIBCXX=0 turns this off, =1 forces it.
+prop_of() { sed -n "s/^$2=//p" "$1" 2>/dev/null | head -n 1; }
+vendor_sdk=$(prop_of "$ANDROID_ROOT/vendor/build.prop" ro.vendor.build.version.sdk)
+gsi_sdk=$(prop_of "$ANDROID_ROOT/system/build.prop" ro.build.version.sdk)
+[ -n "$gsi_sdk" ] || gsi_sdk=$(prop_of "$ANDROID_ROOT/system/system/build.prop" ro.build.version.sdk)
+want_vendor_libcxx=${LUNEOS_VENDOR_LIBCXX:-}
+if [ -z "$want_vendor_libcxx" ]; then
+    want_vendor_libcxx=0
+    case "$vendor_sdk$gsi_sdk" in
+        *[!0-9]*|"") ;;
+        *) [ "$vendor_sdk" -gt "$gsi_sdk" ] && want_vendor_libcxx=1 ;;
+    esac
+fi
+if [ "$want_vendor_libcxx" = 1 ]; then
+    for lib in lib64 lib; do
+        v=$ANDROID_ROOT/vendor/$lib/libc++.so
+        s=$ANDROID_ROOT/system/$lib/libc++.so
+        [ -e "$v" ] && [ -e "$s" ] || continue
+        if ! grep -qs " $s " /proc/mounts; then
+            mount --bind "$v" "$s" && \
+                log "vendor SDK $vendor_sdk > GSI SDK $gsi_sdk: using the vendor's $lib/libc++.so"
+        fi
+    done
+fi
+
+# --- QMI over QRTR needs the host's network namespace --------------------------
+# QRTR sockets exist only in the kernel's initial network namespace, and LXC 4.0
+# clones a new one even with lxc.net.0.type = none unless "net" is in
+# lxc.namespace.keep (see the LXC config). A Qualcomm vendor's QMI daemons then
+# cannot register at all. Measured on pioneer: rmt_storage logged
+# "qmi register failed : 8" and exited, tftp_server asserted, the modem had no
+# EFS and took a fatal error every ~42 s, and with it Wi-Fi (WCN3990 runs through
+# the modem's icnss) never started. With "net" kept, rmt_storage reached "Done
+# with init now waiting for messages!" at once.
+#
+# The config is built once for the generic rootfs, so decide here, per device:
+# a kernel that offers QRTR plus a vendor that ships rmt_storage (QMI over QRTR)
+# get the host's network namespace. LUNEOS_LXC_KEEP_NET=0/1 overrides.
+lxc_config=/var/lib/lxc/android/config
+keep_net=${LUNEOS_LXC_KEEP_NET:-}
+if [ -z "$keep_net" ]; then
+    keep_net=0
+    if grep -qs '^QIPCRTR' /proc/net/protocols && [ -e "$ANDROID_ROOT/vendor/bin/rmt_storage" ]; then
+        keep_net=1
+    fi
+fi
+if [ -w "$lxc_config" ]; then
+    keep_line=$(sed -n 's/^lxc\.namespace\.keep *= *//p' "$lxc_config" | head -n 1)
+    case " $keep_line " in
+        *" net "*) has_net=1 ;;
+        *) has_net=0 ;;
+    esac
+    if [ "$keep_net" = 1 ] && [ "$has_net" = 0 ]; then
+        sed -i "s/^lxc\.namespace\.keep *=.*/lxc.namespace.keep = $keep_line net/" "$lxc_config"
+        log "QRTR + rmt_storage: the container keeps the host network namespace"
+    elif [ "$keep_net" = 0 ] && [ "$has_net" = 1 ] && [ -n "${LUNEOS_LXC_KEEP_NET:-}" ]; then
+        sed -i "s/^lxc\.namespace\.keep *=.*/lxc.namespace.keep = $(echo " $keep_line " | sed 's/ net / /; s/^ *//; s/ *$//')/" "$lxc_config"
+        log "LUNEOS_LXC_KEEP_NET=0: the container gets its own network namespace"
+    fi
+fi
+
 # --- persist ----------------------------------------------------------------
 # NB: /mnt is rbind-mounted into the container straight from the host
 # (lxc.mount.entry = /mnt mnt bind rbind), so persist goes to the host path, not
