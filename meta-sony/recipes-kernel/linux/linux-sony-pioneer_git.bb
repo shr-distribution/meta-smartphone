@@ -41,7 +41,10 @@ S = "${UNPACKDIR}/${BP}"
 
 # Left empty: kernel.bbclass exports LOCALVERSION from it and linux.inc also
 # writes CONFIG_LOCALVERSION, so any value lands twice (sunfish). The tree's own
-# CONFIG_LOCALVERSION="-perf" stays.
+# CONFIG_LOCALVERSION="-perf" does NOT survive: linux.inc deletes it and writes
+# CONFIG_LOCALVERSION="${LOCALVERSION}" (empty) and LOCALVERSION_AUTO=n, so the
+# release is 4.19.325-cip136-st20 (measured, uname -r), not the shipped
+# 4.19.325-cip136-st20-perf-gee6b64dc037d. Nothing here loads modules by path.
 KERNEL_LOCALVERSION = ""
 
 #-----------------------------------------------------------------------------
@@ -81,16 +84,20 @@ PIONEER_PROVEN_KERNEL_SIZE = "19927413"
 
 # nile-common's BOARD_KERNEL_CMDLINE, then the LuneOS bring-up tokens.
 # No selinux=0 (kernel-porting.md § selinux=0) and no swiotlb=1 (fatal on
-# athena's 4.19, and not in this board file anyway). The tree's CONFIG_CMDLINE
-# ("cgroup_disable=pressure", EXTEND) and halium-kernel.inc's cgroup-v1
-# switches are appended by the kernel itself.
+# athena's 4.19, and not in this board file anyway). The kernel's own
+# CONFIG_CMDLINE (EXTEND) goes in FRONT of this string in /proc/cmdline. It is
+# NOT the tree's "cgroup_disable=pressure": linux.inc replaces CONFIG_CMDLINE
+# with "${CMDLINE} ${CMDLINE_DEBUG}" (" loglevel=3"), and halium-kernel.inc then
+# adds its cgroup-v1 switches. So PSI stays enabled here, unlike stock; set
+# CMDLINE = "cgroup_disable=pressure" in this recipe to match stock.
 ANDROID_BOOTIMG_CMDLINE = "androidboot.hardware=qcom ehci-hcd.park=3 lpm_levels.sleep_disabled=1 sched_enable_hmp=1 sched_enable_power_aware=1 service_locator.enable=1 androidboot.configfs=true androidboot.usbcontroller=a800000.dwc3 loop.max_part=7 androidboot.selinux=permissive printk.devkmsg=on console=tty0"
 
 #-----------------------------------------------------------------------------
 # Built with clang, not OE's GCC: LineageOS builds this tree with clang only
-# (TARGET_KERNEL_NO_GCC := true), and on a Qualcomm tree GCC miscompiles the
-# register-pinned SCM (TrustZone) call - on sunfish that took out PIL, the
-# Adreno zap shader, kgsl and with it the whole UI (kmi-crc-matching.md § Step 4).
+# (lineage-24.0's BoardConfigKernel.mk has no GCC path at all), and on a
+# Qualcomm tree GCC miscompiles the register-pinned SCM (TrustZone) call - on
+# sunfish that took out PIL, the Adreno zap shader, kgsl and with it the whole
+# UI (kmi-crc-matching.md § Step 4).
 # The compiler family is what matters, not the exact release, so any clang with
 # ld.lld and the llvm binutils works; set GKI_CLANG_DIR:pioneer in local.conf
 # (e.g. /usr/lib/llvm-19 from the distro's clang-19/lld-19/llvm-19 packages -
@@ -173,13 +180,13 @@ python pioneer_check_bootimg() {
     import os, struct
     path = os.path.join(d.getVar("DEPLOYDIR"), d.getVar("KERNEL_IMAGETYPE") + ".fastboot")
     with open(path, "rb") as f:
-        h = f.read(40)
+        h = f.read(44)
     if h[:8] != b"ANDROID!":
         bb.fatal("%s: not an Android boot image" % path)
-    ks, ka, rs, ra, ss, sa, ta, ps = struct.unpack("<8I", h[8:40])
-    bb.note("kernel %d B at 0x%08x; ramdisk %d B at 0x%08x; tags 0x%08x; second 0x%08x; page %d"
-            % (ks, ka, rs, ra, ta, sa, ps))
-    if (ka, ra, ta, sa, ps) != (0x80008000, 0x81000000, 0x80000100, 0x00000000, 4096):
+    ks, ka, rs, ra, ss, sa, ta, ps, hv = struct.unpack("<9I", h[8:44])
+    bb.note("header v%d; kernel %d B at 0x%08x; ramdisk %d B at 0x%08x; tags 0x%08x; second 0x%08x; page %d"
+            % (hv, ks, ka, rs, ra, ta, sa, ps))
+    if (hv, ka, ra, ta, sa, ps) != (0, 0x80008000, 0x81000000, 0x80000100, 0x00000000, 4096):
         bb.fatal("boot header differs from the shipped LineageOS boot.img - see the table above")
     if rs == 0:
         bb.fatal("boot image has no ramdisk")
