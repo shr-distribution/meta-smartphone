@@ -77,6 +77,22 @@ ANDROID_BOOTIMG_KERNEL_RAM_BASE = "0x80008000"
 ANDROID_BOOTIMG_RAMDISK_RAM_BASE = "0x81000000"
 ANDROID_BOOTIMG_SECOND_RAM_BASE = "0x00000000"
 ANDROID_BOOTIMG_TAGS_RAM_BASE = "0x80000100"
+# The shipped image's os_version word: 17.0.0 / 2026-10. It is NOT cosmetic
+# here. xboot evidently hands the header's version and patch level to TZ: the
+# keymaster TA then accepts only a configure() carrying the same pair, and the
+# GSI's phh on-post-data.sh (fixSPL) feeds keymaster exactly what it reads back
+# out of the boot_<slot> PARTITION (getSPL). With 0 here (the class default) it
+# read "0.0.0" / "2000-00-01", and keymaster-3-0 aborted every 5 s on
+#
+#   android.hardware.keymaster@3.0-impl: Invalid patch month 0
+#   KeyMasterHalDevice: resp->status: -38        (KM_ERROR_INVALID_ARGUMENT)
+#
+# Measured 28 Oct 2026: with this word RAM-booted (fastboot boot) and keymaster
+# handed 17.0.0 / 2026-10-01, configure succeeded and IKeymasterDevice/default
+# registered; with the header at 0, neither 0/0 nor 17.0.0/2026-10 did. A
+# RAM boot alone cannot fix it, since getSPL reads the flashed partition.
+# Keep it at the shipped value, never lower.
+ANDROID_BOOTIMG_OS_VERSION = "0x220001aa"
 
 # Largest kernel (Image.gz-dtb) proven to boot on this bootloader with the
 # addresses above: the LineageOS 24.0 one. A bigger one is untested territory.
