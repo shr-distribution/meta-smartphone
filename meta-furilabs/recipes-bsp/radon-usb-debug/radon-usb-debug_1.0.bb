@@ -50,9 +50,10 @@ do_install() {
     install -D -m 0644 ${UNPACKDIR}/adbd-early-start.conf \
         ${D}${systemd_system_unitdir}/android-tools-adbd.service.d/20-early-start.conf
 
-    # adbd's own unit has ConditionPathExists=/etc/usb-debugging-enabled.
-    install -d ${D}${sysconfdir}
-    touch ${D}${sysconfdir}/usb-debugging-enabled
+    # No USB debugging flag here. adbd's unit asks for
+    # /var/usb-debugging-enabled and /var/luna/dev-mode-enabled (meta-luneos);
+    # they are the user's to set and clear, and luneos-dev-image creates both.
+    # Shipped in a package, the flag came back on every reinstall or upgrade.
 }
 
 # Only radon-usb-debug.service is enabled. android-tools-adbd is deliberately
@@ -67,7 +68,6 @@ FILES:${PN} += " \
     /usr/local/bin/luneos-usb-setup.sh \
     /usr/local/bin/usb-ip.sh \
     ${sysconfdir}/udev/rules.d/99-radon-usbnet.rules \
-    ${sysconfdir}/usb-debugging-enabled \
     ${systemd_system_unitdir}/android-tools-adbd.service.d/10-no-gadget-setup.conf \
     ${systemd_system_unitdir}/android-tools-adbd.service.d/20-early-start.conf \
 "
