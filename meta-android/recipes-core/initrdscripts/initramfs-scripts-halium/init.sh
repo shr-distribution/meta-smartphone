@@ -527,6 +527,29 @@ panic() {
     # hardware before, and a log that only exists in RAM is lost when it does.
     dump_fail_to_part "$1"
 
+    # Everything below hands out root with no password: adbd (root, no key
+    # check), telnetd -l /bin/sh, a getty -l /bin/sh on the ACM port and
+    # /bin/sh itself. Anyone who can make the boot fail, or put enable_adb on
+    # the command line, would get it. So it is in a debug build only
+    # (INITRAMFS_DEBUG_SHELL = "1", written into /distro.conf by the recipe);
+    # otherwise reboot once the record is on storage (the reboot that is
+    # commented out below). initrd_log_fail still holds, so the record stays
+    # the last one written.
+    # shellcheck disable=SC2154 # set in /distro.conf
+    if [ "$initramfs_debug_shell" != "1" ]; then
+        tell_kmsg "initrd: no debug shell in this build (INITRAMFS_DEBUG_SHELL)"
+        if grep -q initrd_log_fail /proc/cmdline 2>/dev/null; then
+            tell_kmsg "initrd: holding after failure (initrd_log_fail)"
+            while :; do sleep 3600; done
+        fi
+        tell_kmsg "initrd: rebooting in 15s"
+        sync
+        sleep 15
+        reboot -f
+        echo b > /proc/sysrq-trigger 2>/dev/null
+        while :; do sleep 3600; done
+    fi
+
     # Bring up the hardware this shell needs, with the REAL loader.
     #
     # Measured on the MP01, from a log recovered off a spare partition because
@@ -1278,10 +1301,15 @@ if grep -q initrd_probe_udc /proc/cmdline 2>/dev/null; then
     while :; do sleep 3600; done
 fi
 
-# Check wether we need to start adbd for interactive debugging
-cat /proc/cmdline | grep enable_adb
-if [ $? -ne 1 ] ; then
-    panic "Initramfs Debug Mode"
+# Check wether we need to start adbd for interactive debugging. Only in a
+# build with the debug shell (see panic): without it, panic would just reboot,
+# over and over, so the flag is ignored instead.
+if grep -q enable_adb /proc/cmdline; then
+    # shellcheck disable=SC2154 # set in /distro.conf
+    if [ "$initramfs_debug_shell" = "1" ]; then
+        panic "Initramfs Debug Mode"
+    fi
+    tell_kmsg "initrd: enable_adb ignored, no debug shell in this build (INITRAMFS_DEBUG_SHELL)"
 fi
 
 mirror_trusty_log() {

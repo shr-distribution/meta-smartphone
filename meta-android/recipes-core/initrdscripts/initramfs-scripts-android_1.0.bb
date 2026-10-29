@@ -26,5 +26,8 @@ do_install() {
     install -m 0644 ${UNPACKDIR}/machine.conf ${D}/machine.conf
     echo "# Name of the distribution" >  ${WORKDIR}/distro.conf
     echo "distro_name=${DISTRO}"      >> ${WORKDIR}/distro.conf
+    # start_telnetd works only with this set (INITRAMFS_DEBUG_SHELL,
+    # meta-android/conf/layer.conf).
+    echo "initramfs_debug_shell=\"${INITRAMFS_DEBUG_SHELL}\"" >> ${WORKDIR}/distro.conf
     install -m 0644 ${WORKDIR}/distro.conf ${D}/distro.conf
 }

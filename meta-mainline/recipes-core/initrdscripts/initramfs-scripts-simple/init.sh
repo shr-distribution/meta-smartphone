@@ -32,6 +32,15 @@ if grep -q bootmode=recovery /proc/cmdline || key-state $recovery_trigger_input 
     RECOVERYMODE=yes
 fi
 echo "Recovery mode: $RECOVERYMODE"
+# Recovery is the telnet root shell (and, if there is one, the recovery UI).
+# Without the debug shell and without a UI there is nothing for it to offer, so
+# boot as usual rather than leave the device sitting at a black screen.
+# shellcheck disable=SC2154 # set in /init_functions.sh
+if [ "$RECOVERYMODE" = "yes" ] && [ "$initramfs_debug_shell" != "1" ] && \
+   [ ! -x /usr/bin/luneos_recovery_ui ]; then
+    echo "Recovery mode: no debug shell in this build (INITRAMFS_DEBUG_SHELL), booting normally"
+    RECOVERYMODE=no
+fi
 ###
 
 # No address argument: setup_usb_network picks one /24 per machine so several
@@ -43,12 +52,18 @@ if [ -f /scripts/local-premount/ORDER ]; then
 fi
 
 if [ "$RECOVERYMODE" = "yes" ] ; then
-    # start telnetd for this IP
+    # start telnetd for this IP (debug builds only, see start_telnetd)
     start_telnetd "$USB_ADDR"
-    
-    # start minimalist recovery UI, and have a shell as fallback
-    /usr/bin/luneos_recovery_ui ||
-    /sbin/getty -L ttyS0 115200 linux
+
+    # start minimalist recovery UI, and have a shell as fallback - in a debug
+    # build; otherwise reboot
+    if ! /usr/bin/luneos_recovery_ui; then
+        if [ "$initramfs_debug_shell" = "1" ]; then
+            /sbin/getty -L ttyS0 115200 linux
+        else
+            reboot -f
+        fi
+    fi
    
 else
     # mount partition labeled "luneos-rootfs"
