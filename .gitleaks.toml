@@ -1,0 +1,25 @@
+# gitleaks configuration (https://github.com/gitleaks/gitleaks, v8).
+#
+# Scan the working tree:            gitleaks dir --config .gitleaks.toml .
+# Scan only what a branch adds:     gitleaks git --config .gitleaks.toml --log-opts="origin/wrynose..HEAD" .
+#
+# A full-history scan reports the kernel module-signing private key that linux-google-sargo
+# (commit 3f32987a48d8597b982dec720a83d076b943f116) and linux-oneplus-fajita
+# (b9abd16153dbbf5121d6bf3b8ca1d5073859828f) carried as module-signing/luneos-module-signing-key.pem
+# until 2026-10. That key is public and must be treated as compromised; history scans are limited to
+# new commits as above rather than allowlisting it.
+#
+# Signing keys never go into this layer: see meta-android/recipes-kernel/linux/kernel-module-signing.inc
+# (MODULE_SIG_KEY in local.conf). Recipes that use it also refuse a private key in SRC_URI.
+
+title = "meta-smartphone"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Known false positives in meta-smartphone"
+regexes = [
+    # Build-time placeholders that recipes replace with the builder's own values.
+    '''PLACEHOLDER_[A-Z0-9_]+''',
+]
