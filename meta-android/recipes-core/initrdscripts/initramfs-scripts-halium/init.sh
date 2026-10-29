@@ -787,8 +787,16 @@ process_bind_mounts() {
 
     tell_kmsg "Bind-mount the directories"
     # bind-mount the directories to their correct place
+    #
+    # Then take setuid and device nodes away from them: nothing there needs
+    # either, and a file planted in user data must not become a way to root.
+    # A bind mount takes the source mount's flags, so this is a second, remount
+    # step. The two-argument form, so that busybox mount does not look the
+    # target up in /proc/mounts or fstab (busybox 1.37 util-linux/mount.c).
     for dir in var home ; do
         mount -o bind,rw $datadir/$dir ${rootmnt}/$dir
+        mount -o remount,bind,rw,nosuid,nodev $datadir/$dir ${rootmnt}/$dir ||
+            tell_kmsg "WARNING: /$dir stays without nosuid,nodev"
     done
 }
 
@@ -1731,8 +1739,17 @@ stage "kernel modules staged"
 
 tell_kmsg "Setup the user data directory"
 # finally setup the user data directory
+# Neither holds setuid programs or device nodes, and /media/internal (the
+# user's files, what MTP and USB mass storage expose) is not run from either.
+# /media/cryptofs is: apps are installed there, so it keeps exec. Remounted in
+# a second step, as the binds in the data setup above; /proc is gone by now,
+# which the two-argument form does not need.
 mount -o bind,rw $datadir/userdata ${rootmnt}/media/internal
+mount -o remount,bind,rw,nosuid,nodev,noexec $datadir/userdata ${rootmnt}/media/internal ||
+    tell_kmsg "WARNING: /media/internal stays without nosuid,nodev,noexec"
 mount -o bind,rw $datadir/userdata/.cryptofs ${rootmnt}/media/cryptofs
+mount -o remount,bind,rw,nosuid,nodev $datadir/userdata/.cryptofs ${rootmnt}/media/cryptofs ||
+    tell_kmsg "WARNING: /media/cryptofs stays without nosuid,nodev"
 
 tell_kmsg "Switching to root filesystem"
 # Let the progress dumper stop: past this point the initramfs is gone and any
