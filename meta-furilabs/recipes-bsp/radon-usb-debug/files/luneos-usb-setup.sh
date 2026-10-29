@@ -54,8 +54,19 @@ teardown() {
     umount /dev/usb-ffs/adb 2>/dev/null
 }
 
-# adbd refuses to start without this marker (ConditionPathExists in its unit).
-[ -e /etc/usb-debugging-enabled ] || touch /etc/usb-debugging-enabled
+# adbd starts only with USB debugging and developer mode both on
+# (ConditionPathExists in its unit, meta-luneos android-tools_%.bbappend). Both
+# flags are the user's, set and cleared in Settings > Developer Options through
+# org.webosports.service.devmode; luneos-dev-image creates them, so a developer
+# image has adb from the first boot. Nothing here creates them: an image that
+# recreated the USB flag at every boot undid turning it off. With either gone,
+# set up rndis alone: adbd would never claim the endpoints and the wait below
+# would only delay rndis by its full 10s.
+if [ ! -e /var/usb-debugging-enabled ] || [ ! -e /var/luna/dev-mode-enabled ]; then
+    /usr/bin/android-gadget-setup rndis
+    UDC=$(first_real_udc)
+    [ -n "$UDC" ] && ! bound && echo "$UDC" > "$GADGET/UDC" 2>/dev/null
+else
 
 /usr/bin/android-gadget-setup rndis,adb
 
@@ -92,6 +103,8 @@ if ! bound; then
     /usr/bin/android-gadget-setup rndis
     UDC=$(first_real_udc)
     [ -n "$UDC" ] && ! bound && echo "$UDC" > "$GADGET/UDC" 2>/dev/null
+fi
+
 fi
 
 # rndis0 comes up DOWN with no address; usb-ip.sh sets both and is idempotent.
