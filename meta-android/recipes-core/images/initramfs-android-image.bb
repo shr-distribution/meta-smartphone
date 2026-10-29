@@ -8,7 +8,11 @@ ANDROID_EXTRA_INITRAMFS_IMAGE_INSTALL ?= ""
 
 VIRTUAL-RUNTIME_android-initramfs-scripts ?= "initramfs-scripts-android"
 
-IMAGE_INSTALL = "busybox busybox-mdev base-passwd android-tools bash"
+# android-tools brings adbd, which the initramfs starts only for its debug
+# shell (INITRAMFS_DEBUG_SHELL, meta-android/conf/layer.conf): root with no key
+# check. Without the shell nothing runs it.
+IMAGE_INSTALL = "busybox busybox-mdev base-passwd bash"
+IMAGE_INSTALL += "${@oe.utils.conditional('INITRAMFS_DEBUG_SHELL', '1', 'android-tools', '', d)}"
 IMAGE_INSTALL += "${VIRTUAL-RUNTIME_android-initramfs-scripts}"
 IMAGE_INSTALL += "${ANDROID_EXTRA_INITRAMFS_IMAGE_INSTALL}"
 IMAGE_FEATURES = ""

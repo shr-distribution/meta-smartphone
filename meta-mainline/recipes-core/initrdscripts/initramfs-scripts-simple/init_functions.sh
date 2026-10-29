@@ -81,7 +81,16 @@ stop_udhcpd() {
 	fi
 }
 
+# The root debug shells - start_telnetd, which also blanks root's password, and
+# recovery's getty fallback - are for debug builds only. The recipe sets this
+# from INITRAMFS_DEBUG_SHELL (meta-mainline/conf/layer.conf).
+initramfs_debug_shell="@INITRAMFS_DEBUG_SHELL@"
+
 start_telnetd() {
+	if [ "$initramfs_debug_shell" != "1" ]; then
+		echo "telnetd: not in this build (INITRAMFS_DEBUG_SHELL)"
+		return 1
+	fi
 	# /dev/pts (needed for telnet)
 	mkdir /dev/pts
 	mount -t devpts none /dev/pts

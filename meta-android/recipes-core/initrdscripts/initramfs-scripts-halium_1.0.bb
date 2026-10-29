@@ -29,6 +29,9 @@ do_install:append() {
     install -m 0755 ${UNPACKDIR}/init.sh ${D}/init
     install -m 0644 ${UNPACKDIR}/machine.conf ${D}/machine.conf
     install -m 0644 ${UNPACKDIR}/distro.conf ${D}/distro.conf
+    # panic() and enable_adb open the root debug shells only with this set
+    # (INITRAMFS_DEBUG_SHELL, meta-android/conf/layer.conf).
+    echo 'initramfs_debug_shell="${INITRAMFS_DEBUG_SHELL}"' >> ${D}/distro.conf
 
     install -m 0644 ${S}/scripts/halium ${D}/halium-boot.sh
     install -m 0644 ${UNPACKDIR}/functions ${D}/functions

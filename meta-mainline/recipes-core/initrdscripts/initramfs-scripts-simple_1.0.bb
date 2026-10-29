@@ -21,4 +21,9 @@ FILES:${PN} = "/init /init_functions.sh"
 do_install() {
     install -m 0755 ${UNPACKDIR}/init.sh ${D}/init
     install -m 0644 ${UNPACKDIR}/init_functions.sh ${D}/init_functions.sh
+    # The root debug shells only with INITRAMFS_DEBUG_SHELL = "1"
+    # (meta-mainline/conf/layer.conf).
+    sed -i -e 's/@INITRAMFS_DEBUG_SHELL@/${INITRAMFS_DEBUG_SHELL}/' ${D}/init_functions.sh
+    grep -q '^initramfs_debug_shell="[01]"$' ${D}/init_functions.sh || \
+        bbfatal "init_functions.sh: INITRAMFS_DEBUG_SHELL must be 0 or 1, is '${INITRAMFS_DEBUG_SHELL}'"
 }
