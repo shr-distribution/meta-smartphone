@@ -13,10 +13,11 @@ PACKAGE_ARCH = "${MACHINE_ARCH}"
 
 IMAGE_BASENAME = "luneos"
 
-# The image the package is built from: the development image during bring-up. It creates
-# /etc/usb-debugging-enabled (without which adbd, and with it the USB gadget, never
-# starts), turns on dev mode and keeps the journal across reboots, and it carries the
-# development packages (Testr among them). A release build sets this to "luneos-image".
+# The image the package is built from: the development image during bring-up. It turns on
+# dev mode and USB debugging (/var/luna/dev-mode-enabled and /var/usb-debugging-enabled,
+# without both of which adbd, and with it the USB gadget, never starts), keeps the journal
+# across reboots, and it carries the development packages (Testr among them). A release
+# build sets this to "luneos-image".
 LUNEOS_ODIN_IMAGE ?= "${IMAGE_BASENAME}-dev-image"
 IMAGE_NAME = "${LUNEOS_ODIN_IMAGE}"
 
