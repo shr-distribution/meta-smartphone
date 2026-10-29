@@ -3,6 +3,9 @@ require recipes-kernel/linux/linux.inc
 require recipes-kernel/linux/halium-kernel.inc
 # Binder nodes, veth, overlayfs and the rest of what Waydroid needs.
 require recipes-kernel/linux/waydroid-kernel.inc
+# CONFIG_MODULE_SIG_FORCE=y is on in enchilada_defconfig: per-build module
+# signing key by default, or MODULE_SIG_KEY from local.conf; see the file.
+require recipes-kernel/linux/kernel-module-signing.inc
 
 SECTION = "kernel"
 
@@ -95,7 +98,6 @@ S = "${UNPACKDIR}/${BP}"
 SRC_URI = "git://github.com/LineageOS/android_kernel_oneplus_sdm845.git;branch=lineage-22.2;protocol=https \
            file://0001-qcacld-drop-Werror-from-the-vendor-Kbuild.patch \
            file://luneos.cfg \
-           file://module-signing/luneos-module-signing-key.pem \
 "
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
@@ -158,11 +160,6 @@ do_configure:append() {
     kernel_conf_variable_fixup USB_F_ACC y
     kernel_conf_variable_fixup USB_CONFIGFS y
 
-    # Pin the module signing key rather than letting certs/ generate a fresh
-    # one on every build - see the note below.
-    sed -i '/CONFIG_MODULE_SIG_KEY/d' ${B}/.config
-    echo 'CONFIG_MODULE_SIG_KEY="certs/luneos-module-signing-key.pem"' >> ${B}/.config
-
     if [ "${LUNEOS_ENABLE_ADB}" = "1" ]; then
         halium_kernel_add_cmdline "enable_adb"
     fi
@@ -176,25 +173,7 @@ do_configure:append() {
 # for fajita at all (no .ko anywhere in device/oneplus/{fajita,sdm845-common},
 # and wifi is CONFIG_QCA_CLD_WLAN=y, built in), so there are no vendor
 # vermagic/CRCs a rebuild could break and no Tier A KMI discipline to keep.
-#
-# What the pinned key buys is out-of-tree module recipes (module.bbclass,
-# e.g. wireguard-module) staying loadable across kernel rebuilds. With no
-# pinned key, certs/ generates a new key per build and bakes its public half
-# in, so a module signed against one build's STAGING_KERNEL_BUILDDIR stops
-# loading the moment the kernel is rebuilt - "Required key not available" -
-# even with no source change. certs/Makefile only regenerates when
-# CONFIG_MODULE_SIG_KEY is exactly "certs/signing_key.pem", so naming a
-# different file sidesteps that rule entirely. The full reasoning is in
-# linux-google-sargo_git.bb.
-#
-# This is deliberately the same key as sargo's, byte for byte: it is a build
-# key, not a secret, and two devices agreeing on it is the point. When a third
-# device wants it, promote it to a shared location under meta-android rather
-# than making a third copy.
-do_compile:prepend() {
-    mkdir -p ${B}/certs
-    cp ${UNPACKDIR}/module-signing/luneos-module-signing-key.pem ${B}/certs/luneos-module-signing-key.pem
-}
+# Which key is used is up to kernel-module-signing.inc, required above.
 
 # Three files kbuild generates into ${B} record the absolute path of the tool
 # or input they were made from, in a banner comment:
