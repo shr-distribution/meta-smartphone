@@ -63,7 +63,15 @@ stop_mdev() {
     echo "" > /sys/kernel/uevent_helper
 }
 
+# A root shell for anyone on the USB network, so for debug builds only
+# (INITRAMFS_DEBUG_SHELL, set in /distro.conf by the recipe). Nothing calls it
+# at present.
 start_telnetd() {
+	# shellcheck disable=SC2154 # set in /distro.conf
+	if [ "$initramfs_debug_shell" != "1" ]; then
+		echo "telnetd: not in this build (INITRAMFS_DEBUG_SHELL)"
+		return 1
+	fi
 	# /dev/pts (needed for telnet)
 	mkdir /dev/pts
 	mount -t devpts none /dev/pts
