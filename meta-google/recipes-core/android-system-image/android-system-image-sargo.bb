@@ -19,6 +19,27 @@ SARGO_ANDROID_SYSTEM ?= "gsi"
 # which a device-agnostic GSI does not carry.
 SARGO_ANDROID_VENDOR ?= "none"
 
+# Whether anything OEM-proprietary actually ends up in this package. The GSI is a
+# generic AOSP build we produce and publish ourselves, and with the vendor set to
+# "none" the phone's own /vendor partition is mounted instead - so in the default
+# configuration this recipe installs nothing proprietary, and the .inc's blanket
+# "Apache-2.0 & Proprietary" overstates what we ship. An SPDX SBOM is generated
+# from this metadata, so it is worth being accurate about our own output.
+SARGO_ANDROID_HAS_DEVICE_CONTENT = "${@'1' if 'device' in (d.getVar('SARGO_ANDROID_SYSTEM'), d.getVar('SARGO_ANDROID_VENDOR')) else '0'}"
+
+# Apache-2.0 follows AOSP's own headline licence. It is a simplification rather
+# than a manifest: a system image also carries BSD- and MIT-licensed components,
+# bionic among them. If the SBOM ever has to be exact rather than representative,
+# take the list from the image's own NOTICE file instead of extending this by hand.
+LICENSE = "Apache-2.0"
+LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
+
+# Selecting the device-specific system or vendor brings OEM content back, and then
+# the licence has to say so again. Same condition as the conditional SRC_URI entry
+# further down - keep the two in step.
+LICENSE:append = "${@' & Proprietary' if d.getVar('SARGO_ANDROID_HAS_DEVICE_CONTENT') == '1' else ''}"
+LIC_FILES_CHKSUM:append = "${@' file://' + d.getVar('COMMON_LICENSE_DIR') + '/Proprietary;md5=0557f9d92cf58f2ccdd50f62f8ac0b28' if d.getVar('SARGO_ANDROID_HAS_DEVICE_CONTENT') == '1' else ''}"
+
 # Device-specific build. Only reachable by setting SARGO_ANDROID_SYSTEM or
 # SARGO_ANDROID_VENDOR back to "device"; nothing fetches it otherwise, which is
 # just as well, because:

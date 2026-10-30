@@ -1,6 +1,14 @@
 DESCRIPTION = "Tiny Android system to leverage android hardware drivers through libhybris"
+# The device-specific images pair AOSP userspace with the OEM's vendor blobs, so
+# both halves need a licence file staged. Declaring "& Proprietary" with only the
+# Apache-2.0 text behind it is what makes a licence audit - and an SPDX SBOM
+# generated from one - quietly incomplete. A recipe that ships a generic AOSP
+# image and no OEM content narrows this; see android-system-image-sargo.bb.
 LICENSE = "Apache-2.0 & Proprietary"
-LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
+LIC_FILES_CHKSUM = " \
+    file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10 \
+    file://${COMMON_LICENSE_DIR}/Proprietary;md5=0557f9d92cf58f2ccdd50f62f8ac0b28 \
+"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 
