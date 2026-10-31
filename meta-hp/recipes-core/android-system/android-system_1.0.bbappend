@@ -6,7 +6,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 SRC_URI:append:tenderloin-halium = " file://stubbed-services-tenderloin"
 
 # PACKAGE_ARCH is MACHINE_ARCH, so this bumps the revision of the tenderloin-halium package alone.
-PR:append:tenderloin-halium = ".1"
+PR:append:tenderloin-halium = ".2"
 
 do_install:append:tenderloin-halium() {
     install -d ${D}${localstatedir}/lib/lxc/android/stubbed-services.d

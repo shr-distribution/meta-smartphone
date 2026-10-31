@@ -6,3 +6,10 @@
 # before boot completed", InitFatalReboot, and the container is gone 30 s after it starts (7 Oct 2026).
 # LuneOS does not use Android's low-memory killer; the host manages memory.
 /system/bin/lmkd
+#
+# adbd: LuneOS's own adbd serves adb over FunctionFS (android-gadget-setup). The Android 9 image's
+# init.tenderloin.usb.rc mounts a second FunctionFS instance in the container and init.usb.rc starts
+# /system/bin/adbd on it for sys.usb.config=adb (persist.sys.usb.config=adb in its default.prop).
+# android.c has one FunctionFS slot: whichever adbd writes its descriptors last takes the function,
+# and the other one closing ep0 unbinds it.
+/system/bin/adbd
