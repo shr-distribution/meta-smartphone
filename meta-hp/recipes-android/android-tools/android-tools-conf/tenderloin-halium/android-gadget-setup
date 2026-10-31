@@ -1,29 +1,50 @@
 #!/bin/sh
 
+# The TouchPad's 3.4 kernel has the android_usb gadget (android.c) and no
+# configfs gadget. adb goes over FunctionFS ("ffs") there, as on the other
+# LuneOS devices: adbd 35 only opens /dev/usb-ffs/adb/ep0 and has no f_adb
+# (/dev/android_adb) path any more, and adbd 5.1.1 takes FunctionFS whenever
+# that ep0 exists. "adb" is made an alias of "ffs", so the function list
+# written below stays "mtp,adb".
+
 if [ "$1" != "adb" ] && [ "$1" != "noadb" ]; then
     exit 0
 fi
 
+ANDROID_USB=/sys/class/android_usb/android0
+
 functions="mtp"
+# android0/functions reads back the function names: ffs, not its alias.
+current="mtp"
 if [ "$1" = "adb" ]; then
     functions="$functions,adb"
+    current="$current,ffs"
+
+    # Mount before adbd starts. No uid=/gid= options: adbd runs as root here.
+    # android.c keeps the gadget disabled until adbd has written its
+    # descriptors to ep0, and enables it from then on.
+    mkdir -p /dev/usb-ffs/adb
+    if ! grep -qs "^adb /dev/usb-ffs/adb functionfs " /proc/mounts; then
+        mount -t functionfs adb /dev/usb-ffs/adb || exit 1
+    fi
 fi
 
-old_functions=`cat /sys/class/android_usb/android0/functions`
-[ "$old_functions" != "$functions" ] || { exit 0; }
+old_functions=$(cat $ANDROID_USB/functions)
+[ "$old_functions" != "$current" ] || { exit 0; }
 
-echo "HP" > /sys/class/android_usb/android0/f_rndis/manufacturer
-echo "18D1" > /sys/class/android_usb/android0/f_rndis/vendorID
-echo "1" > /sys/class/android_usb/android0/f_rndis/wceis
+echo "HP" > $ANDROID_USB/f_rndis/manufacturer
+echo "18D1" > $ANDROID_USB/f_rndis/vendorID
+echo "1" > $ANDROID_USB/f_rndis/wceis
 
-echo "HP" > /sys/class/android_usb/android0/iManufacturer
-echo "Touchpad" > /sys/class/android_usb/android0/iProduct
-echo "01dfecf85125b0bb" > /sys/class/android_usb/android0/iSerial
+echo "HP" > $ANDROID_USB/iManufacturer
+echo "Touchpad" > $ANDROID_USB/iProduct
+echo "01dfecf85125b0bb" > $ANDROID_USB/iSerial
 
-echo "0" > /sys/class/android_usb/android0/enable
-echo "18D1" > /sys/class/android_usb/android0/idVendor
-echo "4EE2" > /sys/class/android_usb/android0/idProduct
-echo "$functions" > /sys/class/android_usb/android0/functions
-echo "1" >  /sys/class/android_usb/android0/enable
+echo "0" > $ANDROID_USB/enable
+echo "18D1" > $ANDROID_USB/idVendor
+echo "4EE2" > $ANDROID_USB/idProduct
+echo "adb" > $ANDROID_USB/f_ffs/aliases
+echo "$functions" > $ANDROID_USB/functions
+echo "1" >  $ANDROID_USB/enable
 
 sleep 4
