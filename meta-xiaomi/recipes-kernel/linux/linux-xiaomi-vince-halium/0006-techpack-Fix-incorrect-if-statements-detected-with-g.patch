@@ -1,0 +1,95 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Herman van Hazendonk <github.com@herrie.org>
+Date: Mon, 10 May 2021 13:56:39 +0000
+Subject: [PATCH] techpack: Fix incorrect if statements detected with gcc-11
+
+* fixes:
+  techpack/audio/asoc/codecs/sdm660_cdc/msm-analog-cdc.c:714:41: error: this 'if' clause does not guard... [-Werror=misleading-indentation]
+  techpack/audio/asoc/msm-pcm-routing-v2.c:11954:33: error: this 'if' clause does not guard... [-Werror=misleading-indentation]
+  techpack/audio/dsp/codecs/amrwb_in.c:162:17: error: this 'if' clause does not guard... [-Werror=misleading-indentation]
+  techpack/audio/dsp/msm-dts-srs-tm-config.c:305:9: error: this 'if' clause does not guard... [-Werror=misleading-indentation]
+
+Originally by Martin Jansa <Martin.Jansa@gmail.com>, taken from shr-distribution/linux tissot/4.9/halium-9.0 (68b22a6dfc04), where tissot builds with it.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Inappropriate [old vendor tree, GCC 15 build]
+---
+ techpack/audio/asoc/codecs/sdm660_cdc/msm-analog-cdc.c | 3 ++-
+ techpack/audio/asoc/msm-pcm-routing-v2.c               | 3 ++-
+ techpack/audio/dsp/codecs/amrwb_in.c                   | 3 ++-
+ techpack/audio/dsp/msm-dts-srs-tm-config.c             | 3 ++-
+ 4 files changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/techpack/audio/asoc/codecs/sdm660_cdc/msm-analog-cdc.c b/techpack/audio/asoc/codecs/sdm660_cdc/msm-analog-cdc.c
+index 58bd7c2b9e9..b769b292b7d 100644
+--- a/techpack/audio/asoc/codecs/sdm660_cdc/msm-analog-cdc.c
++++ b/techpack/audio/asoc/codecs/sdm660_cdc/msm-analog-cdc.c
+@@ -707,7 +707,7 @@ static void msm_anlg_cdc_mbhc_calc_impedance(struct wcd_mbhc *mbhc,
+ 					0x06, 0x06);
+ 					wcd_mbhc_meas_imped(codec, &impedance_l,
+ 							    &impedance_r);
+-					if (impedance_r == impedance_l)
++					if (impedance_r == impedance_l) {
+ 						dev_dbg(codec->dev,
+ 							"%s: Mono Headset\n",
+ 							__func__);
+@@ -715,6 +715,7 @@ static void msm_anlg_cdc_mbhc_calc_impedance(struct wcd_mbhc *mbhc,
+ 							WCD_MBHC_DET_NONE;
+ 						mbhc->hph_type =
+ 							WCD_MBHC_HPH_MONO;
++					}
+ 				} else {
+ 					dev_dbg(codec->dev,
+ 						"%s: STEREO headset is found\n",
+diff --git a/techpack/audio/asoc/msm-pcm-routing-v2.c b/techpack/audio/asoc/msm-pcm-routing-v2.c
+index 9dac14bfca0..d6a10ee181a 100644
+--- a/techpack/audio/asoc/msm-pcm-routing-v2.c
++++ b/techpack/audio/asoc/msm-pcm-routing-v2.c
+@@ -11873,10 +11873,11 @@ static int msm_routing_put_stereo_to_custom_stereo_control(
+ 					goto skip_send_custom_stereo;
+ 				topo_id = adm_get_topology_for_port_copp_idx(
+ 					msm_bedais[be_index].port_id, idx);
+-				if (topo_id < 0)
++				if (topo_id < 0) {
+ 					pr_debug("%s:Err:custom stereo topo %d",
+ 						 __func__, topo_id);
+ 					pr_debug("idx %d\n", idx);
++				}
+ 				if (topo_id == DS2_ADM_COPP_TOPOLOGY_ID)
+ 					rc = msm_ds2_dap_set_custom_stereo_onoff
+ 						(msm_bedais[be_index].port_id,
+diff --git a/techpack/audio/dsp/codecs/amrwb_in.c b/techpack/audio/dsp/codecs/amrwb_in.c
+index ce9dc45c1d9..ec885f0f4a2 100644
+--- a/techpack/audio/dsp/codecs/amrwb_in.c
++++ b/techpack/audio/dsp/codecs/amrwb_in.c
+@@ -160,10 +160,11 @@ static long amrwb_in_ioctl(struct file *file,
+ 	}
+ 	case AUDIO_GET_AMRWB_ENC_CONFIG: {
+ 		if (copy_to_user((void *)arg, audio->enc_cfg,
+-				sizeof(struct msm_audio_amrwb_enc_config)))
++				sizeof(struct msm_audio_amrwb_enc_config))) {
+ 			pr_err("%s: copy_to_user for AUDIO_GET_AMRWB_ENC_CONFIG failed\n",
+ 				__func__);
+ 			rc = -EFAULT;
++		}
+ 		break;
+ 	}
+ 	case AUDIO_SET_AMRWB_ENC_CONFIG: {
+diff --git a/techpack/audio/dsp/msm-dts-srs-tm-config.c b/techpack/audio/dsp/msm-dts-srs-tm-config.c
+index cd3da4d642d..2dc0aa7ce08 100644
+--- a/techpack/audio/dsp/msm-dts-srs-tm-config.c
++++ b/techpack/audio/dsp/msm-dts-srs-tm-config.c
+@@ -302,11 +302,12 @@ static int reg_ion_mem(void)
+ 	rc = msm_audio_ion_alloc("SRS_TRUMEDIA", &ion_client, &ion_handle,
+ 				 ION_MEM_SIZE, &po.paddr, (size_t *)&po.size,
+ 				 &po.kvaddr);
+-	if (rc != 0)
++	if (rc != 0) {
+ 		pr_err("%s: failed to allocate memory.\n", __func__);
+ 		pr_debug("%s: exited ion_client = %pK, ion_handle = %pK, phys_addr = %lu, length = %d, vaddr = %pK, rc = 0x%x\n",
+ 			__func__, ion_client, ion_handle, (long)po.paddr,
+ 			(unsigned int)po.size, po.kvaddr, rc);
++	}
+ 	return rc;
+ }
+ 

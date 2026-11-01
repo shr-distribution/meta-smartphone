@@ -4,11 +4,13 @@ PACKAGE_ARCH:mido-halium   = "${MACHINE_ARCH}"
 PACKAGE_ARCH:oxygen   = "${MACHINE_ARCH}"
 PACKAGE_ARCH:sagit   = "${MACHINE_ARCH}"
 PACKAGE_ARCH:tissot-halium = "${MACHINE_ARCH}"
+PACKAGE_ARCH:vince-halium = "${MACHINE_ARCH}"
 
 SRC_URI:append:mido-halium   = " file://70-mido-halium.rules"
 SRC_URI:append:oxygen   = " file://70-oxygen.rules"
 SRC_URI:append:sagit = " file://70-sagit.rules"
 SRC_URI:append:tissot-halium = " file://70-tissot-halium.rules"
+SRC_URI:append:vince-halium = " file://70-vince-halium.rules"
 
 
 do_install:append:mido-halium() {
@@ -25,4 +27,8 @@ do_install:append:sagit() {
 
 do_install:append:tissot-halium() {
     install -m 0644 ${UNPACKDIR}/70-tissot-halium.rules ${D}${sysconfdir}/udev/rules.d/70-tissot-halium.rules
+}
+
+do_install:append:vince-halium() {
+    install -m 0644 ${UNPACKDIR}/70-vince-halium.rules ${D}${sysconfdir}/udev/rules.d/70-vince-halium.rules
 }

@@ -1,0 +1,39 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Herman van Hazendonk <github.com@herrie.org>
+Date: Sat, 31 Oct 2026 07:27:01 +0100
+Subject: [PATCH] arm64: don't hook vdso_prepare into external module builds
+
+The top-level Makefile only defines prepare0 for a build of the kernel
+itself, but arch/arm64/Makefile makes "prepare" depend on vdso_prepare
+and vdso_prepare on prepare0 unconditionally. Any out-of-tree module
+then stops with:
+
+  make[2]: *** No rule to make target 'prepare0', needed by 'vdso_prepare'.  Stop.
+
+The vDSO offsets header was generated when the kernel was built, so an
+external module has nothing to do here. Keep the rule out of that case.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Inappropriate [old vendor tree, GCC 15 build]
+---
+ arch/arm64/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
+index 5bbe986212a..7e7b3df8bb3 100644
+--- a/arch/arm64/Makefile
++++ b/arch/arm64/Makefile
+@@ -214,11 +214,13 @@ archclean:
+ # asm-offsets.h is built in prepare0, for which archprepare is a dependency.
+ # Therefore we need to generate the header after prepare0 has been made, hence
+ # this hack.
++ifeq ($(KBUILD_EXTMOD),)
+ prepare: vdso_prepare
+ vdso_prepare: prepare0
+ 	$(Q)$(MAKE) $(build)=arch/arm64/kernel/vdso include/generated/vdso-offsets.h
+ 	$(if $(CONFIG_VDSO32),$(Q)$(MAKE) $(build)=arch/arm64/kernel/vdso32 \
+ 					  include/generated/vdso32-offsets.h)
++endif
+ 
+ define archhelp
+   echo  '* Image.gz      - Compressed kernel image (arch/$(ARCH)/boot/Image.gz)'

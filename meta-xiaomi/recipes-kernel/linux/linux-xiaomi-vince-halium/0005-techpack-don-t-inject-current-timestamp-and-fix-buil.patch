@@ -1,0 +1,149 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Herman van Hazendonk <github.com@herrie.org>
+Date: Sun, 25 Jun 2023 11:08:24 +0200
+Subject: [PATCH] techpack: don't inject current timestamp and fix build with make-4.4
+
+* there is KBUILD_BUILD_TIMESTAMP already which tries to be at least
+  reproducible
+
+* techpack/audio/ipc was adding it to CDEFINES instead of DEFINES which
+  for some reason caused build failure with make-4.4:
+
+/OE/build/luneos-nanbield/webos-ports/tmp-glibc/work-shared/tissot/kernel-source/scripts/Makefile.build:339: *** prerequisites cannot be defined in recipes.  Stop.
+make[4]: *** [/OE/build/luneos-nanbield/webos-ports/tmp-glibc/work-shared/tissot/kernel-source/scripts/Makefile.build:653: techpack/audio/ipc] Error 2
+make[4]: *** Waiting for unfinished jobs....
+make[3]: *** [/OE/build/luneos-nanbield/webos-ports/tmp-glibc/work-shared/tissot/kernel-source/scripts/Makefile.build:653: techpack/audio] Error 2
+make[2]: *** [/OE/build/luneos-nanbield/webos-ports/tmp-glibc/work-shared/tissot/kernel-source/Makefile:1092: techpack] Error 2
+make[1]: *** [Makefile:152: sub-make] Error 2
+make: *** [Makefile:24: __sub-make] Error 2
+
+* not sure why this one was using CDEFINES instead DEFINES, but it
+  was like that since the initial KBuild addition in:
+  https://github.com/sonyxperiadev/kernel-techpack-audio/commit/8b1366a648d53416d16f94dee0c33d4249018f92
+
+Originally by Martin Jansa <Martin.Jansa@gmail.com>, taken from shr-distribution/linux tissot/4.9/halium-9.0 (adecf3d86641), where tissot builds with it.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Inappropriate [old vendor tree, GCC 15 build]
+---
+ techpack/audio/asoc/Kbuild                   | 3 ---
+ techpack/audio/asoc/codecs/Kbuild            | 3 ---
+ techpack/audio/asoc/codecs/msm_bg/Kbuild     | 3 ---
+ techpack/audio/asoc/codecs/msm_sdw/Kbuild    | 3 ---
+ techpack/audio/asoc/codecs/sdm660_cdc/Kbuild | 2 --
+ techpack/audio/asoc/codecs/wcd934x/Kbuild    | 3 ---
+ techpack/audio/dsp/Kbuild                    | 3 ---
+ techpack/audio/dsp/codecs/Kbuild             | 3 ---
+ techpack/audio/ipc/Kbuild                    | 3 ---
+ techpack/audio/soc/Kbuild                    | 3 ---
+ 10 files changed, 29 deletions(-)
+
+diff --git a/techpack/audio/asoc/Kbuild b/techpack/audio/asoc/Kbuild
+index a62586caccf..e8d313f5c86 100644
+--- a/techpack/audio/asoc/Kbuild
++++ b/techpack/audio/asoc/Kbuild
+@@ -240,6 +240,3 @@ machine_dlkm-y := $(MACHINE_OBJS)
+ 
+ obj-$(CONFIG_SND_SOC_CPE) += cpe_lsm_dlkm.o
+ cpe_lsm_dlkm-y := $(CPE_LSM_OBJS)
+-
+-# inject some build related information
+-DEFINES += -DBUILD_TIMESTAMP=\"$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')\"
+diff --git a/techpack/audio/asoc/codecs/Kbuild b/techpack/audio/asoc/codecs/Kbuild
+index e75cb004f0e..869e40e7713 100644
+--- a/techpack/audio/asoc/codecs/Kbuild
++++ b/techpack/audio/asoc/codecs/Kbuild
+@@ -234,6 +234,3 @@ mbhc_dlkm-y := $(MBHC_OBJS)
+ 
+ obj-$(CONFIG_SND_SOC_MSM_HDMI_CODEC_RX) += hdmi_dlkm.o
+ hdmi_dlkm-y := $(HDMICODEC_OBJS)
+-
+-# inject some build related information
+-DEFINES += -DBUILD_TIMESTAMP=\"$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')\"
+diff --git a/techpack/audio/asoc/codecs/msm_bg/Kbuild b/techpack/audio/asoc/codecs/msm_bg/Kbuild
+index 0f5e9247962..4751634cd03 100644
+--- a/techpack/audio/asoc/codecs/msm_bg/Kbuild
++++ b/techpack/audio/asoc/codecs/msm_bg/Kbuild
+@@ -92,6 +92,3 @@ endif
+ # Module information used by KBuild framework
+ obj-$(CONFIG_SND_SOC_BG_CODEC) += bg_codec_dlkm.o
+ bg_codec_dlkm-y := $(BG_CODEC_CDC_OBJS)
+-
+-# inject some build related information
+-DEFINES += -DBUILD_TIMESTAMP=\"$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')\"
+diff --git a/techpack/audio/asoc/codecs/msm_sdw/Kbuild b/techpack/audio/asoc/codecs/msm_sdw/Kbuild
+index f7787b5b11b..3ee2300dccd 100644
+--- a/techpack/audio/asoc/codecs/msm_sdw/Kbuild
++++ b/techpack/audio/asoc/codecs/msm_sdw/Kbuild
+@@ -119,6 +119,3 @@ endif
+ # Module information used by KBuild framework
+ obj-$(CONFIG_SND_SOC_MSM_SDW) += msm_sdw_dlkm.o
+ msm_sdw_dlkm-y := $(MSM_SDW_OBJS)
+-
+-# inject some build related information
+-DEFINES += -DBUILD_TIMESTAMP=\"$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')\"
+diff --git a/techpack/audio/asoc/codecs/sdm660_cdc/Kbuild b/techpack/audio/asoc/codecs/sdm660_cdc/Kbuild
+index 89104810aa8..1bf4cf4f8f2 100644
+--- a/techpack/audio/asoc/codecs/sdm660_cdc/Kbuild
++++ b/techpack/audio/asoc/codecs/sdm660_cdc/Kbuild
+@@ -138,5 +138,3 @@ digital_cdc_dlkm-y := $(DIGITAL_CDC_OBJS)
+ 
+ obj-$(CONFIG_SND_SOC_DIGITAL_CDC_LEGACY) += digital_cdc_dlkm.o
+ digital_cdc_dlkm-y := $(DIGITAL_CDC_OBJS)
+-# inject some build related information
+-DEFINES += -DBUILD_TIMESTAMP=\"$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')\"
+diff --git a/techpack/audio/asoc/codecs/wcd934x/Kbuild b/techpack/audio/asoc/codecs/wcd934x/Kbuild
+index 15c74060036..c3056e20ad0 100644
+--- a/techpack/audio/asoc/codecs/wcd934x/Kbuild
++++ b/techpack/audio/asoc/codecs/wcd934x/Kbuild
+@@ -105,6 +105,3 @@ endif
+ # Module information used by KBuild framework
+ obj-$(CONFIG_SND_SOC_WCD934X) += wcd934x_dlkm.o
+ wcd934x_dlkm-y := $(WCD934X_OBJS)
+-
+-# inject some build related information
+-DEFINES += -DBUILD_TIMESTAMP=\"$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')\"
+diff --git a/techpack/audio/dsp/Kbuild b/techpack/audio/dsp/Kbuild
+index 6bf91e77d54..46e4e6b42c5 100644
+--- a/techpack/audio/dsp/Kbuild
++++ b/techpack/audio/dsp/Kbuild
+@@ -176,6 +176,3 @@ q6_notifier_dlkm-y := $(QDSP6_NOTIFIER_OBJS)
+ 
+ obj-$(CONFIG_MSM_QDSP6_PDR) += q6_pdr_dlkm.o
+ q6_pdr_dlkm-y := $(QDSP6_PDR_OBJS)
+-
+-# inject some build related information
+-DEFINES += -DBUILD_TIMESTAMP=\"$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')\"
+diff --git a/techpack/audio/dsp/codecs/Kbuild b/techpack/audio/dsp/codecs/Kbuild
+index bf05664eba4..fc8062cf533 100644
+--- a/techpack/audio/dsp/codecs/Kbuild
++++ b/techpack/audio/dsp/codecs/Kbuild
+@@ -142,6 +142,3 @@ endif
+ # Module information used by KBuild framework
+ obj-$(CONFIG_MSM_QDSP6V2_CODECS) += native_dlkm.o
+ native_dlkm-y := $(NATIVE_OBJS)
+-
+-# inject some build related information
+-DEFINES += -DBUILD_TIMESTAMP=\"$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')\"
+diff --git a/techpack/audio/ipc/Kbuild b/techpack/audio/ipc/Kbuild
+index 0869cee6b20..776e26f8fe7 100644
+--- a/techpack/audio/ipc/Kbuild
++++ b/techpack/audio/ipc/Kbuild
+@@ -222,6 +222,3 @@ endif
+ 
+ obj-$(CONFIG_WCD_DSP_GLINK) += wglink_dlkm.o
+ wglink_dlkm-y := $(WDSP_GLINK)
+-
+-# inject some build related information
+-CDEFINES += -DBUILD_TIMESTAMP=\"$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')\"
+diff --git a/techpack/audio/soc/Kbuild b/techpack/audio/soc/Kbuild
+index bf12e9a282f..3f5d2b39e66 100644
+--- a/techpack/audio/soc/Kbuild
++++ b/techpack/audio/soc/Kbuild
+@@ -140,6 +140,3 @@ swr_dlkm-y := $(SWR_OBJS)
+ 
+ obj-$(CONFIG_SOUNDWIRE_WCD_CTRL) += swr_ctrl_dlkm.o
+ swr_ctrl_dlkm-y := $(SWR_CTRL_OBJS)
+-
+-# inject some build related information
+-DEFINES += -DBUILD_TIMESTAMP=\"$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')\"
