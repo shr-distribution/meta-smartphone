@@ -1,0 +1,75 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Herman van Hazendonk <github.com@herrie.org>
+Date: Sun, 18 Mar 2018 17:54:02 -0700
+Subject: [PATCH] kbuild: Use ls(1) instead of stat(1) to obtain file size
+
+stat(1) is not standardized and different implementations have their own
+(conflicting) flags for querying the size of a file.
+
+ls(1) provides the same information (value of st.st_size) in the 5th
+column, except when the file is a character or block device. This output
+is standardized[0]. The -n option turns on -l, which writes lines
+formatted like
+
+  "%s %u %s %s %u %s %s\n", <file mode>, <number of links>,
+      <owner name>, <group name>, <size>, <date and time>,
+      <pathname>
+
+but instead of writing the <owner name> and <group name>, it writes the
+numeric owner and group IDs (this avoids /etc/passwd and /etc/group
+lookups as well as potential field splitting issues).
+
+The <size> field is specified as "the value that would be returned for
+the file in the st_size field of struct stat".
+
+To avoid duplicating logic in several locations in the tree, create
+scripts/file-size.sh and update callers to use that instead of stat(1).
+
+[0] http://pubs.opengroup.org/onlinepubs/9699919799/utilities/ls.html#tag_20_73_10
+
+Originally by Michael Forney <forney@google.com>, taken from shr-distribution/linux tissot/4.9/halium-9.0 (63bfc2d19adc), where tissot builds with it.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Backport
+---
+ arch/powerpc/boot/wrapper | 2 +-
+ scripts/Makefile.lib      | 2 +-
+ scripts/file-size.sh      | 4 ++++
+ 3 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/arch/powerpc/boot/wrapper b/arch/powerpc/boot/wrapper
+index 76fe3ccfd38..f9141eaec6f 100755
+--- a/arch/powerpc/boot/wrapper
++++ b/arch/powerpc/boot/wrapper
+@@ -355,7 +355,7 @@ vmz="$tmpdir/`basename \"$kernel\"`.$ext"
+ 
+ # Calculate the vmlinux.strip size
+ ${CROSS}objcopy $objflags "$kernel" "$vmz.$$"
+-strip_size=$(stat -c %s $vmz.$$)
++strip_size=$(${CONFIG_SHELL} "${srctree}/scripts/file-size.sh" "$vmz.$$")
+ 
+ if [ -z "$cacheit" -o ! -f "$vmz$compression" -o "$vmz$compression" -ot "$kernel" ]; then
+     # recompress the image if we need to
+diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
+index 79615c933d1..ddd1e095ca0 100644
+--- a/scripts/Makefile.lib
++++ b/scripts/Makefile.lib
+@@ -334,7 +334,7 @@ cmd_cat = (cat $(filter-out FORCE,$^) > $@) || (rm -f $@; false)
+ size_append = printf $(shell						\
+ dec_size=0;								\
+ for F in $1; do								\
+-	fsize=$$(stat -c "%s" $$F);					\
++	fsize=$$($(CONFIG_SHELL) $(srctree)/scripts/file-size.sh $$F);	\
+ 	dec_size=$$(expr $$dec_size + $$fsize);				\
+ done;									\
+ printf "%08x\n" $$dec_size |						\
+diff --git a/scripts/file-size.sh b/scripts/file-size.sh
+new file mode 100755
+index 00000000000..7eb7423416b
+--- /dev/null
++++ b/scripts/file-size.sh
+@@ -0,0 +1,4 @@
++#!/bin/sh
++# SPDX-License-Identifier: GPL-2.0
++set -- $(ls -dn "$1")
++printf '%s\n' "$5"

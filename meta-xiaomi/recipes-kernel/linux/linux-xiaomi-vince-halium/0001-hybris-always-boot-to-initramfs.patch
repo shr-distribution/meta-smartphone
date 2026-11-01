@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Herman van Hazendonk <github.com@herrie.org>
+Date: Thu, 11 Feb 2021 19:14:04 +0100
+Subject: [PATCH] (hybris) always boot to initramfs
+
+Originally by Tofe <chris.chapuis@gmail.com>, taken from shr-distribution/linux tissot/4.9/halium-9.0 (86fb7c4b14a0), where tissot builds with it.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Inappropriate [Halium-specific]
+---
+ init/initramfs.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/init/initramfs.c b/init/initramfs.c
+index bf3af10c500..5812c018465 100644
+--- a/init/initramfs.c
++++ b/init/initramfs.c
+@@ -613,7 +613,9 @@ static int __init skip_initramfs_param(char *str)
+ {
+ 	if (*str)
+ 		return 0;
+-	do_skip_initramfs = 1;
++	// Halium: always boot to initramfs
++	//do_skip_initramfs = 1;
++	do_skip_initramfs = 0;
+ 	return 1;
+ }
+ __setup("skip_initramfs", skip_initramfs_param);
