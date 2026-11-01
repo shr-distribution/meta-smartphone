@@ -9,3 +9,6 @@ CXXFLAGS:append:sagit = " -DQTI_BSP -DQCOM_HARDWARE"
 
 CFLAGS:append:tissot-halium = " -DQTI_BSP -DQCOM_HARDWARE"
 CXXFLAGS:append:tissot-halium = " -DQTI_BSP -DQCOM_HARDWARE"
+
+CFLAGS:append:vince-halium = " -DQTI_BSP -DQCOM_HARDWARE"
+CXXFLAGS:append:vince-halium = " -DQTI_BSP -DQCOM_HARDWARE"
