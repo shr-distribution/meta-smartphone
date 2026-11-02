@@ -60,7 +60,26 @@ ANDROID_INITRAMFS_KERNEL_MODULES ?= "0"
 # exactly what bramble did.
 ANDROID_INITRAMFS_KERNEL_MODULES_PROVIDER ?= "${@d.getVar('GKI_KERNEL_PROVIDER') or 'virtual/kernel'}"
 
+# A machine that boots the generic rootfs (HALIUM_GENERIC_ROOTFS_DEVICE = "1")
+# builds no rootfs of its own, so MACHINE_EXTRA_RDEPENDS never reaches a device.
+# An out-of-tree module named there is silently absent from every install: that
+# is how sargo, sunfish, surya and fajita lost v4l2loopback. Such a module goes
+# in ANDROID_EXTRA_INITRAMFS_IMAGE_INSTALL, which ships it next to its kernel.
+def android_initramfs_lost_modules(d):
+    wanted = (d.getVar("MACHINE_EXTRA_RDEPENDS") or "").split()
+    wanted += (d.getVar("MACHINE_EXTRA_RRECOMMENDS") or "").split()
+    return [p for p in wanted
+            if p in ("v4l2loopback", "wireguard-module") or p.startswith("kernel-module-")]
+
 python () {
+    if d.getVar("HALIUM_GENERIC_ROOTFS_DEVICE") == "1":
+        lost = android_initramfs_lost_modules(d)
+        if lost:
+            bb.fatal("%s boots the generic rootfs, so %s in MACHINE_EXTRA_RDEPENDS "
+                     "would never be installed. Add it to "
+                     "ANDROID_EXTRA_INITRAMFS_IMAGE_INSTALL instead."
+                     % (d.getVar("MACHINE"), " ".join(lost)))
+
     if d.getVar("ANDROID_INITRAMFS_KERNEL_MODULES") == "1":
         provider = d.getVar("ANDROID_INITRAMFS_KERNEL_MODULES_PROVIDER")
         if not provider:

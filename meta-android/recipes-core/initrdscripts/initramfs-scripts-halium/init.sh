@@ -679,15 +679,31 @@ mount_kernel_modules() {
     fi
     [ -n "$src" ] || { tell_kmsg "no staged kernel modules for $kver"; return 0; }
 
+    # The marker holds a fingerprint of what was staged, not just its presence.
+    # uname -r does not change when a kernel is rebuilt, and each build signs
+    # with a key of its own (kernel-module-signing.inc). A marker that only said
+    # "staged" kept the old modules after a new boot image, and a MODULE_SIG_FORCE
+    # kernel then refused every one of them.
+    stamp=$(find "$src" -type f | sort | xargs md5sum 2>/dev/null | md5sum)
     dst="${rootmnt}/lib/modules/$kver"
     if [ -f "$dst/.luneos-staged" ]; then
-        tell_kmsg "kernel modules for $kver already staged in the rootfs"
-        return 0
+        if [ "$(cat "$dst/.luneos-staged")" = "$stamp" ]; then
+            tell_kmsg "kernel modules for $kver already staged in the rootfs"
+            return 0
+        fi
+        tell_kmsg "kernel modules for $kver changed, staging them again"
+        rm -rf "$dst"
     fi
 
     mkdir -p "$dst" || { tell_kmsg "WARNING: cannot create $dst"; return 0; }
     if cp -a "$src/." "$dst/" 2>/dev/null; then
-        : > "$dst/.luneos-staged"
+        # modules-load.d is on the rootfs's search path only for a packaged
+        # module; luneos-device-config reads this copy after running depmod.
+        for _c in /usr/lib/modules-load.d/*.conf; do
+            [ -e "$_c" ] || continue
+            mkdir -p "$dst/modules-load.d" && cp -f "$_c" "$dst/modules-load.d/"
+        done
+        echo "$stamp" > "$dst/.luneos-staged"
         tell_kmsg "staged $(find "$dst" -name '*.ko' | wc -l) kernel modules into the rootfs"
     else
         tell_kmsg "WARNING: failed to stage kernel modules into $dst"
