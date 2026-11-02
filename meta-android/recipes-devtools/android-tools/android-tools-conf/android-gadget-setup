@@ -67,6 +67,10 @@ usb_setup_configfs() {
     
     mkdir -p $GADGET_ROOT
     mount -t configfs none $GADGET_ROOT || true
+    # usb_gadget only appears once libcomposite is loaded. Halium kernels
+    # build it in; where it is a module (qemux86-64, mainline) nothing else
+    # loads it before adbd starts, so g1 below could not be created.
+    [ -d "$GADGET_DIR" ] || modprobe libcomposite
 
     mkdir $GADGET_DIR/g1
     write $GADGET_DIR/g1/idVendor                   "$idVendor"
@@ -190,6 +194,22 @@ first_real_udc() {
 }
 
 # This sets up the USB with whatever USB_FUNCTIONS are set to via android_usb
+# Called by android-gadget-rebind after a cable unplug: see that script. The UDC
+# wait is the one at the end of this file, without building anything. The MTP
+# helper unbinds on purpose while it reconfigures, so stay out of its way.
+if [ "$USB_FUNCTIONS" = "rebind" ]; then
+    _udc=/sys/kernel/config/usb_gadget/g1/UDC
+    [ -e /run/luneos-mtp/reconfiguring ] && exit 0
+    [ -e "$_udc" ] || exit 0
+    _tries=30
+    while [ $_tries -gt 0 ] && [ -z "$(cat "$_udc")" ]; do
+        [ -e /dev/usb-ffs/adb/ep1 ] && write "$_udc" "$(first_real_udc)"
+        usleep 100000
+        _tries=$((_tries - 1))
+    done
+    exit 0
+fi
+
 ANDROID_USB=/sys/class/android_usb/android0
 usb_setup_android_usb() {
     write $ANDROID_USB/enable          0
@@ -272,11 +292,20 @@ fi
 
 # Bind the UDC for any configuration containing adb, now that FunctionFS is
 # mounted. adbd still has to open ep0 and write the descriptors before the bind
-# can succeed, so give it a moment - the caller (luneos-usb-setup.sh on radon)
-# starts adbd and waits for ep1 before re-binding deterministically, which is
-# the reliable form. This deferred write keeps the standalone
-# "android-gadget-setup adb" path working as it always did.
-if echo $USB_FUNCTIONS | grep -q "adb"; then
-    (usleep 1000000; write $GADGET_DIR/g1/UDC "$(first_real_udc)") &
+# can succeed, and ep1 appears once it has. Wait for that, and keep at it until
+# the bind holds: adbd gives up on an unbound gadget after a second, closes ep0
+# and starts over, so ep1 comes and goes. One write after a fixed delay lost
+# this race on a Pixel 3a at boot ("failed to start g1: -19") and nothing ever
+# tried again, which left no USB at all. luneos-usb-setup.sh on radon does its
+# own bind; a bound gadget ends this loop.
+if echo $USB_FUNCTIONS | grep -q "adb" && [ -e $GADGET_DIR/g1/UDC ]; then
+    (
+        _tries=300
+        while [ $_tries -gt 0 ] && [ -z "$(cat $GADGET_DIR/g1/UDC)" ]; do
+            [ -e /dev/usb-ffs/adb/ep1 ] && write $GADGET_DIR/g1/UDC "$(first_real_udc)"
+            usleep 100000
+            _tries=$((_tries - 1))
+        done
+    ) &
 fi
 

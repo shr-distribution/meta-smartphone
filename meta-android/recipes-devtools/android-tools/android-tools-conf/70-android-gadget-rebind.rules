@@ -1,0 +1,2 @@
+# See android-gadget-rebind. Battery level updates are not cable events.
+SUBSYSTEM=="power_supply", ACTION=="change", ATTR{type}!="Battery", RUN+="/usr/bin/android-gadget-rebind"

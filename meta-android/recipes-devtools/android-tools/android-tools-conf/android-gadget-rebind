@@ -1,0 +1,12 @@
+#!/bin/sh
+# adbd closes ep0 when the cable goes, and closing it unbinds the gadget. On
+# Android, init binds it again; here android-gadget-setup binds it once at boot
+# and nothing does it after that, so the UDC stays empty, adbd waits for a
+# FUNCTIONFS_BIND that never comes, and a phone that is plugged back in charges
+# but is not seen by the host at all.
+#
+# Run by udev on every power supply change, so leave at once when there is
+# nothing to do.
+udc=/sys/kernel/config/usb_gadget/g1/UDC
+[ -e "$udc" ] && [ -z "$(cat "$udc")" ] || exit 0
+exec /usr/bin/android-gadget-setup rebind
