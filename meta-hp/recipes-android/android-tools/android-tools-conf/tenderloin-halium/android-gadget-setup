@@ -4,8 +4,12 @@
 # configfs gadget. adb goes over FunctionFS ("ffs") there, as on the other
 # LuneOS devices: adbd 35 only opens /dev/usb-ffs/adb/ep0 and has no f_adb
 # (/dev/android_adb) path any more, and adbd 5.1.1 takes FunctionFS whenever
-# that ep0 exists. "adb" is made an alias of "ffs", so the function list
-# written below stays "mtp,adb".
+# that ep0 exists. "adb" is made an alias of "ffs".
+#
+# mtp stays out of the list here: luneos-mtp-gadget adds it for as long as
+# umtprd runs. With it in the list and nothing serving /dev/mtp_usb, a host's
+# MTP stack times out on the interface and resets the device, over and over,
+# which drops adb and keeps waking the system UI.
 
 if [ "$1" != "adb" ] && [ "$1" != "noadb" ]; then
     exit 0
@@ -13,12 +17,12 @@ fi
 
 ANDROID_USB=/sys/class/android_usb/android0
 
-functions="mtp"
+functions=""
 # android0/functions reads back the function names: ffs, not its alias.
-current="mtp"
+current=""
 if [ "$1" = "adb" ]; then
-    functions="$functions,adb"
-    current="$current,ffs"
+    functions="adb"
+    current="ffs"
 
     # Mount before adbd starts. No uid=/gid= options: adbd runs as root here.
     # android.c keeps the gadget disabled until adbd has written its
@@ -28,6 +32,9 @@ if [ "$1" = "adb" ]; then
         mount -t functionfs adb /dev/usb-ffs/adb || exit 1
     fi
 fi
+
+# umtprd holds the gadget; luneos-mtp-gadget restores it when it stops.
+[ ! -e /run/luneos-mtp/mode ] || exit 0
 
 old_functions=$(cat $ANDROID_USB/functions)
 [ "$old_functions" != "$current" ] || { exit 0; }
@@ -42,9 +49,9 @@ echo "01dfecf85125b0bb" > $ANDROID_USB/iSerial
 
 echo "0" > $ANDROID_USB/enable
 echo "18D1" > $ANDROID_USB/idVendor
-echo "4EE2" > $ANDROID_USB/idProduct
+echo "4EE7" > $ANDROID_USB/idProduct
 echo "adb" > $ANDROID_USB/f_ffs/aliases
 echo "$functions" > $ANDROID_USB/functions
-echo "1" >  $ANDROID_USB/enable
+[ -z "$functions" ] || echo "1" >  $ANDROID_USB/enable
 
 sleep 4
