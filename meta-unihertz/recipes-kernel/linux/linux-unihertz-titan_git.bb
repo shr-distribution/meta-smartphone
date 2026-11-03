@@ -24,7 +24,10 @@ SRC_URI = "git://github.com/shr-distribution/linux.git;branch=unihertz-titan/4.1
 # (as on the Pocket's tree) and 4.14-stable's -Wzero-length-bounds,
 # -Warray-bounds and -Wstringop-overflow disables, which this 4.14.141 base
 # predates.
-SRCREV = "a4131ae47809bf4c5aab02c78fd29267069d8cca"
+# Plus "mtk_power_misc: ignore the UI SOC 1% shutdown when the gauge
+# disagrees", from the Mindphone, where a stale UI SOC of 0 from the RTC made
+# the kernel power off at 1% with the battery at 4.0 V. Same driver here.
+SRCREV = "6b35fe566df7fc4996d01ab6fce893af2c454f66"
 
 LINUX_VERSION = "4.14"
 KV = "4.14.141"

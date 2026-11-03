@@ -43,7 +43,10 @@ the OT8 common kernel"
 #  - kbuild: ignore the vendor's bare -Werror when building with GCC, and
 #    block, sched: drop inline from functions defined in another file. Both
 #    are needed to build the tree with GCC (see Toolchain below).
-SRCREV = "fe499668a9f19476faf996879d166d01ea5432ad"
+#  - mtk_battery: ignore the UI SOC 1% shutdown when the gauge disagrees.
+#    From the Mindphone, where a stale UI SOC made the kernel power off at
+#    1% with the battery at 4.0 V; this driver has the same shutdown path.
+SRCREV = "e5916819f947fb8147bde5d683a8ead5f8f34aa0"
 
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=sm-t220/4.19/halium-12;protocol=https \
            file://luneos.cfg \
