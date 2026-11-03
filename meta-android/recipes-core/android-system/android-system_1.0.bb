@@ -21,7 +21,10 @@ RDEPENDS:${PN} += "kmod"
 # and self-gating: its systemd units only start when the MTK connectivity kernel
 # modules are actually present (ConditionPathExists), so pulling it in on every
 # halium device is a no-op on non-MTK hardware.
-RDEPENDS:${PN} += "mtk-connectivity"
+# Halium only, matching mtk-connectivity's own COMPATIBLE_MACHINE: on mainline
+# machines that recipe is skipped, and an unconditional RDEPENDS left
+# android-system unbuildable there (it broke world for tissot).
+RDEPENDS:${PN}:append:halium = " mtk-connectivity"
 
 # For running the container we're using lxc (>= 1.0 required)
 # we use this with lxc from meta-luneos:
