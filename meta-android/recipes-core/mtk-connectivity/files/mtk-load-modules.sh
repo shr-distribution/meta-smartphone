@@ -170,6 +170,23 @@ rc_modules() {
 loaded=0
 load_one() {
     _m=$1
+    # A module the kernel package built for this kernel wins over the vendor's
+    # copy of the same name. Force-loading a vendor binary is only safe where it
+    # never touches a struct the LuneOS config delta moved; the mindphone's
+    # fmradio_drv does (it reads inode->i_cdev 16 bytes early and oopses on the
+    # first open of /dev/fm), so the kernel builds that one from source.
+    # No fallback to the vendor copy if ours fails: that copy is the reason ours
+    # exists. modinfo without -b looks in /lib/modules/$KREL only, never at the
+    # private vendor tree under $MODBASE.
+    if modinfo -k "$KREL" -F filename "$_m" >/dev/null 2>&1; then
+        if modprobe "$_m" 2>/dev/null; then
+            log "$_m loaded from the kernel's own modules"
+            loaded=$((loaded + 1))
+        else
+            log "$_m (kernel's own module) failed to load; not falling back to the vendor copy"
+        fi
+        return
+    fi
     [ -f "$DST/$_m.ko" ] || { log "$_m.ko not on the vendor partition, skipping"; return; }
     # Plain first: on a KMI-preserving port the CRCs match and only the
     # vermagic string differs (ours carries our own scmversion), so
