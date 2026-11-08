@@ -29,7 +29,7 @@ on Halium, built from vlw's LineageOS 18.1 branch"
 # Built from a3-2015/3.10/lineage-18.1 in shr-distribution/linux: vlw's lineage-18.1 head of
 # 22 Nov 2025 (64f7a77a0f7c4c73b1c8b97df96fabccb552279b) with LuneOS' patches committed on top, as
 # for sm-t520/3.4/lineage-18.1. The patches live there as commits, not as .patch files here.
-SRCREV = "946e4c8fa03cfd27bccf9e3f905cdf59aba39904"
+SRCREV = "2bbb0e4100ab47d5a9e1c571b658dc1447629634"
 
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=a3-2015/3.10/lineage-18.1;protocol=https \
            file://luneos.cfg \

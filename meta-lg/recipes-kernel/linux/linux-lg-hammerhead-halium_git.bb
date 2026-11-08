@@ -44,6 +44,10 @@ S = "${UNPACKDIR}/${BP}"
 #  - ARM: renameat2 for the flags == 0 case, which Android 16's bionic needs (rename() has no
 #    ENOSYS fallback). halium-kernel-3.4.inc adds it as a patch for the other 3.4 kernels, so
 #    say that this one has it.
+#  - msm buf_mgr: drop stale get_buf entries instead of matching them. The camera daemon leaks
+#    one when a bus message races a metadata stream off; once the stream was recreated, buf_done
+#    for that index hit the stale entry (a freed vb2 buffer) and never delivered the real one, so
+#    a capture request lost its metadata and camera_service put the camera in an error state.
 KERNEL_HAS_RENAMEAT2 = "1"
 # The 64-bit time clock calls (see halium-kernel-3.4.inc).
 KERNEL_ADD_CLOCK_TIME64 = "1"
@@ -53,7 +57,7 @@ do_configure:prepend() {
     cp -v -f ${S}/arch/arm/configs/lineageos_hammerhead_defconfig ${WORKDIR}/defconfig
 }
 
-SRCREV = "f47fedf574e72b897d88450f9add5aa5568cbe5d"
+SRCREV = "8ec5014fa92be0d81dd256cf2ec639e42e16d96b"
 
 LINUX_VERSION = "3.4.0"
 PV = "${LINUX_VERSION}+git"
