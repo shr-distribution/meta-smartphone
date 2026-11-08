@@ -7,9 +7,15 @@ require recipes-core/android-system-image/android-system-image-legacy-gsi.inc
 # 20261017-1 is 20261008-3 with droidmedia's buffer and codec fixes (the only file that differs) and 512 free
 # inodes instead of 64. The vendor image below, made against 20261008-3, stays: a vendor image derived against
 # either GSI has the same contents (checked on the TouchPad).
-HALIUM_LUNEOS_GSI16_PV = "20261017-1"
-HALIUM_LUNEOS_GSI16_SHA256 = "0984f47ea33ca7e058a4db7e9e5145760d5b433b19e14e8ba22a38d12648a871"
-HALIUM_LUNEOS_GSI16_RELEASE = "halium-luneos-20261005"
+# 20261108-1 (halium-luneos-20261108) has CameraClient hand HAL1 recording frames back to the HAL off its
+# callback thread: QCamera2 joins that thread in stopRecording() while it holds the device's lock, and a release
+# made from inside the callback deadlocked the two, wedging the camera until minimediaservice restarted. Its
+# linkerconfig also reads a vendor binary's target SDK from a .version file, which this vendor does not ship.
+# The vendor image stays in the halium-luneos-20261005 release: the 20261108-1 changes do not reach what a
+# vendor image is derived from (checked on the hammerhead, whose image comes out the same against 20261107-1).
+HALIUM_LUNEOS_GSI16_PV = "20261108-1"
+HALIUM_LUNEOS_GSI16_SHA256 = "563c43e5b22e3ff76e0f17f8c12bca1d69ccb76c2e72f6f271473d30c30e3065"
+HALIUM_LEGACY_VENDOR_URL = "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-20261005/${MACHINE}-vendor.img"
 
 COMPATIBLE_MACHINE = "^a3-2015-halium$"
 
