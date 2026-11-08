@@ -37,7 +37,7 @@ Spreadtrum SC7730S) on Halium, built from the community sc8830 hybris-14.1 tree"
 # a selectable 32-bit binder ABI and get_user() of 8 byte types, ambient capabilities, O_TMPFILE with ext3/ext4
 # ->tmpfile(), and memfd_create() with sealing; the Bluetooth L2CAP shutdown fixes come from the l2cap-ports work.
 # goyavewifi-STATUS.md says what each one fixes.
-SRCREV = "d7862e407535cca2a1af4981d99848f87d4984eb"
+SRCREV = "1a7fe7c4f8127198200a5ef188f1da45746616eb"
 
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=goyavewifi/3.10/hybris-14.1;protocol=https \
            file://lineage_goyavewifi_defconfig \
