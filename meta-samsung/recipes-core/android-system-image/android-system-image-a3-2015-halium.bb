@@ -47,8 +47,8 @@ HALIUM_LEGACY_VNDK = "30"
 # interface libraries of /system/system_ext/lib (vendor.lineage.livedisplay@2.0, touch, trust, power),
 # which the vendor's services link. 20261008-1 adds the camera provider service
 # (android.hardware.camera.provider@2.4-service, built in the same tree). Published in the
-# halium-luneos-20261005 release of webOS-ports/halium-images.
-A3_2015_HALIUM_DEVICE_TARBALL ?= "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-20261005/halium-luneos-11.0-20261008-1-a3-2015-halium.tar.bz2"
+# halium-luneos-20261108 release of webOS-ports/halium-images.
+A3_2015_HALIUM_DEVICE_TARBALL ?= "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-20261108/halium-luneos-11.0-20261008-1-a3-2015-halium.tar.bz2"
 HALIUM_LEGACY_DEVICE_URL = "${A3_2015_HALIUM_DEVICE_TARBALL}"
 HALIUM_LEGACY_DEVICE_SHA256 = "a95d0f7d5dfde84e3a020f9b2651df6591cdba60ea4f2d8e6b2b7ed7545be181"
 
