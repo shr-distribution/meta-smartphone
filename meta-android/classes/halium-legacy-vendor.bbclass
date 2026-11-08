@@ -90,7 +90,7 @@ HALIUM_LEGACY_GSI_PRUNE ?= ""
 
 # Revision of lib/halium/legacy_vendor.py. Bitbake does not track imported
 # modules, so a change there would reuse the old task output; bump this with it.
-HALIUM_LEGACY_REV ?= "32"
+HALIUM_LEGACY_REV ?= "33"
 
 # Shims for the Android 9/11 framework copies a legacy vendor brings along.
 #
@@ -106,6 +106,11 @@ HALIUM_LEGACY_SHIM_TARGETS ?= ""
 HALIUM_LEGACY_LD_SHIMS ?= ""
 HALIUM_LEGACY_SHIM_LIB ?= "${STAGING_LIBDIR}/halium-legacy/libhalium_legacy_shim.so"
 DEPENDS += "${@'halium-legacy-shim patchelf-native' if (d.getVar('HALIUM_LEGACY_SHIM_TARGETS') or d.getVar('HALIUM_LEGACY_LD_SHIMS')) else ''}"
+
+# Byte patches of vendor files, as "<path in /vendor>:<hex file offset>:<old hex>:<new hex>". For a fix
+# to a vendor blob that is only a few bytes, so the blob itself stays out of the layer; the old bytes
+# are checked first, and a mismatch fails the build.
+HALIUM_LEGACY_BYTE_PATCHES ?= ""
 
 # Free space left in vendor.img.
 HALIUM_LEGACY_SLACK_MB ?= "24"
@@ -153,6 +158,7 @@ python do_halium_legacy_vendor() {
         gsi_autodetect=d.getVar("HALIUM_LEGACY_GSI_AUTODETECT") != "0",
         skip_commands=d.getVar("HALIUM_LEGACY_SKIP_COMMANDS").split(),
         ueventd_extra=[os.path.join(unpack, f) for f in d.getVar("HALIUM_LEGACY_UEVENTD_EXTRA").split()],
+        byte_patches=lv.parse_byte_patches(d.getVar("HALIUM_LEGACY_BYTE_PATCHES")),
         slack_mb=int(d.getVar("HALIUM_LEGACY_SLACK_MB")),
         workdir=os.path.join(work, "build"),
         log=bb.note)
