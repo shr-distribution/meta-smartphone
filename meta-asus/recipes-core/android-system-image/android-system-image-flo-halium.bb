@@ -25,10 +25,9 @@ HALIUM_LEGACY_VENDOR_SHA256 = ""
 # system/ (bin, lib, etc, build.prop, the system_ext libraries and the ICU, nativehelper and statsd
 # libraries out of their APEXes) with the vendor image's tree under system/vendor, and the device
 # init scripts at the root. assemble-old-system.sh (kept with the port's scratch files, not in this
-# layer) makes it from the OTA zip above, the same way sm-t520's is made from its build. Not
-# published anywhere yet, so it is a local file.
-# TODO: publish to webOS-ports/halium-images and use an https URL.
-FLO_DEVICE_TARBALL ?= "file:///home/herrie/claude-scratch/flox/out/halium-luneos-11.0-20261015-1-flo.tar.bz2"
+# layer) makes it from the OTA zip above, the same way sm-t520's is made from its build. Published
+# in the halium-luneos-20261108 release of webOS-ports/halium-images.
+FLO_DEVICE_TARBALL ?= "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-20261108/halium-luneos-11.0-20261015-1-flo.tar.bz2"
 HALIUM_LEGACY_DEVICE_URL = "${FLO_DEVICE_TARBALL}"
 HALIUM_LEGACY_DEVICE_SHA256 = "7ad864610c78ec373f80df9c3c99496641540fa790d207add6f664b6e501f5ed"
 

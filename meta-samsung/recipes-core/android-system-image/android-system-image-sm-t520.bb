@@ -27,7 +27,8 @@ HALIUM_LEGACY_VNDK = "30"
 # the Halium 11 build of lineage_n2awifi by assemble-old-system.sh (kept with the
 # port's scratch files, not in this layer), because that tree's systemimage target
 # does not build (the ART apex has no native libraries for this 32-bit product, which
-# does not matter for a vendor). Not published anywhere yet, so it is a local file.
+# does not matter for a vendor). Published in the halium-luneos-20261108 release of
+# webOS-ports/halium-images.
 #
 # The 20261005-1 tarball differs from the 20261003-1 one in four libraries: libandroidicu.so, libicuuc.so,
 # libicui18n.so and libnativehelper.so are the real Android 11 files from the build's ART apex, where they
@@ -35,8 +36,7 @@ HALIUM_LEGACY_VNDK = "30"
 # (camera.universal5420.so -> libharfbuzz_ng.so -> libandroidicu.so) and gpsd (libicuuc.so) could not
 # load without them. 20261005-2 adds libstatssocket.so and libstatspull.so (statsd apex), which the
 # libandroid_runtime.so that comes along under the camera HAL needs.
-# TODO: publish to webOS-ports/halium-images and use an https URL.
-SM_T520_DEVICE_TARBALL ?= "file:///home/herrie/webos/LuneOS/samsung/sm-t520/out/halium-luneos-11.0-20261108-1-sm-t520.tar.bz2"
+SM_T520_DEVICE_TARBALL ?= "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-20261108/halium-luneos-11.0-20261108-1-sm-t520.tar.bz2"
 HALIUM_LEGACY_DEVICE_URL = "${SM_T520_DEVICE_TARBALL}"
 HALIUM_LEGACY_DEVICE_SHA256 = "441662962a1e389c3c2b05a30ca6efe49d44aff6e3c659846eda1a1f79567f36"
 
