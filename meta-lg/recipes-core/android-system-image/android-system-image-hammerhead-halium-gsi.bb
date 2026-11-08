@@ -5,7 +5,14 @@ COMPATIBLE_MACHINE = "hammerhead-halium"
 
 # The vendor image published with the GSI (hammerhead-halium-vendor.img in its release), made by the settings below
 # against that GSI. See android-system-image-legacy-gsi.inc for how to make a new one.
-HALIUM_LEGACY_VENDOR_SHA256 = "05268fefcf7defe22b1703012af47a4d4178554c52f526167b07cc882337eeea"
+HALIUM_LEGACY_VENDOR_SHA256 = "64514a42ec48d08ca99cedbb890062a5dc3954d5cc5f52b3c3464a31b57a61b3"
+
+# Ahead of the other legacy ports: 20261108-1 is the first halium_arm GSI whose linkerconfig turns on
+# enable.target.sdk.version for the vendor section, which the /vendor/bin/.version below needs. Its
+# CameraClient also hands HAL1 recording frames back off the HAL's callback thread. The others move
+# once their vendor images are in that release too.
+HALIUM_LUNEOS_GSI16_PV = "20261108-1"
+HALIUM_LUNEOS_GSI16_SHA256 = "563c43e5b22e3ff76e0f17f8c12bca1d69ccb76c2e72f6f271473d30c30e3065"
 
 HALIUM_LEGACY_DEVICE_URL = "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-9.0-20230127-1-hammerhead-halium.tar.bz2/halium-luneos-9.0-20230127-1-hammerhead-halium.tar.bz2"
 HALIUM_LEGACY_DEVICE_SHA256 = "a3b058dd2bafd6d9af661b03f54cb35e115dd5601624534e34a271bfde1b1e46"
@@ -70,6 +77,22 @@ HALIUM_LEGACY_EXTRA_FILES += " \
     ${HALIUM_LEGACY_A9_RIL} \
     ${HALIUM_LEGACY_A9_OMX} \
 "
+# The camera daemon (/vendor/bin/mm-qcamera-daemon, Android 6.0.1 M4B30Z, SDK 23) locks a mutex its own
+# teardown has already destroyed. Bionic answers that with EBUSY for a binary that targets SDK 27 or
+# lower and aborts for SDK 28 and up, and a native vendor binary gets the GSI's SDK unless the linker
+# finds a .version next to it. The GSI's linkerconfig turns that lookup on for the vendor section; this
+# file makes it 23 for everything in /vendor/bin (not /vendor/bin/hw, which is a directory of its own).
+# Without it the daemon aborts on that lock.
+SRC_URI += "file://vendor-bin-version"
+HALIUM_LEGACY_EXTRA_FILES += "vendor-bin-version:/bin/.version:644"
+
+# camera.hammerhead.so frees the queued jpeg_settings_t twice when the camera closes while a picture is still
+# being encoded: ~QCamera3PostProcessor destroys m_jpegSettingsQ (this+0x114), whose entries the JPEG path
+# has already freed, and the provider dies with a double free. Two Thumb NOPs replace that one destructor
+# call (the blx at 0x1892e): the queue is not torn down, so what it still holds leaks once per close. Unpatched, the HAL crashed by
+# cycle 27 of a close-with-a-picture-pending camcycle run; patched it passed 100.
+HALIUM_LEGACY_BYTE_PATCHES = "/lib/hw/camera.hammerhead.so:1892e:f2f77cef:00bf00bf"
+
 HALIUM_LEGACY_BINDERIZED_HALS = "android.hardware.graphics.composer android.hardware.graphics.allocator \
     android.hardware.camera.provider"
 
