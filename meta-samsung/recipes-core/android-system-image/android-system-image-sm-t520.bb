@@ -8,7 +8,7 @@ COMPATIBLE_MACHINE = "^sm-t520$"
 # The vendor image published with the GSI (sm-t520-vendor.img in its release), made by the settings below
 # against that GSI. See android-system-image-legacy-gsi.inc for how to make a new one; that needs the local
 # device tarball below.
-HALIUM_LEGACY_VENDOR_SHA256 = "8692a8bdc87a1a090903e42a39cd4230ce1b265529e1fb92f3991ad1ebf42524"
+HALIUM_LEGACY_VENDOR_SHA256 = "2f2f086c3a9ec3fd30b54b80a44c34fc5c4860dd5742f20b36d192a6d81b6ecc"
 
 # The 32-bit 16.0 GSI (HALIUM_LUNEOS_GSI16_* in android-system-image-legacy-gsi.inc)
 # on a vendor that comes from the exynos5420 community's LineageOS 18.1 trees.
@@ -36,9 +36,9 @@ HALIUM_LEGACY_VNDK = "30"
 # load without them. 20261005-2 adds libstatssocket.so and libstatspull.so (statsd apex), which the
 # libandroid_runtime.so that comes along under the camera HAL needs.
 # TODO: publish to webOS-ports/halium-images and use an https URL.
-SM_T520_DEVICE_TARBALL ?= "file:///home/herrie/webos/LuneOS/samsung/sm-t520/out/halium-luneos-11.0-20261005-2-sm-t520.tar.bz2"
+SM_T520_DEVICE_TARBALL ?= "file:///home/herrie/webos/LuneOS/samsung/sm-t520/out/halium-luneos-11.0-20261108-1-sm-t520.tar.bz2"
 HALIUM_LEGACY_DEVICE_URL = "${SM_T520_DEVICE_TARBALL}"
-HALIUM_LEGACY_DEVICE_SHA256 = "9dc411671d5dee602787960120e59aba109ae8c6f24f4c3bda8249f73dee9fc4"
+HALIUM_LEGACY_DEVICE_SHA256 = "441662962a1e389c3c2b05a30ca6efe49d44aff6e3c659846eda1a1f79567f36"
 
 # No device init scripts to move (see above); everything the vendor needs is in
 # /vendor/etc/init already.
@@ -53,15 +53,30 @@ HALIUM_LEGACY_COPY_FILES = " \
     /system/etc/wifi/bcmdhd_sta.bin:/etc/wifi/bcmdhd_sta.bin \
     /system/etc/wifi/bcmdhd_apsta.bin:/etc/wifi/bcmdhd_apsta.bin \
     /system/etc/wifi/nvram_net.txt:/etc/wifi/nvram_net.txt \
+    ${SM_T520_OMX_CODECS} \
 "
 HALIUM_LEGACY_GSI_LINKS = ""
+
+# The Exynos OMX codecs, for the hardware video encoder that recording needs. Nothing links them: the
+# OMX service dlopen()s libstagefrighthw.so, which dlopen()s libExynosOMX_Core.so, which loads the
+# codecs from a directory compiled into it (see HALIUM_LEGACY_BYTE_PATCHES). So the converter cannot
+# find them by itself, and without them droidmedia finds no video encoder and recording fails at start.
+SM_T520_OMX_CODECS = " \
+    /system/lib/omx/libOMX.Exynos.AVC.Decoder.so:/lib/omx/libOMX.Exynos.AVC.Decoder.so \
+    /system/lib/omx/libOMX.Exynos.AVC.Encoder.so:/lib/omx/libOMX.Exynos.AVC.Encoder.so \
+    /system/lib/omx/libOMX.Exynos.MPEG4.Decoder.so:/lib/omx/libOMX.Exynos.MPEG4.Decoder.so \
+    /system/lib/omx/libOMX.Exynos.MPEG4.Encoder.so:/lib/omx/libOMX.Exynos.MPEG4.Encoder.so \
+    /system/lib/omx/libOMX.Exynos.VP8.Decoder.so:/lib/omx/libOMX.Exynos.VP8.Decoder.so \
+    /system/lib/omx/libOMX.Exynos.VP8.Encoder.so:/lib/omx/libOMX.Exynos.VP8.Encoder.so \
+    /system/lib/omx/libOMX.Exynos.WMV.Decoder.so:/lib/omx/libOMX.Exynos.WMV.Decoder.so \
+"
 
 # The camera HAL (camera.universal5420.so) links the Android 11 framework copies the converter puts in
 # /vendor/lib (libgui, libcamera_client, libhwui, ...), and libhwui.so needs libft2.so. The GSI's LLNDK
 # list names libft2.so, so the converter counts it as provided, but the vendor linker of the container
 # does not hand it to this vendor: "library libft2.so not found: needed by /vendor/lib/libhwui.so", and
 # the camera provider restarts for ever (5 Oct 2026). A private copy from the old image fixes it.
-HALIUM_LEGACY_EXTRA_LIBS = "libft2.so"
+HALIUM_LEGACY_EXTRA_LIBS = "libft2.so libstagefrighthw.so libExynosOMX_Core.so libExynosOMX_Resourcemanager.so"
 
 # The camera HAL (camera.universal5420.so -> libexynoscamera.so -> libcamera_client.so, libgui.so, ...)
 # brings Android 11 framework libraries with it, and those want symbols of the full libbinder and libmedia
@@ -75,6 +90,26 @@ HALIUM_LEGACY_SHIM_TARGETS = "libgui.so libmedia.so libmediautils.so libsensor.s
 # the shim becomes a dependency of libexynoscamera.so. (The same file also names libGLES_mali.so|libgutils.so
 # and gpsd|libshim_dmitry_gps.so; the GPU works without the first and the Wi-Fi tablet has no GPS.)
 HALIUM_LEGACY_LD_SHIMS = "libexynoscamera.so|libshim_camera.so"
+
+# libExynosOMX_Core.so loads the codecs from /system/lib/omx/, which in the container is the GSI's:
+# point it at /vendor/lib/omx/ (HALIUM_LEGACY_COPY_FILES above), same length.
+#
+# libexynoscamera.so (after HALIUM_LEGACY_LD_SHIMS added libshim_camera.so to it): the close-race fixes
+# of device/samsung/universal5420-common hardware/camera/vendor-patches/libexynoscamera, whose build.sh
+# makes the patched file (md5 f85bcb7703478b105e37996e882c7620). As byte patches: the first PT_LOAD's
+# file and memory size grown over the code caves; the b.w over stopPreview()'s AF-thread stop and over
+# takePicture()'s m_captureInProgress check; and the two code caves in the zero padding after that
+# segment. takePicture() waits for the previous picture thread to have ended; stopPreview() lets a
+# picture that is still being taken finish, then stops the autofocus thread without losing the
+# m_autoFocusLock handoff. Without them a close with a picture pending can hang the camera for good.
+HALIUM_LEGACY_BYTE_PATCHES = " \
+    /lib/libExynosOMX_Core.so:17f2:73797374656d:76656e646f72 \
+    /lib/libexynoscamera.so:84:3815060038:dc150600dc \
+    /lib/libexynoscamera.so:3dcf2:d4f84c01:23f055bc \
+    /lib/libexynoscamera.so:3e88c:94f81115:22f058be \
+    /lib/libexynoscamera.so:61540:00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000:94f8111511b12269cab905e0d4f85001a8b1b7f7e0e990b103a8b9f7e2fed4f8500108b1b5f72aeb0398b9f7e1fe94f8450230b194f8111509b1ddf78cb9ddf794b9ddf77eb9 \
+    /lib/libexynoscamera.so:615a0:000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000:d4f8500130b1b7f7b6e918b1d4f85001b5f704ebd4f84c0170b1012684f8306204f50b70b9f7b4fe04f50b70b5f732ebd4f84c01b5f7f2eadcf798bb \
+"
 
 # Nothing of the old image goes into the GSI. The vendor's fstab (fstab.universal5420) mounts EFS on /efs
 # and PERSDATA on /persist, which the GSI has itself; EFS holds the Bluetooth address bcm-hciattach.sh reads
