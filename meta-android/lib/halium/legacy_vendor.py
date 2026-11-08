@@ -503,7 +503,7 @@ def build(old_system, gsi_system, out_vendor, *, vndk, init_files,
           skip_services=(), extra_libs=(), extra_files=(), vndk_names=None,
           binderized_hals=(), copy_files=(), gsi_files=(), gsi_links=(), gsi_dirs=(), gsi_autodetect=True, system_prop_prefixes=(),
           shim_lib=None, shim_targets=(), ld_shims=(), skip_commands=(), ueventd_extra=(),
-          slack_mb=24, workdir=None, log=print):
+          byte_patches=(), slack_mb=24, workdir=None, log=print):
     """Write out_vendor, and return (plan, gsi_patches) for the caller to apply."""
     own = workdir is None
     if own:
@@ -958,10 +958,58 @@ def build(old_system, gsi_system, out_vendor, *, vndk, init_files,
         raise RuntimeError("the vendor has no /etc/selinux/plat_sepolicy_vers.txt and no VNDK version "
                            "was given to derive one from; Android 16's init cannot start without it")
 
+    apply_byte_patches(plan, byte_patches, os.path.join(workdir, "byte-patched"), log)
     _write_image(plan, out_vendor, slack_mb)
     if own:
         tmp.cleanup()
     return plan
+
+
+def apply_byte_patches(plan, patches, patchdir, log=print):
+    """Patch bytes of files the plan takes from elsewhere, on a copy.
+
+    patches: [(path in /vendor, file offset, old bytes, new bytes)]. For a fix to a vendor
+    blob that is a few bytes (a call made a no-op), so the blob itself stays out of the
+    layer. Each patch is checked against the old bytes first: a different blob, or an
+    offset that moved, is an error rather than a corrupted library.
+    """
+    if not patches:
+        return
+    index = {e[0]: i for i, e in enumerate(plan.entries)}
+    for path, offset, old, new in patches:
+        if len(old) != len(new) or not old:
+            raise RuntimeError("byte patch of %s at 0x%x: old and new must be the same, non-zero length"
+                               % (path, offset))
+        i = index.get(path)
+        if i is None or plan.entries[i][4] != "file":
+            raise RuntimeError("byte patch of %s: the vendor image has no such file" % path)
+        entry = list(plan.entries[i])
+        copy = os.path.join(patchdir, path.lstrip("/"))
+        if entry[5] != copy:
+            os.makedirs(os.path.dirname(copy), exist_ok=True)
+            shutil.copyfile(entry[5], copy)
+            entry[5] = copy
+            plan.entries[i] = tuple(entry)
+        with open(copy, "r+b") as f:
+            f.seek(offset)
+            found = f.read(len(old))
+            if found != old:
+                raise RuntimeError("byte patch of %s at 0x%x: expected %s, found %s"
+                                   % (path, offset, old.hex(), found.hex()))
+            f.seek(offset)
+            f.write(new)
+        log("byte patch: %s at 0x%x, %s -> %s" % (path, offset, old.hex(), new.hex()))
+
+
+def parse_byte_patches(text):
+    """HALIUM_LEGACY_BYTE_PATCHES: "<path in /vendor>:<hex offset>:<old hex>:<new hex>" words."""
+    out = []
+    for word in text.split():
+        parts = word.split(":")
+        if len(parts) != 4:
+            raise RuntimeError("byte patch %r: want <path>:<hex offset>:<old hex>:<new hex>" % word)
+        out.append((parts[0], int(parts[1], 16), bytes.fromhex(parts[2]), bytes.fromhex(parts[3])))
+    return out
 
 
 def _write_image(plan, out, slack_mb):
