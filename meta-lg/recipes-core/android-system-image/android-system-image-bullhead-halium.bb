@@ -13,9 +13,10 @@ HALIUM_LEGACY_VENDOR_SHA256 = "f62c1ad3540dc385c70a0ffe9dbdcf5b9b54ad03fc7da2d5f
 # That build is monolithic: no vendor partition, the vendor under /system/vendor, the device
 # init scripts and fstab at the root of a system-as-root image, which is the layout
 # halium-legacy-vendor converts. The "device" tarball is its system.img, unpacked from the
-# block OTA (system.new.dat.br + system.transfer.list) and packed unchanged. It is not
-# published: it is only needed to make a new vendor image (see android-system-image-legacy-gsi.inc).
-BULLHEAD_HALIUM_DEVICE_TARBALL ?= "file:///home/herrie/claude-scratch/bullhead/out/bullhead-halium-device-lineage-21.0-20240911.tar.bz2"
+# block OTA (system.new.dat.br + system.transfer.list) and packed unchanged. It is only needed to
+# make a new vendor image (see android-system-image-legacy-gsi.inc); published in the
+# halium-luneos-20261108 release of webOS-ports/halium-images.
+BULLHEAD_HALIUM_DEVICE_TARBALL ?= "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-20261108/bullhead-halium-device-lineage-21.0-20240911.tar.bz2"
 HALIUM_LEGACY_DEVICE_URL = "${BULLHEAD_HALIUM_DEVICE_TARBALL}"
 HALIUM_LEGACY_DEVICE_SHA256 = "c0b590bb080c512df48463238ed87fe11bc6accedd64733081de0ea3ab6d507f"
 
