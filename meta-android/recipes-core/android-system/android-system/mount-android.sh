@@ -430,15 +430,29 @@ fi
 # the modem's icnss) never started. With "net" kept, rmt_storage reached "Done
 # with init now waiting for messages!" at once.
 #
+# Mobile data needs it too, QRTR or not. netmgrd sets up the modem's data
+# interfaces (rmnet_ipa0, rmnet_data*), which exist only in the host's namespace.
+# In the container's own namespace it sees loopback and nothing else, loops on
+# RMNET_IOCTL_EXTENDED -> ENODEV, never reports ready, and qcril fails every
+# setupDataCall with "unable to get dsi hndl" (ofono: data call status 4100).
+# Measured on sargo (sdm670, CONFIG_IPC_ROUTER, no QRTR): with "net" kept, netmgrd
+# creates rmnet_data0.. and mobile data comes up.
+#
 # The config is built once for the generic rootfs, so decide here, per device:
-# a kernel that offers QRTR plus a vendor that ships rmt_storage (QMI over QRTR)
-# get the host's network namespace. LUNEOS_LXC_KEEP_NET=0/1 overrides.
+# a kernel that offers QRTR plus a vendor that ships rmt_storage (QMI over QRTR),
+# or a vendor that ships netmgrd, get the host's network namespace.
+# LUNEOS_LXC_KEEP_NET=0/1 overrides.
 lxc_config=/var/lib/lxc/android/config
 keep_net=${LUNEOS_LXC_KEEP_NET:-}
+keep_net_why="LUNEOS_LXC_KEEP_NET=1"
 if [ -z "$keep_net" ]; then
     keep_net=0
     if grep -qs '^QIPCRTR' /proc/net/protocols && [ -e "$ANDROID_ROOT/vendor/bin/rmt_storage" ]; then
         keep_net=1
+        keep_net_why="QRTR + rmt_storage"
+    elif [ -e "$ANDROID_ROOT/vendor/bin/netmgrd" ]; then
+        keep_net=1
+        keep_net_why="netmgrd"
     fi
 fi
 if [ -w "$lxc_config" ]; then
@@ -449,7 +463,7 @@ if [ -w "$lxc_config" ]; then
     esac
     if [ "$keep_net" = 1 ] && [ "$has_net" = 0 ]; then
         sed -i "s/^lxc\.namespace\.keep *=.*/lxc.namespace.keep = $keep_line net/" "$lxc_config"
-        log "QRTR + rmt_storage: the container keeps the host network namespace"
+        log "$keep_net_why: the container keeps the host network namespace"
     elif [ "$keep_net" = 0 ] && [ "$has_net" = 1 ] && [ -n "${LUNEOS_LXC_KEEP_NET:-}" ]; then
         sed -i "s/^lxc\.namespace\.keep *=.*/lxc.namespace.keep = $(echo " $keep_line " | sed 's/ net / /; s/^ *//; s/ *$//')/" "$lxc_config"
         log "LUNEOS_LXC_KEEP_NET=0: the container gets its own network namespace"
