@@ -1,0 +1,20 @@
+# Container services stubbed out on the Motorola moto g06 (vendor codename
+# "lagos"), replaced by a stub that sleeps (see meta-android's
+# pre-start.d/50-stub-services), so init sees them running. Measured on the
+# tester's first boot (live log 2026-11-10, 24 min uptime).
+#
+# The combo-chip firmware dump collector (service stp_dump in
+# init_connectivity.rc runs /vendor/bin/stp_dump3). Busy-loops with nothing to
+# hand a dump to, as on the MP01, the Q25 and the mindphone: 18 min 23 s of CPU
+# time in the 24 min uptime. Diagnostics only; nothing in LuneOS consumes them.
+vendor/bin/stp_dump3
+# The USB gadget HAL (service vendor.usb_gadget_default). Its constructor
+# aborts with "configfs setup not done yet", because Android's init never ran
+# the USB configfs setup it waits for - the gadget belongs to LuneOS here. init
+# restarts it every 5 s: 59 tombstones in the log. Nothing in LuneOS calls it.
+vendor/bin/hw/android.hardware.usb.gadget-aidl-service.mediatekv1.0
+# MediaTek's mbrain telemetry service (service vendor.mbrain-default). It needs
+# the Android framework's Java service ("SendMBrainJRequest: Can not get JAVA
+# service") and /dev/mbraink, then aborts on "Check failed: status ==
+# STATUS_OK" and is restarted every 5 s: 60 tombstones. Telemetry only.
+vendor/bin/hw/vendor.mediatek.hardware.mbrain-service.mediatek
