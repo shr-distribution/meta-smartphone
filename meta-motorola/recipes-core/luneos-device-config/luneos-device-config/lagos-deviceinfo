@@ -1,0 +1,70 @@
+# Tier 1 adaptation for the Motorola moto g06 (lagos; MT6768, 6.88" 720x1640).
+#
+# Only what cannot be derived belongs here. Vendor API level, panel geometry
+# and the touchscreen node derive on a Treble device. Values are read from the
+# stock firmware (VVOB35.78-188) unless marked UNVERIFIED. The phone has booted
+# LuneOS twice (tester's live logs of 10 and 11 Nov 2026).
+
+# The power key and the volume rocker, pinned by name, never by node number
+# (numbering depends on probe order across ~360 vendor modules). Both strings
+# are in the stock modules: mtk-pmic-keys.ko ("mtk-pmic-keys", the PMIC power
+# key) and mtk-kpd.ko ("mtk-kpd", the keypad the volume rocker hangs off).
+# Both are the input devices' names on hardware (/proc/bus/input/devices,
+# 10 and 11 Nov 2026).
+deviceinfo_key_devices_by_name="mtk-pmic-keys;mtk-kpd"
+
+# 6.88" diagonal, 720x1640: sqrt(720^2 + 1640^2) / 6.88 = 260 ppi. Android
+# ships ro.sf.lcd_density=280. UNVERIFIED ON HARDWARE.
+deviceinfo_display_dpi="260"
+
+# 720 / 1.6 = 450 CSS px, the canvas width the webOS apps target (sargo:
+# 1080 / 2.4). Expect to re-tune on the device.
+deviceinfo_device_pixel_ratio="1.6"
+
+# --- MediaTek vendor userspace --------------------------------------------
+# Carried over from the other MediaTek ports (MP01, Q25, radon), where each was
+# established. Recorded with what it is for, so a reader can tell whether it
+# still applies.
+
+# Qt's hwcomposer QPA backend. ro.hardware.hwcomposer=mtk_common here as on the
+# MP01, where the compositor otherwise spun trying to become DRM master. The
+# vendor's composer HAL is AIDL composer3, but /vendor/lib64/hw still ships the
+# legacy hwcomposer.mt6768.so.
+deviceinfo_force_hwc2="1"
+
+# MediaTek's audio HAL (audio.primary.mt6768.so, loaded into pulseaudio by
+# module-droid) runs its paths at 48 kHz.
+deviceinfo_audio_sample_rate="48000"
+
+# The vendor's audio HAL has to resolve its libraries from /vendor. Measured on
+# the second LuneOS boot (tester's live log, 11 Nov 2026): pulseaudio died with
+# SIGSEGV on all five starts, each time inside the HAL's constructor, right
+# after
+#
+#   vndksupport: Loading /vendor/lib64/hw/audio.primary.mt6768.so from current
+#                namespace instead of sphal namespace.
+#   AudioALSADeviceParser: getCardName(), card name mt6768mt6358
+#   AudioALSADeviceParser: card open success
+#
+# i.e. while it parses its XML device description. This Android 15 vendor has
+# no VNDK and ships its own libxml2, libtinyxml2, libbase, libutils, libcutils
+# and libc++ in /vendor/lib64, but loaded into pulseaudio's default namespace
+# those names resolve from the GSI's /system first. HYBRIS_USE_VENDOR_NAMESPACE
+# makes them resolve from /vendor; this key is the one that emits it (see
+# 70-pulseaudio-env). The HYBRIS_PREFER_VNDK it also emits is a no-op here:
+# the vendor's plat_sepolicy_vers.txt says 202404 and the GSI's VNDK APEXes
+# stop at v34, so libhybris finds none to prefer.
+# UNVERIFIED ON HARDWARE: a hypothesis from the log, not a measured fix. If
+# pulseaudio still crashes the same way, the next step is its core dump.
+deviceinfo_hybris_prefer_vndk="1"
+
+# The connac1x Bluetooth controller (ro.vendor.bt.platform=connac1x) advertises
+# Synchronization Train support in extended features page 2 and then rejects
+# the command, as on the MP01, the Q25 and the BraX3. Measured on the second
+# LuneOS boot (11 Nov 2026): bluebinder came up on /dev/vhci, then
+#
+#   Bluetooth: hci0: Opcode 0x0c77 failed: -56
+#
+# so hci0 never finished setup and the Bluetooth service listed no adapter.
+# The same mask clears that bit in what bluebinder reports to the kernel.
+deviceinfo_bluebinder_ext_features_page_2_mask="0x0400000000000000"
