@@ -1,0 +1,126 @@
+# LuneOS/Halium defconfig fragment for GKI android15-6.6.
+#
+# First device: Motorola moto g06 (lagos, MT6768/"MT6769"), whose stock kernel
+# is Google's own GKI build 6.6.118-android15-8-g350f378eb496-ab14943902-4k
+# (kleaf, clang r510928). Applied on top of gki_defconfig, which reproduces
+# that kernel's IKCONFIG exactly apart from TRIM_UNUSED_KSYMS (a Kleaf-only
+# symbol list; off here, so we export a superset) and the host probes
+# CC_CAN_LINK / UAPI_HEADER_TEST.
+#
+# The delta is bluejay's android14-6.1 one (linux-halium-gki_6.1.bb), checked
+# again against this KMI with kmi-crc-check.py on the phone's 428 stock modules
+# (vendor_boot 168, vendor_dlkm 194, system_dlkm 78; 11 names shared). Do not
+# put a symbol this fragment sets into a comment line starting with "# CONFIG_":
+# merge_config.sh reads those as directives.
+
+# systemd / udev hard requirements
+CONFIG_DEVTMPFS=y
+CONFIG_DEVTMPFS_MOUNT=y
+CONFIG_FHANDLE=y
+CONFIG_TMPFS_XATTR=y
+CONFIG_TMPFS_POSIX_ACL=y
+CONFIG_AUTOFS_FS=y
+
+# Namespaces for the LXC android container. USER_NS and SYSVIPC (and with it
+# IPC_NS) stay off as in stock: LuneOS needs neither, and lxc keeps the ipc and
+# user namespaces. FANOTIFY and NET_L3_MASTER_DEV also stay at stock (off):
+# they were KMI poison on android14-6.1 and LuneOS does not need them.
+CONFIG_PID_NS=y
+CONFIG_CHECKPOINT_RESTORE=y
+
+# usermode helper must work for request_module() autoloading
+# (stock sets STATIC_USERMODEHELPER=y with an empty path = UMH disabled)
+# CONFIG_STATIC_USERMODEHELPER is not set
+
+# virtual terminal (mer requirement; debugging aid)
+CONFIG_VT=y
+
+# quota over netlink (quotad/systemd)
+CONFIG_QUOTA_NETLINK_INTERFACE=y
+
+# connman / ofono / IPSec / tethering networking bits
+CONFIG_INET_AH=y
+CONFIG_INET_IPCOMP=y
+CONFIG_INET6_AH=y
+CONFIG_INET6_IPCOMP=y
+CONFIG_NF_LOG_SYSLOG=y
+CONFIG_IP_NF_MATCH_AH=y
+CONFIG_IP_NF_MATCH_RPFILTER=y
+CONFIG_IP6_NF_MATCH_RPFILTER=y
+CONFIG_NETFILTER_XT_MATCH_RECENT=y
+CONFIG_NETFILTER_XT_MATCH_SCTP=y
+CONFIG_NETFILTER_NETLINK_ACCT=y
+CONFIG_NETFILTER_XT_MATCH_NFACCT=y
+
+# PPP stack (ofono dialup / DUN)
+CONFIG_PPP=y
+CONFIG_PPP_ASYNC=y
+CONFIG_PPP_SYNC_TTY=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_DEFLATE=y
+CONFIG_PPP_BSDCOMP=y
+CONFIG_PPPOE=y
+
+# L2TP (VPN)
+CONFIG_L2TP=y
+CONFIG_L2TP_V3=y
+CONFIG_L2TP_IP=y
+
+# hotplug events -> mdev in the initramfs (mer: path must default empty)
+CONFIG_UEVENT_HELPER=y
+CONFIG_UEVENT_HELPER_PATH=""
+
+# GKI protected symbols: OFF. Our rebuilt GKI is not signed with Google's key,
+# so with this on the phone's own vendor modules count as unsigned and may not
+# resolve protected symbols (-EACCES) although every CRC matches
+# (kmi-crc-matching.md "MODULE_SIG_PROTECT"). MODULE_SIG/MODULE_SIG_ALL stay.
+# CONFIG_MODULE_SIG_PROTECT is not set
+
+# Built in, not modules: rfkill, the Bluetooth core with the virtual HCI, and
+# USB CDC Ethernet.
+#
+# This recipe builds modules but ships none of them. Stock has these as =m and
+# the only .ko for them is Google's in system_dlkm, which nothing on LuneOS
+# loads (the vendor_dlkm loaders read vendor_dlkm only). Measured on the first
+# lagos boot (tester log 2026-11-10):
+#   - vendor_dlkm's cfg80211.ko depends on rfkill, so it never loaded, and with
+#     it neither did wlan_drv_gen4m_6768.ko: "null pointer mtk_wcn_wlan_probe",
+#     "WMT turn on WIFI fail!", no wlan0 and no /dev/rfkill.
+#   - stock system_dlkm has no hci_vhci.ko at all, and the =m we set here
+#     never reached the phone, so there was no /dev/vhci and bluebinder failed.
+#   - webos-connman-adapter.sh runs "modprobe cdc_ether" whenever /proc/config.gz
+#     says =m. The module is not in /lib/modules, so its ExecStartPost failed
+#     and the connection manager restarted every 5 s (247 times in 24 min).
+#     Built in, the script exits early and USB Ethernet works.
+# Of the 596 stock modules (vendor_boot, vendor_dlkm, odm_dlkm, system_dlkm),
+# the only vendor module that depends on any of these is cfg80211 (on rfkill);
+# every other dependent is one of Google's own system_dlkm modules, which a
+# built-in copy now supersedes. BT=y needs RFKILL=y; RFCOMM and HIDP follow BT so BlueZ keeps
+# serial/HFP and HID profiles. USB_NET_DRIVERS is the tristate menu over
+# USBNET; the other USB NIC drivers stay =m (and unshipped) as in stock.
+CONFIG_RFKILL=y
+CONFIG_BT=y
+CONFIG_BT_RFCOMM=y
+CONFIG_BT_HIDP=y
+CONFIG_BT_HCIVHCI=y
+CONFIG_MII=y
+CONFIG_USB_NET_DRIVERS=y
+CONFIG_USB_USBNET=y
+CONFIG_USB_NET_CDCETHER=y
+
+# Uncompressed DWARF. Stock compresses it with zstd, which the pahole in
+# GKI_BUILD_TOOLS_DIR (1.23) and OE's pahole-native (1.31, through
+# elfutils-native) cannot read: they find "no supported type information",
+# write an empty .BTF, and the link then fails in resolve_btfids with "load BTF
+# from vmlinux: Invalid argument". This only changes how the debug sections
+# are stored in vmlinux; measured 0 CRC drift against the zstd build.
+CONFIG_DEBUG_INFO_COMPRESSED_NONE=y
+
+# Command line. Stock CONFIG_CMDLINE minus console=ttynull, plus console=tty0
+# and what the Android container and systemd need. Everything LuneOS needs is
+# here rather than in the boot image header, which MediaTek's lk may mangle.
+# No selinux=0 (kernel-porting.md "selinux=0: do not pass it on a Halium
+# port"). CMDLINE_EXTEND is stock: the bootloader's line is appended to this.
+CONFIG_CMDLINE="stack_depot_disable=on cgroup_disable=pressure kasan.stacktrace=off kvm-arm.mode=protected bootconfig ioremap_guard cgroup.memory=nokmem console=tty0 systemd.unified_cgroup_hierarchy=0 SYSTEMD_CGROUP_ENABLE_LEGACY_FORCE=1"
+CONFIG_CMDLINE_EXTEND=y
