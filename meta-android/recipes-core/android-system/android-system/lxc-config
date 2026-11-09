@@ -95,8 +95,9 @@ lxc.mount.entry = /usr/lib/droid-system-overlay/etc/prop.halium system/etc/prop.
 #
 # Namespaces the container must NOT unshare. LXC 4.0 clones a new network namespace even for
 # `lxc.net.0.type = none`, so unless "net" is listed here the container has only loopback. That is
-# harmless for most devices, but a pre-Treble Qualcomm vendor needs the real interfaces: netmgrd
-# configures rmnet0.. itself (RMNET_IOCTL_OPEN/CLOSE) and fails every one with ENODEV in an empty
-# namespace, so qcril logs "unable to get dsi hndl" for every data call. Machines that need the
-# host's network set ANDROID_LXC_KEEP_NS to "ipc user net".
+# harmless for most devices, but a Qualcomm vendor needs the real interfaces: netmgrd configures
+# rmnet0.. / rmnet_data0.. itself and fails every ioctl with ENODEV in an empty namespace, so qcril
+# logs "unable to get dsi hndl" for every data call (seen pre-Treble and on sargo alike).
+# mount-android.sh adds "net" at boot when the vendor ships netmgrd, or QRTR plus rmt_storage;
+# ANDROID_LXC_KEEP_NS = "ipc user net" sets it at build time instead.
 lxc.namespace.keep = @LXC_KEEP_NS@
