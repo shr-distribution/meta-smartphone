@@ -1,0 +1,19 @@
+# Titan: let TrustKernel make its secure storage, added by 65-extra-init.
+#
+# The same problem as trustkernel-unencrypted.rc solves on the Titan Pocket, in
+# the older shape of the Titan's Android 10 vendor. Its trustkernel.rc makes
+# /data/vendor/t6 (and fs/, app/) only on vendor.trustkernel.fs.state=ready,
+# which it sets from the ro.crypto.state triggers for "unencrypted" and
+# "encrypted". Under Halium vold reports "unsupported", so none fires and teed
+# has nowhere to keep a TA's storage. On 12 Nov 2026 the fingerprint stack
+# (vendor.chipsailing.fingerprint@1.0-service, on the TrustKernel TEE) sat in
+# tee_supp_cmd() from its first second; the standard fingerprint HAL waited on
+# it, did not even answer a ping, and biomd timed out on every start. Setting
+# the two properties by hand made the directories at once, but did not free the
+# call already waiting, hence doing it here, before anything asks.
+#
+# The Pocket's vendor uses "prepare" where this one uses "ready"; mode 1 is the
+# one both set for an unencrypted /data.
+on property:ro.crypto.state=unsupported
+    setprop vendor.trustkernel.fs.mode 1
+    setprop vendor.trustkernel.fs.state ready

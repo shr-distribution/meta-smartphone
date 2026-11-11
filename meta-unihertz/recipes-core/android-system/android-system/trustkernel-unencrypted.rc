@@ -1,0 +1,16 @@
+# Titan Pocket: let TrustKernel prepare its secure storage, added by 65-extra-init.
+#
+# The vendor's trustkernel.rc makes /data/vendor/t6 (and fs/, app/) only from
+# the ro.crypto.state triggers for "unencrypted" and "encrypted". Under Halium
+# vold reports "unsupported", so none fires, the directories never exist, and
+# teed has nowhere to keep a TA's storage. The first TA that asks for it waits
+# for good: on 11 Nov 2026 the fingerprint HAL
+# (android.hardware.biometrics.fingerprint@2.1-service, Sunwave sensor on the
+# TrustKernel TEE) sat in uninterruptible sleep in tee_supp_cmd() from its
+# first second, never registered IBiometricsFingerprint, and the fingerprint
+# reader did nothing. With this it registers at once and biomd finds it.
+#
+# Mode 1 is the one trustkernel.rc itself sets for an unencrypted /data.
+on property:ro.crypto.state=unsupported
+    setprop vendor.trustkernel.fs.mode 1
+    setprop vendor.trustkernel.fs.state prepare
