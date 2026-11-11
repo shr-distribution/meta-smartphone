@@ -180,6 +180,14 @@ deviceinfo_key_actions="Key_HomePage=call.hangup"
 # same hardware.
 deviceinfo_keyboard_layout="QWERTY"
 
+# The ambient light sensor (hx32062se_als, in the Android sensor HAL's list)
+# sits behind the SCP sensor hub: no IIO device, no sysfs reading and none of
+# the older MediaTek hwmsensor nodes, so 50-luna-platform has nothing to probe
+# and would leave automatic brightness off. sensorfw reads it from the HAL.
+# MEASURED on this device (11 Nov 2026): with this set, covering the sensor
+# dims the screen and uncovering it brings it back.
+deviceinfo_has_als="true"
+
 # NOT copied from the MP01:
 #
 #   deviceinfo_battery_critical_percent="0"
