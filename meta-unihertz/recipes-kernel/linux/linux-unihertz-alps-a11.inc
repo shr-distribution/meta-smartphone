@@ -48,12 +48,23 @@ require recipes-kernel/linux/linux-unihertz-mt6771.inc
 #    (CONFIG_BATTERY_OZ8806, CONFIG_BATTERY_OZ8806_MTK_FEED).
 #  - usb_boost off by default (it pinned both CPU clusters at the top OPP
 #    while a USB cable carried data), its switches writable by root.
+#  - the keyboard backlight (button-backlight) driven as the stock kernel
+#    does, 15 pulses on GPIO 159, instead of calling the DT's "data" value as
+#    a function pointer - which panicked the kernel on the first write.
+#  - the keyboard touchpad's sensor put to sleep while a key is down, and
+#    woken once all keys are up, as the stock key driver does: scanning
+#    through key presses drifted its baseline into a contact that never
+#    lifted.
+#  - the MT6370 charge indicator (RGB channel 4, also the notification LED's
+#    red) handed back to the charger when a notification lets go of it, in
+#    its probe mode: the stock driver left auto mode off after the first
+#    notification, so no charging light, or a blinking one after a blink.
 #
 # NOTE: unlike the Titan's halium-10.0 branch, nothing here has been shown to
 # boot - the Ubuntu Touch port for these two devices still packs the *stock*
 # prebuilt kernel and builds only loadable modules out of this tree. We are
 # ahead of upstream in asking it to be a whole kernel.
-SRCREV = "eb0c5fec2fc916d41608c238022161ddfb0c21d8"
+SRCREV = "e177304cfddc7b20126b9e7864d899ac3459b608"
 
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=unihertz-mt6771/4.14/halium-11.0;protocol=https \
            file://luneos.cfg \
