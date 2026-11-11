@@ -65,3 +65,8 @@ EXTRA_IMAGEDEPENDS:append:pn-luneos-image = "${LUNEOS_GKI_IMAGEDEPENDS}"
 FASTBOOT_BOOT_IMAGE ?= "${@'boot-${MACHINE}-luneos.img' if d.getVar('GKI_BOOTIMG') == '1' else '${KERNEL_IMAGETYPE}.fastboot'}"
 FASTBOOT_DEBUG_BOOT_IMAGE ?= "${@'boot-${MACHINE}-luneos-debug.img' if d.getVar('GKI_BOOTIMG') == '1' else ''}"
 FASTBOOT_BOOT_DEPENDS ?= "${@'luneos-bootimg-gki:do_deploy' if d.getVar('GKI_BOOTIMG') == '1' else 'virtual/kernel:do_deploy'}"
+# On an Android-13-launch device boot holds only the kernel and our initramfs is
+# in init_boot, which luneos-bootimg-gki deploys beside it; without this the
+# package would leave the stock init_boot, and our kernel would start Android's
+# generic ramdisk.
+FASTBOOT_INIT_BOOT_IMAGE ?= "${@'init_boot-${MACHINE}-luneos.img' if d.getVar('GKI_BOOTIMG') == '1' and d.getVar('ANDROID_BOOTIMG_INIT_BOOT') == '1' else ''}"
