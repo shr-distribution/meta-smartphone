@@ -1,0 +1,23 @@
+# Titan: keep the vendor's configstore HAL from starting, added by 65-extra-init.
+#
+# android.hardware.configstore@1.1-service from the Titan's Android 10 vendor
+# runs under that release's seccomp policy, and Android 16's libc makes a system
+# call the policy does not allow: the service is killed with SIGSYS as it
+# starts, init restarts it, and it dies again - every 5 s for as long as the
+# phone is on (12 Nov 2026: hundreds of core dumps in one boot, each one a
+# systemd-coredump run and with it a network namespace torn down, which also
+# filled the kernel log with retire_sysctl_set warnings). Nothing on Android 16
+# asks configstore for anything: surfaceflinger reads system properties since
+# Android 12.
+#
+# Same definition as the vendor's, plus override and disabled; this file sorts
+# after android.hardware.configstore@1.1-service.rc, so init reads it last.
+# The Titan's deviceinfo also lists the service in
+# deviceinfo_android_skip_services, or start-android-hals.sh would start it
+# because it is disabled.
+service vendor.configstore-hal /vendor/bin/hw/android.hardware.configstore@1.1-service
+    override
+    class hal animation
+    user system
+    group system
+    disabled
