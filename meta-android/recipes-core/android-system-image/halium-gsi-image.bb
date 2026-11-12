@@ -4,7 +4,7 @@ DESCRIPTION = "Machines that ship no Android system image in their rootfs \
 userdata partition instead, as android-rootfs.img next to rootfs.img. This \
 recipe deploys that file; userdataimg.bbclass puts it into the userdata image. \
 Nothing is packaged."
-LICENSE = "Apache-2.0 & Proprietary"
+LICENSE = "Apache-2.0 AND LicenseRef-Proprietary"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
 
 require halium-luneos-gsi-16.inc

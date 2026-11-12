@@ -13,7 +13,7 @@ SECTION = "base"
 # from Prelude, the webOS typeface luna-init ships, which is HP Proprietary
 # Software under the Open webOS Software Font License - the licence luna-init
 # carries for the fonts themselves.
-LICENSE = "Apache-2.0 & Open-webOS-Font-License"
+LICENSE = "Apache-2.0 AND LicenseRef-Open-webOS-Font-License"
 LIC_FILES_CHKSUM = " \
     file://LICENSE;md5=89aea4e17d99a7cacdbeed46a0096b10 \
     file://assets/Prelude_Font_LICENSE.txt;md5=82c3840b8b14267f05b45210c97eaa68 \
