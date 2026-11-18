@@ -2,6 +2,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
 # Binding the gadget again after a cable unplug: see android-gadget-rebind.
 SRC_URI += " \
+    file://05-android-gadget-setup.conf \
     file://android-gadget-rebind \
     file://70-android-gadget-rebind.rules \
 "
@@ -21,6 +22,9 @@ do_install:append() {
     rm -f ${D}${bindir}/android-gadget-start ${D}${bindir}/android-gadget-cleanup
     rm -f ${D}${systemd_unitdir}/system/android-tools-adbd.service.d/10-adbd-configfs.conf
     rmdir --ignore-fail-on-non-empty ${D}${systemd_unitdir}/system/android-tools-adbd.service.d
+    # Run android-gadget-setup from here instead of from android-tools-adbd.service.
+    install -d ${D}${systemd_unitdir}/system/android-tools-adbd.service.d
+    install -m 0644 ${UNPACKDIR}/05-android-gadget-setup.conf ${D}${systemd_unitdir}/system/android-tools-adbd.service.d/
     install -d ${D}${bindir} ${D}${nonarch_base_libdir}/udev/rules.d
     install -m 0755 ${UNPACKDIR}/android-gadget-rebind ${D}${bindir}/
     install -m 0644 ${UNPACKDIR}/70-android-gadget-rebind.rules ${D}${nonarch_base_libdir}/udev/rules.d/
