@@ -64,7 +64,7 @@ require recipes-kernel/linux/linux-unihertz-mt6771.inc
 # boot - the Ubuntu Touch port for these two devices still packs the *stock*
 # prebuilt kernel and builds only loadable modules out of this tree. We are
 # ahead of upstream in asking it to be a whole kernel.
-SRCREV = "e177304cfddc7b20126b9e7864d899ac3459b608"
+SRCREV = "400922ab23d327d0445b84329df1cfc93697331e"
 
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=unihertz-mt6771/4.14/halium-11.0;protocol=https \
            file://luneos.cfg \

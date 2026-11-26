@@ -27,7 +27,7 @@ SRC_URI = "git://github.com/shr-distribution/linux.git;branch=unihertz-titan/4.1
 # Plus "mtk_power_misc: ignore the UI SOC 1% shutdown when the gauge
 # disagrees", from the Mindphone, where a stale UI SOC of 0 from the RTC made
 # the kernel power off at 1% with the battery at 4.0 V. Same driver here.
-SRCREV = "17268ea8ddfe9b2e04ad6b5b44b5eaf9610a5c11"
+SRCREV = "83ba1d4c031cfcca37f44067b70e05bb3a457b75"
 
 LINUX_VERSION = "4.14"
 KV = "4.14.141"
