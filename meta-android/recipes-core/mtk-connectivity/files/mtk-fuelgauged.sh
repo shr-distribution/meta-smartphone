@@ -37,4 +37,8 @@ while [ $i -lt 10 ] && in_android "pidof fuelgauged" >/dev/null 2>&1; do
 done
 
 log "starting /vendor/bin/fuelgauged in the host network namespace (container pid $c)"
-exec nsenter -t "$c" -m -u -p --net=/proc/1/ns/net -S 1000 -G 1000 -- /vendor/bin/fuelgauged
+# Its stdout is a trace of every netlink exchange with the kernel gauge ("fg send",
+# "receiving", "send_data_to_kernel", "FG_DAEMON_CMD_GET_DATA"): measured on the Q25,
+# 32721 info-level lines in 8 hours, 30% of the userspace journal. Drop it; stderr
+# still reaches the journal.
+exec nsenter -t "$c" -m -u -p --net=/proc/1/ns/net -S 1000 -G 1000 -- /vendor/bin/fuelgauged >/dev/null

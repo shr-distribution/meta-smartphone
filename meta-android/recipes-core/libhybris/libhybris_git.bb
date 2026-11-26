@@ -22,6 +22,7 @@ SRC_URI = "git://github.com/webOS-ports/libhybris;branch=herrie/android16-tls;pr
     file://0002-hwcomposer-window-report-gralloc-allocation-failure.patch \
     file://0003-hwcomposer-window-retry-gralloc-allocation-without-HW_FB.patch \
     file://0004-hwcomposer-window-allow-leaving-out-GRALLOC_USAGE_HW_FB.patch \
+    file://0005-linker-fall-back-only-to-a-mounted-VNDK-APEX.patch \
 "
 
 S = "${UNPACKDIR}/${BB_GIT_DEFAULT_DESTSUFFIX}/hybris"

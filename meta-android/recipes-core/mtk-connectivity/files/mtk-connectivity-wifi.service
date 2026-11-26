@@ -46,6 +46,15 @@ ExecStartPre=-/usr/sbin/mtk-wifi-nvram
 # power switch; on connac the module bring-up already yields wlan0, in which
 # case the first loop iteration exits immediately.
 ExecStart=/bin/sh -c 'i=0; while [ $i -lt 90 ]; do ip link show wlan0 >/dev/null 2>&1 && exit 0; [ -e /dev/wmtWifi ] && echo 1 > /dev/wmtWifi 2>/dev/null; sleep 2; i=$((i+1)); done; exit 1'
+# The gen4m wlan driver comes up logging every module at 0x2f, INFO included: per-second
+# throughput, HIF and link-quality dumps (kalPerMonUpdate, kalDumpHifStats,
+# wlanLinkQualityMonitor, ...). Measured on the Q25: 63774 [wlan] lines in 8 hours, a third
+# of the kernel log. 0xFF:0x0F sets every module to ERROR|WARN|STATE|EVENT, dropping INFO;
+# with it the Q25 logged one [wlan] line in the 40 minutes after boot settled, and the level
+# survived connman turning Wi-Fi off and on again.
+# Where there is no gen4m driver (Qualcomm, WMT-era MediaTek) the file does not exist and
+# this does nothing.
+ExecStartPost=-/bin/sh -c '[ -w /proc/net/wlan/dbgLevel ] && echo 0xFF:0x0F > /proc/net/wlan/dbgLevel'
 
 [Install]
 WantedBy=multi-user.target
