@@ -358,7 +358,7 @@ ACTION=="add", KERNEL=="wcnss_wlan", OWNER="system", GROUP="system", MODE="0660"
 # keeping two copies only makes it possible for them to drift.
 #
 # Some are Pixel-family rather than Android-generic (citadel0 is the Titan M
-# security chip; v4l2loopback is the node gst-droid's camera path wants). They
+# security chip). They
 # are here for the same reason as everything above: a rule for a node the
 # device does not have never matches, so shipping the union costs the other
 # machines nothing, and the alternative is a third device transcribing them a
@@ -382,7 +382,6 @@ ACTION=="add", KERNEL=="msm_a2dp_in", OWNER="system", GROUP="audio", MODE="0660"
 ACTION=="add", KERNEL=="msm_audio_cal", OWNER="system", GROUP="audio", MODE="0660"
 ACTION=="add", KERNEL=="msm_cirrus_playback", OWNER="system", GROUP="audio", MODE="0660"
 ACTION=="add", KERNEL=="i2c-5", OWNER="media", GROUP="media", MODE="0660"
-ACTION=="add", KERNEL=="v4l2loopback", GROUP="video", MODE="0660"
 ACTION=="add", KERNEL=="ttyHS0", OWNER="bluetooth", GROUP="net_bt", MODE="0660"
 ACTION=="add", KERNEL=="btpower", OWNER="bluetooth", GROUP="net_bt", MODE="0660"
 ACTION=="add", KERNEL=="uinput", OWNER="system", GROUP="bluetooth", MODE="0660"

@@ -81,13 +81,13 @@ ANDROID_INITRAMFS_KERNEL_MODULES_PROVIDER ?= "${@d.getVar('GKI_KERNEL_PROVIDER')
 # A machine that boots the generic rootfs (HALIUM_GENERIC_ROOTFS_DEVICE = "1")
 # builds no rootfs of its own, so MACHINE_EXTRA_RDEPENDS never reaches a device.
 # An out-of-tree module named there is silently absent from every install: that
-# is how sargo, sunfish, surya and fajita lost v4l2loopback. Such a module goes
+# is how sargo, sunfish, surya and fajita once lost one. Such a module goes
 # in ANDROID_EXTRA_INITRAMFS_IMAGE_INSTALL, which ships it next to its kernel.
 def android_initramfs_lost_modules(d):
     wanted = (d.getVar("MACHINE_EXTRA_RDEPENDS") or "").split()
     wanted += (d.getVar("MACHINE_EXTRA_RRECOMMENDS") or "").split()
     return [p for p in wanted
-            if p in ("v4l2loopback", "wireguard-module") or p.startswith("kernel-module-")]
+            if p == "wireguard-module" or p.startswith("kernel-module-")]
 
 python () {
     if d.getVar("HALIUM_GENERIC_ROOTFS_DEVICE") == "1":
