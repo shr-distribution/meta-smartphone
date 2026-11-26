@@ -1,0 +1,26 @@
+# BraX3: the vendor's health HAL without its wake alarm, added by 65-extra-init.
+#
+# android.hardware.health-service.mediatek (AIDL) keeps its battery chores on a
+# CLOCK_BOOTTIME_ALARM timerfd (HealthLoop::WakeAlarmInit()): every 60 s on
+# the charger and every 600 s on battery, and a BOOTTIME alarm wakes the SoC
+# from suspend. On the Titan the same chore was 176 of 290 overnight wakeups.
+# On the BraX3 the HAL held such a timerfd (clockid 9, 60 s interval) on 16 Nov 2026.
+#
+# Without CAP_WAKE_ALARM, timerfd_create() fails with EPERM; the HAL logs
+# "wakealarm_init: timerfd_create failed" and carries on - the string is in
+# this vendor binary. It still registers IHealth and reads the battery on every
+# power_supply uevent and, while awake, on its own poll; it no longer wakes the
+# phone for it.
+#
+# Same definition as the vendor's, plus override, minus WAKE_ALARM (BLOCK_SUSPEND
+# stays: it only keeps the system up while the HAL handles a uevent). This file
+# sorts after android.hardware.health-service.mediatek.rc, so init reads it last.
+# vendor.charger (the same binary with --charger) only runs in charger mode and
+# is left alone.
+service vendor.health-mediatek /vendor/bin/hw/android.hardware.health-service.mediatek
+    override
+    class hal
+    user system
+    group system
+    capabilities BLOCK_SUSPEND
+    file /dev/kmsg w

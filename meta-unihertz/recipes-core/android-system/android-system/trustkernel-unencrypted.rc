@@ -1,4 +1,4 @@
-# Titan Pocket: let TrustKernel prepare its secure storage, added by 65-extra-init.
+# Titan Pocket and Titan Slim: let TrustKernel prepare its secure storage, added by 65-extra-init.
 #
 # The vendor's trustkernel.rc makes /data/vendor/t6 (and fs/, app/) only from
 # the ro.crypto.state triggers for "unencrypted" and "encrypted". Under Halium

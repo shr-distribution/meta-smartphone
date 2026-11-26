@@ -18,3 +18,15 @@ vendor/bin/hw/android.hardware.usb.gadget-aidl-service.mediatekv1.0
 # service") and /dev/mbraink, then aborts on "Check failed: status ==
 # STATUS_OK" and is restarted every 5 s: 60 tombstones. Telemetry only.
 vendor/bin/hw/vendor.mediatek.hardware.mbrain-service.mediatek
+# The vendor's audio HAL service (service vendor.audio-hal-aidl). pulseaudio
+# loads the same HAL, audio.primary.mt6768.so, into itself through
+# module-droid-card, so this second copy has no user in LuneOS. It does hold
+# /dev/ccci_aud, the modem speech channel, which allows one opener: it opens
+# it 26 s into boot, and pulseaudio's copy of the HAL then retries forever
+# ("SpeechMessengerNormal: open(/dev/ccci_aud) fail, errno: 16"), about 125k
+# "ccci_aud open fail with EBUSY" kernel lines in 23 min (live log, 15 Nov
+# 2026). Call audio through pulseaudio cannot work while it holds the channel.
+# FuriOS sidesteps the same conflict with its own speech daemon
+# (FuriLabs/audio-manager); stubbing this is the smaller change.
+# UNVERIFIED ON HARDWARE.
+vendor/bin/hw/android.hardware.audio.service-aidl.mediatek

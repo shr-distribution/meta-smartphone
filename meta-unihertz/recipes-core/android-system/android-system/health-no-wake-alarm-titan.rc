@@ -1,0 +1,27 @@
+# Titan: the vendor's health HAL without its wake alarm, added by 65-extra-init.
+#
+# android.hardware.health@2.0-service keeps its battery chores on a
+# CLOCK_BOOTTIME_ALARM timerfd: every 60 s on the charger and every 600 s on
+# battery, and a BOOTTIME alarm wakes the SoC. Overnight on 15-16 Nov 2026
+# that was 176 of the phone's 290 wakeups, one every ten minutes, each ending a
+# sleep sleepd had just started.
+#
+# Without CAP_WAKE_ALARM, timerfd_create() fails with EPERM; the HAL logs
+# "wakealarm_init: timerfd_create failed" and carries on (healthd_common.cpp
+# wakealarm_init(); the same branch is in this vendor binary). It still
+# registers IHealth and reads the battery on every power_supply uevent and,
+# while awake, on its own poll - it just no longer wakes the phone for it.
+# Tested on the phone 16 Nov 2026: no timerfd, IHealth/default registered,
+# healthd battery lines as before.
+#
+# The HAL is kept rather than stubbed as on the Mindphone: while it is absent
+# hwservicemanager asks init for IHealth/default once a second.
+#
+# Same definition as the vendor's, plus override, minus WAKE_ALARM; this file
+# sorts after android.hardware.health@2.0-service.rc, so init reads it last.
+service health-hal-2-0 /vendor/bin/hw/android.hardware.health@2.0-service
+    override
+    class hal
+    user system
+    group system
+    file /dev/kmsg w
