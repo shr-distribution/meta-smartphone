@@ -8,11 +8,29 @@ ANDROID_EXTRA_INITRAMFS_IMAGE_INSTALL ?= ""
 
 VIRTUAL-RUNTIME_android-initramfs-scripts ?= "initramfs-scripts-android"
 
-# android-tools brings adbd, which the initramfs starts only for its debug
-# shell (INITRAMFS_DEBUG_SHELL, meta-android/conf/layer.conf): root with no key
-# check. Without the shell nothing runs it.
+# The debug shell (INITRAMFS_DEBUG_SHELL, meta-android/conf/layer.conf) starts
+# adbd-initramfs: root, and any host is let in. Without the shell it is not
+# built, nor installed here. Not android-tools, which has the libraries but no
+# adbd (that is android-tools-adbd, the rootfs's, which asks a service the
+# initramfs does not have) and brings 7-Zip.
+#
+# A machine with no room for it sets ANDROID_INITRAMFS_DEBUG_ADBD = "0" and
+# keeps telnet over USB networking. It adds 5.2 MB to the compressed ramdisk
+# on aarch64 and 4.5 MB on armv7, so it is off by default where the ramdisk
+# has its own init_boot partition (ANDROID_BOOTIMG_INIT_BOOT = "1": lagos,
+# brax3, panther, tangorpro): those are 8 MiB, and brax3's 4.7 MB ramdisk
+# would become 9.3 MB.
+ANDROID_INITRAMFS_DEBUG_ADBD ?= "${@'0' if d.getVar('ANDROID_BOOTIMG_INIT_BOOT') == '1' else '1'}"
+
+def android_initramfs_adbd(d):
+    if d.getVar('INITRAMFS_DEBUG_SHELL') != '1':
+        return ''
+    if d.getVar('ANDROID_INITRAMFS_DEBUG_ADBD') != '1':
+        return ''
+    return 'android-tools-adbd-initramfs'
+
 IMAGE_INSTALL = "busybox busybox-mdev base-passwd bash"
-IMAGE_INSTALL += "${@oe.utils.conditional('INITRAMFS_DEBUG_SHELL', '1', 'android-tools', '', d)}"
+IMAGE_INSTALL += "${@android_initramfs_adbd(d)}"
 IMAGE_INSTALL += "${VIRTUAL-RUNTIME_android-initramfs-scripts}"
 IMAGE_INSTALL += "${ANDROID_EXTRA_INITRAMFS_IMAGE_INSTALL}"
 IMAGE_FEATURES = ""

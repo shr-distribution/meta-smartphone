@@ -5,7 +5,8 @@
 #
 # As built for every other machine this initramfs is 6.31 MiB compressed, and
 # 5.51 MiB of the uncompressed tree is libcrypto.so.3 - pulled in by
-# android-tools, whose only contribution here is adbd. Nothing in init.sh uses
+# android-tools, whose only contribution here was adbd (debug-shell builds
+# now get android-tools-adbd-initramfs, which a3-2015.conf turns off). Nothing in init.sh uses
 # adb: the initramfs already brings up CDC ECM networking on 172.16.42.2 and can
 # start telnetd, so adbd is a second, larger way to do what is already there.
 #
@@ -16,7 +17,7 @@
 #
 # Scoped to this machine. Every other machine that uses this image keeps adbd
 # and bash, because no other one is squeezed like this.
-IMAGE_INSTALL:remove:a3-2015 = "android-tools bash"
+IMAGE_INSTALL:remove:a3-2015 = "bash"
 
 # Compress the ramdisk with xz rather than gzip. Trimming android-tools and bash
 # above got the boot image from 16.28 MiB to 12.79 MiB, still 292 KiB over the
@@ -45,8 +46,9 @@ IMAGE_FSTYPES:forcevariable = "${@'cpio.xz' if d.getVar('MACHINE') in ('a3-2015'
 #     gzip -9   5042594      xz -9e   3945916      zstd -19   4333249
 #
 # So xz, as on the A3 2015 (the kernel has CONFIG_RD_XZ=y), and bash goes too
-# (0.9 MB; busybox ash runs the initramfs scripts). adbd stays: unlike the A3
-# this tablet has a USB gadget the first boot will want to debug through, and
-# the 3.4 kernel's legacy android_usb gadget is what the initramfs drives.
+# (0.9 MB; busybox ash runs the initramfs scripts). adbd does not fit either:
+# the debug shell's android-tools-adbd-initramfs takes the xz ramdisk from
+# 2,125,428 B to 5,591,392 B, so sm-t520.conf turns it off and the debug shell
+# is telnet over the 3.4 kernel's legacy android_usb gadget.
 # linux-samsung-sm-t520_git.bb sets the matching INITRAMFS_NAME.
 IMAGE_INSTALL:remove:sm-t520 = "bash"

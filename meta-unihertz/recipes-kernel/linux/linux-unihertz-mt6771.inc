@@ -48,6 +48,12 @@ ANDROID_BOOTIMG_DTB_RAM_BASE = "0x54000000"
 # vbmeta with flags 3); the footer matches stock's shape in case lk reads it
 # itself, and is what UBports ship for Pocket and Slim
 # (deviceinfo_bootimg_partition_size, the same 32 MiB).
+#
+# The original Titan (Android 10) has no vbmeta partition at all: boot's footer
+# is the top-level vbmeta, and lk reads the descriptors for recovery and dtbo
+# from it too. lib/halium/avb.py marks it verification-disabled for that reason;
+# without it, Volume Up (recovery, and fastboot from its menu) hung lk on the
+# logo until the watchdog rebooted the phone.
 ANDROID_BOOTIMG_AVB_PARTITION_SIZE = "33554432"
 
 # bootopt is how MediaTek lk knows the SoC/kernel/userland word sizes - it
