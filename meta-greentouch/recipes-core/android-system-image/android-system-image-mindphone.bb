@@ -3,10 +3,8 @@ require recipes-core/android-system-image/halium-luneos-gsi-16.inc
 
 COMPATIBLE_MACHINE = "mindphone"
 
-# Pinned, not shared: the 32-bit GSI is a separate build on its own cadence, and
-# the release the arm64 ports track (20260910) published no halium_arm asset.
-# Everything else comes from halium-luneos-gsi-16.inc, so the URL is still
-# assembled in exactly one place. The same build as the legacy 32-bit devices
+# The version every device shares (halium-luneos-gsi-16.inc; until 20261116-1 the
+# 32-bit GSI was pinned here, on a cadence of its own). The same build as the legacy 32-bit devices
 # (android-system-image-legacy-gsi.inc); it carries com.android.vndk.v27 to v34.
 # 20261017-1 adds droidmedia's guard against releasing a codec that was never
 # created: with no media.resource_manager under Halium on Android 16, MediaCodec
@@ -18,8 +16,6 @@ COMPATIBLE_MACHINE = "mindphone"
 # 20261107-1 changes only droidmedia (libdroidmedia.so, minimediaservice) and
 # build.prop's dates against 20261104-1.
 HALIUM_LUNEOS_GSI16_ARCH = "halium_arm"
-HALIUM_LUNEOS_GSI16_PV = "20261107-1"
-HALIUM_LUNEOS_GSI16_SHA256 = "0c15a001e0481c7a2aa08f1c2a3631f7aef07e65f4abaf3526c5dd1119973a80"
 
 PV = "${HALIUM_LUNEOS_GSI16_PV}"
 

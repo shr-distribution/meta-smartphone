@@ -8,9 +8,11 @@ COMPATIBLE_MACHINE = "^sm-t520$"
 # The vendor image published with the GSI (sm-t520-vendor.img in its release), made by the settings below
 # against that GSI. See android-system-image-legacy-gsi.inc for how to make a new one; that needs the local
 # device tarball below.
+# Published in the halium-luneos-20261005 release, where it stays as the GSI moves on.
+HALIUM_LEGACY_VENDOR_URL = "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-20261005/${MACHINE}-vendor.img"
 HALIUM_LEGACY_VENDOR_SHA256 = "2f2f086c3a9ec3fd30b54b80a44c34fc5c4860dd5742f20b36d192a6d81b6ecc"
 
-# The 32-bit 16.0 GSI (HALIUM_LUNEOS_GSI16_* in android-system-image-legacy-gsi.inc)
+# The 32-bit 16.0 GSI (HALIUM_LUNEOS_GSI16_* in halium-luneos-gsi-16.inc)
 # on a vendor that comes from the exynos5420 community's LineageOS 18.1 trees.
 #
 # That build is Android 11 (VNDK 30, vendor manifest target-level "legacy") and

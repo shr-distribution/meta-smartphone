@@ -7,12 +7,11 @@ COMPATIBLE_MACHINE = "hammerhead-halium"
 # against that GSI. See android-system-image-legacy-gsi.inc for how to make a new one.
 HALIUM_LEGACY_VENDOR_SHA256 = "64514a42ec48d08ca99cedbb890062a5dc3954d5cc5f52b3c3464a31b57a61b3"
 
-# Ahead of the other legacy ports: 20261108-1 is the first halium_arm GSI whose linkerconfig turns on
-# enable.target.sdk.version for the vendor section, which the /vendor/bin/.version below needs. Its
-# CameraClient also hands HAL1 recording frames back off the HAL's callback thread. The others move
-# once their vendor images are in that release too.
-HALIUM_LUNEOS_GSI16_PV = "20261108-1"
-HALIUM_LUNEOS_GSI16_SHA256 = "563c43e5b22e3ff76e0f17f8c12bca1d69ccb76c2e72f6f271473d30c30e3065"
+# The /vendor/bin/.version below needs a GSI whose linkerconfig turns on enable.target.sdk.version for the
+# vendor section, 20261108-1 or later; the shared version (halium-luneos-gsi-16.inc) is. The vendor image
+# stays in the halium-luneos-20261108 release it was published in: later GSIs do not change what it is
+# derived from.
+HALIUM_LEGACY_VENDOR_URL = "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-20261108/${MACHINE}-vendor.img"
 
 HALIUM_LEGACY_DEVICE_URL = "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-9.0-20230127-1-hammerhead-halium.tar.bz2/halium-luneos-9.0-20230127-1-hammerhead-halium.tar.bz2"
 HALIUM_LEGACY_DEVICE_SHA256 = "a3b058dd2bafd6d9af661b03f54cb35e115dd5601624534e34a271bfde1b1e46"

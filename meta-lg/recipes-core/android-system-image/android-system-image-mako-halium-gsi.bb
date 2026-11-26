@@ -7,7 +7,7 @@ COMPATIBLE_MACHINE = "mako-halium"
 # against that GSI. See android-system-image-legacy-gsi.inc for how to make a new one. This one (17 Oct 2026:
 # libft2.so for the composer, the camera daemon launcher and nodes, the HSIC modem check in rild-wait.sh, the
 # Bluetooth address and transport) is published under its own name, next to the earlier ones.
-HALIUM_LEGACY_VENDOR_URL = "https://github.com/webOS-ports/halium-images/releases/download/${HALIUM_LUNEOS_GSI16_RELEASE}/mako-halium-vendor-20261017.img"
+HALIUM_LEGACY_VENDOR_URL = "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-20261005/mako-halium-vendor-20261017.img"
 HALIUM_LEGACY_VENDOR_SHA256 = "e04af5f130a05d05587501963cf8e9d42824eae54cfc5e45452456fe28782d06"
 
 HALIUM_LEGACY_DEVICE_URL = "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-9.0-20240313-1-mako.tar.bz2/halium-luneos-9.0-20240313-1-mako.tar.bz2"

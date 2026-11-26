@@ -27,7 +27,8 @@
 #
 #   1. publish the release at github.com/webOS-ports/halium-images
 #   2. set HALIUM_LUNEOS_GSI16_PV below
-#   3. set HALIUM_LUNEOS_GSI16_SHA256 to the sha256 of the arm64 tarball
+#   3. set HALIUM_LUNEOS_GSI16_SHA256_halium_arm64 and _halium_arm to the sha256 of
+#      the two tarballs; both architectures are published under every version
 #   4. rebuild every machine that uses it - they all move together by design
 #
 # Verify a candidate actually carries the VNDK snapshots before trusting it:
@@ -37,6 +38,14 @@
 #
 # (they live in /system_ext/apex, not /system/apex).
 
+# 20261116-1 (halium_arm64 and halium_arm) is the first version every device shares,
+# 32-bit and legacy ports included. It differs from 20261108-1 in these files (and, on
+# build.prop's dates: libsysutils.so (32- and 64-bit), whose NetlinkListener now skips
+# uevent messages that did not come from the kernel instead of logging
+# "recvmsg failed (I/O error)" for every udev event (hybris-patches system/core 0027),
+# libdroidmedia.so (32- and 64-bit; AndroidOpaque input for Exynos encoders) and
+# minimediaservice (HAL1 CameraClient: preview stopped outside the client lock,
+# recording frames written into Exynos encoder buffers; frameworks/av 0021, 0022).
 # 20261108-1 (halium_arm64 and halium_arm) differs from 20261107-2 in linkerconfig,
 # which reads a vendor binary's target SDK from a .version file next to it
 # (enable.target.sdk.version in the vendor section), in CameraClient, which hands HAL1
@@ -68,12 +77,14 @@
 # built and fsck'd clean. Same content as 20261007-1 otherwise.
 # 20261007-1 added the /persist and /efs directories and the /firmware link that
 # halium_arm got on 5 Oct 2026, for pre-Treble arm64 vendors (bullhead).
-HALIUM_LUNEOS_GSI16_PV ?= "20261108-1"
-HALIUM_LUNEOS_GSI16_SHA256 ?= "5d913d3e35f4a405bcfc36b91ca356b8837216269c06c43e3ed7be101f8cda00"
+HALIUM_LUNEOS_GSI16_PV ?= "20261116-1"
+HALIUM_LUNEOS_GSI16_SHA256_halium_arm64 ?= "65763124ec691ebb110f505a83f87d6f258b818c3b4087c4f392dfdebbcad9c2"
+HALIUM_LUNEOS_GSI16_SHA256_halium_arm ?= "59d6146aa2eb639e3e633303d349f5d55a8c5e1fc3766f5234bb9e145314780d"
 
-# 32-bit ports (mindphone) set this to halium_arm and bring their own PV/SHA -
-# the arm GSI is a separate build and is not published on the same cadence.
+# 32-bit ports (mindphone, the legacy devices) set this to halium_arm. They share the
+# version above; only the checksum depends on the architecture.
 HALIUM_LUNEOS_GSI16_ARCH ?= "halium_arm64"
+HALIUM_LUNEOS_GSI16_SHA256 ?= "${@d.getVar('HALIUM_LUNEOS_GSI16_SHA256_' + d.getVar('HALIUM_LUNEOS_GSI16_ARCH'))}"
 
 # The release TAG drops the -N suffix that PV carries: PV 20260910-1 lives under
 # the tag halium-luneos-20260910. Derived rather than written out again, because

@@ -1,6 +1,6 @@
 require recipes-core/android-system-image/android-system-image-legacy-gsi.inc
 
-# A newer 32-bit GSI than android-system-image-legacy-gsi.inc's, as the TouchPad has its own: 20261008-3 lets
+# The 32-bit GSI every device shares (halium-luneos-gsi-16.inc). This vendor needs 20261008-3 or later, which lets
 # the sphal namespace link libbinder.so and libui.so for a VNDK 30 vendor too (gralloc.msm8916.so, else no
 # UI), and gives minimediaservice five HIDL threads (else a camera picture deadlocks). Published in the
 # halium-luneos-20261005 release, which the version's date does not name.
@@ -13,8 +13,6 @@ require recipes-core/android-system-image/android-system-image-legacy-gsi.inc
 # linkerconfig also reads a vendor binary's target SDK from a .version file, which this vendor does not ship.
 # The vendor image stays in the halium-luneos-20261005 release: the 20261108-1 changes do not reach what a
 # vendor image is derived from (checked on the hammerhead, whose image comes out the same against 20261107-1).
-HALIUM_LUNEOS_GSI16_PV = "20261108-1"
-HALIUM_LUNEOS_GSI16_SHA256 = "563c43e5b22e3ff76e0f17f8c12bca1d69ccb76c2e72f6f271473d30c30e3065"
 HALIUM_LEGACY_VENDOR_URL = "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-20261005/${MACHINE}-vendor.img"
 
 COMPATIBLE_MACHINE = "^a3-2015-halium$"
@@ -24,7 +22,7 @@ COMPATIBLE_MACHINE = "^a3-2015-halium$"
 # device tarball below.
 HALIUM_LEGACY_VENDOR_SHA256 = "197ce2bcb1093ab5e1fdf99f6be509748fab721cd8a5e7bbbc797caa00e85636"
 
-# The 32-bit 16.0 GSI (pinned above, newer than android-system-image-legacy-gsi.inc's), as it is
+# The 32-bit 16.0 GSI (halium-luneos-gsi-16.inc), as it is
 # published, on a vendor that comes from vlw's LineageOS 18.1 trees for the Galaxy A3 (2015)
 # (github.com/vlw: android_device_samsung_a3lte, android_device_samsung_msm8916-common,
 # proprietary_vendor_samsung, branch lineage-18.1).
