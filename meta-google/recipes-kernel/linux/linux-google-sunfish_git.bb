@@ -96,30 +96,19 @@ KERNEL_LOCALVERSION = ""
 # with anything but Clang: build.config.common names
 # prebuilts-master/clang/host/linux-x86/clang-r416183b, and the stock kernel's
 # own banner says "Android (7284624, based on r416183b) clang version 12.0.5".
-# That is the same release q25, mp01 and bramble already pin, so it is on disk
-# already; point GKI_CLANG_DIR:sunfish at it in local.conf.
+# That is the same release q25, mp01 and bramble already pin. sunfish.conf sets
+# GKI_CLANG_VERSION, so the out-of-tree modules get the same compiler;
+# gki-clang.bbclass fetches it and checks it before configure.
 #
 # Unlike bramble, this recipe keeps kernel.bbclass and kernel_android: sunfish
 # needs a header v2 boot image with a dtb section, which gki_bootimg.bbclass
 # cannot write. So only the toolchain changes here - the boot image, the
 # packaging and the QA fixes all stay as they were.
-GKI_CLANG_VERSION ?= "r416183b"
-GKI_CLANG_DIR ?= ""
-
-python do_check_toolchain() {
-    clang_dir = d.getVar("GKI_CLANG_DIR")
-    if not clang_dir:
-        bb.fatal("GKI_CLANG_DIR is not set. This kernel must be built with "
-                 "Google's Clang %s - see the comment in %s."
-                 % (d.getVar("GKI_CLANG_VERSION"), d.getVar("FILE")))
-    if not os.path.exists(os.path.join(clang_dir, "bin", "clang")):
-        bb.fatal("GKI_CLANG_DIR %s has no bin/clang" % clang_dir)
-}
-addtask check_toolchain before do_configure
+inherit gki-clang
 
 # Prepended for every task rather than exported in each one: do_configure,
 # do_compile and do_compile_kernelmodules all invoke the compiler.
-PATH =. "${GKI_CLANG_DIR}/bin:"
+PATH =. "${GKI_CLANG_BINDIR}:"
 
 # kernel-arch.bbclass builds these out of ${HOST_PREFIX}gcc. Keep everything it
 # puts in them - the -ffile-prefix-map pair is what keeps build paths out of the

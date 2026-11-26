@@ -29,9 +29,9 @@ the phone keeps. \
 LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/GPL-2.0-only;md5=801f80980d171dd6425610833a22dbe6"
 
-# Absolute path out of the port directory rather than a file in the layer, the
-# same arrangement GKI_CLANG_DIR uses for the toolchain: this is a 25 MB set of
-# vendor binaries pulled out of a factory image, and it has no business in git.
+# Absolute path out of the port directory rather than a file in the layer: this
+# is a 25 MB set of vendor binaries pulled out of a factory image, and it has no
+# business in git.
 MP01_VENDOR_MODULES_TARBALL ?= "/home/herrie/webos/LuneOS/MP01/firmware/mp01-vendor-modules.tar.gz"
 SRC_URI = "file://${MP01_VENDOR_MODULES_TARBALL}"
 

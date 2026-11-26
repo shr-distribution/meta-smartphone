@@ -190,35 +190,21 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=bbea815ee2795b2f4230826c0c6b8814"
 #   BUILD_PATH = /usr/lib/llvm-android-12.0-r416183b/bin
 #
 # i.e. Android Clang r416183b, which is the SAME release q25, mp01, bramble and
-# sunfish already pin, so it is on disk already:
-#
-#   GKI_CLANG_DIR:radon = "/home/herrie/Documents/GitHub/luneos-gki-toolchain-android12-5.10/prebuilts-master/clang/host/linux-x86/clang-r416183b"
-#
-# Put that in local.conf next to the others. do_check_toolchain below fails
-# early and legibly rather than letting a GCC build get halfway.
+# sunfish already pin. radon.conf sets GKI_CLANG_VERSION, so the out-of-tree
+# modules get the same compiler; gki-clang.bbclass fetches it, and its
+# do_check_toolchain fails early and legibly rather than letting a GCC build
+# get halfway.
 #
 # Modelled on linux-google-sunfish_git.bb rather than on q25: sunfish is the
 # other machine here that keeps kernel.bbclass and kernel_android (because it
 # too needs a header v2 boot image with a dtb section, which
 # gki_bootimg.bbclass cannot write) and swaps only the toolchain. q25's
 # wholesale KERNEL_MAKE override belongs to the GKI path and is not wanted here.
-GKI_CLANG_VERSION ?= "r416183b"
-GKI_CLANG_DIR ?= ""
-
-python do_check_toolchain() {
-    clang_dir = d.getVar("GKI_CLANG_DIR")
-    if not clang_dir:
-        bb.fatal("GKI_CLANG_DIR is not set. This kernel must be built with "
-                 "Google's Clang %s - see the comment in %s."
-                 % (d.getVar("GKI_CLANG_VERSION"), d.getVar("FILE")))
-    if not os.path.exists(os.path.join(clang_dir, "bin", "clang")):
-        bb.fatal("GKI_CLANG_DIR %s has no bin/clang" % clang_dir)
-}
-addtask check_toolchain before do_configure
+inherit gki-clang
 
 # Prepended for every task rather than exported in each one: do_configure,
 # do_compile and do_compile_kernelmodules all invoke the compiler.
-PATH =. "${GKI_CLANG_DIR}/bin:"
+PATH =. "${GKI_CLANG_BINDIR}:"
 
 # kernel-arch.bbclass builds these out of ${HOST_PREFIX}gcc. Keep everything it
 # puts in them - the -ffile-prefix-map pair is what keeps build paths out of the

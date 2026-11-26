@@ -110,11 +110,12 @@ CONFIG_USB_USBNET=y
 CONFIG_USB_NET_CDCETHER=y
 
 # Uncompressed DWARF. Stock compresses it with zstd, which the pahole in
-# GKI_BUILD_TOOLS_DIR (1.23) and OE's pahole-native (1.31, through
-# elfutils-native) cannot read: they find "no supported type information",
-# write an empty .BTF, and the link then fails in resolve_btfids with "load BTF
-# from vmlinux: Invalid argument". This only changes how the debug sections
-# are stored in vmlinux; measured 0 CRC drift against the zstd build.
+# Google's kernel-build-tools (GKI_BUILD_TOOLS, 1.23) and OE's pahole-native
+# (1.31, through elfutils-native) cannot read: they find "no supported type
+# information", write an empty .BTF, and the link then fails in resolve_btfids
+# with "load BTF from vmlinux: Invalid argument". This only changes how the
+# debug sections are stored in vmlinux; measured 0 CRC drift against the zstd
+# build.
 CONFIG_DEBUG_INFO_COMPRESSED_NONE=y
 
 # Command line. Stock CONFIG_CMDLINE minus console=ttynull, plus console=tty0

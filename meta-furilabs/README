@@ -23,13 +23,7 @@ luneos.cfg for what that means in practice - the short version is that the
 LuneOS kernel config delta for this device is very nearly empty, which is
 true of no other port in this tree.
 
-Two things this layer needs that are not in it:
-
-  * Google's prebuilt Android Clang r416183b, which the kernel is built with -
-    the release FuriLabs themselves pin, and the same one sunfish, q25, mp01
-    and bramble already use. Point local.conf at it:
-
-      GKI_CLANG_DIR:radon = ".../prebuilts-master/clang/host/linux-x86/clang-r416183b"
+One thing this layer needs that is not in it:
 
   * An install path. The FLX1s is flashed with MediaTek's SP Flash Tool (or
     mtkclient on Linux), NOT fastboot, so none of the fastboot install kits in

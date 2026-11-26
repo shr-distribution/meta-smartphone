@@ -21,19 +21,21 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 # Same Clang the stock kernel was built with. Its version string says
 # "Android (8508608, based on r450784e) clang version 14.0.7", which is also
 # CLANG_VERSION in the tree's build.config.constants and
-# TARGET_KERNEL_CLANG_VERSION in BaseOS's BoardConfig.mk. Set
-# GKI_CLANG_DIR:brax3 in local.conf; AOSP's prebuilts/clang/host/linux-x86 at
-# any android-13/-14 tag carries clang-r450784e.
+# TARGET_KERNEL_CLANG_VERSION in BaseOS's BoardConfig.mk. gki-clang.bbclass
+# fetches it.
 GKI_CLANG_VERSION ?= "r450784e"
-GKI_CLANG_DIR ?= ""
-GKI_CLANG_URI ?= ""
+# Not for pahole, which comes from pahole-native below: this is the PATH the
+# kernel was built with while local.conf's unscoped GKI_BUILD_TOOLS_DIR (this
+# same snapshot) applied to every machine, and its bin/ comes before the native
+# sysroot - so its pahole (1.23), lz4 and dtc are the ones that ran. Kept as it
+# was; dropping it is a separate, KMI-checked change.
+GKI_BUILD_TOOLS ?= "gs-6.1"
 
 # Brax's own tree for BaseOS 1.0, published as one squashed commit. It should
 # move to shr-distribution/linux as brax3/5.15.209/lune like the MP01's, so
 # fixes become commits there and a SRCREV bump rather than files here.
 SRC_URI = "\
     git://git.os-source.co/Brax3_BaseOs/android_kernel_mt6835.git;protocol=https;branch=baseos-1.0;name=kernel \
-    ${@(d.getVar('GKI_CLANG_URI') + ';name=clang;subdir=clang') if d.getVar('GKI_CLANG_URI') else ''} \
     file://vermagic-${BRAX3_VENDOR}.cfg;subdir=frag \
     file://luneos.cfg;subdir=frag \
     git://git.os-source.co/Brax3_BaseOs/android_vendor_mediatek_kernel_modules.git;protocol=https;branch=baseos-1.0;name=vendormodules;destsuffix=vendor-kernel-modules \
@@ -59,7 +61,7 @@ B = "${WORKDIR}/build"
 # was 1.25; 1.31 measured 0/774).
 DEPENDS = "elfutils-native openssl-native bc-native bison-native flex-native lz4-native python3-native pahole-native"
 
-inherit deploy
+inherit deploy gki-clang
 
 COMPATIBLE_MACHINE = "^(brax3|brax3-iode)$"
 
@@ -88,29 +90,6 @@ LUNEOS_KERNEL_FRAGMENT ?= "1"
 # ThinLTO instead of stock full LTO, which costs a long single-threaded link.
 # KMI-neutral: the baseline measured 0/774 with ThinLTO.
 KERNEL_LTO_THIN ?= "0"
-
-python do_check_toolchain() {
-    clang_dir = d.getVar("GKI_CLANG_DIR")
-    if not clang_dir and not d.getVar("GKI_CLANG_URI"):
-        bb.fatal("Neither GKI_CLANG_DIR nor GKI_CLANG_URI is set. This kernel "
-                 "must be built with Google's Clang %s - see the comment in %s."
-                 % (d.getVar("GKI_CLANG_VERSION"), d.getVar("FILE")))
-    if clang_dir and not os.path.exists(os.path.join(clang_dir, "bin", "clang")):
-        bb.fatal("GKI_CLANG_DIR %s has no bin/clang" % clang_dir)
-}
-addtask check_toolchain before do_configure
-
-def gki_clang_bin(d):
-    p = d.getVar("GKI_CLANG_DIR")
-    if p:
-        bins = [os.path.join(p, "bin")]
-    else:
-        bins = [os.path.join(d.getVar("UNPACKDIR"), "clang",
-                             "clang-" + d.getVar("GKI_CLANG_VERSION"), "bin")]
-    tools = d.getVar("GKI_BUILD_TOOLS_DIR")
-    if tools:
-        bins.append(os.path.join(tools, "bin"))
-    return ":".join(bins)
 
 gki_clear_oe_env() {
     unset CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
@@ -196,7 +175,7 @@ do_install() {
         ${D}${nonarch_base_libdir}/modules/vendor_dlkm-override/mali_kbase_mt6835.ko
     # Stripped with the toolchain that built it: OE's strip does not understand
     # a module built outside its cross environment.
-    ${@gki_clang_bin(d).split(':')[0]}/llvm-strip --strip-debug \
+    ${GKI_CLANG_BINDIR}/llvm-strip --strip-debug \
         ${D}${nonarch_base_libdir}/modules/vendor_dlkm-override/mali_kbase_mt6835.ko
 }
 

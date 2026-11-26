@@ -34,15 +34,13 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=bbea815ee2795b2f4230826c0c6b8814"
 # The Clang the stock kernel was built with: build.config.common in this very
 # tree says
 #   CLANG_PREBUILT_BIN=prebuilts-master/clang/host/linux-x86/clang-r416183b/bin
-# which is the same release q25 pins, so fetch-gki-toolchain.sh already knows
-# how to produce it. Set GKI_CLANG_DIR:bramble in local.conf.
+# which is the same release q25 pins; gki-clang.bbclass fetches it, with the
+# same android12-5.10 kernel-build-tools.
 GKI_CLANG_VERSION ?= "r416183b"
-GKI_CLANG_DIR ?= ""
-GKI_CLANG_URI ?= ""
+GKI_BUILD_TOOLS ?= "android12-5.10"
 
 SRC_URI = "\
     git://github.com/LineageOS/android_kernel_google_redbull.git;protocol=https;branch=lineage-23.2;name=kernel \
-    ${@(d.getVar('GKI_CLANG_URI') + ';name=clang;subdir=clang') if d.getVar('GKI_CLANG_URI') else ''} \
     file://luneos.cfg;subdir=frag \
     file://vermagic.cfg;subdir=frag \
     file://buildfix.cfg;subdir=frag \
@@ -85,7 +83,7 @@ B = "${WORKDIR}/build"
 # kernel proper is built by the pinned Clang, not by OE's cross toolchain.
 DEPENDS = "elfutils-native openssl-native bc-native bison-native flex-native lz4-native python3-native"
 
-inherit deploy
+inherit deploy gki-clang
 
 COMPATIBLE_MACHINE = "^bramble$"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
@@ -137,29 +135,6 @@ FILES:${PN} += "${nonarch_base_libdir}/modules"
 # LuneOS delta for a KMI failure. Baseline first, then the delta - the habit
 # q25's recipe spells out.
 LUNEOS_KERNEL_FRAGMENT ?= "1"
-
-python do_check_toolchain() {
-    clang_dir = d.getVar("GKI_CLANG_DIR")
-    if not clang_dir and not d.getVar("GKI_CLANG_URI"):
-        bb.fatal("Neither GKI_CLANG_DIR nor GKI_CLANG_URI is set. This kernel "
-                 "must be built with Google's Clang %s - see the comment in %s."
-                 % (d.getVar("GKI_CLANG_VERSION"), d.getVar("FILE")))
-    if clang_dir and not os.path.exists(os.path.join(clang_dir, "bin", "clang")):
-        bb.fatal("GKI_CLANG_DIR %s has no bin/clang" % clang_dir)
-}
-addtask check_toolchain before do_configure
-
-def gki_clang_bin(d):
-    p = d.getVar("GKI_CLANG_DIR")
-    if p:
-        bins = [os.path.join(p, "bin")]
-    else:
-        bins = [os.path.join(d.getVar("UNPACKDIR"), "clang",
-                             "clang-" + d.getVar("GKI_CLANG_VERSION"), "bin")]
-    tools = d.getVar("GKI_BUILD_TOOLS_DIR")
-    if tools:
-        bins.append(os.path.join(tools, "bin"))
-    return ":".join(bins)
 
 # OE exports its own cross toolchain and flags into every task; none of it
 # applies here and some of it is fatal. kernel.bbclass unsets the same set.

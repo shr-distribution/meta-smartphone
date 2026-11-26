@@ -26,23 +26,18 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 # validated against this KMI, and a silent CRC or CFI drift would show up as
 # "vendor modules do not load" on the device, long after the build succeeded.
 #
-# 2.3 GB unpacked, fetched once per KMI and cached in DL_DIR. Provide it either
-# way round:
-#   GKI_CLANG_DIR  - path to an existing prebuilts/clang/host/linux-x86/clang-*
-#                    directory (e.g. from a repo-synced kernel manifest)
-#   GKI_CLANG_URI  - URI of a tarball of that directory, plus its checksums
+# gki-clang.bbclass fetches it (android-clang-r487747c-native) by commit from
+# Google's prebuilts repository, once into DL_DIR.
 GKI_CLANG_VERSION ?= "r487747c"
-GKI_CLANG_DIR ?= ""
 # pahole, for CONFIG_DEBUG_INFO_BTF. oe-core has no dwarves recipe, and using
 # Google's own is better than a distro one anyway: it is the tool the KMI's BTF
-# was generated with. Point this at prebuilts/kernel-build-tools/linux-x86 from
-# the same kernel manifest as the Clang above.
-GKI_BUILD_TOOLS_DIR ?= ""
-GKI_CLANG_URI ?= ""
+# was generated with. It comes from the kernel-build-tools of the same
+# android-gs-bluejay-6.1-android16 manifest as the Clang above.
+GKI_BUILD_TOOLS ?= "gs-6.1"
+GKI_REQUIRE_PAHOLE = "1"
 
 SRC_URI = "\
     git://android.googlesource.com/kernel/common;protocol=https;nobranch=1;name=kernel \
-    ${@(d.getVar('GKI_CLANG_URI') + ';name=clang;subdir=clang') if d.getVar('GKI_CLANG_URI') else ''} \
     file://luneos_defconfig \
 "
 # nobranch=1: ACK release tags point at commits that are NOT reachable from the
@@ -67,43 +62,13 @@ B = "${WORKDIR}/build"
 # the kernel proper is built by the pinned Clang, not by OE's cross toolchain.
 DEPENDS = "elfutils-native openssl-native bc-native bison-native flex-native lz4-native python3-native"
 
-inherit deploy
+inherit deploy gki-clang
 
 COMPATIBLE_MACHINE = "^(bluejay|panther|tangorpro)$"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 # Nothing is packaged: the boot image consumes the deployed Image directly.
 INHIBIT_DEFAULT_DEPS = "1"
 EXCLUDE_FROM_WORLD = "1"
-
-python do_check_toolchain() {
-    clang_dir = d.getVar("GKI_CLANG_DIR")
-    if not clang_dir and not d.getVar("GKI_CLANG_URI"):
-        bb.fatal("Neither GKI_CLANG_DIR nor GKI_CLANG_URI is set. This kernel "
-                 "must be built with Google's Clang %s - see the comment in "
-                 "%s." % (d.getVar("GKI_CLANG_VERSION"), d.getVar("FILE")))
-    if clang_dir and not os.path.exists(os.path.join(clang_dir, "bin", "clang")):
-        bb.fatal("GKI_CLANG_DIR %s has no bin/clang" % clang_dir)
-    # CONFIG_DEBUG_INFO_BTF needs pahole, and the kernel only says so after it
-    # has linked vmlinux - about 20 minutes in. Check it up front.
-    tools = d.getVar("GKI_BUILD_TOOLS_DIR")
-    if not tools or not os.path.exists(os.path.join(tools, "bin", "pahole")):
-        bb.fatal("GKI_BUILD_TOOLS_DIR must point at a "
-                 "prebuilts/kernel-build-tools/linux-x86 containing bin/pahole "
-                 "(needed for CONFIG_DEBUG_INFO_BTF).")
-}
-addtask check_toolchain before do_configure
-
-def gki_clang_bin(d):
-    p = d.getVar("GKI_CLANG_DIR")
-    if p:
-        bins = [os.path.join(p, "bin")]
-    else:
-        bins = [os.path.join(d.getVar("UNPACKDIR"), "clang",
-                             "clang-" + d.getVar("GKI_CLANG_VERSION"), "bin")]
-    tools = d.getVar("GKI_BUILD_TOOLS_DIR")
-    if tools:
-        bins.append(os.path.join(tools, "bin"))
-    return ":".join(bins)
 
 # OE exports its own cross toolchain and flags into every task. None of it
 # applies here - the kernel is built by the pinned Clang, for the target, by

@@ -115,25 +115,15 @@ ANDROID_BOOTIMG_CMDLINE = "androidboot.hardware=qcom ehci-hcd.park=3 lpm_levels.
 # sunfish that took out PIL, the Adreno zap shader, kgsl and with it the whole
 # UI (kmi-crc-matching.md § Step 4).
 # The compiler family is what matters, not the exact release, so any clang with
-# ld.lld and the llvm binutils works; set GKI_CLANG_DIR:pioneer in local.conf
-# (e.g. /usr/lib/llvm-19 from the distro's clang-19/lld-19/llvm-19 packages -
-# Google's prebuilts are x86_64-only and cannot run on an arm64 build host).
+# ld.lld and the llvm binutils works. pioneer.conf pins Google's r487747c, which
+# gki-clang.bbclass fetches; Google's prebuilts are x86_64-only, so on an arm64
+# build host set GKI_CLANG_DIR to a distro LLVM instead (e.g. /usr/lib/llvm-19
+# from the clang-19/lld-19/llvm-19 packages).
 # Wiring copied from linux-google-sunfish.
 #-----------------------------------------------------------------------------
-GKI_CLANG_DIR ?= ""
+inherit gki-clang
 
-python do_check_toolchain() {
-    clang_dir = d.getVar("GKI_CLANG_DIR")
-    if not clang_dir:
-        bb.fatal("GKI_CLANG_DIR is not set. This kernel must be built with clang - "
-                 "see the comment in %s." % d.getVar("FILE"))
-    for tool in ("clang", "ld.lld", "llvm-ar", "llvm-objcopy"):
-        if not os.path.exists(os.path.join(clang_dir, "bin", tool)):
-            bb.fatal("GKI_CLANG_DIR %s has no bin/%s" % (clang_dir, tool))
-}
-addtask check_toolchain before do_configure
-
-PATH =. "${GKI_CLANG_DIR}/bin:"
+PATH =. "${GKI_CLANG_BINDIR}:"
 
 KERNEL_CC = "clang ${HOST_CC_KERNEL_ARCH} \
  ${@' '.join(f for f in (d.getVar('DEBUG_PREFIX_MAP') or '').split() if f != '-fcanon-prefix-map')} \

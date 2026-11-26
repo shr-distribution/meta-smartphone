@@ -36,12 +36,10 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 # it outright:
 #   CONFIG_CC_VERSION_TEXT="Android (7284624, based on r416183b) clang version
 #                           12.0.5 (...)"
-# which is the same string the Q25's stock kernel carries, so the toolchain
-# fetched by ../zinwa/fetch-gki-toolchain.sh serves both. Set GKI_CLANG_DIR:mp01
-# in local.conf.
+# which is the same string the Q25's stock kernel carries, so both use the
+# same android-clang-r416183b-native and kernel-build-tools (gki-clang.bbclass).
 GKI_CLANG_VERSION ?= "r416183b"
-GKI_CLANG_DIR ?= ""
-GKI_CLANG_URI ?= ""
+GKI_BUILD_TOOLS ?= "android12-5.10"
 
 # The MP01's own tree, published by Minimal on 15 Sep 2026 (genuinely
 # 5.10.233, so the vermagic match is real), carried on the shr kernel repo
@@ -56,7 +54,6 @@ GKI_CLANG_URI ?= ""
 # this device actually runs.
 SRC_URI = "\
     git://github.com/shr-distribution/linux.git;protocol=https;branch=mp01/5.10.233/lune;name=kernel \
-    ${@(d.getVar('GKI_CLANG_URI') + ';name=clang;subdir=clang') if d.getVar('GKI_CLANG_URI') else ''} \
     file://mp01-stock.config;subdir=frag \
     file://vermagic.cfg;subdir=frag \
     file://luneos.cfg;subdir=frag \
@@ -69,7 +66,7 @@ B = "${WORKDIR}/build"
 
 DEPENDS = "elfutils-native openssl-native bc-native bison-native flex-native lz4-native python3-native"
 
-inherit deploy
+inherit deploy gki-clang
 
 COMPATIBLE_MACHINE = "^(mp01)$"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
@@ -95,29 +92,6 @@ EXCLUDE_FROM_WORLD = "1"
 # neither can nor need to build them - the device keeps the vendor's own .ko.
 LUNEOS_KERNEL_FRAGMENT ?= "1"
 KERNEL_LTO_THIN ?= "0"
-
-python do_check_toolchain() {
-    clang_dir = d.getVar("GKI_CLANG_DIR")
-    if not clang_dir and not d.getVar("GKI_CLANG_URI"):
-        bb.fatal("Neither GKI_CLANG_DIR nor GKI_CLANG_URI is set. This kernel "
-                 "must be built with Google's Clang %s - see the comment in %s."
-                 % (d.getVar("GKI_CLANG_VERSION"), d.getVar("FILE")))
-    if clang_dir and not os.path.exists(os.path.join(clang_dir, "bin", "clang")):
-        bb.fatal("GKI_CLANG_DIR %s has no bin/clang" % clang_dir)
-}
-addtask check_toolchain before do_configure
-
-def gki_clang_bin(d):
-    p = d.getVar("GKI_CLANG_DIR")
-    if p:
-        bins = [os.path.join(p, "bin")]
-    else:
-        bins = [os.path.join(d.getVar("UNPACKDIR"), "clang",
-                             "clang-" + d.getVar("GKI_CLANG_VERSION"), "bin")]
-    tools = d.getVar("GKI_BUILD_TOOLS_DIR")
-    if tools:
-        bins.append(os.path.join(tools, "bin"))
-    return ":".join(bins)
 
 # OE exports its own cross toolchain and flags into every task; none of it
 # applies here and some of it is fatal. kernel.bbclass unsets the same set.
@@ -219,7 +193,7 @@ do_install() {
         ${D}${nonarch_base_libdir}/modules/mediatek-drm.ko
     # 37MB unstripped against the vendor's 5.8MB, and an unstripped .ko also
     # trips the debug-files QA check.
-    ${@gki_clang_bin(d).split(':')[0]}/llvm-strip --strip-debug \
+    ${GKI_CLANG_BINDIR}/llvm-strip --strip-debug \
         ${D}${nonarch_base_libdir}/modules/mediatek-drm.ko
 }
 
@@ -266,7 +240,7 @@ do_deploy() {
     install -d ${DEPLOYDIR}/modules
     install -m 0644 ${B}/drivers/gpu/drm/mediatek/mediatek_v2/mediatek-drm.ko \
         ${DEPLOYDIR}/modules/mediatek-drm.ko
-    ${@gki_clang_bin(d).split(':')[0]}/llvm-strip --strip-debug \
+    ${GKI_CLANG_BINDIR}/llvm-strip --strip-debug \
         ${DEPLOYDIR}/modules/mediatek-drm.ko
 }
 addtask deploy after do_compile before do_build
