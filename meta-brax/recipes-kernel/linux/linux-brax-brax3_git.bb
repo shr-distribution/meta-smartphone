@@ -38,6 +38,7 @@ SRC_URI = "\
     git://git.os-source.co/Brax3_BaseOs/android_kernel_mt6835.git;protocol=https;branch=baseos-1.0;name=kernel \
     file://vermagic-${BRAX3_VENDOR}.cfg;subdir=frag \
     file://luneos.cfg;subdir=frag \
+    file://0002-Bluetooth-hci_vhci-do-not-let-the-core-suspend-a-vhc.patch \
     git://git.os-source.co/Brax3_BaseOs/android_vendor_mediatek_kernel_modules.git;protocol=https;branch=baseos-1.0;name=vendormodules;destsuffix=vendor-kernel-modules \
     file://0001-mali-r38p1-find-the-context-s-task-without-a-pid-nam.patch;patchdir=${UNPACKDIR}/vendor-kernel-modules \
 "

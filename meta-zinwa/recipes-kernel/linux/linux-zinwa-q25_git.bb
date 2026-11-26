@@ -48,6 +48,8 @@ SRC_URI = "\
     file://0002-bbqX0kbd-sym-tap-emoji-key.patch \
     file://0003-bbqX0kbd-blackberry-key-as-ctrl.patch \
     file://0004-mali-r32p1-find-the-context-s-task-without-a-pid-nam.patch \
+    file://0005-Bluetooth-hci_vhci-do-not-let-the-core-suspend-a-vhc.patch \
+    file://0006-wifi-cfg80211-add-Chen-Yu-Tsai-s-regulatory-database.patch \
     file://luneos.cfg;subdir=frag \
 "
 SRCREV_kernel = "2a873a3511ee0eeead1442e60145093192a4535d"
@@ -246,6 +248,19 @@ do_install() {
     ${GKI_CLANG_BINDIR}/llvm-strip --strip-debug \
         ${D}${nonarch_base_libdir}/modules/bbqX0kbd.ko
 
+    # cfg80211, the same way and for the same reason: it is in the stock
+    # vendor_boot ramdisk's modules.load, so the patch (0006, the regulatory
+    # database certificate of wireless-regdb's current maintainer) only
+    # reaches the device if our build replaces the vendor's. The stock module
+    # knows only the old certificate, rejects the regulatory.db LuneOS ships,
+    # and leaves Wi-Fi in the world domain. Its interface is the stock one:
+    # all 129 exported symbol CRCs and the vermagic match the vendor's
+    # cfg80211.ko, which mac80211 and wlan_drv_gen4m_6789 import from.
+    install -m 0644 ${B}/net/wireless/cfg80211.ko \
+        ${D}${nonarch_base_libdir}/modules/cfg80211.ko
+    ${GKI_CLANG_BINDIR}/llvm-strip --strip-debug \
+        ${D}${nonarch_base_libdir}/modules/cfg80211.ko
+
     # The Mali driver, patched (0004) so that a GPU context can be created from
     # inside a pid namespace - without it Android in Waydroid never boots. It
     # is a vendor_dlkm module, not a vendor_boot one, so the initramfs
@@ -265,7 +280,7 @@ do_install() {
 # (ANDROID_EXTRA_INITRAMFS_IMAGE_INSTALL), the override into the rootfs
 # (MACHINE_EXTRA_RRECOMMENDS), both set in q25.conf.
 PACKAGES =+ "${PN}-vendor-dlkm-override"
-FILES:${PN} = "${nonarch_base_libdir}/modules/bbqX0kbd.ko"
+FILES:${PN} = "${nonarch_base_libdir}/modules/bbqX0kbd.ko ${nonarch_base_libdir}/modules/cfg80211.ko"
 FILES:${PN}-vendor-dlkm-override = "${nonarch_base_libdir}/modules/vendor_dlkm-override"
 
 # We strip it ourselves, above; OE's strip and debug-split cannot.

@@ -1,0 +1,83 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Herman van Hazendonk <github.com@herrie.org>
+Date: Mon, 16 Nov 2026 14:41:04 +0100
+Subject: [PATCH] Bluetooth: hci_vhci: do not let the core suspend a vhci
+ controller
+
+The controller behind a vhci device belongs to the userspace bridge that
+created it. On LuneOS that is bluebinder in front of the vendor's Android
+Bluetooth HAL, which already handles system suspend the way the vendor
+expects.
+
+hci_suspend_notifier() still runs for it. On every suspend attempt it
+sends Set Event Filter, Write Scan Enable and the LE scan parameter and
+enable commands, and on resume the same four again. On MediaTek phones
+with the connac1x Bluetooth driver (bt_drv_connac1x), each reply from the
+firmware goes through BT_event_cb(), which takes a 100 ms wakeup event
+on bt_drv. The reply lands inside the suspend window, so freezing aborts
+with "Pending Wakeup Sources: bt_drv" and the next attempt repeats it:
+
+  Q25 (MT8781, 5.10): 0 suspends and 233 failures in 5 hours; 40
+  suspends in 18 minutes with Bluetooth soft-blocked.
+  Brax3 (MT6835, 5.15): 0 suspends and 3623 failures in 2 days 5 hours.
+
+btmon showed the four commands and their replies at each of 17 attempts,
+matching 17 new bt_drv activations.
+
+Set HCI_QUIRK_NO_SUSPEND_NOTIFIER on vhci controllers so the notifier is
+not registered for them, which is what stock Android gets by keeping its
+Bluetooth stack in userspace. The suspend_notifier parameter brings the
+old behaviour back (hci_vhci.suspend_notifier=1 on the kernel command
+line, since the driver is usually built in).
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Inappropriate [LuneOS bluebinder/vhci setup]
+---
+ drivers/bluetooth/hci_vhci.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/drivers/bluetooth/hci_vhci.c b/drivers/bluetooth/hci_vhci.c
+index 31d70bad8..9670ebd4d 100644
+--- a/drivers/bluetooth/hci_vhci.c
++++ b/drivers/bluetooth/hci_vhci.c
+@@ -28,6 +28,7 @@
+ #define VERSION "1.5"
+ 
+ static bool amp;
++static bool suspend_notifier;
+ 
+ struct vhci_data {
+ 	struct hci_dev *hdev;
+@@ -126,6 +127,18 @@ static int __vhci_create_device(struct vhci_data *data, __u8 opcode)
+ 
+ 	set_bit(HCI_QUIRK_VALID_LE_STATES, &hdev->quirks);
+ 
++	/*
++	 * The controller behind a vhci device belongs to the userspace bridge
++	 * that created it (bluebinder in front of an Android Bluetooth HAL),
++	 * and that side already handles system suspend the way the vendor
++	 * expects. If the core also reconfigures the controller around each
++	 * suspend, the replies can arrive inside the suspend window: MediaTek's
++	 * bt_drv takes a 100 ms wakeup event for every packet the firmware
++	 * sends, so every attempt aborts and the device never suspends.
++	 */
++	if (!suspend_notifier)
++		set_bit(HCI_QUIRK_NO_SUSPEND_NOTIFIER, &hdev->quirks);
++
+ 	if (hci_register_dev(hdev) < 0) {
+ 		BT_ERR("Can't register HCI device");
+ 		hci_free_dev(hdev);
+@@ -373,6 +386,10 @@ module_misc_device(vhci_miscdev);
+ module_param(amp, bool, 0644);
+ MODULE_PARM_DESC(amp, "Create AMP controller device");
+ 
++module_param(suspend_notifier, bool, 0644);
++MODULE_PARM_DESC(suspend_notifier,
++		 "Let the Bluetooth core reconfigure the controller around system suspend");
++
+ MODULE_AUTHOR("Marcel Holtmann <marcel@holtmann.org>");
+ MODULE_DESCRIPTION("Bluetooth virtual HCI driver ver " VERSION);
+ MODULE_VERSION(VERSION);
+-- 
+2.53.0
+
