@@ -1,0 +1,46 @@
+From: Herman van Hazendonk <github.com@herrie.org>
+Date: Wed, 18 Nov 2026 14:15:40 +0100
+Subject: [PATCH] ALSA: pcm: treat a stop threshold of UINT_MAX as never stop
+
+MediaTek's audio HAL opens the modem's PCM streams through tinyalsa with
+stop_threshold set to 0xffffffff, meaning the stream must never stop on
+an underrun. tinyalsa holds that value in an unsigned int.
+
+Android runs this HAL as a 32-bit process. pcm_compat keeps a 32-bit
+caller's boundary below 2^31, so the value is at or above the boundary
+and snd_pcm_playback_data() lets an empty stream start. A 64-bit build of
+the same HAL, as loaded into PulseAudio through libhybris, gets the 64-bit
+boundary. The value is then far below it, and SNDRV_PCM_IOCTL_START on the
+empty playback stream fails:
+
+  AudioPcmControl: pcm_start fail due to cannot start channel: Broken pipe
+
+The call then has no audio. Take UINT_MAX to mean the boundary, which is
+how the same request already behaves for a 32-bit caller.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Pending
+---
+ sound/core/pcm_native.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
+index 78e3874..ad183e2 100644
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -916,6 +916,15 @@ static int snd_pcm_sw_params(struct snd_pcm_substream *substream,
+ 		if (params->silence_threshold > runtime->buffer_size)
+ 			return -EINVAL;
+ 	}
++	/*
++	 * tinyalsa holds the thresholds in an unsigned int, and callers ask
++	 * it for a stream that never stops with UINT_MAX. That reaches the
++	 * boundary of a 32-bit caller, which pcm_compat keeps below 2^31, but
++	 * not the boundary of a 64-bit one.
++	 */
++	if (params->stop_threshold == UINT_MAX)
++		params->stop_threshold = runtime->boundary;
++
+ 	err = 0;
+ 	snd_pcm_stream_lock_irq(substream);
+ 	runtime->tstamp_mode = params->tstamp_mode;
