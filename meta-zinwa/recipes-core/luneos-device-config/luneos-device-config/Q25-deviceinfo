@@ -188,6 +188,15 @@ deviceinfo_keyboard_layout="QWERTY"
 # dims the screen and uncovering it brings it back.
 deviceinfo_has_als="true"
 
+# No fingerprint reader, whatever Zinwa's spec sheet says about the power key.
+# 38-fingerprint would find that out on its own - the vendor's VINTF manifest
+# declares no fingerprint HAL - but say it outright, since the spec sheet says
+# otherwise and the vendor does declare an example (virtual) face HAL, which a
+# future vendor update could match for fingerprint. Skips
+# webos-fingerprint-adapter and hides Settings > Fingerprint; biomd stays, for
+# face unlock.
+deviceinfo_has_fingerprint="false"
+
 # NOT copied from the MP01:
 #
 #   deviceinfo_battery_critical_percent="0"
