@@ -49,9 +49,16 @@ deviceinfo_binder_technologies="gsm,umts,lte,nr"
 # IMS. The vendor's mtkradioex is AIDL (vendor.mediatek.hardware.mtkradioex.
 # {ims,voice,modem}/slotN on /dev/binder). Tested on 27 Nov 2026 with Lebara
 # and simyo: IMS registered on both SIMs, an incoming and an outgoing call over
-# IMS with DTMF, and an incoming SMS delivered once. Sending an SMS over IMS was
-# not tried on this phone.
-deviceinfo_binder_ext_plugin="mtk"
+# IMS with DTMF, and an incoming SMS delivered once. Later that day, with Odido
+# and simyo, both SIMs also made calls and sent SMS over IMS on LTE.
+#
+# Wi-Fi calling, Wi-Fi preferred: seen on 27 Nov 2026 with Odido and simyo,
+# IMS registered over Wi-Fi on both SIMs, calls and SMS over Wi-Fi. The
+# modem builds the ePDG tunnel itself and the Wi-Fi driver hands it the
+# traffic (MDDP), so it needs no dummy_netd and no firewall hook. It needs
+# the extension from 15445c3 (the DNS servers quoted in setWifiIpAddress);
+# before that the modem gives up on Wi-Fi and IMS stays on LTE.
+deviceinfo_binder_ext_plugin="mtk:wfcPreference=wifi"
 
 # --- panel shape -----------------------------------------------------------
 # 720x1612 with a centred teardrop notch, as on radon.
