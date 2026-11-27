@@ -45,6 +45,14 @@ deviceinfo_bluebinder_ext_features_page_2_mask="0x0400000000000000"
 # modems, so it is stated here.
 deviceinfo_binder_technologies="gsm,umts,lte,nr"
 
+# The MediaTek extension (ofono-binder-plugin-ext-mtk) for VoLTE and SMS over
+# IMS. The vendor's mtkradioex is AIDL (vendor.mediatek.hardware.mtkradioex.
+# {ims,voice,modem}/slotN on /dev/binder). Tested on 27 Nov 2026 with Lebara
+# and simyo: IMS registered on both SIMs, an incoming and an outgoing call over
+# IMS with DTMF, and an incoming SMS delivered once. Sending an SMS over IMS was
+# not tried on this phone.
+deviceinfo_binder_ext_plugin="mtk"
+
 # --- panel shape -----------------------------------------------------------
 # 720x1612 with a centred teardrop notch, as on radon.
 #
