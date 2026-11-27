@@ -4,6 +4,8 @@ COMPATIBLE_MACHINE = "^bullhead-halium$"
 
 # The vendor image published with the GSI (bullhead-halium-vendor.img in its release), made by the settings
 # below against that GSI. See android-system-image-legacy-gsi.inc for how to make a new one.
+# Published in the halium-luneos-20261005 release, where it stays as the GSI moves on.
+HALIUM_LEGACY_VENDOR_URL = "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-20261005/${MACHINE}-vendor.img"
 HALIUM_LEGACY_VENDOR_SHA256 = "f62c1ad3540dc385c70a0ffe9dbdcf5b9b54ad03fc7da2d5f1f869e1dcecd983"
 
 # The vendor is the one of the LineageOS 21 build of github.com/nexus5x-dev
@@ -22,11 +24,10 @@ HALIUM_LEGACY_DEVICE_SHA256 = "c0b590bb080c512df48463238ed87fe11bc6accedd6473308
 
 # The arm64 GSI, not the 32-bit one android-system-image-legacy-gsi.inc picks: the vendor is
 # arm64 with a 32-bit second architecture (camera HAL and its daemon are 32-bit only). This is
-# the build android-system-image-tissot and halium-luneos-gsi-16.inc use; 20261007-1 is the first
-# with /persist, /efs and the /firmware link of its own, so the plain GSI goes with the vendor.
+# the build android-system-image-tissot and halium-luneos-gsi-16.inc use, at the version every device
+# shares; 20261007-1 was the first with /persist, /efs and the /firmware link of its own, so the plain
+# GSI goes with the vendor.
 HALIUM_LUNEOS_GSI16_ARCH = "halium_arm64"
-HALIUM_LUNEOS_GSI16_PV = "20261007-1"
-HALIUM_LUNEOS_GSI16_SHA256 = "89d73b83a161e9ef5270aab803b4120519f02144aa8df631fac0a86eaa1a84ea"
 
 # Built with RELEASE_DEPRECATE_VNDK (the ap2a release config of LineageOS 21, Android 14 QPR2):
 # no ro.vndk.version, its own copies of libbinder, libhidlbase and the rest in /vendor/lib and

@@ -3,8 +3,7 @@ require recipes-core/android-system-image/android-system-image-legacy-a9-service
 
 COMPATIBLE_MACHINE = "tenderloin-halium"
 
-# The TouchPad runs a newer 32-bit GSI than the other legacy devices, which stay on the one
-# android-system-image-legacy-gsi.inc names until their vendor images are published again: 20261008-1 gives
+# The TouchPad needed a 32-bit GSI newer than the other legacy devices had then: 20261008-1 gives
 # the restored HAL1 CameraClient VIDEO_BUFFER_MODE_BUFFER_QUEUE, the only video mode Android's CameraSource
 # uses, so its camera can record through the hardware encoder. 20261008-3, the published build, has that and
 # adds the sphal libbinder/libui link for VNDK 30 vendors and five HIDL threads in minimediaservice (a HAL1
@@ -14,9 +13,9 @@ COMPATIBLE_MACHINE = "tenderloin-halium"
 # 20261017-1 is 20261008-3 with droidmedia's buffer and codec fixes (the only file that differs) and 512 free
 # inodes instead of 64. The vendor image below, made against 20261008-3, stays: a vendor image derived against
 # either GSI has the same contents (checked on the TouchPad).
-HALIUM_LUNEOS_GSI16_PV = "20261017-1"
-HALIUM_LUNEOS_GSI16_SHA256 = "0984f47ea33ca7e058a4db7e9e5145760d5b433b19e14e8ba22a38d12648a871"
-HALIUM_LUNEOS_GSI16_RELEASE = "halium-luneos-20261005"
+# It now takes the version every device shares (halium-luneos-gsi-16.inc); the vendor image stays in
+# the halium-luneos-20261005 release it was published in.
+HALIUM_LEGACY_VENDOR_URL = "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-20261005/${MACHINE}-vendor.img"
 
 # The vendor image published with the GSI (tenderloin-halium-vendor.img in its release), made by the settings below
 # against that GSI. See android-system-image-legacy-gsi.inc for how to make a new one.

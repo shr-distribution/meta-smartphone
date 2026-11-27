@@ -5,8 +5,27 @@
 # FUNCTIONFS_BIND that never comes, and a phone that is plugged back in charges
 # but is not seen by the host at all.
 #
+# The cable is not the only way there. A USB reset from the host does the same
+# with the cable still in: adbd gets FUNCTIONFS_DISABLE, closes ep0 and opens it
+# again, and the gadget is gone. libmtp resets the device whenever opening an
+# MTP session fails, so on the Zinwa Q25 one failed File Transfer attempt took
+# adb and MTP down until the cable was pulled. No power supply event comes for
+# that, so udev also runs this when the UDC itself changes state (udc "change",
+# which the kernel sends on every unbind and bind).
+#
 # Run by udev on every power supply change, so leave at once when there is
 # nothing to do.
 udc=/sys/kernel/config/usb_gadget/g1/UDC
-[ -e "$udc" ] && [ -z "$(cat "$udc")" ] || exit 0
+[ -e "$udc" ] || exit 0
+# The kernel sends the udc uevent as the unbind starts
+# (usb_gadget_remove_driver), before configfs clears UDC, so UDC can still read
+# bound when this runs. Give the unbind half a second to finish.
+if [ "$1" = "udc" ]; then
+    i=0
+    while [ -n "$(cat "$udc")" ] && [ $i -lt 5 ]; do
+        usleep 100000
+        i=$((i + 1))
+    done
+fi
+[ -z "$(cat "$udc")" ] || exit 0
 exec /usr/bin/android-gadget-setup rebind

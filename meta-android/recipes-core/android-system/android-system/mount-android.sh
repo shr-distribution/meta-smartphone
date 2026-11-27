@@ -438,9 +438,17 @@ fi
 # Measured on sargo (sdm670, CONFIG_IPC_ROUTER, no QRTR): with "net" kept, netmgrd
 # creates rmnet_data0.. and mobile data comes up.
 #
+# MediaTek is the same story with other names. The modem's data interfaces are
+# ccmni0.., and the vendor RIL (mtkfusionrild, its NetAgentService) configures
+# them itself. In the container's own namespace every SIOCGIFFLAGS on ccmni0
+# fails with ENODEV, the RIL logs "updatePdnInformation failed" and every
+# setupDataCall fails (ofono: "Unexpected data call status 65535"). Seen on the
+# mindphone (MT6739, Android 11 vendor); brax3 and the Titan ship the same RIL.
+#
 # The config is built once for the generic rootfs, so decide here, per device:
 # a kernel that offers QRTR plus a vendor that ships rmt_storage (QMI over QRTR),
-# or a vendor that ships netmgrd, get the host's network namespace.
+# a vendor that ships netmgrd, or a MediaTek modem (a mtk*rild in the vendor, or
+# ccmni interfaces on the host) get the host's network namespace.
 # LUNEOS_LXC_KEEP_NET=0/1 overrides.
 lxc_config=/var/lib/lxc/android/config
 keep_net=${LUNEOS_LXC_KEEP_NET:-}
@@ -453,6 +461,15 @@ if [ -z "$keep_net" ]; then
     elif [ -e "$ANDROID_ROOT/vendor/bin/netmgrd" ]; then
         keep_net=1
         keep_net_why="netmgrd"
+    else
+        for f in "$ANDROID_ROOT"/vendor/bin/hw/mtk*rild "$ANDROID_ROOT"/vendor/bin/mtk*rild \
+                 /sys/class/net/ccmni0; do
+            if [ -e "$f" ]; then
+                keep_net=1
+                keep_net_why="MediaTek modem (${f##*/})"
+                break
+            fi
+        done
     fi
 fi
 if [ -w "$lxc_config" ]; then

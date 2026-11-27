@@ -6,8 +6,6 @@ COMPATIBLE_MACHINE = "^vince-halium$"
 # is arm64 with a 32-bit second architecture (the camera HAL is 32-bit only:
 # BOARD_QTI_CAMERA_32BIT_ONLY). It carries VNDK 30, which is what this vendor needs.
 HALIUM_LUNEOS_GSI16_ARCH = "halium_arm64"
-HALIUM_LUNEOS_GSI16_PV = "20261017-1"
-HALIUM_LUNEOS_GSI16_SHA256 = "dc789b56a4709ae3081473fc5e897aa3bf9d919b73e12ad7c64288386104dd45"
 
 # The vendor image published with the GSI (vince-halium-vendor.img in its release).
 #
@@ -25,6 +23,8 @@ HALIUM_LUNEOS_GSI16_SHA256 = "dc789b56a4709ae3081473fc5e897aa3bf9d919b73e12ad7c6
 # the-muppets/proprietary_vendor_xiaomi (lineage-18.1, 5ef13fcc). vendor/samsung and device/samsung are hidden from soong for
 # that build: a3lte's global 32-bit prebuilts break an arm64 product. The image is the
 # sparse build output unpacked and shrunk to its contents (resize2fs -M).
+# Published in the halium-luneos-20261005 release, where it stays as the GSI moves on.
+HALIUM_LEGACY_VENDOR_URL = "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-20261005/${MACHINE}-vendor.img"
 HALIUM_LEGACY_VENDOR_SHA256 = "e568132fc048ae7a93c323cab3fe276a05ec196e81464970ad2515cab404c5ea"
 
 # android-system-image-legacy-gsi.inc wants these for deriving, which this recipe never does.

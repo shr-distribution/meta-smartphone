@@ -190,35 +190,21 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=bbea815ee2795b2f4230826c0c6b8814"
 #   BUILD_PATH = /usr/lib/llvm-android-12.0-r416183b/bin
 #
 # i.e. Android Clang r416183b, which is the SAME release q25, mp01, bramble and
-# sunfish already pin, so it is on disk already:
-#
-#   GKI_CLANG_DIR:radon = "/home/herrie/Documents/GitHub/luneos-gki-toolchain-android12-5.10/prebuilts-master/clang/host/linux-x86/clang-r416183b"
-#
-# Put that in local.conf next to the others. do_check_toolchain below fails
-# early and legibly rather than letting a GCC build get halfway.
+# sunfish already pin. radon.conf sets GKI_CLANG_VERSION, so the out-of-tree
+# modules get the same compiler; gki-clang.bbclass fetches it, and its
+# do_check_toolchain fails early and legibly rather than letting a GCC build
+# get halfway.
 #
 # Modelled on linux-google-sunfish_git.bb rather than on q25: sunfish is the
 # other machine here that keeps kernel.bbclass and kernel_android (because it
 # too needs a header v2 boot image with a dtb section, which
 # gki_bootimg.bbclass cannot write) and swaps only the toolchain. q25's
 # wholesale KERNEL_MAKE override belongs to the GKI path and is not wanted here.
-GKI_CLANG_VERSION ?= "r416183b"
-GKI_CLANG_DIR ?= ""
-
-python do_check_toolchain() {
-    clang_dir = d.getVar("GKI_CLANG_DIR")
-    if not clang_dir:
-        bb.fatal("GKI_CLANG_DIR is not set. This kernel must be built with "
-                 "Google's Clang %s - see the comment in %s."
-                 % (d.getVar("GKI_CLANG_VERSION"), d.getVar("FILE")))
-    if not os.path.exists(os.path.join(clang_dir, "bin", "clang")):
-        bb.fatal("GKI_CLANG_DIR %s has no bin/clang" % clang_dir)
-}
-addtask check_toolchain before do_configure
+inherit gki-clang
 
 # Prepended for every task rather than exported in each one: do_configure,
 # do_compile and do_compile_kernelmodules all invoke the compiler.
-PATH =. "${GKI_CLANG_DIR}/bin:"
+PATH =. "${GKI_CLANG_BINDIR}:"
 
 # kernel-arch.bbclass builds these out of ${HOST_PREFIX}gcc. Keep everything it
 # puts in them - the -ffile-prefix-map pair is what keeps build paths out of the
@@ -303,52 +289,42 @@ S = "${UNPACKDIR}/${BP}"
 
 SRC_URI = "git://github.com/furilabs/linux-furiphone-radon.git;branch=forky;protocol=https \
            file://luneos.cfg \
-           file://0001-input-kpd_customkey-release-the-wakeup-source-uncondi.patch \
-           file://0002-input-kpd_customkey-run-the-key-handler-in-a-thread.patch \
-           file://0003-input-kpd_customkey-report-switch-state-at-probe.patch \
+           file://0001-ALSA-pcm-treat-a-stop-threshold-of-UINT_MAX-as-never.patch \
 "
 
-# Carried as a patch against FuriLabs' own branch rather than on a fork. The
-# older devices in this tree share one shr-distribution/linux.git monorepo, but
-# every port that tracks a vendor or LineageOS repo keeps its changes as files
-# here (sunfish, surya), which leaves SRCREV pinned upstream and the change
-# trivially sendable to FuriLabs instead of needing a rebase forever.
+# 0001 lets the 64-bit MediaTek audio HAL start the modem's PCM streams, without
+# which a call has no audio. Android runs that HAL as a 32-bit process and never
+# hits this.
 #
-# Three fixes to kpd_customkey.c, the ODM driver behind the FLX1s privacy
-# switches (cam_switch on GPIO 51, nwk_switch on GPIO 52). Each carries its own
-# measurement in its commit message:
+# The fixes LuneOS carried here as patches 0001-0008 are merged in FuriLabs'
+# forky (pull requests #1-#8, 17 Nov 2026), so the pin below has them:
 #
-#   0001  a leaked wakeup source. The release was guarded on a global shared by
-#         every key, and when the last edge left the GPIO low it was skipped
-#         entirely - so one flip of either switch pinned the device awake for
-#         the rest of the uptime, while dmesg claimed the lock was released.
-#   0002  the handler slept in hard IRQ context (cancel_delayed_work_sync and
-#         mutex_lock under devm_request_irq). Now a threaded IRQ.
-#   0003  switch state was never reported at probe, so the input core started
-#         at 0 with a latched switch already held and swallowed the first
-#         transition as a duplicate - the first flip after boot produced no
-#         event at all, and EVIOCGKEY disagreed with the sysfs attributes.
+#   - three to kpd_customkey.c, the ODM driver behind the FLX1s privacy
+#     switches: a leaked wakeup source that kept the device awake after one
+#     flip, a handler that slept in hard IRQ context, and a switch state never
+#     reported at probe, which swallowed the first flip after boot;
+#   - upstream af4edb1d50c6 and 71bb9ab6e351 (silence_suspend), which end the
+#     "Synchronizing SCSI cache" loop on the rootfs's UFS LU, journald's
+#     writes having woken it again each time. It adds a bit to struct
+#     scsi_device, so the CRCs of exported SCSI symbols moved; radon loads no
+#     prebuilt module (lsmod shows three, all from this tree);
+#   - conninfra's and mt635x-auxadc_v1's ratelimits, which only gated a debug
+#     message yet logged "callbacks suppressed" at KERN_WARNING;
+#   - net/optr registered in init_net only, not leaked in every network
+#     namespace.
 #
-# 0003 changes what userspace sees, deliberately: it is what makes evdev usable
-# on these switches. The killswitch daemon should still poll the sysfs
-# attributes, because the driver never calls sysfs_notify() either.
-#
-# Safe against the CRC/KMI worry that governs the GKI machines: this changes
-# function bodies in a driver that is built in (CONFIG_KEYBOARD_CUSTOMKEY=y) and
-# exports no symbols, so no __crc_* value, no module_layout CRC and no vermagic
-# can move. Verified by diffing Module.symvers across the rebuild - identical.
-# It would not matter here anyway: radon loads no prebuilt vendor modules at all
-# (lsmod shows three, all from this tree), because its MediaTek connectivity
-# drivers are built in rather than force-loaded - see the CONFIG_MTK_COMBO note
-# in mtk-connectivity. Do not read this as licence to change config symbols,
-# which is where struct layouts and CRCs really do move.
+# Carry a new change the same way - as a patch here, sent to FuriLabs - rather
+# than on a fork, and drop it when it is merged.
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-# furilabs/linux-furiphone-radon forky, "defconfig: bump CMA to 64",
-# 7 Sep 2026. "forky" is FuriLabs' release branch name (Debian forky), not a
-# device name - the same branch name is used across all their repositories.
-SRCREV = "5144e9240df3126e011c114e50f0b18e6d54b64d"
+# furilabs/linux-furiphone-radon forky, "Merge pull request #8 from
+# Herrie82/ipv6-optr-sysctl-init-net", 17 Nov 2026: the tree the previous pin
+# (5144e924, "defconfig: bump CMA to 64") built with patches 0001-0008 applied,
+# file for file, so the kernel is the same and MACHINE_KERNEL_PR stays. "forky"
+# is FuriLabs' release branch name (Debian forky), not a device name - the same
+# branch name is used across all their repositories.
+SRCREV = "952241c1cfcadb7d8186bc3634f866bebc393e55"
 
 LINUX_VERSION = "4.19"
 KV = "4.19.325"

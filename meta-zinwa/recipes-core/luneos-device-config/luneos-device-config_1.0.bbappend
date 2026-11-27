@@ -20,11 +20,17 @@
 # the case.
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SRC_URI += "file://Q25-deviceinfo"
+# Q25-libncicore.conf lands in the adaptation's sparse/ tree, which
+# luneos-device-config overlays onto / when the codename matches: the ST21NFC
+# rejects nfcd's default RF_DISCOVER until NFC-F is left out (see the file).
+SRC_URI += "file://Q25-deviceinfo file://Q25-libncicore.conf"
 
 do_install:append() {
     install -d ${D}${datadir}/luneos/adaptations/Q25
     install -m 0644 ${UNPACKDIR}/Q25-deviceinfo \
         ${D}${datadir}/luneos/adaptations/Q25/deviceinfo
+    install -d ${D}${datadir}/luneos/adaptations/Q25/sparse/etc
+    install -m 0644 ${UNPACKDIR}/Q25-libncicore.conf \
+        ${D}${datadir}/luneos/adaptations/Q25/sparse/etc/libncicore.conf
     ln -sfn Q25 ${D}${datadir}/luneos/adaptations/q25
 }

@@ -23,10 +23,13 @@
 #   KERNEL_TOOLCHAIN = "clang"
 #   INHERIT += "kernel-clang-toolchain"
 #
-# GKI_CLANG_DIR is the one the kernel recipe already uses. The settings are
-# applied in anonymous python, after kernel-arch.bbclass's assignments, and only
-# to the recipes that run kbuild against the kernel, so the prebuilt Clang does
-# not go in front of PATH for every other recipe of the machine.
+# and set GKI_CLANG_VERSION in the machine configuration too, not only in the
+# kernel recipe: these recipes resolve the compiler from it the same way the
+# kernel does (lib/halium/gkiclang.py), and depend on the same
+# android-clang-<rev>-native. The settings are applied in anonymous python,
+# after kernel-arch.bbclass's assignments, and only to the recipes that run
+# kbuild against the kernel, so the prebuilt Clang does not go in front of PATH
+# for every other recipe of the machine.
 #
 # A staged .config that a GCC make-mod-scripts has already rewritten does not
 # heal: LTO_CLANG and CFI_CLANG default to n, so syncconfig with Clang does not
@@ -43,12 +46,16 @@ python __anonymous() {
             or d.getVar('PN') == 'make-mod-scripts'):
         return
 
-    clang_dir = d.getVar('GKI_CLANG_DIR')
-    if not clang_dir:
-        bb.fatal("KERNEL_TOOLCHAIN is clang but GKI_CLANG_DIR is not set; "
-                 "use the one the kernel recipe is built with")
+    if not d.getVar('GKI_CLANG_VERSION') and not d.getVar('GKI_CLANG_DIR'):
+        bb.fatal("KERNEL_TOOLCHAIN is clang but neither GKI_CLANG_VERSION nor "
+                 "GKI_CLANG_DIR is set; set GKI_CLANG_VERSION in the machine "
+                 "configuration to the kernel's")
 
-    d.prependVar('PATH', clang_dir + '/bin:')
+    # Clang only: these recipes never used the kernel-build-tools.
+    d.appendVar('DEPENDS', ' ' + ' '.join(
+        dep for dep in halium.gkiclang.depends(d)
+        if dep.startswith('android-clang-')))
+    d.prependVar('PATH', '${@halium.gkiclang.clang_root(d)}/bin:')
 
     # kernel-arch.bbclass's flags minus -fcanon-prefix-map, which only GCC 12+
     # knows; the same KERNEL_CC the Clang kernel recipes use.

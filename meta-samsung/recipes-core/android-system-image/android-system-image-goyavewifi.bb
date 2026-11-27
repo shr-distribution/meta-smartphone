@@ -1,14 +1,11 @@
 require recipes-core/android-system-image/android-system-image-legacy-gsi.inc
 
-# The same 32-bit GSI the Galaxy A3 (2015) pins (see android-system-image-a3-2015-halium.bb for what 20261008-3
-# has over the shared include's default): the sphal namespace links libbinder.so and libui.so from the VNDK
+# The 32-bit GSI every device shares (halium-luneos-gsi-16.inc). It needs 20261008-3 or later (see
+# android-system-image-a3-2015-halium.bb): the sphal namespace links libbinder.so and libui.so from the VNDK
 # APEX, which a vendor's gralloc needs.
 # 20261017-1 is 20261008-3 with droidmedia's buffer and codec fixes (the only file that differs) and 512 free
 # inodes instead of 64. The vendor image below, made against 20261008-3, stays: a vendor image derived against
 # either GSI has the same contents (checked on the TouchPad).
-HALIUM_LUNEOS_GSI16_PV = "20261017-1"
-HALIUM_LUNEOS_GSI16_SHA256 = "0984f47ea33ca7e058a4db7e9e5145760d5b433b19e14e8ba22a38d12648a871"
-HALIUM_LUNEOS_GSI16_RELEASE = "halium-luneos-20261005"
 
 # The vendor image published with the GSI: goyavewifi-vendor-20261017.img in the halium-luneos-20261005
 # release, the UNPACKDIR/vendor.img of a build of this recipe from the 20261017-1 device tarball below against
@@ -16,7 +13,7 @@ HALIUM_LUNEOS_GSI16_RELEASE = "halium-luneos-20261005"
 # does not replace the release's older goyavewifi-vendor.img (20261008-2 tarball, without the fstab and
 # init.sc8830.rc fixes). The settings below stay as the record of how it was made; see
 # android-system-image-legacy-gsi.inc for how to make a new one.
-HALIUM_LEGACY_VENDOR_URL = "https://github.com/webOS-ports/halium-images/releases/download/${HALIUM_LUNEOS_GSI16_RELEASE}/goyavewifi-vendor-20261017.img"
+HALIUM_LEGACY_VENDOR_URL = "https://github.com/webOS-ports/halium-images/releases/download/halium-luneos-20261005/goyavewifi-vendor-20261017.img"
 HALIUM_LEGACY_VENDOR_SHA256 = "7ded73a56adda77eca4f0bf67158ba2c2f0c7c4910ddd27b407d257fc204aa36"
 
 COMPATIBLE_MACHINE = "^goyavewifi$"

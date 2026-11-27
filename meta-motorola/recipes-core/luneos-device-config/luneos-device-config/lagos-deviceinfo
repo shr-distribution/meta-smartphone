@@ -21,6 +21,28 @@ deviceinfo_display_dpi="260"
 # 1080 / 2.4). Expect to re-tune on the device.
 deviceinfo_device_pixel_ratio="1.6"
 
+# --- panel shape -----------------------------------------------------------
+# A camera hole at the top centre. The stock firmware defines it in two
+# Motorola overlays on /product/overlay, as config_mainBuiltInDisplayCutout
+# (pixels, x from the panel's centre):
+#
+#   LagosliteDisplayCutoutOverlay.apk  "M -24,0 L 24,0 L 24,70 L -24,70 Z"
+#                                      status_bar_height 40dp
+#   LagosDisplayCutoutOverlay.apk      "M -36,0 L 36,0 L 36,102 L -36,102 Z"
+#                                      status_bar_height 41dp
+#
+# Both are non-static, and something on Android picks one at boot. This phone
+# runs at ro.sf.lcd_density=280, so 1 dp = 1.75 px. Lagoslite's 40 dp status
+# bar is then exactly its 70 px cutout depth, and the product build's own
+# framework overlay (framework-res__lagos_sys__auto_generated_rro_product.apk)
+# sets 40 dp as well. Lagos's 41 dp is 72 px, short of its own 102 px cutout,
+# which only fits a density of about 400. So the lagoslite shape is the one
+# for this panel: x 360-24 = 336, 48 wide, 70 deep. UNVERIFIED ON HARDWARE:
+# check that the status bar clears the camera.
+#
+# Motorola's overlays set no rounded-corner radius, so none is declared here.
+deviceinfo_display_cutouts="336 0 48 70"
+
 # --- MediaTek vendor userspace --------------------------------------------
 # Carried over from the other MediaTek ports (MP01, Q25, radon), where each was
 # established. Recorded with what it is for, so a reader can tell whether it
@@ -36,27 +58,26 @@ deviceinfo_force_hwc2="1"
 # module-droid) runs its paths at 48 kHz.
 deviceinfo_audio_sample_rate="48000"
 
-# The vendor's audio HAL has to resolve its libraries from /vendor. Measured on
-# the second LuneOS boot (tester's live log, 11 Nov 2026): pulseaudio died with
-# SIGSEGV on all five starts, each time inside the HAL's constructor, right
-# after
+# The vendor's audio HAL needs the vendor's libtinyxml2. pulseaudio died with
+# SIGSEGV on every start, inside the HAL's constructor, right after
 #
-#   vndksupport: Loading /vendor/lib64/hw/audio.primary.mt6768.so from current
-#                namespace instead of sphal namespace.
 #   AudioALSADeviceParser: getCardName(), card name mt6768mt6358
 #   AudioALSADeviceParser: card open success
 #
-# i.e. while it parses its XML device description. This Android 15 vendor has
-# no VNDK and ships its own libxml2, libtinyxml2, libbase, libutils, libcutils
-# and libc++ in /vendor/lib64, but loaded into pulseaudio's default namespace
-# those names resolve from the GSI's /system first. HYBRIS_USE_VENDOR_NAMESPACE
-# makes them resolve from /vendor; this key is the one that emits it (see
-# 70-pulseaudio-env). The HYBRIS_PREFER_VNDK it also emits is a no-op here:
-# the vendor's plat_sepolicy_vers.txt says 202404 and the GSI's VNDK APEXes
-# stop at v34, so libhybris finds none to prefer.
-# UNVERIFIED ON HARDWARE: a hypothesis from the log, not a measured fix. If
-# pulseaudio still crashes the same way, the next step is its core dump.
-deviceinfo_hybris_prefer_vndk="1"
+# Its core dump (tester's live log, 14 Nov 2026) shows why. getCardName() puts
+# a tinyxml2::XMLDocument on the stack, sized for the vendor's tinyxml2 at
+# 0x308 bytes, but libhybris resolved libtinyxml2.so from the GSI's /system,
+# whose constructor writes out to 0x368. That overwrites getCardName()'s saved
+# registers, and ParseCardIndex() then faults storing through "this" = 0xa.
+# This key gives pulseaudio alone the vendor's copy; see 70-pulseaudio-env.
+#
+# hybris_prefer_vndk, set here before, does not help and is gone. Its two
+# variables were in pulseaudio's environment in that core and changed nothing:
+# HYBRIS_PREFER_VNDK needs a VNDK APEX at or above the vendor's sepolicy
+# version (202404) and the GSI's stop at v34, and HYBRIS_USE_VENDOR_NAMESPACE
+# only matters with an ld.config.txt, which the host has none of.
+# UNVERIFIED ON HARDWARE: the cause is read from the core, the fix not yet run.
+deviceinfo_pulseaudio_vendor_libtinyxml2="1"
 
 # The connac1x Bluetooth controller (ro.vendor.bt.platform=connac1x) advertises
 # Synchronization Train support in extended features page 2 and then rejects

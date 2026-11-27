@@ -11,7 +11,7 @@
 # "certs/signing_key.pem", which certs/Makefile generates in ${B} on the first
 # build. kernel.bbclass do_shared_workdir copies certs/signing_key.* into
 # STAGING_KERNEL_BUILDDIR, and module.bbclass's "make modules_install" signs
-# out-of-tree modules (v4l2loopback, wireguard-module, ...) from there.
+# out-of-tree modules (wireguard-module, ...) from there.
 #
 # The consequence: an out-of-tree module only loads on the kernel from the same
 # build, because the next from-scratch kernel build generates a new key. Build
@@ -23,7 +23,7 @@
 # missing key does not fail the build - it ships an unsigned module that a
 # MODULE_SIG_FORCE kernel refuses. That is what happened with the old pinned
 # key under a non-default name: do_shared_workdir copies only
-# certs/signing_key.*, so v4l2loopback for sargo was packaged unsigned.
+# certs/signing_key.*, so out-of-tree modules for sargo were packaged unsigned.
 #
 # Optional: a persistent key kept outside every layer
 # ----------------------------------------------------

@@ -1,2 +1,6 @@
 # See android-gadget-rebind. Battery level updates are not cable events.
 SUBSYSTEM=="power_supply", ACTION=="change", ATTR{type}!="Battery", RUN+="/usr/bin/android-gadget-rebind"
+# A host USB reset unbinds the gadget with no cable event at all. The bind and
+# unbind uevents carry no USB_STATE; leave the state changes some kernels send
+# through the UDC as well (see 90-storaged.rules) alone.
+SUBSYSTEM=="udc", ACTION=="change", ENV{USB_STATE}=="", RUN+="/usr/bin/android-gadget-rebind udc"

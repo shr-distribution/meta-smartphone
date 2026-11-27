@@ -34,20 +34,22 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
 # Same Clang the stock kernel was built with - its version string says
 # "Android (7284624, based on r416183b) clang version 12.0.5" - and the same one
-# TARGET_KERNEL_CLANG_VERSION names in the device's BoardConfig.mk. Set
-# GKI_CLANG_DIR:q25 in local.conf; fetch-gki-toolchain.sh populates it.
+# TARGET_KERNEL_CLANG_VERSION names in the device's BoardConfig.mk.
+# gki-clang.bbclass fetches it, and the kernel-build-tools of the same
+# common-android12-5.10 manifest (pahole is optional here: 5.10's gki_defconfig
+# sets no CONFIG_DEBUG_INFO_BTF, but its bin/ has always been on PATH).
 GKI_CLANG_VERSION ?= "r416183b"
-GKI_CLANG_DIR ?= ""
-GKI_CLANG_URI ?= ""
+GKI_BUILD_TOOLS ?= "android12-5.10"
 
 SRC_URI = "\
     git://github.com/LineageOS/android_kernel_xelex_mt6789.git;protocol=https;branch=lineage-23.2;name=kernel \
-    ${@(d.getVar('GKI_CLANG_URI') + ';name=clang;subdir=clang') if d.getVar('GKI_CLANG_URI') else ''} \
     file://vermagic.cfg;subdir=frag \
     file://0001-bbqX0kbd-Q20-symbol-layers.patch \
     file://0002-bbqX0kbd-sym-tap-emoji-key.patch \
     file://0003-bbqX0kbd-blackberry-key-as-ctrl.patch \
     file://0004-mali-r32p1-find-the-context-s-task-without-a-pid-nam.patch \
+    file://0005-Bluetooth-hci_vhci-do-not-let-the-core-suspend-a-vhc.patch \
+    file://0006-wifi-cfg80211-add-Chen-Yu-Tsai-s-regulatory-database.patch \
     file://luneos.cfg;subdir=frag \
 "
 SRCREV_kernel = "2a873a3511ee0eeead1442e60145093192a4535d"
@@ -71,7 +73,7 @@ B = "${WORKDIR}/build"
 
 DEPENDS = "elfutils-native openssl-native bc-native bison-native flex-native lz4-native python3-native"
 
-inherit deploy
+inherit deploy gki-clang
 
 COMPATIBLE_MACHINE = "^(q25)$"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
@@ -99,29 +101,6 @@ LUNEOS_KERNEL_FRAGMENT ?= "1"
 # on this same SoC. check-kmi.sh is still the gate per build. Set to "0" for a
 # shipped image if you would rather match the vendor's codegen exactly.
 KERNEL_LTO_THIN ?= "0"
-
-python do_check_toolchain() {
-    clang_dir = d.getVar("GKI_CLANG_DIR")
-    if not clang_dir and not d.getVar("GKI_CLANG_URI"):
-        bb.fatal("Neither GKI_CLANG_DIR nor GKI_CLANG_URI is set. This kernel "
-                 "must be built with Google's Clang %s - see the comment in %s."
-                 % (d.getVar("GKI_CLANG_VERSION"), d.getVar("FILE")))
-    if clang_dir and not os.path.exists(os.path.join(clang_dir, "bin", "clang")):
-        bb.fatal("GKI_CLANG_DIR %s has no bin/clang" % clang_dir)
-}
-addtask check_toolchain before do_configure
-
-def gki_clang_bin(d):
-    p = d.getVar("GKI_CLANG_DIR")
-    if p:
-        bins = [os.path.join(p, "bin")]
-    else:
-        bins = [os.path.join(d.getVar("UNPACKDIR"), "clang",
-                             "clang-" + d.getVar("GKI_CLANG_VERSION"), "bin")]
-    tools = d.getVar("GKI_BUILD_TOOLS_DIR")
-    if tools:
-        bins.append(os.path.join(tools, "bin"))
-    return ":".join(bins)
 
 # OE exports its own cross toolchain and flags into every task; none of it
 # applies here and some of it is fatal. kernel.bbclass unsets the same set.
@@ -266,8 +245,21 @@ do_install() {
     # trips the debug-files QA check. Stripped with the toolchain that built it:
     # OE's strip does not understand a module built outside its cross
     # environment.
-    ${@gki_clang_bin(d).split(':')[0]}/llvm-strip --strip-debug \
+    ${GKI_CLANG_BINDIR}/llvm-strip --strip-debug \
         ${D}${nonarch_base_libdir}/modules/bbqX0kbd.ko
+
+    # cfg80211, the same way and for the same reason: it is in the stock
+    # vendor_boot ramdisk's modules.load, so the patch (0006, the regulatory
+    # database certificate of wireless-regdb's current maintainer) only
+    # reaches the device if our build replaces the vendor's. The stock module
+    # knows only the old certificate, rejects the regulatory.db LuneOS ships,
+    # and leaves Wi-Fi in the world domain. Its interface is the stock one:
+    # all 129 exported symbol CRCs and the vermagic match the vendor's
+    # cfg80211.ko, which mac80211 and wlan_drv_gen4m_6789 import from.
+    install -m 0644 ${B}/net/wireless/cfg80211.ko \
+        ${D}${nonarch_base_libdir}/modules/cfg80211.ko
+    ${GKI_CLANG_BINDIR}/llvm-strip --strip-debug \
+        ${D}${nonarch_base_libdir}/modules/cfg80211.ko
 
     # The Mali driver, patched (0004) so that a GPU context can be created from
     # inside a pid namespace - without it Android in Waydroid never boots. It
@@ -280,7 +272,7 @@ do_install() {
     install -d ${D}${nonarch_base_libdir}/modules/vendor_dlkm-override
     install -m 0644 ${B}/drivers/gpu/mediatek/gpu_mali/mali_valhall/mali-r32p1/drivers/gpu/arm/midgard/mali_kbase_mt6789.ko \
         ${D}${nonarch_base_libdir}/modules/vendor_dlkm-override/mali_kbase_mt6789.ko
-    ${@gki_clang_bin(d).split(':')[0]}/llvm-strip --strip-debug \
+    ${GKI_CLANG_BINDIR}/llvm-strip --strip-debug \
         ${D}${nonarch_base_libdir}/modules/vendor_dlkm-override/mali_kbase_mt6789.ko
 }
 
@@ -288,7 +280,7 @@ do_install() {
 # (ANDROID_EXTRA_INITRAMFS_IMAGE_INSTALL), the override into the rootfs
 # (MACHINE_EXTRA_RRECOMMENDS), both set in q25.conf.
 PACKAGES =+ "${PN}-vendor-dlkm-override"
-FILES:${PN} = "${nonarch_base_libdir}/modules/bbqX0kbd.ko"
+FILES:${PN} = "${nonarch_base_libdir}/modules/bbqX0kbd.ko ${nonarch_base_libdir}/modules/cfg80211.ko"
 FILES:${PN}-vendor-dlkm-override = "${nonarch_base_libdir}/modules/vendor_dlkm-override"
 
 # We strip it ourselves, above; OE's strip and debug-split cannot.

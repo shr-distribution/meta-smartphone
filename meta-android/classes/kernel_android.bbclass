@@ -42,7 +42,10 @@ ANDROID_BOOTIMG_DTB ?= ""
 # boot.img ends in an AVB footer, as on MediaTek's Android 11 devices. The
 # footer is unsigned (algorithm NONE), so verification still has to be
 # disabled in the top-level vbmeta; see lib/halium/avb.py for why it is
-# written at all.
+# written at all. Set it too where there is no vbmeta partition and the stock
+# boot.img's footer is the top-level vbmeta (the original Unihertz Titan): the
+# footer's vbmeta says verification is disabled, so lk can still load
+# recovery and dtbo, which it then has no descriptors for.
 #
 # The deployed image grows to exactly this size, so flash it as a whole.
 ANDROID_BOOTIMG_AVB_PARTITION_SIZE ?= ""

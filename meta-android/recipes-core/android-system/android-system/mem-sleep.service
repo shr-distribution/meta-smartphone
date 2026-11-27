@@ -1,12 +1,9 @@
 [Unit]
 Description=Select deep (suspend-to-RAM) as the system suspend state
 ConditionPathExists=/sys/power/mem_sleep
-# Must be settled before anything can ask for a suspend.
 Before=sleepd.service
 
 [Service]
-Type=oneshot
-RemainAfterExit=yes
 # /sys/power/mem_sleep only lists "deep" once the platform has registered its
 # suspend ops, which on Halium kernels happens well after local filesystems
 # are up. A tmpfiles "w-" line therefore ran too early and wrote into a file
@@ -14,6 +11,14 @@ RemainAfterExit=yes
 # ran systemd-tmpfiles without an error and left [s2idle] selected, while the
 # identical write by hand three minutes later selected deep and stuck. Wait
 # for the state to appear rather than firing once and hoping.
+#
+# Wait in the background (Type=simple), not as a oneshot: a kernel that has
+# no deep state at all - the BraX3's MT6835 GKI kernel offers s2idle only -
+# runs the loop to its end, and as a oneshot wanted by multi-user.target that
+# held up boot by the full 30 s. Nothing can suspend that early in boot
+# anyway: sleepd only suspends after the display has gone off.
+Type=simple
+RemainAfterExit=yes
 ExecStart=/bin/sh -c 'i=0; while [ $i -lt 30 ]; do \
     if grep -qw deep /sys/power/mem_sleep; then \
         printf deep > /sys/power/mem_sleep; \

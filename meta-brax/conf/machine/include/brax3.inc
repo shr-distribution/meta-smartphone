@@ -45,8 +45,11 @@ KERNEL_LTO_THIN = "1"
 
 # Touchscreen phone, no physical keyboard. NFC (sec-nfc in the device tree) and
 # a FocalTech fingerprint reader (focaltech,fpspi; focaltech_fp.ko) are in the
-# stock hardware description.
-MACHINE_FEATURES = "alsa bluetooth gps usbgadget usbhost phone wifi vfat ext2 touchscreen nfc fingerprint"
+# stock hardware description. One nano-SIM tray, and an eUICC beside it: the
+# iodeOS vendor ships android.hardware.telephony.euicc.xml and runs the radio
+# as DSDS (persist.radio.multisim.config=dsds, IRadio*/slot1 and slot2), so the
+# second slot has no tray. Which slot is the eUICC is not yet measured.
+MACHINE_FEATURES = "alsa bluetooth gps usbgadget usbhost phone wifi vfat ext2 touchscreen nfc fingerprint esim"
 MACHINE_FEATURES += "camera-rear camera-front"
 
 # 720x1612. All four panel drivers the device ships (huayin ft8057s, huike and

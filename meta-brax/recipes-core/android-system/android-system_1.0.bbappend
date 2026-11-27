@@ -7,13 +7,21 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 # list is installed under both names.
 SRC_URI:append:brax3 = " file://stubbed-services-brax3"
 
+# The health HAL without its 10-minute wake alarm, under the per-codename
+# directory 65-extra-init reads (see the file itself), under both codenames.
+SRC_URI:append:brax3 = " file://health-no-wake-alarm-brax3.rc"
+
 # PACKAGE_ARCH is MACHINE_ARCH, so this bumps the revision of the brax3
 # package alone.
-PR:append:brax3 = ".1"
+PR:append:brax3 = ".2"
 
 do_install:append:brax3() {
     install -d ${D}${localstatedir}/lib/lxc/android/stubbed-services.d
     install -m 0644 ${UNPACKDIR}/stubbed-services-brax3 \
         ${D}${localstatedir}/lib/lxc/android/stubbed-services.d/brax3
     ln -sfn brax3 ${D}${localstatedir}/lib/lxc/android/stubbed-services.d/BraX3
+    install -d ${D}${localstatedir}/lib/lxc/android/extra-init.d/brax3
+    install -m 0644 ${UNPACKDIR}/health-no-wake-alarm-brax3.rc \
+        ${D}${localstatedir}/lib/lxc/android/extra-init.d/brax3/health-no-wake-alarm.rc
+    ln -sfn brax3 ${D}${localstatedir}/lib/lxc/android/extra-init.d/BraX3
 }

@@ -129,6 +129,18 @@ deviceinfo_alsa_mixer_init="Lineout Volume=10,10;Headset Volume=10,10;Handset Vo
 # does come up without it, delete the line rather than leaving it to rot.
 deviceinfo_bluebinder_ext_features_page_2_mask="0x0400000000000000"
 
+# The MediaTek extension (ofono-binder-plugin-ext-mtk) for VoLTE and SMS over
+# IMS, through the vendor's HIDL mtkradioex@3.0 (IMtkRadioEx/imsSlotN on
+# /dev/hwbinder). Seen on 27 Nov 2026 with Odido: IMS registered, voice capable.
+# The duplicate IMS SMS of 24 Nov came from poor signal and other issues since
+# resolved, not from the extension.
+#
+# Wi-Fi calling is not on: the vendor leaves wifi.interface empty, so the
+# extension never tells the modem about Wi-Fi, and even with that set (and
+# ":wfcPreference=wifi" here) the modem has not yet asked epdg_wod for the
+# ePDG tunnel.
+deviceinfo_binder_ext_plugin="mtk"
+
 # --- the BlackBerry toolbelt ------------------------------------------------
 # What the four toolbelt keys mean, where they differ from the obvious reading.
 #
@@ -187,6 +199,15 @@ deviceinfo_keyboard_layout="QWERTY"
 # MEASURED on this device (11 Nov 2026): with this set, covering the sensor
 # dims the screen and uncovering it brings it back.
 deviceinfo_has_als="true"
+
+# No fingerprint reader, whatever Zinwa's spec sheet says about the power key.
+# 38-fingerprint would find that out on its own - the vendor's VINTF manifest
+# declares no fingerprint HAL - but say it outright, since the spec sheet says
+# otherwise and the vendor does declare an example (virtual) face HAL, which a
+# future vendor update could match for fingerprint. Skips
+# webos-fingerprint-adapter and hides Settings > Fingerprint; biomd stays, for
+# face unlock.
+deviceinfo_has_fingerprint="false"
 
 # NOT copied from the MP01:
 #

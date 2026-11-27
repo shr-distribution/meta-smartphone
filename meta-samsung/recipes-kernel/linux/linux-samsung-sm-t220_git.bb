@@ -46,7 +46,11 @@ the OT8 common kernel"
 #  - mtk_battery: ignore the UI SOC 1% shutdown when the gauge disagrees.
 #    From the Mindphone, where a stale UI SOC made the kernel power off at
 #    1% with the battery at 4.0 V; this driver has the same shutdown path.
-SRCREV = "e5916819f947fb8147bde5d683a8ead5f8f34aa0"
+#  - wifi: cfg80211: add Chen-Yu Tsai's regulatory database certificate.
+#    Backport of upstream fb768d3b13ff and 3c2a8ebe3fe6. cfg80211 is built
+#    in and requires a signed regulatory.db; without this key it rejects the
+#    wireless-regdb LuneOS ships and Wi-Fi stays in the world domain.
+SRCREV = "4ebe27a32cb79c181f7fdf8e22ded26f3c66271f"
 
 SRC_URI = "git://github.com/shr-distribution/linux.git;branch=sm-t220/4.19/halium-12;protocol=https \
            file://luneos.cfg \

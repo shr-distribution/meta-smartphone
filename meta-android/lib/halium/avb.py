@@ -16,9 +16,22 @@
 # signature check, so verification still has to be disabled in the top-level
 # vbmeta (flags 2 or 3).
 #
+# Its own vbmeta struct says so too (flags 2, verification disabled), because
+# on some devices it *is* the top-level vbmeta. The original Unihertz Titan
+# (MT6771, Android 10) has no vbmeta partition: lk takes the top-level vbmeta
+# from boot's footer, and stock's lists hash descriptors for boot, dtbo and
+# recovery. Ours listed only boot, with flags 0, so a recovery boot (Volume Up)
+# found no descriptor for "recovery" and lk hung on the logo until its
+# watchdog reset the phone - and fastboot, reached from recovery's menu, went
+# with it. With flags 2 libavb loads a requested partition without one.
+# Measured 15 Nov 2026: recovery came up as soon as only this word changed.
+# libavb reads the flags of the top-level vbmeta only, so where boot is
+# chained from a vbmeta partition (Titan Pocket, Titan Slim) they change
+# nothing.
+#
 # The layout is external/avb/libavb/avb_footer.h, avb_vbmeta_image.h and
 # avb_hash_descriptor.h, all big-endian. Byte-identical to avbtool 1.3.0
-# (external/avb main) run with --salt set to the image's SHA-256.
+# (external/avb main) run with --salt set to the image's SHA-256 and --flags 2.
 
 import hashlib
 import struct
@@ -26,6 +39,7 @@ import struct
 BLOCK_SIZE = 4096
 FOOTER_SIZE = 64
 RELEASE_STRING = b"avbtool 1.3.0"
+AVB_VBMETA_IMAGE_FLAGS_VERIFICATION_DISABLED = 2
 
 
 def _hash_descriptor(partition_name, image_size, salt, digest):
@@ -52,7 +66,7 @@ def _vbmeta_unsigned(descriptors):
         # descriptors, because that is where avbtool puts them.
         0, 0, 0, 0, len(descriptors), 0, len(descriptors), 0,
         0, len(descriptors),
-        0, 0, 0,
+        0, AVB_VBMETA_IMAGE_FLAGS_VERIFICATION_DISABLED, 0,
         RELEASE_STRING)
     assert len(header) == 256
     return header + aux

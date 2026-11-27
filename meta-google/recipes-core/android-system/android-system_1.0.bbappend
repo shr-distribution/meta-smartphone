@@ -1,12 +1,24 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-# sargo, sunfish and bramble build no rootfs of their own - see their machine
-# confs - so their stub lists ship in the generic one, under the per-codename
-# directory 50-stub-services looks in. On any other device running this image
-# the codename does not match and the files are simply never read.
-SRC_URI:append:halium-arm64 = " file://stubbed-services file://stubbed-services-sunfish file://stubbed-services-bramble file://vendor-modules-sunfish"
+PR:append:sargo = ".1"
+PR:append:sunfish = ".1"
+PR:append:bramble = ".1"
 
-do_install:append:halium-arm64() {
+# sargo's, sunfish's and bramble's stub lists, under the per-codename directory
+# 50-stub-services looks in. The phones run either the generic halium-arm64
+# rootfs or an image built for their own MACHINE, so the lists ride in all of
+# them; on any other device the codename does not match and the files are
+# simply never read. With only the halium-arm64 override, the android-system
+# package of a MACHINE=sargo image (15 Nov 2026) carried no stub list at all.
+#
+# PACKAGE_ARCH is already MACHINE_ARCH, so only these machines' packages change.
+GOOGLE_STUB_SRC = " file://stubbed-services file://stubbed-services-sunfish file://stubbed-services-bramble file://vendor-modules-sunfish"
+SRC_URI:append:halium-arm64 = "${GOOGLE_STUB_SRC}"
+SRC_URI:append:sargo = "${GOOGLE_STUB_SRC}"
+SRC_URI:append:sunfish = "${GOOGLE_STUB_SRC}"
+SRC_URI:append:bramble = "${GOOGLE_STUB_SRC}"
+
+google_install_stubs() {
     install -d ${D}${localstatedir}/lib/lxc/android/stubbed-services.d
     install -m 0644 ${UNPACKDIR}/stubbed-services \
         ${D}${localstatedir}/lib/lxc/android/stubbed-services.d/sargo
@@ -24,4 +36,17 @@ do_install:append:halium-arm64() {
     install -d ${D}${localstatedir}/lib/lxc/android/vendor-modules.d
     install -m 0644 ${UNPACKDIR}/vendor-modules-sunfish \
         ${D}${localstatedir}/lib/lxc/android/vendor-modules.d/sunfish
+}
+
+do_install:append:halium-arm64() {
+    google_install_stubs
+}
+do_install:append:sargo() {
+    google_install_stubs
+}
+do_install:append:sunfish() {
+    google_install_stubs
+}
+do_install:append:bramble() {
+    google_install_stubs
 }

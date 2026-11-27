@@ -1,0 +1,78 @@
+From: Herman van Hazendonk <github.com@herrie.org>
+Subject: [PATCH] linker: fall back only to a VNDK APEX that is actually
+ mounted
+
+The fallback for a vendor whose sepolicy version is not its VNDK version
+picked the oldest com.android.vndk.v* name in /apex at or above the
+sepolicy version, and only then checked whether its library directory
+resolved. A name in /apex is not a mounted APEX: mount-android.sh now
+mounts only the vendor's own VNDK APEX on the host, and the other
+versions can be left as empty directories.
+
+On the FuriPhone FLX1s (radon: sepolicy 31.0, ro.vndk.version 32) an
+empty com.android.vndk.v31 sat next to a mounted v32. v31 won the scan,
+matched the sepolicy version, so the fallback was skipped and the lookup
+returned nothing. HYBRIS_PREFER_VNDK then did nothing, and pulseaudio
+died on the android::base::Basename that libnvram.so needs, as it did
+before the fallback existed (read on the device, 14 Nov 2026).
+
+Check each candidate's library directory while scanning, and take the
+oldest one that resolves.
+
+Signed-off-by: Herman van Hazendonk <github.com@herrie.org>
+Upstream-Status: Pending
+---
+ common/q/linker.cpp | 26 +++++++++++++++++---------
+ 1 file changed, 17 insertions(+), 9 deletions(-)
+
+diff --git a/common/q/linker.cpp b/common/q/linker.cpp
+index 870f06d..0e850d8 100644
+--- a/common/q/linker.cpp
++++ b/common/q/linker.cpp
+@@ -1249,11 +1249,18 @@ static const std::string& vndk_apex_lib_dir() {
+     // So use what is on the filesystem: the oldest APEX at least as new as the
+     // sepolicy version. VNDK APEXes are backward compatible for older vendors,
+     // and taking the oldest such keeps a v34 from being preferred over a v32.
++    //
++    // Only an APEX whose library directory resolves counts. A name in /apex
++    // is not a mounted APEX: the host mounts only the vendor's own VNDK APEX,
++    // and the other versions can be left as empty directories. On radon an
++    // empty com.android.vndk.v31 next to a mounted v32 won the scan, matched
++    // the sepolicy version, and so the lookup returned nothing at all.
+     long want = strtol(version.c_str(), nullptr, 10);
+     if (want > 0) {
+       DIR* apex_dir = opendir("/apex");
+       if (apex_dir != nullptr) {
+         long best = 0;
++        std::string best_path;
+         static const char kPrefix[] = "com.android.vndk.v";
+         struct dirent* ent;
+         while ((ent = readdir(apex_dir)) != nullptr) {
+@@ -1261,17 +1268,18 @@ static const std::string& vndk_apex_lib_dir() {
+           const char* digits = ent->d_name + sizeof(kPrefix) - 1;
+           if (*digits < '0' || *digits > '9') continue;
+           long have = strtol(digits, nullptr, 10);
+-          if (have >= want && (best == 0 || have < best)) best = have;
++          if (have < want || (best != 0 && have >= best)) continue;
++          std::string fallback = std::string("/apex/com.android.vndk.v") +
++                                 std::to_string(have) + kApexLibDirSuffix;
++          if (realpath(fallback.c_str(), real_path) == nullptr) continue;
++          best = have;
++          best_path = real_path;
+         }
+         closedir(apex_dir);
+-        if (best != 0 && best != want) {
+-          std::string fallback = std::string("/apex/com.android.vndk.v") +
+-                                 std::to_string(best) + kApexLibDirSuffix;
+-          if (realpath(fallback.c_str(), real_path) != nullptr) {
+-            DL_WARN("hybris: no VNDK APEX v%ld (sepolicy says %s), using v%ld",
+-                    want, version.c_str(), best);
+-            return std::string(real_path);
+-          }
++        if (best != 0) {
++          DL_WARN("hybris: no VNDK APEX v%ld (sepolicy says %s), using v%ld",
++                  want, version.c_str(), best);
++          return best_path;
+         }
+       }
+     }

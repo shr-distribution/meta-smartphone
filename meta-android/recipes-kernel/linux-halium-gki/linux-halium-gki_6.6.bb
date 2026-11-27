@@ -22,17 +22,14 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
 # The Clang the stock lagos kernel was built with, read from its version
 # string: "Android (11368308, +pgo, +bolt, +lto, +mlgo, based on r510928) clang
-# version 18.0.0 (... 477610d4d0d988e69dbc3fae4fe86bff3f07f2b5)". Machine-scope
-# GKI_CLANG_DIR in local.conf (the unscoped value is android14-6.1's r487747c);
-# the Halium 14.0 tree's prebuilts/clang/host/linux-x86/clang-r510928 is the
-# exact build.
+# version 18.0.0 (... 477610d4d0d988e69dbc3fae4fe86bff3f07f2b5)", which
+# AOSP's clang-r510928 prints exactly. gki-clang.bbclass fetches it.
 GKI_CLANG_VERSION ?= "r510928"
-GKI_CLANG_DIR ?= ""
 # pahole for CONFIG_DEBUG_INFO_BTF: the same prebuilts/kernel-build-tools the
 # 6.1 recipe uses (pahole 1.23) builds this tree, given uncompressed DWARF - see
 # DEBUG_INFO_COMPRESSED_NONE in the fragment.
-GKI_BUILD_TOOLS_DIR ?= ""
-GKI_CLANG_URI ?= ""
+GKI_BUILD_TOOLS ?= "gs-6.1"
+GKI_REQUIRE_PAHOLE = "1"
 
 # The fragment is per KMI, so it lives in its own directory ahead of the 6.1
 # recipe's files/.
@@ -40,7 +37,6 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/${BPN}-6.6:"
 
 SRC_URI = "\
     git://android.googlesource.com/kernel/common;protocol=https;nobranch=1;name=kernel \
-    ${@(d.getVar('GKI_CLANG_URI') + ';name=clang;subdir=clang') if d.getVar('GKI_CLANG_URI') else ''} \
     file://luneos_defconfig \
 "
 KMI_BRANCH ?= "android15-6.6"
@@ -60,45 +56,12 @@ LUNEOS_KERNEL_FRAGMENT ?= "1"
 
 DEPENDS = "elfutils-native openssl-native bc-native bison-native flex-native lz4-native python3-native"
 
-inherit deploy
+inherit deploy gki-clang
 
 COMPATIBLE_MACHINE = "^(lagos)$"
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 INHIBIT_DEFAULT_DEPS = "1"
 EXCLUDE_FROM_WORLD = "1"
-
-python do_check_toolchain() {
-    clang_dir = d.getVar("GKI_CLANG_DIR")
-    if not clang_dir and not d.getVar("GKI_CLANG_URI"):
-        bb.fatal("Neither GKI_CLANG_DIR nor GKI_CLANG_URI is set. This kernel "
-                 "must be built with Google's Clang %s - see the comment in "
-                 "%s." % (d.getVar("GKI_CLANG_VERSION"), d.getVar("FILE")))
-    if clang_dir:
-        if not os.path.exists(os.path.join(clang_dir, "bin", "clang")):
-            bb.fatal("GKI_CLANG_DIR %s has no bin/clang" % clang_dir)
-        if not clang_dir.rstrip("/").endswith("clang-" + d.getVar("GKI_CLANG_VERSION")):
-            bb.fatal("GKI_CLANG_DIR %s is not clang-%s; set it for this machine "
-                     "(GKI_CLANG_DIR:<machine>) in local.conf."
-                     % (clang_dir, d.getVar("GKI_CLANG_VERSION")))
-    tools = d.getVar("GKI_BUILD_TOOLS_DIR")
-    if not tools or not os.path.exists(os.path.join(tools, "bin", "pahole")):
-        bb.fatal("GKI_BUILD_TOOLS_DIR must point at a "
-                 "prebuilts/kernel-build-tools/linux-x86 containing bin/pahole "
-                 "(needed for CONFIG_DEBUG_INFO_BTF).")
-}
-addtask check_toolchain before do_configure
-
-def gki_clang_bin(d):
-    p = d.getVar("GKI_CLANG_DIR")
-    if p:
-        bins = [os.path.join(p, "bin")]
-    else:
-        bins = [os.path.join(d.getVar("UNPACKDIR"), "clang",
-                             "clang-" + d.getVar("GKI_CLANG_VERSION"), "bin")]
-    tools = d.getVar("GKI_BUILD_TOOLS_DIR")
-    if tools:
-        bins.append(os.path.join(tools, "bin"))
-    return ":".join(bins)
 
 gki_clear_oe_env() {
     unset CFLAGS CPPFLAGS CXXFLAGS LDFLAGS

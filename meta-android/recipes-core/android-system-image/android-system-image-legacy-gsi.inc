@@ -20,16 +20,16 @@ require recipes-core/android-system-image/halium-luneos-gsi-16.inc
 
 inherit halium-legacy-vendor
 
-# The 32-bit GSI is its own build on its own cadence, like mindphone's. It has to
+# The 32-bit GSI is built with the arm64 one and published under the same version. It has to
 # carry com.android.vndk.v28 for an Android 9 vendor, which the 20260830 build
 # does not. 20261005-1 is the first with a /persist directory and a /firmware link
 # of its own, so a device no longer needs them patched in; 20261005-2 adds /efs for
 # sm-t520's Samsung vendor. 20261007-1 lets the sphal namespace link libbinder.so and
 # libui.so from the VNDK 28 APEX: the TouchPad's gralloc.msm8660.so needs them, and without
 # them media.swcodec aborts and every libdroidmedia (gst-droid) client waits for ever.
+# 20261116-1 is the first version shared with every other device; the version comes from
+# halium-luneos-gsi-16.inc like everyone else's.
 HALIUM_LUNEOS_GSI16_ARCH = "halium_arm"
-HALIUM_LUNEOS_GSI16_PV = "20261007-1"
-HALIUM_LUNEOS_GSI16_SHA256 = "3f62631989cc03148725e22be84d3c60ed68f16cc8f5aef56157ee612fae5ae4"
 
 PV = "${HALIUM_LUNEOS_GSI16_PV}"
 
