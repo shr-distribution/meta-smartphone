@@ -135,11 +135,14 @@ deviceinfo_bluebinder_ext_features_page_2_mask="0x0400000000000000"
 # The duplicate IMS SMS of 24 Nov came from poor signal and other issues since
 # resolved, not from the extension.
 #
-# Wi-Fi calling is not on: the vendor leaves wifi.interface empty, so the
-# extension never tells the modem about Wi-Fi, and even with that set (and
-# ":wfcPreference=wifi" here) the modem has not yet asked epdg_wod for the
-# ePDG tunnel.
-deviceinfo_binder_ext_plugin="mtk"
+# Wi-Fi calling, Wi-Fi preferred: seen on 27 Nov 2026 with Odido, IMS
+# registered over the ePDG tunnel on wlan0, a call and SMS over Wi-Fi.
+# It needs the extension from df131b1 (wlan0 when the vendor leaves
+# wifi.interface empty), ofono-binder-plugin with IWLAN in the IMS data
+# profile's bearers (the RIL turns 0 into every RAT but IWLAN), dummy_netd
+# for epdg_wod's DNS (/dev/socket/dnsproxyd), and the firewall letting IPsec
+# traffic in. Without those it stays on LTE, as before.
+deviceinfo_binder_ext_plugin="mtk:wfcPreference=wifi"
 
 # --- the BlackBerry toolbelt ------------------------------------------------
 # What the four toolbelt keys mean, where they differ from the obvious reading.
