@@ -89,3 +89,15 @@ deviceinfo_pulseaudio_vendor_libtinyxml2="1"
 # so hci0 never finished setup and the Bluetooth service listed no adapter.
 # The same mask clears that bit in what bluebinder reports to the kernel.
 deviceinfo_bluebinder_ext_features_page_2_mask="0x0400000000000000"
+
+# VoLTE, SMS over IMS and Wi-Fi calling through the MediaTek extension
+# (ofono-binder-plugin-ext-mtk), Wi-Fi preferred. Read from the vendor image,
+# not yet run on hardware: the radio is AIDL like the BraX3's
+# (IMtkRadioExIms/slot1 and slot2, version 2), but the IMS stack and the ePDG
+# tunnel run on the Android side like the Q25's (volte_stack, volte_ua,
+# volte_imcb, volte_imsm_93, wfca, epdg_wod, charon; iwlan_operation_mode
+# AP-assisted). The tester's 15 Nov 2026 log shows all of them starting. As on
+# the Q25 it needs IWLAN in the IMS data profile's bearers (ofono-binder-plugin
+# 0037), dummy_netd for epdg_wod's DNS and the firewall letting IPsec traffic
+# in; wifi.interface is empty here too, so the extension uses wlan0.
+deviceinfo_binder_ext_plugin="mtk:wfcPreference=wifi"
